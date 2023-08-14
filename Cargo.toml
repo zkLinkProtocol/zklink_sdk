@@ -1,0 +1,22 @@
+[workspace]
+resolver = "2"
+members = [
+    "types",
+    "common",
+    "bindings/wasm",
+]
+default-members = [
+    "types",
+    "common",
+]
+
+[profile.release]
+opt-level = "s"
+debug = true
+lto = "thin"
+strip = true  # Automatically strip symbols from the binary.
+# The following configuration minimizes the size of the output packet, Reference https://github.com/johnthagen/min-sized-rust
+# opt-level = "z"
+# debug = false
+# lto = true
+# codegen-units = 1
