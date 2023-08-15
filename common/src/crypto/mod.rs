@@ -225,6 +225,21 @@ fn deserialize_signature(bytes: &[u8]) -> Result<Signature, JsValue> {
     Ok(Signature { r, s })
 }
 
+///
+/// func GenerateLayer2PrivateKeySeed(ethKey string) ([]byte, error) {
+/// 	msg := "Sign this message to create a key to interact with zkLink's layer2 services.\nNOTE: This application is powered by zkLink protocol.\n\nOnly sign this message for a trusted client!"
+///
+/// 	privateKey, _ := crypto.HexToECDSA(strings.ToLower(ethKey))
+/// 	hash := crypto.Keccak256([]byte(fmt.Sprintf("\x19Ethereum Signed Message:\n%d%s", len(msg), msg)))
+/// 	signature, err := crypto.Sign(hash, privateKey)
+/// 	signature[64] += 27
+/// 	if err != nil {
+/// 		return nil, err
+/// 	}
+///
+/// 	return signature, nil
+/// }
+
 
 #[cfg(test)]
 mod test {
@@ -232,17 +247,21 @@ mod test {
 
     #[test]
     fn test_sign() {
-        let s = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
-        let seed = hex::decode(s).unwrap();
+        // let s = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
+        // let priv_key_raw = read_signing_key(&hex::decode(s).unwrap()).unwrap();
+        // let seed = hex::decode(s).unwrap();
+        let seed = hex::decode("4e676849675aa768792f3f0cb7a993f55caea561635ceea06f8e0fc70c62b8e57adffc47ebc1a2c2377fce88d76dc51d78f7749ac12d9f8fc7bfe0ce694175c21c").unwrap();
         let priv_key_raw = private_key_from_seed(&seed).unwrap();
+        std::thread::sleep(std::time::Duration::from_secs(1));
+        println!("{priv_key_raw:?}");
         let pub_key = private_key_to_pubkey(&priv_key_raw).unwrap();
         println!("pubkey calc  : {}", hex::encode(&pub_key));
         println!("pubkey expect: 5d29e3296af85d962dbfae8f1fbdc295e5d57eb4fddb8186de7c06be8df768ac");
         let pub_key_hash = private_key_to_pubkey_hash(&priv_key_raw).unwrap();
-        println!("pubkey hash: {}", hex::encode(pub_key_hash));
-        let msg = b"abc";
-        let sig = sign_musig( &priv_key_raw, msg).unwrap();
-        let verify_result = verify_musig(msg, &sig);
+        println!("new pubkey hash: {}", hex::encode(pub_key_hash));
+        let msg :[u8; 32] = [166, 250, 15, 177, 151, 97, 14, 156, 48, 11, 76, 17, 0, 13, 17, 66, 241, 162, 16, 186, 55, 222, 87, 213, 109, 241, 137, 184, 73, 251, 47, 208];
+        let sig = sign_musig( &priv_key_raw, &msg).unwrap();
+        let verify_result = verify_musig(&msg, &sig);
         assert!(verify_result.is_ok());
     }
 }
