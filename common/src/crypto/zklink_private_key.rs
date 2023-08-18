@@ -1,3 +1,4 @@
+use crate::crypto::error::Error;
 use crate::crypto::{utils, Engine, Fs, JUBJUB_PARAMS, PACKED_POINT_SIZE};
 use ethers::core::k256::ecdsa::{Signature as EcdsaSignature, SigningKey};
 use ethers::prelude::k256::ecdsa::RecoveryId;
@@ -9,7 +10,6 @@ use franklin_crypto::eddsa::PrivateKey as FLPrivateKey;
 use franklin_crypto::eddsa::PublicKey as FlPublickKey;
 use sha2::{Digest, Sha256};
 use sha3::Keccak256;
-use wasm_bindgen::prelude::*;
 
 pub type PrivateKey = FLPrivateKey<Engine>;
 pub type PublicKey = FlPublickKey<Engine>;
@@ -22,33 +22,32 @@ fn sign_hash(data: &str) -> Vec<u8> {
     hash.as_bytes().to_vec()
 }
 
-fn person_sign(sign_key: &SigningKey, msg: &str) -> Result<(Vec<u8>, u8), JsValue> {
+fn person_sign(sign_key: &SigningKey, msg: &str) -> Result<(Vec<u8>, u8), Error> {
     let hash = sign_hash(msg);
     let hash_digest = Keccak256::new_with_prefix(hash);
     let (signature, recover_id): (EcdsaSignature, RecoveryId) = sign_key
         .sign_digest_recoverable(hash_digest)
-        .map_err(|_| JsValue::from_str("invalid secp256 private key"))?;
+        .map_err(|e| Error::InvalidPrivKey(e.to_string()))?;
     Ok((signature.to_vec(), recover_id.to_byte()))
 }
 
 /// https://stackoverflow.com/questions/69762108/implementing-ethereum-personal-sign-eip-191-from-go-ethereum-gives-different-s
-fn privkey_seed(eth_hex_private_key: &str) -> Result<Vec<u8>, JsValue> {
+fn privkey_seed(eth_hex_private_key: &str) -> Result<Vec<u8>, Error> {
     let raw_sign_key: [u8; 32] = hex::decode(eth_hex_private_key)
-        .map_err(|_| JsValue::from_str("invalid secp256 private key"))?
+        .map_err(|e| Error::InvalidPrivKey(e.to_string()))?
         .try_into()
-        .map_err(|_| JsValue::from_str("invalid secp256 private key"))?;
+        .map_err(|_| Error::InvalidPrivKey("raw eth private key should be 32 length u8 array".into()))?;
     let sign_key = SigningKey::from_slice(&raw_sign_key)
-        .map_err(|_| JsValue::from_str("invalid secp256 private key"))?;
+        .map_err(|e| Error::InvalidPrivKey(e.to_string()))?;
     let (mut signature, id) = person_sign(&sign_key, SIGN_MESSAGE)?;
     signature.push(id + 27);
     Ok(signature)
 }
 
 /// create the private key from seed
-#[wasm_bindgen(js_name = privateKeyFromSeed)]
-pub fn private_key_from_seed(seed: &[u8]) -> Result<Vec<u8>, JsValue> {
+pub fn private_key_from_seed(seed: &[u8]) -> Result<Vec<u8>, Error> {
     if seed.len() < 32 {
-        return Err(JsValue::from_str("Seed is too short"));
+        return Err(Error::InvalidSeed("seed is too short".into()));
     };
 
     let sha256_bytes = |input: &[u8]| -> Vec<u8> {
@@ -74,32 +73,31 @@ pub fn private_key_from_seed(seed: &[u8]) -> Result<Vec<u8>, JsValue> {
 }
 
 /// Zklink private key from the hex formatted eth private key
-pub fn privkey_from_eth_privkey(eth_hex_private_key: &str) -> Result<Vec<u8>, JsValue> {
+pub fn privkey_from_eth_privkey(eth_hex_private_key: &str) -> Result<Vec<u8>, Error> {
     let seed = privkey_seed(eth_hex_private_key)?;
     private_key_from_seed(&seed)
 }
 
 /// Zklink private key from a raw scalar serialized as a byte slice
-pub fn privkey_from_slice(private_key: &[u8]) -> Result<PrivateKey, JsValue> {
+pub fn privkey_from_slice(private_key: &[u8]) -> Result<PrivateKey, Error> {
     let mut fs_repr = FsRepr::default();
     fs_repr
         .read_be(private_key)
-        .map_err(|_| JsValue::from_str("couldn't read private key repr"))?;
+        .map_err(|_| Error::common("couldn't read private key repr"))?;
     let private_key = FLPrivateKey::<Engine>(
         Fs::from_repr(fs_repr).expect("couldn't read private key from repr"),
     );
     Ok(private_key)
 }
 
-fn privkey_to_pubkey_internal(private_key: &[u8]) -> Result<PublicKey, JsValue> {
+fn privkey_to_pubkey_internal(private_key: &[u8]) -> Result<PublicKey, Error> {
     let p_g = FixedGenerators::SpendingKeyGenerator;
     let sk = privkey_from_slice(private_key)?;
     Ok(JUBJUB_PARAMS.with(|params| PublicKey::from_private(&sk, p_g, params)))
 }
 
 /// get the public key from private key
-#[wasm_bindgen(js_name = privateKeyToPubkey)]
-pub fn privkey_to_pubkey(private_key: &[u8]) -> Result<Vec<u8>, JsValue> {
+pub fn privkey_to_pubkey(private_key: &[u8]) -> Result<Vec<u8>, Error> {
     let mut pubkey_buf = Vec::with_capacity(PACKED_POINT_SIZE);
 
     let pubkey = privkey_to_pubkey_internal(private_key)?;
@@ -112,8 +110,7 @@ pub fn privkey_to_pubkey(private_key: &[u8]) -> Result<Vec<u8>, JsValue> {
 }
 
 /// get the public key hash from private key
-#[wasm_bindgen(js_name = privateKeyToPubkeyHash)]
-pub fn privkey_to_pubkey_hash(private_key: &[u8]) -> Result<Vec<u8>, JsValue> {
+pub fn privkey_to_pubkey_hash(private_key: &[u8]) -> Result<Vec<u8>, Error> {
     Ok(utils::pub_key_hash(&privkey_to_pubkey_internal(
         private_key,
     )?))
