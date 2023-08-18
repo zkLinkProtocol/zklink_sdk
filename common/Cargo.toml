@@ -7,7 +7,10 @@ edition = "2021"
 
 [dependencies]
 franklin_crypto = { package = "franklin-crypto", git = "https://github.com/matter-labs/franklin-crypto.git", branch="beta"}
-rand = "0.4"
+rand = "0.8"
 hex = "0.4"
-sha2 = "0.8"
+sha2 = "0.10"
+sha3 = "0.10"
 wasm-bindgen = "0.2"
+ethers = { version = "2", features = ["rustls", "abigen"] }
+
