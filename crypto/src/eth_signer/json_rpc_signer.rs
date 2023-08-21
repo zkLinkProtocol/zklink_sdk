@@ -1,11 +1,11 @@
-use crate::error::{RpcSignerError, SignerError};
-use crate::json_rpc_signer::messages::JsonRpcRequest;
-use crate::{EthereumSigner, RawTransaction};
+use super::error::{RpcSignerError, SignerError};
+use super::json_rpc_signer::messages::JsonRpcRequest;
+use super::{EthereumSigner, RawTransaction};
 
 use jsonrpc_core::types::response::Output;
 
-use crate::eth_signature::TxEthSignature;
-use crate::packed_eth_signature::PackedEthSignature;
+use super::eth_signature::TxEthSignature;
+use super::packed_eth_signature::PackedEthSignature;
 use serde_json::Value;
 use web3::types::Address;
 
@@ -288,7 +288,7 @@ impl JsonRpcSigner {
 }
 
 mod messages {
-    use crate::RawTransaction;
+    use super::RawTransaction;
     use hex::encode;
     use serde::{Deserialize, Serialize};
     use web3::types::Address;

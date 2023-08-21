@@ -1,8 +1,8 @@
-use eth_signer::packed_eth_signature::PackedETHSignatureError;
+use crate::eth_signer::packed_eth_signature::PackedETHSignatureError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum Error {
+pub enum SignerError {
     #[error("{0}")]
     CustomError(String),
     #[error("signature failed: {0}")]
@@ -15,7 +15,7 @@ pub enum Error {
     PackedETHSignatureError(#[from] PackedETHSignatureError),
 }
 
-impl Error {
+impl SignerError {
     pub fn custom_error<T: ToString>(s: T) -> Self {
         Self::CustomError(s.to_string())
     }

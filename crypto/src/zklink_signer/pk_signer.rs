@@ -1,7 +1,7 @@
-use crate::crypto::error::Error;
-use crate::crypto::{utils, Engine, Fs, PrivateKey, PublicKey, JUBJUB_PARAMS, PACKED_POINT_SIZE};
-use eth_signer::packed_eth_signature::PackedEthSignature;
-use eth_signer::H256;
+use super::error::SignerError as Error;
+use super::{utils, Engine, Fs, PrivateKey, PublicKey, JUBJUB_PARAMS, PACKED_POINT_SIZE};
+use crate::eth_signer::packed_eth_signature::PackedEthSignature;
+use crate::eth_signer::H256;
 use franklin_crypto::alt_babyjubjub::fs::FsRepr;
 use franklin_crypto::alt_babyjubjub::FixedGenerators;
 use franklin_crypto::bellman::pairing::ff::PrimeField;

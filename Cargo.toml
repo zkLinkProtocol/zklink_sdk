@@ -2,17 +2,13 @@
 resolver = "2"
 members = [
     "types",
-    "common",
+    "crypto",
     "bindings/wasm",
-#    "wallet",
-    "eth_signer",
     "utils",
 ]
 default-members = [
     "types",
-    "common",
-#    "wallet",
-    "eth_signer",
+    "crypto",
     "utils",
 ]
 
