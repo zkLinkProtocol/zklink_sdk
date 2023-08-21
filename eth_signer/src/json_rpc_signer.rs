@@ -1,13 +1,13 @@
 use crate::error::{RpcSignerError, SignerError};
 use crate::json_rpc_signer::messages::JsonRpcRequest;
-use crate::{RawTransaction, EthereumSigner};
+use crate::{EthereumSigner, RawTransaction};
 
 use jsonrpc_core::types::response::Output;
 
-use serde_json::Value;
-use crate::packed_eth_signature::PackedEthSignature;
-use web3::types::Address;
 use crate::eth_signature::TxEthSignature;
+use crate::packed_eth_signature::PackedEthSignature;
+use serde_json::Value;
+use web3::types::Address;
 
 pub fn is_signature_from_address(
     signature: &PackedEthSignature,
@@ -290,8 +290,8 @@ impl JsonRpcSigner {
 mod messages {
     use crate::RawTransaction;
     use hex::encode;
+    use serde::{Deserialize, Serialize};
     use web3::types::Address;
-    use serde::{Serialize,Deserialize};
 
     #[derive(Debug, Serialize, Deserialize)]
     pub struct JsonRpcRequest {
@@ -378,11 +378,11 @@ mod tests {
     use serde_json::json;
 
     use super::{is_signature_from_address, messages::JsonRpcRequest};
-    use crate::{EthereumSigner, RawTransaction};
-    use crate::packed_eth_signature::PackedEthSignature;
-    use web3::types::Address;
     use crate::eth_signature::TxEthSignature;
     use crate::json_rpc_signer::JsonRpcSigner;
+    use crate::packed_eth_signature::PackedEthSignature;
+    use crate::{EthereumSigner, RawTransaction};
+    use web3::types::Address;
 
     #[post("/")]
     async fn index(req: web::Json<JsonRpcRequest>, state: web::Data<State>) -> impl Responder {
@@ -451,7 +451,7 @@ mod tests {
                     .app_data(web::Data::new(tmp_state.clone()))
                     .service(index)
             })
-                .bind(new_url.clone())
+            .bind(new_url.clone())
             {
                 server = Some(ser);
                 url = Some(new_url);
@@ -476,7 +476,7 @@ mod tests {
         let client = JsonRpcSigner::new(address, None, None, None).await.unwrap();
         let msg = b"some_text_message";
         if let TxEthSignature::EthereumSignature(signature) =
-        client.sign_message(msg).await.unwrap()
+            client.sign_message(msg).await.unwrap()
         {
             assert!(is_signature_from_address(&signature, msg, client.address().unwrap()).unwrap())
         } else {

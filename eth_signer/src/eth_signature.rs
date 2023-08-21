@@ -1,8 +1,7 @@
+use crate::eip1271_signature::EIP1271Signature;
+use crate::packed_eth_signature::PackedEthSignature;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
-use crate::packed_eth_signature::PackedEthSignature;
-use crate::eip1271_signature::EIP1271Signature;
-
 
 /// Representation of the signature secured by L1.
 /// May be either a signature generated via Ethereum private key

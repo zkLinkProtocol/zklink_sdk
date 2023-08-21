@@ -5,8 +5,8 @@ use parity_crypto::{
     Keccak256,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use web3::types::{H256, Address};
-use utils::serde::ZeroPrefixHexSerde;
+use web3::types::{Address, H256};
+use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
 
 /// Struct used for working with ethereum signatures created using eth_sign (using geth, ethers.js, etc)
 /// message is serialized as 65 bytes long `0x` prefixed string.
@@ -96,18 +96,18 @@ impl PackedEthSignature {
 
 impl Serialize for PackedEthSignature {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         let packed_signature = self.serialize_packed();
-        ZeroPrefixHexSerde::serialize(&packed_signature, serializer)
+        ZeroPrefixHexSerde::serialize(packed_signature, serializer)
     }
 }
 
 impl<'de> Deserialize<'de> for PackedEthSignature {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         let bytes = ZeroPrefixHexSerde::deserialize(deserializer)?;
         Self::deserialize_packed(&bytes).map_err(serde::de::Error::custom)

@@ -37,8 +37,8 @@ pub struct BytesToHexSerde<P> {
 
 impl<P: Prefix> BytesToHexSerde<P> {
     pub fn serialize<S>(value: impl AsRef<[u8]>, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         // First, serialize to hexadecimal string.
         let hex_value = format!("{}{}", P::prefix(), hex::encode(value));
@@ -48,13 +48,13 @@ impl<P: Prefix> BytesToHexSerde<P> {
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         let deserialized_string = String::deserialize(deserializer)?;
 
         if let Some(deserialized_string) = deserialized_string.strip_prefix(P::prefix()) {
-            hex::decode(&deserialized_string).map_err(de::Error::custom)
+            hex::decode(deserialized_string).map_err(de::Error::custom)
         } else {
             Err(de::Error::custom(format!(
                 "string value missing prefix: {:?}",
@@ -75,8 +75,8 @@ pub struct OptionBytesToHexSerde<P> {
 
 impl<P: Prefix> OptionBytesToHexSerde<P> {
     pub fn serialize<S>(value: &Option<Vec<u8>>, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         // First, serialize to hexadecimal string.
         let hex_value = value
@@ -88,8 +88,8 @@ impl<P: Prefix> OptionBytesToHexSerde<P> {
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Vec<u8>>, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         // First, deserialize a string value. It is expected to be a
         // hexadecimal representation of `Vec<u8>`.

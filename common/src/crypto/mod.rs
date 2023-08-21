@@ -3,7 +3,7 @@
 pub mod error;
 pub mod signature;
 pub mod utils;
-pub mod zklink_private_key;
+pub mod zklink_signer;
 
 use error::Error;
 pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
@@ -11,15 +11,17 @@ pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
 use franklin_crypto::rescue::bn256::Bn256RescueParams;
 use franklin_crypto::{
     alt_babyjubjub::AltJubjubBn256,
-    eddsa::{PublicKey, Signature as EddsaSignature},
+    eddsa::{PrivateKey as EddsaPrivKey, PublicKey as EddsaPubkey, Signature as EddsaSignature},
     jubjub::JubjubEngine,
 };
 
 const PACKED_POINT_SIZE: usize = 32;
-const PACKED_SIGNATURE_SIZE: usize = 64;
+const SIGNATURE_SIZE: usize = 96;
 
 pub type Fs = <Engine as JubjubEngine>::Fs;
 pub type Signature = EddsaSignature<Engine>;
+pub type PrivateKey = EddsaPrivKey<Engine>;
+pub type PublicKey = EddsaPubkey<Engine>;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -35,7 +37,7 @@ thread_local! {
 /// get the public key hash from public key
 pub fn pub_key_hash(pubkey: &[u8]) -> Result<Vec<u8>, Error> {
     let pubkey = JUBJUB_PARAMS
-        .with(|params| PublicKey::read(pubkey, params))
-        .map_err(|_| Error::common("couldn't read public key"))?;
+        .with(|params| EddsaPubkey::read(pubkey, params))
+        .map_err(|_| Error::custom_error("couldn't read public key"))?;
     Ok(utils::pub_key_hash(&pubkey))
 }

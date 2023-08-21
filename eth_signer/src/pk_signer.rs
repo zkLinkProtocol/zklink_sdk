@@ -1,11 +1,11 @@
 use crate::raw_tx::{RawTransaction, Transaction};
-use crate::{SignerError, EthereumSigner};
+use crate::{EthereumSigner, SignerError};
 
 use secp256k1::SecretKey;
 
-use crate::packed_eth_signature::PackedEthSignature;
-use web3::types::{H256, Address};
 use crate::eth_signature::TxEthSignature;
+use crate::packed_eth_signature::PackedEthSignature;
+use web3::types::{Address, H256};
 
 #[derive(Clone)]
 pub struct PrivateKeySigner {
@@ -70,7 +70,7 @@ mod test {
     use super::PrivateKeySigner;
     use super::RawTransaction;
     use crate::EthereumSigner;
-    use web3::types::{U64, H160,H256,U256};
+    use web3::types::{H160, H256, U256, U64};
 
     #[tokio::test]
     async fn test_generating_signed_raw_transaction() {

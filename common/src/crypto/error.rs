@@ -1,19 +1,25 @@
+use eth_signer::packed_eth_signature::PackedETHSignatureError;
 use thiserror::Error;
 
-#[derive(Debug, Clone, Error)]
+#[derive(Debug, Error)]
 pub enum Error {
     #[error("{0}")]
-    Common(String),
+    CustomError(String),
     #[error("signature failed: {0}")]
     InvalidSignature(String),
     #[error("invalid private key:{0}")]
     InvalidPrivKey(String),
     #[error("invalid seed:{0}")]
     InvalidSeed(String),
+    #[error("invalid eth signature: {0}")]
+    PackedETHSignatureError(#[from] PackedETHSignatureError),
 }
 
 impl Error {
-    pub fn common<T: ToString>(s: T) -> Self {
-        Self::Common(s.to_string())
+    pub fn custom_error<T: ToString>(s: T) -> Self {
+        Self::CustomError(s.to_string())
+    }
+    pub fn invalid_signature<T: ToString>(s: T) -> Self {
+        Self::InvalidSignature(s.to_string())
     }
 }
