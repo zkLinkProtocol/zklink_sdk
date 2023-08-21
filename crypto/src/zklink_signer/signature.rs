@@ -1,8 +1,8 @@
-use super::{utils, Signature, PACKED_POINT_SIZE, SIGNATURE_SIZE};
 use super::error::SignerError as Error;
 use super::ZkLinkSigner;
 use super::JUBJUB_PARAMS;
 use super::RESCUE_PARAMS;
+use super::{utils, Signature, PACKED_POINT_SIZE, SIGNATURE_SIZE};
 use franklin_crypto::alt_babyjubjub::{edwards, fs::FsRepr, FixedGenerators};
 use franklin_crypto::bellman::pairing::bn256::Bn256 as Engine;
 use franklin_crypto::bellman::pairing::ff::{PrimeField, PrimeFieldRepr};

@@ -2,22 +2,21 @@
 name = "zklink_crypto"
 version = "0.1.0"
 edition = "2021"
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+async-trait = "0.1"
+franklin_crypto = { package = "franklin-crypto", git = "https://github.com/matter-labs/franklin-crypto.git", branch = "beta" }
+hex = "0.4"
+jsonrpc-core = "17"
+parity-crypto = { version = "0.9", features = ["publickey"] }
+rand = "0.8"
+reqwest = { version = "0.11", features = ["json", "blocking"] }
+rlp = "0.5"
+secp256k1 = { version = "0.21", features = ["std", "recovery"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-hex = "0.4"
-parity-crypto = {version = "0.9", features = ["publickey"] }
-rlp = "0.5"
-reqwest = { version = "0.11", features = ["json", "blocking"] }
-thiserror = "1.0"
-jsonrpc-core = "17"
-async-trait = "0.1"
-web3 = "0.18.0"
-secp256k1 = { version = "0.21", features = ["std", "recovery"] }
-zklink_sdk_utils = { path = "../utils" }
-franklin_crypto = { package = "franklin-crypto", git = "https://github.com/matter-labs/franklin-crypto.git", branch="beta"}
-rand = "0.8"
 sha2 = "0.10"
+thiserror = "1.0"
+web3 = "0.18.0"
+zklink_sdk_utils = { path = "../utils" }

@@ -1,9 +1,9 @@
 //! Utils for signing zklink transactions.
 
 pub mod error;
+mod pk_signer;
 pub mod signature;
 pub mod utils;
-mod pk_signer;
 pub use pk_signer::ZkLinkSigner;
 
 pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
