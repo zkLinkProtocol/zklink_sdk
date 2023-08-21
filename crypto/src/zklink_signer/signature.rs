@@ -12,7 +12,7 @@ use franklin_crypto::jubjub::JubjubEngine;
 /// ZkLink signature
 /// [0..32] - packed public key of signer.
 /// [32..64] - packed r point of the signature.
-/// [64..96] - s poing of the signature.
+/// [64..96] - s point of the signature.
 pub struct ZkLinkSignature(pub [u8; SIGNATURE_SIZE]);
 
 impl ZkLinkSignature {
