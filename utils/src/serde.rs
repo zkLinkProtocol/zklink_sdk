@@ -4,27 +4,11 @@ pub trait Prefix {
     fn prefix() -> &'static str;
 }
 
-/// "sync-bl:" hex prefix
-pub struct SyncBlockPrefix;
-impl Prefix for SyncBlockPrefix {
-    fn prefix() -> &'static str {
-        "sync-bl:"
-    }
-}
-
 /// "0x" hex prefix
 pub struct ZeroxPrefix;
 impl Prefix for ZeroxPrefix {
     fn prefix() -> &'static str {
         "0x"
-    }
-}
-
-/// "sync-tx:" hex prefix
-pub struct SyncTxPrefix;
-impl Prefix for SyncTxPrefix {
-    fn prefix() -> &'static str {
-        "sync-tx:"
     }
 }
 
