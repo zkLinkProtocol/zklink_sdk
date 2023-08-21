@@ -1,15 +1,16 @@
 [workspace]
 resolver = "2"
 members = [
-    "types",
-    "crypto",
     "bindings/wasm",
+    "crypto",
+    "interface",
+    "types",
     "utils",
 ]
 default-members = [
-    "types",
     "crypto",
     "utils",
+    "types",
 ]
 
 [profile.release]
