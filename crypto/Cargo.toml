@@ -4,6 +4,13 @@ version = "0.1.0"
 edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[[bin]]
+name = "uniffi-bindgen"
+path = "uniffi-bindgen.rs"
+
+[lib]
+crate-type = ["cdylib", "staticlib", "rlib"]
+
 [dependencies]
 async-trait = "0.1"
 franklin_crypto = { package = "franklin-crypto", git = "https://github.com/matter-labs/franklin-crypto.git", branch = "beta" }
@@ -20,3 +27,12 @@ sha2 = "0.10"
 thiserror = "1.0"
 web3 = "0.18.0"
 zklink_sdk_utils = { path = "../utils" }
+uniffi = { version = "0.24", optional = true }
+uniffi_macros = { version = "0.24", optional = true }
+
+[features]
+uniffi-binding = ["uniffi", "uniffi_build", "uniffi_macros"]
+uniffi-bindgen = ["uniffi/cli"]
+
+[build-dependencies]
+uniffi_build = { version = "0.24", features=["builtin-bindgen"], optional = true }
