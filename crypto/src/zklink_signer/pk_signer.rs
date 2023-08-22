@@ -1,5 +1,5 @@
 use super::error::SignerError as Error;
-use super::{utils, Engine, Fs, PrivateKey, PublicKey, JUBJUB_PARAMS, PACKED_POINT_SIZE};
+use super::{utils, Engine, Fs, PrivateKey, PublicKey, JUBJUB_PARAMS, PACKED_POINT_SIZE, EddsaPubkey};
 use crate::eth_signer::packed_eth_signature::PackedEthSignature;
 use crate::eth_signer::H256;
 use franklin_crypto::alt_babyjubjub::fs::FsRepr;
@@ -88,19 +88,21 @@ impl ZkLinkSigner {
         let private_key = FLPrivateKey::<Engine>(
             Fs::from_repr(fs_repr).expect("couldn't read private key from repr"),
         );
-        Ok(private_key)
+        Ok(private_key.into())
     }
 
-    pub fn public_key(&self) -> Result<PublicKey, Error> {
+    pub fn get_public_key(&self) -> Result<PublicKey, Error> {
         let p_g = FixedGenerators::SpendingKeyGenerator;
         let private_key = self.private_key()?;
-        Ok(JUBJUB_PARAMS.with(|params| PublicKey::from_private(&private_key, p_g, params)))
+        let public_key = JUBJUB_PARAMS.with(|params| EddsaPubkey::<Engine>::from_private(private_key.as_ref(), p_g, params));
+        Ok(public_key.into())
     }
 
-    pub fn public_key_raw(&self) -> Result<[u8; PACKED_POINT_SIZE], Error> {
+    pub fn get_public_key_bytes(&self) -> Result<[u8; PACKED_POINT_SIZE], Error> {
         let mut pubkey_buf = Vec::with_capacity(PACKED_POINT_SIZE);
-        let pubkey = self.public_key()?;
+        let pubkey = self.get_public_key()?;
         pubkey
+            .as_ref()
             .write(&mut pubkey_buf)
             .expect("failed to write pubkey to buffer");
         let mut pubkey = [0; PACKED_POINT_SIZE];
@@ -109,8 +111,8 @@ impl ZkLinkSigner {
     }
 
     pub fn public_key_hash(&self) -> Result<Vec<u8>, Error> {
-        let public_key = self.public_key()?;
-        Ok(utils::pub_key_hash(&public_key))
+        let public_key = self.get_public_key()?;
+        Ok(utils::pub_key_hash(public_key.as_ref()))
     }
 }
 

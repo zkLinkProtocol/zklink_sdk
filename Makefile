@@ -3,7 +3,6 @@ lint:
 	cargo fmt
 	cargo clippy
 	cargo sort
-	bash -c "cd ./common && cargo sort"
 	bash -c "cd ./crypto && cargo sort"
 	bash -c "cd ./interface && cargo sort"
 	bash -c "cd ./types && cargo sort"

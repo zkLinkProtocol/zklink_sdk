@@ -2,7 +2,7 @@ use super::error::SignerError as Error;
 use super::ZkLinkSigner;
 use super::JUBJUB_PARAMS;
 use super::RESCUE_PARAMS;
-use super::{utils, Signature, PACKED_POINT_SIZE, SIGNATURE_SIZE};
+use super::{utils, Signature, EddsaSignature, PACKED_POINT_SIZE, SIGNATURE_SIZE};
 use franklin_crypto::alt_babyjubjub::{edwards, fs::FsRepr, FixedGenerators};
 use franklin_crypto::bellman::pairing::bn256::Bn256 as Engine;
 use franklin_crypto::bellman::pairing::ff::{PrimeField, PrimeFieldRepr};
@@ -33,16 +33,17 @@ impl ZkLinkSignature {
         let mut packed_full_signature = Vec::with_capacity(SIGNATURE_SIZE);
         let p_g = FixedGenerators::SpendingKeyGenerator;
         let private_key = zk_signer.private_key()?;
-        let public_key = zk_signer.public_key()?;
+        let public_key = zk_signer.get_public_key()?;
         public_key
+            .as_ref()
             .write(&mut packed_full_signature)
             .expect("failed to write pubkey to packed_point");
 
         let signature = JUBJUB_PARAMS.with(|jubjub_params| {
             RESCUE_PARAMS.with(|rescue_params| {
                 let hashed_msg = utils::rescue_hash_tx_msg(msg);
-                let seed = Seed::deterministic_seed(&private_key, &hashed_msg);
-                private_key.musig_rescue_sign(&hashed_msg, &seed, p_g, rescue_params, jubjub_params)
+                let seed = Seed::deterministic_seed(private_key.as_ref(), &hashed_msg);
+                private_key.as_ref().musig_rescue_sign(&hashed_msg, &seed, p_g, rescue_params, jubjub_params)
             })
         });
 
@@ -79,7 +80,7 @@ impl ZkLinkSignature {
             RESCUE_PARAMS.with(|rescue_params| {
                 pubkey.verify_musig_rescue(
                     &msg,
-                    &signature,
+                    signature.as_ref(),
                     FixedGenerators::SpendingKeyGenerator,
                     rescue_params,
                     jubjub_params,
@@ -105,8 +106,8 @@ impl ZkLinkSignature {
 
         let s = <Engine as JubjubEngine>::Fs::from_repr(s_repr)
             .map_err(|_| Error::invalid_signature("Failed to parse signature"))?;
-
-        Ok(Signature { r, s })
+        let s = EddsaSignature::<Engine>{ r, s };
+        Ok(s.into())
     }
 }
 
