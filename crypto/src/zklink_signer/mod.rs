@@ -5,6 +5,7 @@ mod pk_signer;
 pub mod public_key;
 pub mod signature;
 pub mod utils;
+pub mod private_key;
 
 pub use pk_signer::ZkLinkSigner;
 pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};

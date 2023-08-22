@@ -13,21 +13,9 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use sha2::{Digest, Sha256};
 use std::fmt;
 use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
-use crate::zklink_signer::EddsaPrivKey;
+use crate::zklink_signer::private_key::PrivateKey;
 
 type Fs = <Engine as JubjubEngine>::Fs;
-
-pub struct PrivateKey(EddsaPrivKey<Engine>);
-impl AsRef<EddsaPrivKey<Engine>> for PrivateKey {
-    fn as_ref(&self) -> &EddsaPrivKey<Engine> {
-        &self.0
-    }
-}
-impl From<EddsaPrivKey<Engine>> for PrivateKey {
-    fn from(value: EddsaPrivKey<Engine>) -> Self {
-        Self(value)
-    }
-}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ZkLinkSigner(Vec<u8>);
