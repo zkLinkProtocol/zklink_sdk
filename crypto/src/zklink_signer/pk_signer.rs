@@ -1,16 +1,33 @@
 use super::error::SignerError as Error;
-use super::{utils, Engine, Fs, PrivateKey, PublicKey, JUBJUB_PARAMS, PACKED_POINT_SIZE, EddsaPubkey};
+use super::{EddsaPubkey, Engine, JUBJUB_PARAMS};
 use crate::eth_signer::packed_eth_signature::PackedEthSignature;
 use crate::eth_signer::H256;
+use crate::zklink_signer::public_key::PublicKey;
 use franklin_crypto::alt_babyjubjub::fs::FsRepr;
 use franklin_crypto::alt_babyjubjub::FixedGenerators;
 use franklin_crypto::bellman::pairing::ff::PrimeField;
 use franklin_crypto::bellman::PrimeFieldRepr;
 use franklin_crypto::eddsa::PrivateKey as FLPrivateKey;
+use franklin_crypto::jubjub::JubjubEngine;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use sha2::{Digest, Sha256};
 use std::fmt;
 use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
+use crate::zklink_signer::EddsaPrivKey;
+
+type Fs = <Engine as JubjubEngine>::Fs;
+
+pub struct PrivateKey(EddsaPrivKey<Engine>);
+impl AsRef<EddsaPrivKey<Engine>> for PrivateKey {
+    fn as_ref(&self) -> &EddsaPrivKey<Engine> {
+        &self.0
+    }
+}
+impl From<EddsaPrivKey<Engine>> for PrivateKey {
+    fn from(value: EddsaPrivKey<Engine>) -> Self {
+        Self(value)
+    }
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ZkLinkSigner(Vec<u8>);
@@ -94,25 +111,9 @@ impl ZkLinkSigner {
     pub fn get_public_key(&self) -> Result<PublicKey, Error> {
         let p_g = FixedGenerators::SpendingKeyGenerator;
         let private_key = self.private_key()?;
-        let public_key = JUBJUB_PARAMS.with(|params| EddsaPubkey::<Engine>::from_private(private_key.as_ref(), p_g, params));
+        let public_key = JUBJUB_PARAMS
+            .with(|params| EddsaPubkey::<Engine>::from_private(private_key.as_ref(), p_g, params));
         Ok(public_key.into())
-    }
-
-    pub fn get_public_key_bytes(&self) -> Result<[u8; PACKED_POINT_SIZE], Error> {
-        let mut pubkey_buf = Vec::with_capacity(PACKED_POINT_SIZE);
-        let pubkey = self.get_public_key()?;
-        pubkey
-            .as_ref()
-            .write(&mut pubkey_buf)
-            .expect("failed to write pubkey to buffer");
-        let mut pubkey = [0; PACKED_POINT_SIZE];
-        pubkey.copy_from_slice(&pubkey_buf);
-        Ok(pubkey)
-    }
-
-    pub fn public_key_hash(&self) -> Result<Vec<u8>, Error> {
-        let public_key = self.get_public_key()?;
-        Ok(utils::pub_key_hash(public_key.as_ref()))
     }
 }
 
@@ -125,12 +126,12 @@ mod test {
         let eth_private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
         let eth_pk = H256::from_slice(&hex::decode(eth_private_key).unwrap());
         let zk_signer = ZkLinkSigner::new_from_eth_signer(&eth_pk).unwrap();
-        let pub_key = zk_signer.public_key_raw().unwrap();
+        let pub_key = zk_signer.get_public_key().unwrap().as_bytes();
         assert_eq!(
             hex::encode(&pub_key),
             "7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510"
         );
-        let pub_key_hash = zk_signer.public_key_hash().unwrap();
+        let pub_key_hash = zk_signer.get_public_key().unwrap().public_key_hash();
         assert_eq!(
             hex::encode(pub_key_hash),
             "d8d5fb6a6caef06aa3dc2abdcdc240987e5330fe"

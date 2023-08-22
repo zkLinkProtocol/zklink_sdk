@@ -3,12 +3,10 @@ use super::{Engine, Fr};
 use franklin_crypto::{
     bellman::{pairing::ff::PrimeField, BitIterator},
     circuit::multipack,
-    eddsa::PublicKey,
     rescue::rescue_hash,
 };
 
 const PAD_MSG_BEFORE_HASH_BITS_LEN: usize = 736;
-const NEW_PUBKEY_HASH_WIDTH: usize = 160;
 
 pub fn set_panic_hook() {
     // When the `console_error_panic_hook` feature is enabled, we can call the
@@ -70,16 +68,6 @@ pub fn append_le_fixed_width(content: &mut Vec<bool>, x: &Fr, width: usize) {
     content.extend(token_bits);
 }
 
-pub fn pub_key_hash(pub_key: &PublicKey<Engine>) -> Vec<u8> {
-    let (pub_x, pub_y) = pub_key.0.into_xy();
-    let pub_key_hash = rescue_hash_elements(&[pub_x, pub_y]);
-    let mut pub_key_hash_bits = Vec::with_capacity(NEW_PUBKEY_HASH_WIDTH);
-    append_le_fixed_width(&mut pub_key_hash_bits, &pub_key_hash, NEW_PUBKEY_HASH_WIDTH);
-    let mut bytes = pack_bits_into_bytes(&pub_key_hash_bits);
-    bytes.reverse();
-    bytes
-}
-
 fn rescue_hash_fr(input: Vec<bool>) -> Fr {
     RESCUE_PARAMS.with(|params| {
         let packed = multipack::compute_multipacking::<Engine>(&input);
@@ -89,7 +77,7 @@ fn rescue_hash_fr(input: Vec<bool>) -> Fr {
     })
 }
 
-fn rescue_hash_elements(input: &[Fr]) -> Fr {
+pub(crate) fn rescue_hash_elements(input: &[Fr]) -> Fr {
     RESCUE_PARAMS.with(|params| {
         let sponge_output = rescue_hash::<Engine>(params, input);
         assert_eq!(sponge_output.len(), 1, "rescue hash problem");
@@ -97,7 +85,7 @@ fn rescue_hash_elements(input: &[Fr]) -> Fr {
     })
 }
 
-pub fn rescue_hash_tx_msg(msg: &[u8]) -> Vec<u8> {
+pub(crate) fn rescue_hash_tx_msg(msg: &[u8]) -> Vec<u8> {
     let mut msg_bits = bytes_into_be_bits(msg);
     assert!(msg_bits.len() <= PAD_MSG_BEFORE_HASH_BITS_LEN);
     msg_bits.resize(PAD_MSG_BEFORE_HASH_BITS_LEN, false);

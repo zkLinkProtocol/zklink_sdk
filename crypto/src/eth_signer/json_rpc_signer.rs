@@ -378,10 +378,10 @@ mod tests {
     use serde_json::json;
 
     use super::{is_signature_from_address, messages::JsonRpcRequest};
-    use crate::eth_signature::TxEthSignature;
-    use crate::json_rpc_signer::JsonRpcSigner;
-    use crate::packed_eth_signature::PackedEthSignature;
-    use crate::{EthereumSigner, RawTransaction};
+    use crate::eth_signer::eth_signature::TxEthSignature;
+    use crate::eth_signer::json_rpc_signer::JsonRpcSigner;
+    use crate::eth_signer::packed_eth_signature::PackedEthSignature;
+    use crate::eth_signer::{EthereumSigner, RawTransaction};
     use web3::types::Address;
 
     #[post("/")]

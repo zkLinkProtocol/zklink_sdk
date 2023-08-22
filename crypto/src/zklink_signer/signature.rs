@@ -2,12 +2,25 @@ use super::error::SignerError as Error;
 use super::ZkLinkSigner;
 use super::JUBJUB_PARAMS;
 use super::RESCUE_PARAMS;
-use super::{utils, Signature, EddsaSignature, PACKED_POINT_SIZE, SIGNATURE_SIZE};
+use super::{utils, EddsaSignature, PACKED_POINT_SIZE, SIGNATURE_SIZE};
 use franklin_crypto::alt_babyjubjub::{edwards, fs::FsRepr, FixedGenerators};
 use franklin_crypto::bellman::pairing::bn256::Bn256 as Engine;
 use franklin_crypto::bellman::pairing::ff::{PrimeField, PrimeFieldRepr};
 use franklin_crypto::eddsa::{PublicKey, Seed};
 use franklin_crypto::jubjub::JubjubEngine;
+
+pub struct Signature(EddsaSignature<Engine>);
+impl AsRef<EddsaSignature<Engine>> for Signature {
+    fn as_ref(&self) -> &EddsaSignature<Engine> {
+        &self.0
+    }
+}
+
+impl From<EddsaSignature<Engine>> for Signature {
+    fn from(value: EddsaSignature<Engine>) -> Self {
+        Self(value)
+    }
+}
 
 /// ZkLink signature
 /// [0..32] - packed public key of signer.
@@ -43,7 +56,13 @@ impl ZkLinkSignature {
             RESCUE_PARAMS.with(|rescue_params| {
                 let hashed_msg = utils::rescue_hash_tx_msg(msg);
                 let seed = Seed::deterministic_seed(private_key.as_ref(), &hashed_msg);
-                private_key.as_ref().musig_rescue_sign(&hashed_msg, &seed, p_g, rescue_params, jubjub_params)
+                private_key.as_ref().musig_rescue_sign(
+                    &hashed_msg,
+                    &seed,
+                    p_g,
+                    rescue_params,
+                    jubjub_params,
+                )
             })
         });
 
@@ -106,7 +125,7 @@ impl ZkLinkSignature {
 
         let s = <Engine as JubjubEngine>::Fs::from_repr(s_repr)
             .map_err(|_| Error::invalid_signature("Failed to parse signature"))?;
-        let s = EddsaSignature::<Engine>{ r, s };
+        let s = EddsaSignature::<Engine> { r, s };
         Ok(s.into())
     }
 }
@@ -114,7 +133,7 @@ impl ZkLinkSignature {
 #[cfg(test)]
 mod test {
     use super::*;
-    use eth_signer::H256;
+    use crate::eth_signer::H256;
 
     #[test]
     fn test_signature() {

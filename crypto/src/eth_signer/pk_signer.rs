@@ -67,9 +67,9 @@ impl EthereumSigner for PrivateKeySigner {
 
 #[cfg(test)]
 mod test {
+    use super::EthereumSigner;
     use super::PrivateKeySigner;
     use super::RawTransaction;
-    use crate::EthereumSigner;
     use web3::types::{H160, H256, U256, U64};
 
     #[tokio::test]

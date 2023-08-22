@@ -36,3 +36,9 @@ uniffi-bindgen = ["uniffi/cli"]
 
 [build-dependencies]
 uniffi_build = { version = "0.24", features = ["builtin-bindgen"], optional = true }
+
+[dev-dependencies]
+tokio = {version = "1", features = ["full"]}
+actix-rt = "2.7"
+actix-web = "4.2"
+futures = "0.3"
