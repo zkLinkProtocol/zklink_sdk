@@ -72,8 +72,8 @@ impl Serialize for PackedPublicKey {
     where
         S: Serializer,
     {
-        let packed_point = self.as_bytes();
-        serializer.serialize_str(&hex::encode(packed_point))
+        let s = self.as_hex();
+        serializer.serialize_str(&s)
     }
 }
 
@@ -83,8 +83,9 @@ impl<'de> Deserialize<'de> for PackedPublicKey {
         D: Deserializer<'de>,
     {
         use serde::de::Error;
-        let string = String::deserialize(deserializer)?;
-        let bytes = hex::decode(string).map_err(Error::custom)?;
+        let s = String::deserialize(deserializer)?;
+        let s = s.strip_prefix("0x").unwrap_or(&s);
+        let bytes = hex::decode(&s).map_err(Error::custom)?;
         Self::from_bytes(&bytes).map_err(Error::custom)
     }
 }
