@@ -1,4 +1,8 @@
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+use num::BigUint;
+use num::bigint::ToBigInt;
+use bigdecimal::BigDecimal;
+
 /// Trait for specifying prefix for bytes to hex serialization
 pub trait Prefix {
     fn prefix() -> &'static str;
@@ -91,5 +95,35 @@ impl<P: Prefix> OptionBytesToHexSerde<P> {
                 }
             })
             .transpose()
+    }
+}
+
+
+/// Used to serialize BigUint as radix 10 string.
+#[derive(Clone, Debug)]
+pub struct BigUintSerdeAsRadix10Str;
+
+impl BigUintSerdeAsRadix10Str {
+    pub fn serialize<S>(val: &BigUint, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+    {
+        let big_dec = BigDecimal::from(val.to_bigint().unwrap());
+        BigDecimal::serialize(&big_dec, serializer)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<BigUint, D::Error>
+        where
+            D: Deserializer<'de>,
+    {
+        use serde::de::Error;
+        BigDecimal::deserialize(deserializer).and_then(|bigdecimal| {
+            let big_int = bigdecimal
+                .to_bigint()
+                .ok_or_else(|| Error::custom("Expected integer value"))?;
+            big_int
+                .to_biguint()
+                .ok_or_else(|| Error::custom("Expected positive value"))
+        })
     }
 }
