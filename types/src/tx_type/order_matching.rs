@@ -3,11 +3,12 @@ use validator::Validate;
 use serde::{Deserialize, Serialize};
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use crate::basic_types::{AccountId, SubAccountId, TokenId, SlotId, Nonce};
-use crate::tx_type::pack::{pack_fee_amount, pack_token_amount, FEE_EXPONENT_BIT_WIDTH, FEE_MANTISSA_BIT_WIDTH};
+use crate::tx_type::pack::{pack_fee_amount, pack_token_amount};
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_crypto::zklink_signer::utils::rescue_hash_orders;
 use crate::basic_types::params::{SIGNED_ORDER_BIT_WIDTH, PRICE_BIT_WIDTH, ORDERS_BYTES, SIGNED_ORDER_MATCHING_BIT_WIDTH};
-
+use crate::tx_type::format_units;
+use crate::tx_type::validator::*;
 
 /// `OrderMatching` transaction was used to match two orders.
 #[derive(Default, Debug, Clone, Serialize, Deserialize, Validate)]
@@ -174,7 +175,7 @@ impl Order {
         } else {
             format!(
                 "Order for {} {} -> {}\n",
-                format_units(&self.amount, decimals).unwrap_or_default(),
+                format_units(&self.amount, decimals),
                 quote_token,
                 based_token
             )

@@ -3,6 +3,7 @@ use num::{BigUint, Zero};
 use parity_crypto::Keccak256;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
+use crate::tx_type::validator::*;
 use crate::basic_types::{TokenId, ChainId, TimeStamp, Nonce, SubAccountId, AccountId};
 
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;

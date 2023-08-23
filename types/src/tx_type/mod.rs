@@ -14,6 +14,7 @@ pub mod transfer;
 pub mod withdraw;
 pub mod pack;
 pub mod float_convert;
+pub mod validator;
 
 
 impl Withdraw { pub const TX_TYPE: u8 = 0x03; }

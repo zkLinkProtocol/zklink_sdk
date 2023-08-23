@@ -7,6 +7,7 @@ use crate::tx_type::pack::{pack_token_amount, pack_fee_amount};
 use crate::basic_types::params::TOKEN_MAX_PRECISION;
 use crate::tx_type::ethereum_sign_message_part;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
+use crate::tx_type::validator::*;
 
 /// `Transfer` transaction performs a move of funds from one zklink account to another.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]

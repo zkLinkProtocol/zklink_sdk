@@ -7,6 +7,7 @@ use crate::basic_types::{ChainId, AccountId, SubAccountId, ZkLinkAddress, TokenI
 use crate::tx_type::pack::pack_fee_amount;
 use crate::basic_types::params::TOKEN_MAX_PRECISION;
 use crate::tx_type::ethereum_sign_message_part;
+use crate::tx_type::validator::*;
 
 /// `Withdraw` transaction performs a withdrawal of funds from zklink account to L1 account.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]

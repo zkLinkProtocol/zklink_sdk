@@ -5,7 +5,7 @@ use validator::Validate;
 use serde::{Deserialize, Serialize};
 use crate::basic_types::{ChainId, AccountId, SubAccountId, Nonce, ZkLinkAddress, TokenId, TimeStamp};
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
-
+use crate::tx_type::validator::*;
 /// `ForcedExit` transaction is used to withdraw funds from an unowned
 /// account to its corresponding L1 address.
 ///
