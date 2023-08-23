@@ -7,25 +7,17 @@ use franklin_crypto::bellman::pairing::bn256::Bn256 as Engine;
 use franklin_crypto::bellman::pairing::ff::{PrimeField, PrimeFieldRepr};
 use franklin_crypto::eddsa::PublicKey;
 use franklin_crypto::jubjub::JubjubEngine;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use crate::zklink_signer::packed_signature::PackedSignature;
 use crate::zklink_signer::public_key::PackedPublicKey;
 
-pub struct PackedSignature(EddsaSignature<Engine>);
-impl AsRef<EddsaSignature<Engine>> for PackedSignature {
-    fn as_ref(&self) -> &EddsaSignature<Engine> {
-        &self.0
-    }
-}
-
-impl From<EddsaSignature<Engine>> for PackedSignature {
-    fn from(value: EddsaSignature<Engine>) -> Self {
-        Self(value)
-    }
-}
 
 /// ZkLink signature
 /// [0..32] - packed public key of signer.
 /// [32..64] - packed r point of the signature.
 /// [64..96] - s point of the signature.
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ZkLinkSignature {
     pub pub_key: PackedPublicKey,
     pub signature: PackedSignature,
@@ -75,6 +67,8 @@ impl ZkLinkSignature {
     }
 
 }
+
+
 
 #[cfg(test)]
 mod test {

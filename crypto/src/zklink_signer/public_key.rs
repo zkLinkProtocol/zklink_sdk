@@ -4,9 +4,13 @@ use super::{EddsaPubkey, Engine};
 use crate::zklink_signer::utils::{
     append_le_fixed_width, pack_bits_into_bytes, rescue_hash_elements,
 };
+use franklin_crypto::alt_babyjubjub::{edwards, fs::FsRepr, FixedGenerators, AltJubjubBn256};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use crate::zklink_signer::{JUBJUB_PARAMS, NEW_PUBKEY_HASH_WIDTH, PACKED_POINT_SIZE};
 use crate::zklink_signer::error::ZkSignerError;
+use crate::zklink_signer::private_key::PackedPrivateKey;
 
+#[derive(Clone)]
 pub struct PackedPublicKey(EddsaPubkey<Engine>);
 impl AsRef<EddsaPubkey<Engine>> for PackedPublicKey {
     fn as_ref(&self) -> &EddsaPubkey<Engine> {
@@ -20,6 +24,16 @@ impl From<EddsaPubkey<Engine>> for PackedPublicKey {
 }
 
 impl PackedPublicKey {
+
+    /// Converts private key into a corresponding public key.
+    pub fn from_private_key(pk: &PackedPrivateKey) -> PackedPublicKey {
+        PublicKey::from_private(
+            pk.as_ref(),
+            FixedGenerators::SpendingKeyGenerator,
+            &JUBJUB_PARAMS.with(|params| params),
+        ).into()
+    }
+
     /// converts public key to byte array
     pub fn as_bytes(&self) -> Vec<u8> {
         let mut pubkey_buf = Vec::with_capacity(PACKED_POINT_SIZE);
@@ -47,4 +61,44 @@ impl PackedPublicKey {
         bytes.reverse();
         bytes
     }
+
+    pub fn serialize_packed(&self) -> std::io::Result<Vec<u8>> {
+        let mut packed_point = [0u8; 32];
+        (self.0).0.write(packed_point.as_mut())?;
+        Ok(packed_point.to_vec())
+    }
+
+    pub fn deserialize_packed(bytes: &[u8]) -> Result<Self, ZkSignerError> {
+        if bytes.len() != 32 {
+            return Err(ZkSignerError::custom_error("PublicKey size mismatch"));
+        }
+
+        Ok(PackedPublicKey(PublicKey::<Engine>(
+            edwards::Point::read(bytes, JUBJUB_PARAMS.with(|params| params))
+                .map_err(|e| ZkSignerError::custom_error(format!("Failed to restore point: {}", e.to_string())))?
+        )))
+    }
 }
+
+impl Serialize for PackedPublicKey {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+    {
+        let packed_point = self.serialize_packed().map_err(serde::ser::Error::custom)?;
+        serializer.serialize_str(&hex::encode(packed_point))
+    }
+}
+
+impl<'de> Deserialize<'de> for PackedPublicKey {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where
+            D: Deserializer<'de>,
+    {
+        use serde::de::Error;
+        let string = String::deserialize(deserializer)?;
+        let bytes = hex::decode(&string).map_err(Error::custom)?;
+        Self::deserialize_packed(&bytes).map_err(Error::custom)
+    }
+}
+
