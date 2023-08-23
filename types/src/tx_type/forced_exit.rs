@@ -1,11 +1,13 @@
 use num::{BigUint, ToPrimitive};
-use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use validator::Validate;
+use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
-use serde::{Deserialize, Serialize};
-use crate::basic_types::{ChainId, AccountId, SubAccountId, Nonce, ZkLinkAddress, TokenId, TimeStamp};
-use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
+use crate::basic_types::{
+    AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
+};
 use crate::tx_type::validator::*;
+use serde::{Deserialize, Serialize};
+use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 /// `ForcedExit` transaction is used to withdraw funds from an unowned
 /// account to its corresponding L1 address.
 ///

@@ -106,8 +106,8 @@ impl FromStr for ZkLinkAddress {
 
 impl Serialize for ZkLinkAddress {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         serializer.serialize_str(&self.to_string())
     }
@@ -115,8 +115,8 @@ impl Serialize for ZkLinkAddress {
 
 impl<'de> Deserialize<'de> for ZkLinkAddress {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         let string = String::deserialize(deserializer)?;
         Self::from_str(&string).map_err(serde::de::Error::custom)

@@ -1,14 +1,16 @@
-use num::{BigUint, Zero, ToPrimitive};
-use validator::Validate;
-use serde::{Deserialize, Serialize};
-use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-use crate::basic_types::{AccountId, SubAccountId, TokenId, SlotId, Nonce};
+use crate::basic_types::params::{
+    ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH,
+};
+use crate::basic_types::{AccountId, Nonce, SlotId, SubAccountId, TokenId};
+use crate::tx_type::format_units;
 use crate::tx_type::pack::{pack_fee_amount, pack_token_amount};
+use crate::tx_type::validator::*;
+use num::{BigUint, ToPrimitive, Zero};
+use serde::{Deserialize, Serialize};
+use validator::Validate;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_crypto::zklink_signer::utils::rescue_hash_orders;
-use crate::basic_types::params::{SIGNED_ORDER_BIT_WIDTH, PRICE_BIT_WIDTH, ORDERS_BYTES, SIGNED_ORDER_MATCHING_BIT_WIDTH};
-use crate::tx_type::format_units;
-use crate::tx_type::validator::*;
+use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 /// `OrderMatching` transaction was used to match two orders.
 #[derive(Default, Debug, Clone, Serialize, Deserialize, Validate)]
@@ -119,7 +121,7 @@ impl Order {
         fee_ratio1: u8,
         fee_ratio2: u8,
         signature: Option<ZkLinkSignature>,
-    ) -> Self{
+    ) -> Self {
         Self {
             account_id,
             sub_account_id,
@@ -186,7 +188,7 @@ impl Order {
             price = self.price,
             nonce = self.nonce
         )
-            .as_str();
+        .as_str();
         message
     }
 
@@ -245,7 +247,6 @@ impl OrderMatching {
         expect_quote_amount: BigUint,
         signature: Option<ZkLinkSignature>,
     ) -> Self {
-
         Self {
             account_id,
             taker,
@@ -303,7 +304,7 @@ impl OrderMatching {
         out.push(Self::TX_TYPE);
         out.extend_from_slice(&self.account_id.to_be_bytes());
         out.extend_from_slice(&self.sub_account_id.to_be_bytes());
-        out.extend(rescue_hash_orders(&orders_bytes) );
+        out.extend(rescue_hash_orders(&orders_bytes));
         out.extend_from_slice(&(*self.fee_token as u16).to_be_bytes());
         out.extend_from_slice(&pack_fee_amount(&self.fee));
         out.extend_from_slice(&self.expect_base_amount.to_u128().unwrap().to_be_bytes());
@@ -313,10 +314,8 @@ impl OrderMatching {
 
     pub fn check_correctness(&self) -> bool {
         match self.validate() {
-            Ok(_) => {
-                self.maker.check_correctness() && self.taker.check_correctness()
-            }
-            Err(_) => false
+            Ok(_) => self.maker.check_correctness() && self.taker.check_correctness(),
+            Err(_) => false,
         }
     }
 

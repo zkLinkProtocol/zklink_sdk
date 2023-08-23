@@ -1,13 +1,13 @@
-use num::BigUint;
-use validator::Validate;
-use serde::{Deserialize, Serialize};
-use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-use crate::basic_types::{AccountId, SubAccountId, ZkLinkAddress, TokenId, Nonce, TimeStamp};
-use crate::tx_type::pack::{pack_token_amount, pack_fee_amount};
 use crate::basic_types::params::TOKEN_MAX_PRECISION;
+use crate::basic_types::{AccountId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress};
 use crate::tx_type::ethereum_sign_message_part;
-use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
+use crate::tx_type::pack::{pack_fee_amount, pack_token_amount};
 use crate::tx_type::validator::*;
+use num::BigUint;
+use serde::{Deserialize, Serialize};
+use validator::Validate;
+use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
+use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 /// `Transfer` transaction performs a move of funds from one zklink account to another.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
@@ -65,7 +65,6 @@ impl Transfer {
         signature: Option<ZkLinkSignature>,
         ts: TimeStamp,
     ) -> Self {
-
         Self {
             account_id,
             from_sub_account_id,

@@ -1,5 +1,5 @@
-use num::{BigUint, ToPrimitive};
 use anyhow::bail;
+use num::{BigUint, ToPrimitive};
 
 pub struct BitConvert;
 

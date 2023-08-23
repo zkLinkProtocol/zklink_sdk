@@ -1,11 +1,11 @@
 use super::error::ZkSignerError as Error;
 use super::{EddsaPubkey, Engine, JUBJUB_PARAMS, RESCUE_PARAMS};
+use super::private_key::PackedPrivateKey;
 use crate::eth_signer::packed_eth_signature::PackedEthSignature;
 use crate::eth_signer::H256;
-use crate::zklink_signer::private_key::PackedPrivateKey;
 use crate::zklink_signer::public_key::PackedPublicKey;
-use crate::zklink_signer::signature::ZkLinkSignature;
-use crate::zklink_signer::{utils, SIGNATURE_SIZE};
+use crate::zklink_signer::signature::{PackedSignature, ZkLinkSignature};
+use crate::zklink_signer::utils;
 use franklin_crypto::alt_babyjubjub::fs::FsRepr;
 use franklin_crypto::alt_babyjubjub::FixedGenerators;
 use franklin_crypto::bellman::pairing::ff::PrimeField;
@@ -127,7 +127,6 @@ impl ZkLinkSigner {
         let p_g = FixedGenerators::SpendingKeyGenerator;
         let private_key = self.private_key()?;
         let public_key = self.get_public_key()?;
-
         let signature = JUBJUB_PARAMS.with(|jubjub_params| {
             RESCUE_PARAMS.with(|rescue_params| {
                 let hashed_msg = utils::rescue_hash_tx_msg(msg);
@@ -141,11 +140,11 @@ impl ZkLinkSigner {
                 )
             })
         });
-
-        Ok(ZkLinkSignature {
-            pub_key: public_key,
-            signature: signature.into(),
-        })
+        let signature = ZkLinkSignature {
+            public_key,
+            signature: PackedSignature(signature),
+        };
+        Ok(signature)
     }
 }
 
@@ -164,8 +163,8 @@ mod test {
         );
         let pub_key_hash = zk_signer.get_public_key().unwrap().public_key_hash();
         assert_eq!(
-            hex::encode(pub_key_hash),
-            "d8d5fb6a6caef06aa3dc2abdcdc240987e5330fe"
+            pub_key_hash.as_hex(),
+            "0xd8d5fb6a6caef06aa3dc2abdcdc240987e5330fe"
         );
     }
 }

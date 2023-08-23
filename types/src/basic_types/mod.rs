@@ -1,4 +1,3 @@
-
 //! The declaration of the most primitive types used in zklink network.
 //! Most of them are just re-exported from the `web3` crate.
 
@@ -13,8 +12,8 @@ pub use zklink_address::ZkLinkAddress;
 
 #[macro_use]
 mod macros;
-mod zklink_address;
 pub mod params;
+mod zklink_address;
 
 basic_type!(
     /// Unique identifier of the slot in the zklink network.

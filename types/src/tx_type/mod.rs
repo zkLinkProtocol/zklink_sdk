@@ -1,27 +1,36 @@
+use crate::basic_types::ZkLinkAddress;
 use crate::tx_type::change_pubkey::ChangePubKey;
 use crate::tx_type::forced_exit::ForcedExit;
 use crate::tx_type::order_matching::OrderMatching;
 use crate::tx_type::transfer::Transfer;
 use crate::tx_type::withdraw::Withdraw;
 use num::{BigUint, Zero};
-use crate::basic_types::ZkLinkAddress;
 use std::collections::VecDeque;
 
 pub mod change_pubkey;
+pub mod float_convert;
 pub mod forced_exit;
 pub mod order_matching;
-pub mod transfer;
-pub mod withdraw;
 pub mod pack;
-pub mod float_convert;
+pub mod transfer;
 pub mod validator;
+pub mod withdraw;
 
-
-impl Withdraw { pub const TX_TYPE: u8 = 0x03; }
-impl Transfer { pub const TX_TYPE: u8 = 0x04; }
-impl ChangePubKey { pub const TX_TYPE: u8 = 0x06; }
-impl ForcedExit { pub const TX_TYPE: u8 = 0x07; }
-impl OrderMatching { pub const TX_TYPE: u8 = 0x08; }
+impl Withdraw {
+    pub const TX_TYPE: u8 = 0x03;
+}
+impl Transfer {
+    pub const TX_TYPE: u8 = 0x04;
+}
+impl ChangePubKey {
+    pub const TX_TYPE: u8 = 0x06;
+}
+impl ForcedExit {
+    pub const TX_TYPE: u8 = 0x07;
+}
+impl OrderMatching {
+    pub const TX_TYPE: u8 = 0x08;
+}
 
 /// Construct the first part of the message that should be signed by Ethereum key.
 /// The pattern is as follows:
@@ -59,7 +68,7 @@ pub fn ethereum_sign_message_part(
                 fee = format_units(fee, decimals),
                 token = token_symbol
             )
-                .as_str(),
+            .as_str(),
         );
     }
     message

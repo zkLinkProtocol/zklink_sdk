@@ -11,6 +11,10 @@ pub enum ZkSignerError {
     InvalidPrivKey(String),
     #[error("invalid seed:{0}")]
     InvalidSeed(String),
+    #[error("invalid public key:{0}")]
+    InvalidPubkey(String),
+    #[error("invalid public key hash:{0}")]
+    InvalidPubkeyHash(String),
     #[error("invalid eth signature: {0}")]
     PackedETHSignatureError(#[from] PackedETHSignatureError),
 }

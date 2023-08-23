@@ -1,6 +1,5 @@
-
+use crate::basic_types::{AccountId, ChainId, Nonce, SlotId, SubAccountId, TokenId};
 use num::BigUint;
-use crate::basic_types::{ChainId, SubAccountId, TokenId, Nonce, AccountId, SlotId};
 
 /// Maximum precision of token amount
 pub const TOKEN_MAX_PRECISION: u64 = 18;
@@ -11,7 +10,8 @@ pub fn precision_magnified() -> BigUint {
 
 /// Maximum number of chains allowed => The width of every token chain partition.(global asset tree)
 pub const MAX_CHAIN_ID: ChainId = ChainId(u8::pow(2, CHAIN_SUB_TREE_DEPTH as u32) - 1);
-pub const MAX_SUB_ACCOUNT_ID: SubAccountId = SubAccountId(u8::pow(2, SUB_ACCOUNT_TREE_DEPTH as u32) - 1);
+pub const MAX_SUB_ACCOUNT_ID: SubAccountId =
+    SubAccountId(u8::pow(2, SUB_ACCOUNT_TREE_DEPTH as u32) - 1);
 
 /// Depth of the account tree.
 pub const ACCOUNT_TREE_DEPTH: usize = 32;
@@ -227,7 +227,8 @@ pub const RECURSIVE_CIRCUIT_VK_TREE_DEPTH: usize = 4;
 /// The number of all ops: NoopOp(0x00)-OrderMatchingOp(0x08)
 pub const ALL_DIFFERENT_TRANSACTIONS_TYPE_NUMBER: usize = 9;
 /// The number of ops compositions of circuits containing all op's.
-pub const EXEC_ALL_OPS_COMPOSITION_NUMBER: usize = 2usize.pow(ALL_DIFFERENT_TRANSACTIONS_TYPE_NUMBER as u32) - 1;
+pub const EXEC_ALL_OPS_COMPOSITION_NUMBER: usize =
+    2usize.pow(ALL_DIFFERENT_TRANSACTIONS_TYPE_NUMBER as u32) - 1;
 
 /// The gas token contract address of multi chains that interacts with zklink protocol.
 pub const GAS_TOKEN_CONTRACT_ADDRESS: &str = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
@@ -243,7 +244,7 @@ pub const USDX_TOKEN_ID_RANGE: u32 = USDX_TOKEN_ID_UPPER_BOUND - USDX_TOKEN_ID_L
 pub const MAX_USD_TOKEN_ID: u32 = USDX_TOKEN_ID_UPPER_BOUND + USDX_TOKEN_ID_RANGE;
 
 /// jump tokens related USD(1-31) and zkl(32)
-pub fn calc_gas_token_by_chain_id(chain_id: ChainId) -> TokenId{
+pub fn calc_gas_token_by_chain_id(chain_id: ChainId) -> TokenId {
     TokenId(MAX_USD_TOKEN_ID + 1 + *chain_id as u32)
 }
 
@@ -302,13 +303,14 @@ pub const FEE_ACCOUNT_ID: AccountId = AccountId(0);
 /// * Can alice withdraw 100 USDC in ETH? yes, because Global account's USDC balance of ETH is 100.
 pub const GLOBAL_ASSET_ACCOUNT_ID: AccountId = AccountId(1);
 /// As the black hole address of the global asset account, no one can control.
-pub const GLOBAL_ASSET_ACCOUNT_ADDR: &str = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+pub const GLOBAL_ASSET_ACCOUNT_ADDR: &str =
+    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
 
 /// Special sub_account id
 /// The subaccount is used to collect the fees to which subaccount of the fee_account.
 pub const MAIN_SUB_ACCOUNT_ID: SubAccountId = SubAccountId(0);
 
 /// All fee related values
-pub const FEE_RATIO_BIT_WIDTH:usize = 8;
-pub const FEE_DENOMINATOR:usize = 10usize.pow(FEE_PRECISION as u32);
-pub const FEE_PRECISION:u64 = 4;
+pub const FEE_RATIO_BIT_WIDTH: usize = 8;
+pub const FEE_DENOMINATOR: usize = 10usize.pow(FEE_PRECISION as u32);
+pub const FEE_PRECISION: u64 = 4;

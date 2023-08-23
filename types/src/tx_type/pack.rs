@@ -1,12 +1,15 @@
-use num::{BigUint, FromPrimitive};
+use crate::basic_types::params::{
+    AMOUNT_EXPONENT_BIT_WIDTH, AMOUNT_MANTISSA_BIT_WIDTH, FEE_EXPONENT_BIT_WIDTH,
+    FEE_MANTISSA_BIT_WIDTH,
+};
 use crate::tx_type::float_convert::FloatConversions;
-use crate::basic_types::params::{AMOUNT_EXPONENT_BIT_WIDTH, AMOUNT_MANTISSA_BIT_WIDTH, FEE_EXPONENT_BIT_WIDTH, FEE_MANTISSA_BIT_WIDTH};
+use num::{BigUint, FromPrimitive};
 
-pub fn remove_amount_packaging_uncertainly(amount:&BigUint) -> Option<BigUint>{
+pub fn remove_amount_packaging_uncertainly(amount: &BigUint) -> Option<BigUint> {
     unpack_token_amount(&pack_token_amount(amount))
 }
 
-pub fn remove_fee_packaging_uncertainly(amount:&BigUint) -> Option<BigUint>{
+pub fn remove_fee_packaging_uncertainly(amount: &BigUint) -> Option<BigUint> {
     unpack_fee_amount(&pack_fee_amount(amount))
 }
 
@@ -14,22 +17,14 @@ pub fn remove_fee_packaging_uncertainly(amount:&BigUint) -> Option<BigUint>{
 /// If the provided token amount is not packable, it is rounded down to the
 /// closest amount that fits in packed form. As a result, some precision will be lost.
 pub fn pack_token_amount(amount: &BigUint) -> Vec<u8> {
-    FloatConversions::pack(
-        amount,
-        AMOUNT_EXPONENT_BIT_WIDTH,
-        AMOUNT_MANTISSA_BIT_WIDTH,
-    )
+    FloatConversions::pack(amount, AMOUNT_EXPONENT_BIT_WIDTH, AMOUNT_MANTISSA_BIT_WIDTH)
 }
 
 /// Transforms the token amount into packed form.
 /// If the provided token amount is not packable, it is rounded up to the
 /// closest amount that fits in packed form. As a result, some precision will be lost.
 pub fn pack_token_amount_up(amount: &BigUint) -> Vec<u8> {
-    FloatConversions::pack_up(
-        amount,
-        AMOUNT_EXPONENT_BIT_WIDTH,
-        AMOUNT_MANTISSA_BIT_WIDTH,
-    )
+    FloatConversions::pack_up(amount, AMOUNT_EXPONENT_BIT_WIDTH, AMOUNT_MANTISSA_BIT_WIDTH)
 }
 
 /// Transforms the fee amount into the packed form.
@@ -39,11 +34,7 @@ pub fn pack_token_amount_up(amount: &BigUint) -> Vec<u8> {
 /// If the provided fee amount is not packable, it is rounded down to the
 /// closest amount that fits in packed form. As a result, some precision will be lost.
 pub fn pack_fee_amount(amount: &BigUint) -> Vec<u8> {
-    FloatConversions::pack(
-        amount,
-        FEE_EXPONENT_BIT_WIDTH,
-        FEE_MANTISSA_BIT_WIDTH,
-    )
+    FloatConversions::pack(amount, FEE_EXPONENT_BIT_WIDTH, FEE_MANTISSA_BIT_WIDTH)
 }
 
 /// Transforms the fee amount into the packed form.
@@ -53,17 +44,13 @@ pub fn pack_fee_amount(amount: &BigUint) -> Vec<u8> {
 /// If the provided fee amount is not packable, it is rounded up to the
 /// closest amount that fits in packed form. As a result, some precision will be lost.
 pub fn pack_fee_amount_up(amount: &BigUint) -> Vec<u8> {
-    FloatConversions::pack_up(
-        amount,
-        FEE_EXPONENT_BIT_WIDTH,
-        FEE_MANTISSA_BIT_WIDTH,
-    )
+    FloatConversions::pack_up(amount, FEE_EXPONENT_BIT_WIDTH, FEE_MANTISSA_BIT_WIDTH)
 }
 
 /// Checks whether the token amount can be packed (and thus used in the transaction).
 pub fn is_token_amount_packable(amount: &BigUint) -> bool {
     if amount > &34359738367000000000000000000000000000u128.into() {
-        return false
+        return false;
     }
     Some(amount.clone()) == unpack_token_amount(&pack_token_amount(amount))
 }
@@ -71,28 +58,20 @@ pub fn is_token_amount_packable(amount: &BigUint) -> bool {
 /// Checks whether the fee amount can be packed (and thus used in the transaction).
 pub fn is_fee_amount_packable(amount: &BigUint) -> bool {
     if amount > &20470000000000000000000000000000000u128.into() {
-        return false
+        return false;
     }
     Some(amount.clone()) == unpack_fee_amount(&pack_fee_amount(amount))
 }
 
 /// Attempts to unpack the token amount.
 pub fn unpack_token_amount(data: &[u8]) -> Option<BigUint> {
-    FloatConversions::unpack(
-        data,
-        AMOUNT_EXPONENT_BIT_WIDTH,
-        AMOUNT_MANTISSA_BIT_WIDTH,
-    )
+    FloatConversions::unpack(data, AMOUNT_EXPONENT_BIT_WIDTH, AMOUNT_MANTISSA_BIT_WIDTH)
         .and_then(BigUint::from_u128)
 }
 
 /// Attempts to unpack the fee amount.
 pub fn unpack_fee_amount(data: &[u8]) -> Option<BigUint> {
-    FloatConversions::unpack(
-        data,
-        FEE_EXPONENT_BIT_WIDTH,
-        FEE_MANTISSA_BIT_WIDTH,
-    )
+    FloatConversions::unpack(data, FEE_EXPONENT_BIT_WIDTH, FEE_MANTISSA_BIT_WIDTH)
         .and_then(BigUint::from_u128)
 }
 

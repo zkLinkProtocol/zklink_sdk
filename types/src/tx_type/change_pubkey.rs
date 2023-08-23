@@ -1,18 +1,16 @@
+use crate::basic_types::{AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId};
+use crate::tx_type::format_units;
+use crate::tx_type::pack::pack_fee_amount;
+use crate::tx_type::validator::*;
 use ethers::types::{Address, H256};
 use num::{BigUint, Zero};
 use parity_crypto::Keccak256;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
-use crate::tx_type::validator::*;
-use crate::basic_types::{TokenId, ChainId, TimeStamp, Nonce, SubAccountId, AccountId};
-
-use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-
 use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_crypto::zklink_signer::private_key::PackedPrivateKey;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
-use crate::tx_type::pack::pack_fee_amount;
-use crate::tx_type::format_units;
+use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -100,26 +98,24 @@ impl ChangePubKeyAuthData {
                 bytes.push(v);
                 bytes
             }
-            ChangePubKeyAuthData::EthCREATE2(
-                CREATE2Data {
-                    creator_address,
-                    salt_arg,
-                    code_hash,
-                }) => {
+            ChangePubKeyAuthData::EthCREATE2(CREATE2Data {
+                creator_address,
+                salt_arg,
+                code_hash,
+            }) => {
                 let mut bytes = Vec::new();
                 bytes.push(0x01);
                 bytes.extend_from_slice(creator_address.as_bytes());
                 bytes.extend_from_slice(salt_arg.as_bytes());
                 bytes.extend_from_slice(code_hash.as_bytes());
                 bytes
-            }
-            // ChangePubKeyAuthData::StarkECDSA(StarkECDSAData{signature, public_key}) =>{
-            //     let mut bytes = Vec::new();
-            //     bytes.push(0x02);
-            //     bytes.extend_from_slice(&signature.0);
-            //     bytes.extend_from_slice(public_key);
-            //     bytes
-            // }
+            } // ChangePubKeyAuthData::StarkECDSA(StarkECDSAData{signature, public_key}) =>{
+              //     let mut bytes = Vec::new();
+              //     bytes.push(0x02);
+              //     bytes.extend_from_slice(&signature.0);
+              //     bytes.extend_from_slice(public_key);
+              //     bytes
+              // }
         }
     }
 }
@@ -156,7 +152,7 @@ pub struct ChangePubKey {
     /// `new_pk_hash` value. This signature is required to ensure that `fee_token` and `fee`
     /// fields can"t be changed by an attacker.
     #[serde(default)]
-    pub signature: TxSignature,
+    pub signature: ZkLinkSignature,
     /// Data needed to check if Ethereum address authorized ChangePubKey operation
     pub eth_auth_data: ChangePubKeyAuthData,
     /// Used as request id
@@ -164,7 +160,6 @@ pub struct ChangePubKey {
 }
 
 impl ChangePubKey {
-
     /// Creates transaction from all the required fields.
     ///
     /// While `signature` field is mandatory for new transactions, it may be `None`
@@ -183,13 +178,8 @@ impl ChangePubKey {
         ts: TimeStamp,
     ) -> Self {
         let eth_auth_data = eth_signature
-            .map(|eth_signature| {
-                ChangePubKeyAuthData::EthECDSA(EthECDSAData {
-                    eth_signature,
-                })
-            })
+            .map(|eth_signature| ChangePubKeyAuthData::EthECDSA(EthECDSAData { eth_signature }))
             .unwrap_or(ChangePubKeyAuthData::Onchain);
-
 
         Self {
             chain_id,
@@ -288,7 +278,7 @@ impl ChangePubKey {
                     fee = format_units(&self.fee, decimals),
                     token = token_symbol,
                 )
-                    .as_str(),
+                .as_str(),
             );
         }
         message
