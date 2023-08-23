@@ -1,22 +1,25 @@
+use franklin_crypto::eddsa::PublicKey;
+use web3::signing::SigningError;
 use super::{EddsaPubkey, Engine};
 use crate::zklink_signer::utils::{
     append_le_fixed_width, pack_bits_into_bytes, rescue_hash_elements,
 };
-use crate::zklink_signer::{NEW_PUBKEY_HASH_WIDTH, PACKED_POINT_SIZE};
+use crate::zklink_signer::{JUBJUB_PARAMS, NEW_PUBKEY_HASH_WIDTH, PACKED_POINT_SIZE};
+use crate::zklink_signer::error::ZkSignerError;
 
-pub struct PublicKey(EddsaPubkey<Engine>);
-impl AsRef<EddsaPubkey<Engine>> for PublicKey {
+pub struct PackedPublicKey(EddsaPubkey<Engine>);
+impl AsRef<EddsaPubkey<Engine>> for PackedPublicKey {
     fn as_ref(&self) -> &EddsaPubkey<Engine> {
         &self.0
     }
 }
-impl From<EddsaPubkey<Engine>> for PublicKey {
+impl From<EddsaPubkey<Engine>> for PackedPublicKey {
     fn from(value: EddsaPubkey<Engine>) -> Self {
         Self(value)
     }
 }
 
-impl PublicKey {
+impl PackedPublicKey {
     /// converts public key to byte array
     pub fn as_bytes(&self) -> Vec<u8> {
         let mut pubkey_buf = Vec::with_capacity(PACKED_POINT_SIZE);
@@ -27,6 +30,7 @@ impl PublicKey {
         pubkey.copy_from_slice(&pubkey_buf);
         pubkey_buf
     }
+
 
     /// converts public key to a hex string with the 0x prefix
     pub fn as_hex(&self) -> String {

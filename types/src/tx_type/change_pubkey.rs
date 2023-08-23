@@ -9,7 +9,7 @@ use crate::basic_types::{TokenId, ChainId, TimeStamp, Nonce, SubAccountId, Accou
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
-use zklink_crypto::zklink_signer::private_key::PrivateKey;
+use zklink_crypto::zklink_signer::private_key::PackedPrivateKey;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use crate::tx_type::pack::pack_fee_amount;
 use crate::tx_type::format_units;

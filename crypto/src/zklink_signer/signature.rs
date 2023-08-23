@@ -7,15 +7,16 @@ use franklin_crypto::bellman::pairing::bn256::Bn256 as Engine;
 use franklin_crypto::bellman::pairing::ff::{PrimeField, PrimeFieldRepr};
 use franklin_crypto::eddsa::PublicKey;
 use franklin_crypto::jubjub::JubjubEngine;
+use crate::zklink_signer::public_key::PackedPublicKey;
 
-pub struct Signature(EddsaSignature<Engine>);
-impl AsRef<EddsaSignature<Engine>> for Signature {
+pub struct PackedSignature(EddsaSignature<Engine>);
+impl AsRef<EddsaSignature<Engine>> for PackedSignature {
     fn as_ref(&self) -> &EddsaSignature<Engine> {
         &self.0
     }
 }
 
-impl From<EddsaSignature<Engine>> for Signature {
+impl From<EddsaSignature<Engine>> for PackedSignature {
     fn from(value: EddsaSignature<Engine>) -> Self {
         Self(value)
     }
@@ -25,68 +26,44 @@ impl From<EddsaSignature<Engine>> for Signature {
 /// [0..32] - packed public key of signer.
 /// [32..64] - packed r point of the signature.
 /// [64..96] - s point of the signature.
-pub struct ZkLinkSignature(pub [u8; SIGNATURE_SIZE]);
+pub struct ZkLinkSignature {
+    pub pub_key: PackedPublicKey,
+    pub signature: PackedSignature,
+}
 
 impl ZkLinkSignature {
-    /// Create a ZkLinkSignature from u8 slice
-    pub fn new_from_slice(slice: &[u8]) -> Result<Self, Error> {
-        if slice.len() != SIGNATURE_SIZE {
-            return Err(Error::InvalidSignature("Signature length is not 96 bytes. Make sure it contains both the public key and the signature itself.".into()));
-        }
-        let mut raw = [0; SIGNATURE_SIZE];
-        raw.copy_from_slice(slice);
-        Ok(Self(raw))
-    }
-
-    /// Create a ZkLinkSignature from hex string which starts with 0x or not
-    pub fn from_hex(s: &str) -> Result<Self, Error> {
-        let s = s.strip_prefix("0x").unwrap_or(s);
-        let raw = hex::decode(s).map_err(|_|Error::InvalidSignature("invalid signature string".into()))?;
-        Self::new_from_slice(&raw)
-    }
-
-    /// converts signature to a hex string with the 0x prefix
-    pub fn as_hex(&self) -> String {
-        format!("0x{}", hex::encode(self.0))
-    }
-
-    pub fn public_key(&self) -> Result<PublicKey<Engine>, Error> {
-        let pubkey = &self.0[..PACKED_POINT_SIZE];
-        let pubkey = JUBJUB_PARAMS
-            .with(|params| edwards::Point::read(pubkey, params).map(PublicKey))
-            .map_err(|_| Error::invalid_signature("couldn't read public key"))?;
-        Ok(pubkey)
-    }
-
-    fn signature(&self) -> Result<Signature, Error> {
-        let r_bar = &self.0[PACKED_POINT_SIZE..PACKED_POINT_SIZE * 2];
-        let s_bar = &self.0[PACKED_POINT_SIZE * 2..];
-
-        let r = JUBJUB_PARAMS
-            .with(|params| edwards::Point::read(r_bar, params))
-            .map_err(|_| Error::invalid_signature("Failed to parse signature"))?;
-
-        let mut s_repr = FsRepr::default();
-        s_repr
-            .read_le(s_bar)
-            .map_err(|_| Error::invalid_signature("Failed to parse signature"))?;
-
-        let s = <Engine as JubjubEngine>::Fs::from_repr(s_repr)
-            .map_err(|_| Error::invalid_signature("Failed to parse signature"))?;
-        let s = EddsaSignature::<Engine> { r, s };
-        Ok(s.into())
-    }
+    // /// Create a ZkLinkSignature from u8 slice
+    // pub fn new_from_slice(slice: &[u8]) -> Result<Self, Error> {
+    //     if slice.len() != SIGNATURE_SIZE {
+    //         return Err(Error::InvalidSignature("Signature length is not 96 bytes. Make sure it contains both the public key and the signature itself.".into()));
+    //     }
+    //     let mut raw = [0; SIGNATURE_SIZE];
+    //     raw.copy_from_slice(slice);
+    //     Ok(Self(raw))
+    // }
+    //
+    // /// Create a ZkLinkSignature from hex string which starts with 0x or not
+    // pub fn from_hex(s: &str) -> Result<Self, Error> {
+    //     let s = s.strip_prefix("0x").unwrap_or(s);
+    //     let raw = hex::decode(s).map_err(|_|Error::InvalidSignature("invalid signature string".into()))?;
+    //     Self::new_from_slice(&raw)
+    // }
+    //
+    // /// converts signature to a hex string with the 0x prefix
+    // pub fn as_hex(&self) -> String {
+    //     format!("0x{}", hex::encode(self.0))
+    // }
 
     pub fn verify_musig(&self, msg: &[u8]) -> Result<bool, Error> {
-        let pubkey = self.public_key()?;
-        let signature = self.signature()?;
+        let pubkey = self.pub_key.as_ref();
+        let signature = self.signature.as_ref();
 
         let msg = utils::rescue_hash_tx_msg(msg);
         let value = JUBJUB_PARAMS.with(|jubjub_params| {
             RESCUE_PARAMS.with(|rescue_params| {
                 pubkey.verify_musig_rescue(
                     &msg,
-                    signature.as_ref(),
+                    signature,
                     FixedGenerators::SpendingKeyGenerator,
                     rescue_params,
                     jubjub_params,

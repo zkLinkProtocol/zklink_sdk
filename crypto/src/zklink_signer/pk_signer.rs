@@ -2,8 +2,8 @@ use super::error::ZkSignerError as Error;
 use super::{EddsaPubkey, Engine, JUBJUB_PARAMS, RESCUE_PARAMS};
 use crate::eth_signer::packed_eth_signature::PackedEthSignature;
 use crate::eth_signer::H256;
-use crate::zklink_signer::private_key::PrivateKey;
-use crate::zklink_signer::public_key::PublicKey;
+use crate::zklink_signer::private_key::PackedPrivateKey;
+use crate::zklink_signer::public_key::PackedPublicKey;
 use crate::zklink_signer::signature::ZkLinkSignature;
 use crate::zklink_signer::{utils, SIGNATURE_SIZE};
 use franklin_crypto::alt_babyjubjub::fs::FsRepr;
@@ -70,7 +70,7 @@ impl ZkLinkSigner {
         let mut effective_seed = sha256_bytes(seed);
 
         loop {
-            let raw_priv_key = sha256_bytes(&effective_seed);
+            let raw_priv_key = sha256_bytes(effective_seed.as_slice());
             let mut fs_repr = FsRepr::default();
             fs_repr
                 .read_be(&raw_priv_key[..])
@@ -101,7 +101,7 @@ impl ZkLinkSigner {
         Ok(s)
     }
 
-    pub fn private_key(&self) -> Result<PrivateKey, Error> {
+    pub fn private_key(&self) -> Result<PackedPrivateKey, Error> {
         let mut fs_repr = FsRepr::default();
         fs_repr
             .read_be(&*self.0)
@@ -112,7 +112,7 @@ impl ZkLinkSigner {
         Ok(private_key.into())
     }
 
-    pub fn get_public_key(&self) -> Result<PublicKey, Error> {
+    pub fn get_public_key(&self) -> Result<PackedPublicKey, Error> {
         let p_g = FixedGenerators::SpendingKeyGenerator;
         let private_key = self.private_key()?;
         let public_key = JUBJUB_PARAMS
@@ -124,14 +124,9 @@ impl ZkLinkSigner {
     /// It is impossible to restore signer for signature, that is why we provide public key of the signer
     /// along with signature.
     pub fn sign_musig(&self, msg: &[u8]) -> Result<ZkLinkSignature, Error> {
-        let mut packed_full_signature = Vec::with_capacity(SIGNATURE_SIZE);
         let p_g = FixedGenerators::SpendingKeyGenerator;
         let private_key = self.private_key()?;
         let public_key = self.get_public_key()?;
-        public_key
-            .as_ref()
-            .write(&mut packed_full_signature)
-            .expect("failed to write pubkey to packed_point");
 
         let signature = JUBJUB_PARAMS.with(|jubjub_params| {
             RESCUE_PARAMS.with(|rescue_params| {
@@ -147,24 +142,10 @@ impl ZkLinkSigner {
             })
         });
 
-        signature
-            .r
-            .write(&mut packed_full_signature)
-            .expect("failed to write signature");
-        signature
-            .s
-            .into_repr()
-            .write_le(&mut packed_full_signature)
-            .expect("failed to write signature repr");
-
-        assert_eq!(
-            packed_full_signature.len(),
-            SIGNATURE_SIZE,
-            "incorrect signature size when signing"
-        );
-        let mut inner = [0; SIGNATURE_SIZE];
-        inner.copy_from_slice(&packed_full_signature);
-        Ok(ZkLinkSignature(inner))
+        Ok(ZkLinkSignature {
+            pub_key: public_key,
+            signature: signature.into(),
+        })
     }
 }
 
