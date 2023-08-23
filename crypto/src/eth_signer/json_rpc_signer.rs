@@ -1,4 +1,4 @@
-use super::error::{RpcSignerError, SignerError};
+use super::error::{EthRpcSignerError, EthSignerError};
 use super::json_rpc_signer::messages::JsonRpcRequest;
 use super::{EthereumSigner, RawTransaction};
 
@@ -13,10 +13,10 @@ pub fn is_signature_from_address(
     signature: &PackedEthSignature,
     msg: &[u8],
     address: Address,
-) -> Result<bool, SignerError> {
+) -> Result<bool, EthSignerError> {
     let signature_is_correct = signature
         .signature_recover_signer(msg)
-        .map_err(|err| SignerError::RecoverAddress(err.to_string()))?
+        .map_err(|err| EthSignerError::RecoverAddress(err.to_string()))?
         == address;
     Ok(signature_is_correct)
 }
@@ -48,7 +48,7 @@ impl EthereumSigner for JsonRpcSigner {
     /// The sign method calculates an Ethereum specific signature with:
     /// checks if the server adds a prefix if not then adds
     /// return sign(keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))).
-    async fn sign_message(&self, msg: &[u8]) -> Result<TxEthSignature, SignerError> {
+    async fn sign_message(&self, msg: &[u8]) -> Result<TxEthSignature, EthSignerError> {
         let signature: PackedEthSignature = {
             let msg = match &self.signer_type {
                 Some(SignerType::NotNeedPrefix) => msg.to_vec(),
@@ -61,7 +61,7 @@ impl EthereumSigner for JsonRpcSigner {
                     bytes
                 }
                 None => {
-                    return Err(SignerError::MissingEthSigner);
+                    return Err(EthSignerError::MissingEthSigner);
                 }
             };
 
@@ -69,33 +69,33 @@ impl EthereumSigner for JsonRpcSigner {
             let ret = self
                 .post(&message)
                 .await
-                .map_err(|err| SignerError::SigningFailed(err.to_string()))?;
+                .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;
             serde_json::from_value(ret)
-                .map_err(|err| SignerError::SigningFailed(err.to_string()))?
+                .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?
         };
 
         // Checks the correctness of the message signature without a prefix
         if is_signature_from_address(&signature, msg, self.address()?)? {
             Ok(TxEthSignature::EthereumSignature(signature))
         } else {
-            Err(SignerError::SigningFailed(
+            Err(EthSignerError::SigningFailed(
                 "Invalid signature from JsonRpcSigner".to_string(),
             ))
         }
     }
 
     /// Signs and returns the RLP-encoded transaction.
-    async fn sign_transaction(&self, raw_tx: RawTransaction) -> Result<Vec<u8>, SignerError> {
+    async fn sign_transaction(&self, raw_tx: RawTransaction) -> Result<Vec<u8>, EthSignerError> {
         let msg = JsonRpcRequest::sign_transaction(self.address()?, raw_tx);
 
         let ret = self
             .post(&msg)
             .await
-            .map_err(|err| SignerError::SigningFailed(err.to_string()))?;
+            .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;
 
         // get Json object and parse it to get raw Transaction
         let json: Value = serde_json::from_value(ret)
-            .map_err(|err| SignerError::SigningFailed(err.to_string()))?;
+            .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;
 
         let raw_tx: Option<&str> = json
             .get("raw")
@@ -103,13 +103,13 @@ impl EthereumSigner for JsonRpcSigner {
             .map(|value| &value["0x".len()..]);
 
         if let Some(raw_tx) = raw_tx {
-            hex::decode(raw_tx).map_err(|err| SignerError::DecodeRawTxFailed(err.to_string()))
+            hex::decode(raw_tx).map_err(|err| EthSignerError::DecodeRawTxFailed(err.to_string()))
         } else {
-            Err(SignerError::DefineAddress)
+            Err(EthSignerError::DefineAddress)
         }
     }
 
-    async fn get_address(&self) -> Result<Address, SignerError> {
+    async fn get_address(&self) -> Result<Address, EthSignerError> {
         self.address()
     }
 }
@@ -120,7 +120,7 @@ impl JsonRpcSigner {
         address_or_index: Option<AddressOrIndex>,
         signer_type: Option<SignerType>,
         password_to_unlock: Option<String>,
-    ) -> Result<Self, SignerError> {
+    ) -> Result<Self, EthSignerError> {
         let mut signer = Self {
             rpc_addr: rpc_addr.into(),
             client: reqwest::Client::new(),
@@ -154,8 +154,8 @@ impl JsonRpcSigner {
     }
 
     /// Get Ethereum address.
-    pub fn address(&self) -> Result<Address, SignerError> {
-        self.address.ok_or(SignerError::DefineAddress)
+    pub fn address(&self) -> Result<Address, EthSignerError> {
+        self.address.ok_or(EthSignerError::DefineAddress)
     }
 
     /// Specifies the Ethreum address which sets the address for which all other requests will be processed.
@@ -163,7 +163,7 @@ impl JsonRpcSigner {
     pub async fn detect_address(
         &mut self,
         address_or_index: AddressOrIndex,
-    ) -> Result<Address, SignerError> {
+    ) -> Result<Address, EthSignerError> {
         self.address = match address_or_index {
             AddressOrIndex::Address(address) => Some(address),
             AddressOrIndex::Index(index) => {
@@ -171,19 +171,19 @@ impl JsonRpcSigner {
                 let ret = self
                     .post(&message)
                     .await
-                    .map_err(|err| SignerError::SigningFailed(err.to_string()))?;
+                    .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;
                 let accounts: Vec<Address> = serde_json::from_value(ret)
-                    .map_err(|err| SignerError::SigningFailed(err.to_string()))?;
+                    .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;
                 accounts.get(index).copied()
             }
         };
 
-        self.address.ok_or(SignerError::DefineAddress)
+        self.address.ok_or(EthSignerError::DefineAddress)
     }
 
     /// Server can either add the prefix `\x19Ethereum Signed Message:\n` to the message and not add.
     /// Checks if a prefix should be added to the message.
-    pub async fn detect_signer_type(&mut self) -> Result<(), SignerError> {
+    pub async fn detect_signer_type(&mut self) -> Result<(), EthSignerError> {
         // If the `sig_type` is set, then we do not need to detect it from the server.
         if self.signer_type.is_some() {
             return Ok(());
@@ -198,9 +198,9 @@ impl JsonRpcSigner {
             let ret = self
                 .post(&message)
                 .await
-                .map_err(|err| SignerError::SigningFailed(err.to_string()))?;
+                .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;
             serde_json::from_value(ret)
-                .map_err(|err| SignerError::SigningFailed(err.to_string()))?
+                .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?
         };
 
         if is_signature_from_address(&signature, msg.as_bytes(), self.address()?)? {
@@ -213,27 +213,27 @@ impl JsonRpcSigner {
 
         match self.signer_type.is_some() {
             true => Ok(()),
-            false => Err(SignerError::SigningFailed(
+            false => Err(EthSignerError::SigningFailed(
                 "Failed to get the correct signature".to_string(),
             )),
         }
     }
 
     /// Unlocks the current account, after that the server can sign messages and transactions.
-    pub async fn unlock(&self, password: &str) -> Result<(), SignerError> {
+    pub async fn unlock(&self, password: &str) -> Result<(), EthSignerError> {
         let message = JsonRpcRequest::unlock_account(self.address()?, password);
         let ret = self
             .post(&message)
             .await
-            .map_err(|err| SignerError::UnlockingFailed(err.to_string()))?;
+            .map_err(|err| EthSignerError::UnlockingFailed(err.to_string()))?;
 
         let res: bool = serde_json::from_value(ret)
-            .map_err(|err| SignerError::UnlockingFailed(err.to_string()))?;
+            .map_err(|err| EthSignerError::UnlockingFailed(err.to_string()))?;
 
         if res {
             Ok(())
         } else {
-            Err(SignerError::UnlockingFailed(
+            Err(EthSignerError::UnlockingFailed(
                 "Server response: false".to_string(),
             ))
         }
@@ -247,12 +247,12 @@ impl JsonRpcSigner {
     async fn post(
         &self,
         message: impl serde::Serialize,
-    ) -> Result<serde_json::Value, RpcSignerError> {
+    ) -> Result<serde_json::Value, EthRpcSignerError> {
         let reply: Output = self.post_raw(message).await?;
 
         let ret = match reply {
             Output::Success(success) => success.result,
-            Output::Failure(failure) => return Err(RpcSignerError::RpcError(failure)),
+            Output::Failure(failure) => return Err(EthRpcSignerError::RpcError(failure)),
         };
 
         Ok(ret)
@@ -263,25 +263,25 @@ impl JsonRpcSigner {
     /// `Ok` is returned only for successful calls, for any kind of error
     /// the `Err` variant is returned (including the failed RPC method
     /// execution response).
-    async fn post_raw(&self, message: impl serde::Serialize) -> Result<Output, RpcSignerError> {
+    async fn post_raw(&self, message: impl serde::Serialize) -> Result<Output, EthRpcSignerError> {
         let res = self
             .client
             .post(&self.rpc_addr)
             .json(&message)
             .send()
             .await
-            .map_err(|err| RpcSignerError::NetworkError(err.to_string()))?;
+            .map_err(|err| EthRpcSignerError::NetworkError(err.to_string()))?;
         if res.status() != reqwest::StatusCode::OK {
             let error = format!(
                 "Post query responded with a non-OK response: {}",
                 res.status()
             );
-            return Err(RpcSignerError::NetworkError(error));
+            return Err(EthRpcSignerError::NetworkError(error));
         }
         let reply: Output = res
             .json()
             .await
-            .map_err(|err| RpcSignerError::MalformedResponse(err.to_string()))?;
+            .map_err(|err| EthRpcSignerError::MalformedResponse(err.to_string()))?;
 
         Ok(reply)
     }

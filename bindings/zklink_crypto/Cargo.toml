@@ -1,0 +1,21 @@
+[package]
+name = "common"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "uniffi-bindgen"
+path = "uniffi-bindgen.rs"
+
+[lib]
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+uniffi = { version = "0.24" }
+uniffi_macros = { version = "0.24" }
+zklink_crypto = { path = "../../crypto" }
+
+[build-dependencies]
+uniffi_build = { version = "0.24", features = ["builtin-bindgen"] }
+
+

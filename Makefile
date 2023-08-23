@@ -1,4 +1,3 @@
-
 lint:
 	cargo fmt
 	cargo clippy
@@ -13,16 +12,22 @@ lint-check:
 	cargo fmt -- --check
 	cargo clippy
 	cargo sort --check
-	bash -c "cd ./common && cargo sort --check"
 	bash -c "cd ./crypto && cargo sort --check"
 	bash -c "cd ./interface && cargo sort --check"
 	bash -c "cd ./types && cargo sort --check"
 	bash -c "cd ./utils && cargo sort --check"
 	cargo machete
 
+install_tool:
+	cargo install taplo-cli --locked
+	cargo install cargo-sort cargo-machete
+
 build:
 	cargo build
 
-tool:
-	cargo install taplo-cli --locked
-	cargo install cargo-sort cargo-machete
+clean:
+	cargo clean
+
+build_bindings:
+	sh build_bindings.sh
+

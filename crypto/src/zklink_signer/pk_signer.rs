@@ -1,19 +1,22 @@
-use super::error::SignerError as Error;
-use super::{EddsaPubkey, Engine, JUBJUB_PARAMS};
+use super::error::ZkSignerError as Error;
+use super::{EddsaPubkey, Engine, JUBJUB_PARAMS, RESCUE_PARAMS};
 use crate::eth_signer::packed_eth_signature::PackedEthSignature;
 use crate::eth_signer::H256;
+use crate::zklink_signer::private_key::PrivateKey;
 use crate::zklink_signer::public_key::PublicKey;
+use crate::zklink_signer::signature::ZkLinkSignature;
+use crate::zklink_signer::{utils, SIGNATURE_SIZE};
 use franklin_crypto::alt_babyjubjub::fs::FsRepr;
 use franklin_crypto::alt_babyjubjub::FixedGenerators;
 use franklin_crypto::bellman::pairing::ff::PrimeField;
 use franklin_crypto::bellman::PrimeFieldRepr;
 use franklin_crypto::eddsa::PrivateKey as FLPrivateKey;
+use franklin_crypto::eddsa::Seed;
 use franklin_crypto::jubjub::JubjubEngine;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use sha2::{Digest, Sha256};
 use std::fmt;
 use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
-use crate::zklink_signer::private_key::PrivateKey;
 
 type Fs = <Engine as JubjubEngine>::Fs;
 
@@ -46,6 +49,13 @@ impl ZkLinkSigner {
     const SIGN_MESSAGE: &'static str =
         "Sign this message to create a key to interact with zkLink's layer2 services.\nNOTE: This application is powered by zkLink protocol.\n\nOnly sign this message for a trusted client!";
 
+    pub fn new() -> Result<Self, Error> {
+        let eth_pk = H256::random();
+        let signature = PackedEthSignature::sign(&eth_pk, Self::SIGN_MESSAGE.as_bytes())?;
+        let seed = signature.serialize_packed();
+        Self::new_from_seed(&seed)
+    }
+
     pub fn new_from_seed(seed: &[u8]) -> Result<Self, Error> {
         if seed.len() < 32 {
             return Err(Error::InvalidSeed("seed is too short".into()));
@@ -73,8 +83,14 @@ impl ZkLinkSigner {
         }
     }
 
-    pub fn new_from_eth_signer(eth_private_key: &H256) -> Result<Self, Error> {
-        let signature = PackedEthSignature::sign(eth_private_key, Self::SIGN_MESSAGE.as_bytes())?;
+    pub fn new_from_hex_eth_signer(eth_hex_private_key: &str) -> Result<Self, Error> {
+        let eth_private_key = eth_hex_private_key
+            .strip_prefix("0x")
+            .unwrap_or(eth_hex_private_key);
+        let hex_privkey = hex::decode(eth_private_key)
+            .map_err(|_| Error::invalid_privkey("invalid eth private key"))?;
+        let eth_pk = H256::from_slice(&hex_privkey);
+        let signature = PackedEthSignature::sign(&eth_pk, Self::SIGN_MESSAGE.as_bytes())?;
         let seed = signature.serialize_packed();
         Self::new_from_seed(&seed)
     }
@@ -103,6 +119,53 @@ impl ZkLinkSigner {
             .with(|params| EddsaPubkey::<Engine>::from_private(private_key.as_ref(), p_g, params));
         Ok(public_key.into())
     }
+
+    /// We use musig Schnorr signature scheme.
+    /// It is impossible to restore signer for signature, that is why we provide public key of the signer
+    /// along with signature.
+    pub fn sign_musig(&self, msg: &[u8]) -> Result<ZkLinkSignature, Error> {
+        let mut packed_full_signature = Vec::with_capacity(SIGNATURE_SIZE);
+        let p_g = FixedGenerators::SpendingKeyGenerator;
+        let private_key = self.private_key()?;
+        let public_key = self.get_public_key()?;
+        public_key
+            .as_ref()
+            .write(&mut packed_full_signature)
+            .expect("failed to write pubkey to packed_point");
+
+        let signature = JUBJUB_PARAMS.with(|jubjub_params| {
+            RESCUE_PARAMS.with(|rescue_params| {
+                let hashed_msg = utils::rescue_hash_tx_msg(msg);
+                let seed = Seed::deterministic_seed(private_key.as_ref(), &hashed_msg);
+                private_key.as_ref().musig_rescue_sign(
+                    &hashed_msg,
+                    &seed,
+                    p_g,
+                    rescue_params,
+                    jubjub_params,
+                )
+            })
+        });
+
+        signature
+            .r
+            .write(&mut packed_full_signature)
+            .expect("failed to write signature");
+        signature
+            .s
+            .into_repr()
+            .write_le(&mut packed_full_signature)
+            .expect("failed to write signature repr");
+
+        assert_eq!(
+            packed_full_signature.len(),
+            SIGNATURE_SIZE,
+            "incorrect signature size when signing"
+        );
+        let mut inner = [0; SIGNATURE_SIZE];
+        inner.copy_from_slice(&packed_full_signature);
+        Ok(ZkLinkSignature(inner))
+    }
 }
 
 #[cfg(test)]
@@ -112,8 +175,7 @@ mod test {
     #[test]
     fn test_sign() {
         let eth_private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
-        let eth_pk = H256::from_slice(&hex::decode(eth_private_key).unwrap());
-        let zk_signer = ZkLinkSigner::new_from_eth_signer(&eth_pk).unwrap();
+        let zk_signer = ZkLinkSigner::new_from_hex_eth_signer(eth_private_key).unwrap();
         let pub_key = zk_signer.get_public_key().unwrap().as_bytes();
         assert_eq!(
             hex::encode(&pub_key),

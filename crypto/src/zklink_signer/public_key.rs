@@ -17,6 +17,7 @@ impl From<EddsaPubkey<Engine>> for PublicKey {
 }
 
 impl PublicKey {
+    /// converts public key to byte array
     pub fn as_bytes(&self) -> Vec<u8> {
         let mut pubkey_buf = Vec::with_capacity(PACKED_POINT_SIZE);
         self.as_ref()
@@ -25,6 +26,12 @@ impl PublicKey {
         let mut pubkey = [0; PACKED_POINT_SIZE];
         pubkey.copy_from_slice(&pubkey_buf);
         pubkey_buf
+    }
+
+    /// converts public key to a hex string with the 0x prefix
+    pub fn as_hex(&self) -> String {
+        let bytes = self.as_bytes();
+        format!("0x{}", hex::encode(bytes))
     }
 
     pub fn public_key_hash(&self) -> Vec<u8> {

@@ -7,7 +7,7 @@ pub mod pk_signer;
 pub mod raw_tx;
 
 use async_trait::async_trait;
-use error::SignerError;
+use error::EthSignerError;
 use eth_signature::TxEthSignature;
 use raw_tx::RawTransaction;
 use web3::types::Address;
@@ -16,7 +16,7 @@ pub use web3::types::H256;
 
 #[async_trait]
 pub trait EthereumSigner: Send + Sync + Clone {
-    async fn sign_message(&self, message: &[u8]) -> Result<TxEthSignature, SignerError>;
-    async fn sign_transaction(&self, raw_tx: RawTransaction) -> Result<Vec<u8>, SignerError>;
-    async fn get_address(&self) -> Result<Address, SignerError>;
+    async fn sign_message(&self, message: &[u8]) -> Result<TxEthSignature, EthSignerError>;
+    async fn sign_transaction(&self, raw_tx: RawTransaction) -> Result<Vec<u8>, EthSignerError>;
+    async fn get_address(&self) -> Result<Address, EthSignerError>;
 }

@@ -1,5 +1,5 @@
 use super::raw_tx::{RawTransaction, Transaction};
-use super::{EthereumSigner, SignerError};
+use super::{EthSignerError, EthereumSigner};
 
 use secp256k1::SecretKey;
 
@@ -27,21 +27,21 @@ impl PrivateKeySigner {
 #[async_trait::async_trait]
 impl EthereumSigner for PrivateKeySigner {
     /// Get Ethereum address that matches the private key.
-    async fn get_address(&self) -> Result<Address, SignerError> {
+    async fn get_address(&self) -> Result<Address, EthSignerError> {
         PackedEthSignature::address_from_private_key(&self.private_key)
-            .map_err(|_| SignerError::DefineAddress)
+            .map_err(|_| EthSignerError::DefineAddress)
     }
 
     /// The sign method calculates an Ethereum specific signature with:
     /// sign(keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))).
-    async fn sign_message(&self, message: &[u8]) -> Result<TxEthSignature, SignerError> {
+    async fn sign_message(&self, message: &[u8]) -> Result<TxEthSignature, EthSignerError> {
         let pack = PackedEthSignature::sign(&self.private_key, message)
-            .map_err(|err| SignerError::SigningFailed(err.to_string()))?;
+            .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;
         Ok(TxEthSignature::EthereumSignature(pack))
     }
 
     /// Signs and returns the RLP-encoded transaction.
-    async fn sign_transaction(&self, raw_tx: RawTransaction) -> Result<Vec<u8>, SignerError> {
+    async fn sign_transaction(&self, raw_tx: RawTransaction) -> Result<Vec<u8>, EthSignerError> {
         let key = SecretKey::from_slice(self.private_key.as_bytes()).unwrap();
 
         let gas_price = match raw_tx.max_fee_per_gas {

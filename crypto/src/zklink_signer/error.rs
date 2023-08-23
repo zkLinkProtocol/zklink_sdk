@@ -2,7 +2,7 @@ use crate::eth_signer::packed_eth_signature::PackedETHSignatureError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum SignerError {
+pub enum ZkSignerError {
     #[error("{0}")]
     CustomError(String),
     #[error("signature failed: {0}")]
@@ -15,11 +15,14 @@ pub enum SignerError {
     PackedETHSignatureError(#[from] PackedETHSignatureError),
 }
 
-impl SignerError {
+impl ZkSignerError {
     pub fn custom_error<T: ToString>(s: T) -> Self {
         Self::CustomError(s.to_string())
     }
     pub fn invalid_signature<T: ToString>(s: T) -> Self {
         Self::InvalidSignature(s.to_string())
+    }
+    pub fn invalid_privkey<T: ToString>(s: T) -> Self {
+        Self::InvalidPrivKey(s.to_string())
     }
 }

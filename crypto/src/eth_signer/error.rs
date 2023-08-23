@@ -2,7 +2,7 @@ pub use jsonrpc_core::types::response::Failure as RpcFailure;
 use thiserror::Error;
 
 #[derive(Debug, Error, PartialEq)]
-pub enum RpcSignerError {
+pub enum EthRpcSignerError {
     #[error("Unable to decode server response")]
     MalformedResponse(String),
     #[error("RPC error: {0:?}")]
@@ -12,7 +12,7 @@ pub enum RpcSignerError {
 }
 
 #[derive(Debug, Error, PartialEq)]
-pub enum SignerError {
+pub enum EthSignerError {
     #[error("Ethereum private key required to perform an operation")]
     MissingEthPrivateKey,
     #[error("EthereumSigner required to perform an operation")]
