@@ -1,4 +1,4 @@
-use anyhow::bail;
+use super::error::FloatConvertError as Error;
 use num::{BigUint, ToPrimitive};
 
 pub struct BitConvert;
@@ -122,17 +122,17 @@ impl FloatConversions {
         exponent_length: usize,
         mantissa_length: usize,
         exponent_base: u32,
-    ) -> Result<Vec<bool>, anyhow::Error> {
+    ) -> Result<Vec<bool>, Error> {
         let exponent_base = u128::from(exponent_base);
 
         let max_power = (1 << exponent_length) - 1;
 
-        let max_exponent = (exponent_base as u128).saturating_pow(max_power);
+        let max_exponent = exponent_base.saturating_pow(max_power);
 
         let max_mantissa = (1u128 << mantissa_length) - 1;
 
         if integer > (max_mantissa.saturating_mul(max_exponent)) {
-            bail!("Integer is too big");
+            return Err(Error::TooBigInteger);
         }
 
         // The algortihm is as follows: calculate minimal exponent
@@ -194,17 +194,17 @@ impl FloatConversions {
         exponent_length: usize,
         mantissa_length: usize,
         exponent_base: u32,
-    ) -> Result<Vec<bool>, anyhow::Error> {
+    ) -> Result<Vec<bool>, Error> {
         let exponent_base = u128::from(exponent_base);
 
         let max_power = (1 << exponent_length) - 1;
 
-        let max_exponent = (exponent_base as u128).saturating_pow(max_power);
+        let max_exponent = exponent_base.saturating_pow(max_power);
 
         let max_mantissa = (1u128 << mantissa_length) - 1;
 
         if integer > (max_mantissa.saturating_mul(max_exponent)) {
-            bail!("Integer is too big");
+            return Err(Error::TooBigInteger);
         }
 
         // The algortihm is as follows: calculate minimal exponent

@@ -9,6 +9,7 @@ use franklin_crypto::bellman::pairing::ff::{PrimeField, PrimeFieldRepr};
 use franklin_crypto::jubjub::JubjubEngine;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+#[derive(Clone)]
 pub struct PackedSignature(pub(crate) EddsaSignature<Engine>);
 
 impl AsRef<EddsaSignature<Engine>> for PackedSignature {
@@ -35,7 +36,7 @@ impl Serialize for PackedSignature {
         S: Serializer,
     {
         let packed_signature = self.as_bytes();
-        serializer.serialize_str(&hex::encode(&packed_signature))
+        serializer.serialize_str(&hex::encode(packed_signature))
     }
 }
 
@@ -46,7 +47,7 @@ impl<'de> Deserialize<'de> for PackedSignature {
     {
         use serde::de::Error;
         let string = String::deserialize(deserializer)?;
-        let bytes = hex::decode(&string).map_err(Error::custom)?;
+        let bytes = hex::decode(string).map_err(Error::custom)?;
         Self::from_bytes(&bytes).map_err(Error::custom)
     }
 }
@@ -91,7 +92,7 @@ impl PackedSignature {
 }
 
 /// ZkLink signature
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize,Clone)]
 pub struct ZkLinkSignature {
     /// packed public key
     pub public_key: PackedPublicKey,
@@ -99,6 +100,14 @@ pub struct ZkLinkSignature {
     pub signature: PackedSignature,
 }
 
+impl Default for ZkLinkSignature {
+    fn default() -> Self {
+        Self {
+            public_key: PackedPublicKey::from_bytes(&[0; 32]).unwrap(),
+            signature: PackedSignature::from_bytes(&[0; 64]).unwrap(),
+        }
+    }
+}
 impl ZkLinkSignature {
     /// Create a ZkLinkSignature from u8 slice
     pub fn from_bytes(slice: &[u8]) -> Result<Self, Error> {

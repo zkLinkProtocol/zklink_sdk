@@ -8,7 +8,7 @@ use parity_crypto::Keccak256;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
-use zklink_crypto::zklink_signer::private_key::PackedPrivateKey;
+use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 

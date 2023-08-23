@@ -3,7 +3,7 @@
 use std::fmt::{Debug, Formatter};
 use std::str::FromStr;
 // External uses
-use anyhow::format_err;
+use super::error::AddressError as Error;
 use rand::Rng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -14,9 +14,9 @@ impl ZkLinkAddress {
     /// Reads a account address from its byte sequence representation.
     ///
     /// Returns err if the slice length does not match with address length.
-    pub fn from_slice(slice: &[u8]) -> anyhow::Result<Self> {
+    pub fn from_slice(slice: &[u8]) -> Result<Self, Error> {
         if slice.len() != 32 && slice.len() != 20 {
-            Err(format_err!("Invalid ZkLinkAddress."))
+            Err(Error::InvalidAddress)
         } else {
             let mut out = ZkLinkAddress(Vec::with_capacity(slice.len()));
             out.0.extend_from_slice(slice);

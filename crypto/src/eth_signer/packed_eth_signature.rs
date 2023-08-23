@@ -26,7 +26,7 @@ use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
 /// And we can be sure that we are compatible with Ethereum clients.
 ///
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PackedEthSignature(ETHSignature);
+pub struct PackedEthSignature(pub ETHSignature);
 
 #[derive(Debug, Error)]
 pub enum PackedETHSignatureError {

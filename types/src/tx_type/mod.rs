@@ -8,8 +8,11 @@ use num::{BigUint, Zero};
 use std::collections::VecDeque;
 
 pub mod change_pubkey;
+pub mod deposit;
+pub mod error;
 pub mod float_convert;
 pub mod forced_exit;
+pub mod full_exit;
 pub mod order_matching;
 pub mod pack;
 pub mod transfer;

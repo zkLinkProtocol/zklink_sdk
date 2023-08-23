@@ -12,6 +12,7 @@ pub use zklink_address::ZkLinkAddress;
 
 #[macro_use]
 mod macros;
+pub mod error;
 pub mod params;
 mod zklink_address;
 
