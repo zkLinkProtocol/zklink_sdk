@@ -1,10 +1,13 @@
 use super::error::ZkSignerError as Error;
 use super::{EddsaPubkey, Engine, JUBJUB_PARAMS};
+use crate::zklink_signer::private_key::PackedPrivateKey;
 use crate::zklink_signer::pubkey_hash::PubKeyHash;
 use crate::zklink_signer::utils::{
     append_le_fixed_width, pack_bits_into_bytes, rescue_hash_elements,
 };
 use crate::zklink_signer::{NEW_PUBKEY_HASH_WIDTH, PACKED_POINT_SIZE};
+use franklin_crypto::alt_babyjubjub::FixedGenerators;
+use franklin_crypto::eddsa::PublicKey;
 use franklin_crypto::jubjub::edwards;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -38,6 +41,15 @@ impl PackedPublicKey {
             .with(|params| edwards::Point::read(bytes, params).map(EddsaPubkey))
             .map_err(|_| Error::invalid_signature("couldn't read public key"))?;
         Ok(Self(pubkey))
+    }
+
+    /// Converts private key into a corresponding public key.
+    pub fn from_private_key(pk: &PackedPrivateKey) -> PackedPublicKey {
+        JUBJUB_PARAMS
+            .with(|params| {
+                PublicKey::from_private(pk.as_ref(), FixedGenerators::SpendingKeyGenerator, params)
+            })
+            .into()
     }
 
     /// converts public key to byte array
