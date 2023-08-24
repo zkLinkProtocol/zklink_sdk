@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
     "bindings/wasm",
-    "bindings/zklink_crypto",
+    "bindings/crypto",
     "crypto",
     "interface",
     "types",

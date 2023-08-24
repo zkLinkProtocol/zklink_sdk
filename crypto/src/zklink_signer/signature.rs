@@ -54,21 +54,6 @@ impl<'de> Deserialize<'de> for PackedSignature {
 }
 
 impl PackedSignature {
-    pub fn as_bytes(&self) -> Vec<u8> {
-        let mut packed_signature = [0u8; 64];
-        let (r_bar, s_bar) = packed_signature.as_mut().split_at_mut(32);
-
-        (self.0).r.write(r_bar).expect("io error");
-        (self.0).s.into_repr().write_le(s_bar).expect("io error");
-
-        packed_signature.to_vec()
-    }
-
-    pub fn as_hex(&self) -> String {
-        let bytes = self.as_bytes();
-        format!("0x{}", hex::encode(bytes))
-    }
-
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
         if bytes.len() != PACKED_POINT_SIZE * 2 {
             return Err(Error::InvalidSignature("size mismatch".into()));
@@ -90,6 +75,22 @@ impl PackedSignature {
         let s = EddsaSignature::<Engine> { r, s };
         Ok(s.into())
     }
+
+    pub fn as_bytes(&self) -> Vec<u8> {
+        let mut packed_signature = [0u8; 64];
+        let (r_bar, s_bar) = packed_signature.as_mut().split_at_mut(32);
+
+        (self.0).r.write(r_bar).expect("io error");
+        (self.0).s.into_repr().write_le(s_bar).expect("io error");
+
+        packed_signature.to_vec()
+    }
+
+    pub fn as_hex(&self) -> String {
+        let bytes = self.as_bytes();
+        format!("0x{}", hex::encode(bytes))
+    }
+
 }
 
 /// ZkLink signature
@@ -111,13 +112,13 @@ impl Default for ZkLinkSignature {
 }
 impl ZkLinkSignature {
     /// Create a ZkLinkSignature from u8 slice
-    pub fn from_bytes(slice: &[u8]) -> Result<Self, Error> {
-        if slice.len() != SIGNATURE_SIZE {
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
+        if bytes.len() != SIGNATURE_SIZE {
             return Err(Error::InvalidSignature("Signature length is not 96 bytes. Make sure it contains both the public key and the signature itself.".into()));
         }
         Ok(Self {
-            public_key: PackedPublicKey::from_bytes(&slice[0..PACKED_POINT_SIZE])?,
-            signature: PackedSignature::from_bytes(&slice[PACKED_POINT_SIZE..])?,
+            public_key: PackedPublicKey::from_bytes(&bytes[0..PACKED_POINT_SIZE])?,
+            signature: PackedSignature::from_bytes(&bytes[PACKED_POINT_SIZE..])?,
         })
     }
 

@@ -95,13 +95,13 @@ impl ZkLinkSigner {
         Self::new_from_seed(&seed)
     }
 
-    pub fn new_from_slice(slice: &[u8]) -> Result<Self, Error> {
-        let s = Self(slice.to_vec());
-        let _private_key = s.private_key()?;
+    pub fn new_from_bytes(bytes: &[u8]) -> Result<Self, Error> {
+        let s = Self(bytes.to_vec());
+        let _private_key = s.get_private_key()?;
         Ok(s)
     }
 
-    pub fn private_key(&self) -> Result<PackedPrivateKey, Error> {
+    fn get_private_key(&self) -> Result<PackedPrivateKey, Error> {
         let mut fs_repr = FsRepr::default();
         fs_repr
             .read_be(&*self.0)
@@ -114,7 +114,7 @@ impl ZkLinkSigner {
 
     pub fn get_public_key(&self) -> Result<PackedPublicKey, Error> {
         let p_g = FixedGenerators::SpendingKeyGenerator;
-        let private_key = self.private_key()?;
+        let private_key = self.get_private_key()?;
         let public_key = JUBJUB_PARAMS
             .with(|params| EddsaPubkey::<Engine>::from_private(private_key.as_ref(), p_g, params));
         Ok(public_key.into())
@@ -125,7 +125,7 @@ impl ZkLinkSigner {
     /// along with signature.
     pub fn sign_musig(&self, msg: &[u8]) -> Result<ZkLinkSignature, Error> {
         let p_g = FixedGenerators::SpendingKeyGenerator;
-        let private_key = self.private_key()?;
+        let private_key = self.get_private_key()?;
         let public_key = self.get_public_key()?;
         let signature = JUBJUB_PARAMS.with(|jubjub_params| {
             RESCUE_PARAMS.with(|rescue_params| {

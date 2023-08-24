@@ -14,6 +14,6 @@ function bindings() {
     uniffi-bindgen-go $1 --out-dir "$BINDINGS_DIR"
 }
 
-bindings bindings/zklink_crypto/src/crypto.udl
+bindings bindings/crypto/src/crypto.udl
 
 pushd $BINDINGS_DIR/..

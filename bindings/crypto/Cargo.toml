@@ -1,14 +1,16 @@
 [package]
-name = "common"
+name = "zklink_crypto_binding"
 version = "0.1.0"
 edition = "2021"
+build = "build.rs"
 
-[[bin]]
-name = "uniffi-bindgen"
-path = "uniffi-bindgen.rs"
+#[[bin]]
+#name = "uniffi-bindgen"
+#path = "uniffi-bindgen.rs"
 
 [lib]
 crate-type = ["cdylib", "staticlib", "rlib"]
+name = "zklink_crypto"
 
 [dependencies]
 uniffi = { version = "0.24" }

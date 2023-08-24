@@ -7,8 +7,10 @@ use crate::zklink_signer::utils::{
 use crate::zklink_signer::{NEW_PUBKEY_HASH_WIDTH, PACKED_POINT_SIZE};
 use franklin_crypto::jubjub::edwards;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
 #[derive(Clone)]
 pub struct PackedPublicKey(EddsaPubkey<Engine>);
+
 impl AsRef<EddsaPubkey<Engine>> for PackedPublicKey {
     fn as_ref(&self) -> &EddsaPubkey<Engine> {
         &self.0

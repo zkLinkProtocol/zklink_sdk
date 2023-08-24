@@ -1,0 +1,64 @@
+[Error]
+enum ZkSignerError {
+    "CustomError",
+    "InvalidSignature",
+    "InvalidPrivKey",
+    "InvalidSeed",
+    "PackedETHSignatureError",
+};
+
+interface PubKeyHash {
+    [Name=zero]
+    constructor();
+    [Throws=ZkSignerError,Name=from_hex]
+    constructor([ByRef] string s);
+    [Throws=ZkSignerError,Name=from_bytes]
+    constructor([ByRef] sequence<u8> bytes);
+    string as_hex();
+};
+
+interface PackedPublicKey {
+        [Throws=ZkSignerError,Name=from_bytes]
+        constructor([ByRef] sequence<u8> bytes);
+        sequence<u8> as_bytes();
+        string as_hex();
+        PubKeyHash public_key_hash();
+};
+
+interface PackedSignature {
+        [Throws=ZkSignerError,Name=from_bytes]
+        constructor([ByRef] sequence<u8> bytes);
+        sequence<u8> as_bytes();
+        string as_hex();
+};
+
+
+interface ZkLinkSignature {
+    [Throws=ZkSignerError,Name=from_bytes]
+    constructor([ByRef] sequence<u8> bytes);
+    [Throws=ZkSignerError,Name=from_hex]
+    constructor([ByRef] string s);
+    sequence<u8> as_bytes();
+    string as_hex();
+    [Throws=ZkSignerError]
+    boolean verify_musig([ByRef] sequence<u8> msg);
+};
+
+interface ZkLinkSigner {
+        [Throws=ZkSignerError]
+        constructor();
+        [Throws=ZkSignerError,Name=new_from_seed]
+        constructor([ByRef] sequence<u8> seed);
+        [Throws=ZkSignerError,Name=new_from_hex_eth_signer]
+        constructor([ByRef] string eth_hex_private_key);
+        [Throws=ZkSignerError,Name=new_from_bytes]
+        constructor([ByRef] sequence<u8> slice);
+        [Throws=ZkSignerError]
+        PackedPublicKey get_public_key();
+        [Throws=ZkSignerError]
+        ZkLinkSignature sign_musig([ByRef] sequence<u8> msg);
+};
+
+namespace zklink_crypto {};
+
+
