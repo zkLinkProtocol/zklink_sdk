@@ -6,6 +6,7 @@ lint:
 	bash -c "cd ./interface && cargo sort"
 	bash -c "cd ./types && cargo sort"
 	bash -c "cd ./utils && cargo sort"
+	bash -c "cd ./provider && cargo sort"
 	cargo machete
 
 lint-check:
@@ -16,6 +17,7 @@ lint-check:
 	bash -c "cd ./interface && cargo sort --check"
 	bash -c "cd ./types && cargo sort --check"
 	bash -c "cd ./utils && cargo sort --check"
+	bash -c "cd ./provider && cargo sort --check"
 	cargo machete
 
 install_tool:

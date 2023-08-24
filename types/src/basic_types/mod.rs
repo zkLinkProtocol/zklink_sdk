@@ -14,7 +14,8 @@ pub use zklink_address::ZkLinkAddress;
 mod macros;
 pub mod error;
 pub mod params;
-mod zklink_address;
+pub mod tx_hash;
+pub mod zklink_address;
 
 basic_type!(
     /// Unique identifier of the slot in the zklink network.

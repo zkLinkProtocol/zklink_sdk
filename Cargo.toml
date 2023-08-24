@@ -5,6 +5,7 @@ members = [
     "bindings/wasm",
     "crypto",
     "interface",
+    "provider",
     "types",
     "utils",
 ]
@@ -12,6 +13,7 @@ default-members = [
     "crypto",
     "utils",
     "types",
+    "provider",
 ]
 
 [profile.release]

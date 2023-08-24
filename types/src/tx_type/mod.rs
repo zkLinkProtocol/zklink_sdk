@@ -1,6 +1,8 @@
 use crate::basic_types::ZkLinkAddress;
 use crate::tx_type::change_pubkey::ChangePubKey;
+use crate::tx_type::deposit::Deposit;
 use crate::tx_type::forced_exit::ForcedExit;
+use crate::tx_type::full_exit::FullExit;
 use crate::tx_type::order_matching::OrderMatching;
 use crate::tx_type::transfer::Transfer;
 use crate::tx_type::withdraw::Withdraw;
@@ -18,12 +20,19 @@ pub mod pack;
 pub mod transfer;
 pub mod validator;
 pub mod withdraw;
+pub mod zklink_tx;
 
+impl Deposit {
+    pub const TX_TYPE: u8 = 0x01;
+}
 impl Withdraw {
     pub const TX_TYPE: u8 = 0x03;
 }
 impl Transfer {
     pub const TX_TYPE: u8 = 0x04;
+}
+impl FullExit {
+    pub const TX_TYPE: u8 = 0x05;
 }
 impl ChangePubKey {
     pub const TX_TYPE: u8 = 0x06;
