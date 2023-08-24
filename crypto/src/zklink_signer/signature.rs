@@ -46,7 +46,7 @@ impl<'de> Deserialize<'de> for PackedSignature {
         D: Deserializer<'de>,
     {
         use serde::de::Error;
-        let s= String::deserialize(deserializer)?;
+        let s = String::deserialize(deserializer)?;
         let s = s.strip_prefix("0x").unwrap_or(&s);
         let bytes = hex::decode(s).map_err(Error::custom)?;
         Self::from_bytes(&bytes).map_err(Error::custom)
@@ -90,11 +90,10 @@ impl PackedSignature {
         let bytes = self.as_bytes();
         format!("0x{}", hex::encode(bytes))
     }
-
 }
 
 /// ZkLink signature
-#[derive(Debug, Serialize, Deserialize,Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ZkLinkSignature {
     /// packed public key
     pub public_key: PackedPublicKey,
@@ -163,8 +162,6 @@ impl ZkLinkSignature {
         Ok(value)
     }
 }
-
-
 
 #[cfg(test)]
 mod test {

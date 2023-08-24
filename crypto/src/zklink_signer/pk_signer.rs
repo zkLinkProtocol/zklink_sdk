@@ -1,6 +1,6 @@
 use super::error::ZkSignerError as Error;
-use super::{EddsaPubkey, Engine, JUBJUB_PARAMS, RESCUE_PARAMS};
 use super::private_key::PackedPrivateKey;
+use super::{EddsaPubkey, Engine, JUBJUB_PARAMS, RESCUE_PARAMS};
 use crate::eth_signer::packed_eth_signature::PackedEthSignature;
 use crate::eth_signer::H256;
 use crate::zklink_signer::public_key::PackedPublicKey;

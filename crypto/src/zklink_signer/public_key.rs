@@ -51,7 +51,6 @@ impl PackedPublicKey {
         pubkey_buf
     }
 
-
     /// converts public key to a hex string with the 0x prefix
     pub fn as_hex(&self) -> String {
         let bytes = self.as_bytes();
@@ -87,7 +86,7 @@ impl<'de> Deserialize<'de> for PackedPublicKey {
         use serde::de::Error;
         let s = String::deserialize(deserializer)?;
         let s = s.strip_prefix("0x").unwrap_or(&s);
-        let bytes = hex::decode(&s).map_err(Error::custom)?;
+        let bytes = hex::decode(s).map_err(Error::custom)?;
         Self::from_bytes(&bytes).map_err(Error::custom)
     }
 }
