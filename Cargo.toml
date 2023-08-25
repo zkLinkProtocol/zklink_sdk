@@ -6,14 +6,15 @@ members = [
     "crypto",
     "interface",
     "provider",
+    "signer",
     "types",
-    "utils",
-]
+    "utils"]
 default-members = [
     "crypto",
     "utils",
     "types",
     "provider",
+    "signer"
 ]
 
 [profile.release]
