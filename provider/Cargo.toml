@@ -23,3 +23,6 @@ thiserror = "1.0"
 zklink_crypto = { path = "../crypto" }
 zklink_sdk_utils = { path = "../utils" }
 zklink_types = { path = "../types" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
