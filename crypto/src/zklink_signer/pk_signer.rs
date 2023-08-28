@@ -99,10 +99,10 @@ mod test {
     fn test_sign() {
         let eth_private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
         let zk_signer = ZkLinkSigner::new_from_hex_eth_signer(eth_private_key).unwrap();
-        let pub_key = zk_signer.public_key.as_bytes();
+        let pub_key = zk_signer.public_key.as_hex();
         assert_eq!(
-            hex::encode(&pub_key),
-            "7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510"
+            pub_key,
+            "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510"
         );
         let pub_key_hash = zk_signer.public_key.public_key_hash();
         assert_eq!(

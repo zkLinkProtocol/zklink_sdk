@@ -4,8 +4,9 @@ set -euxo pipefail
 SCRIPT_DIR="${SCRIPT_DIR:-$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )}"
 ROOT_DIR="$SCRIPT_DIR"
 
-BINDINGS_DIR="$ROOT_DIR/bindings/generated"
-BINARIES_DIR="$ROOT_DIR/target/debug"
+BINDINGS_DIR_DEFAULT="$ROOT_DIR/bindings/generated"
+BINDINGS_DIR=${BINDINGS_DIR:=$BINDINGS_DIR_DEFAULT}
+LIB_DIR="$ROOT_DIR/target/debug"
 
 rm -rf $BINDINGS_DIR
 mkdir -p $BINDINGS_DIR
@@ -16,4 +17,9 @@ function bindings() {
 
 bindings bindings/crypto/src/crypto.udl
 
-pushd $BINDINGS_DIR/..
+
+#pushd $BINDINGS_DIR/..
+#LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}:$LIB_DIR" \
+#	CGO_LDFLAGS="-lzklink_crypto_binding -L$LIB_DIR -lm -ldl" \
+#	CGO_ENABLED=1 \
+#	go test -v
