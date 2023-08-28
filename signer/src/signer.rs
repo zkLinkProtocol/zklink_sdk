@@ -9,7 +9,7 @@ use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_crypto::zklink_signer::ZkLinkSigner;
 use num::BigUint;
 use zklink_types::basic_types::{AccountId, ChainId, SubAccountId, TokenId, Nonce, TimeStamp, ZkLinkAddress, SlotId};
-use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, ChangePubKeyAuthRequest, EthECDSAData};
+use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, EthECDSAData};
 use zklink_types::tx_type::transfer::Transfer;
 use crate::error::ClientError;
 use crate::TxSignature;

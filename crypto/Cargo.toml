@@ -19,6 +19,8 @@ sha2 = "0.10"
 thiserror = "1.0"
 web3 = "0.18.0"
 zklink_sdk_utils = { path = "../utils" }
+ethers = "2.0.2"
+
 
 [dev-dependencies]
 actix-rt = "2.7"

@@ -334,7 +334,7 @@ mod messages {
                 serde_json::to_value(address).expect("serialization fail"),
                 serde_json::to_value(format!("0x{}", encode(message))).expect("serialization fail"),
             ];
-            Self::create("eth_sign", params)
+            Self::create("personal_sign", params)
         }
 
         /// Signs a transaction that can be submitted to the network.

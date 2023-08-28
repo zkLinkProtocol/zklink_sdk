@@ -2,6 +2,8 @@ use super::error::ZkSignerError as Error;
 use crate::zklink_signer::NEW_PUBKEY_HASH_BYTES_LEN;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::convert::TryInto;
+use ethers::types::H256;
+use crate::eth_signer::eip712::Structuralization;
 
 /// Hash of the account's owner public key.
 ///
@@ -70,6 +72,20 @@ impl PubKeyHash {
             .try_into()
             .map_err(|_| Error::InvalidPubkeyHash("size mismatch".into()))?;
         Ok(PubKeyHash { data })
+    }
+}
+
+
+impl Structuralization for PubKeyHash {
+    const MEMBER_TYPE: &'static str = "bytes20";
+    const IS_REFERENCE_TYPE: bool = false;
+
+    fn encode_member_data(&self) -> H256 {
+        let mut bytes = [0u8; 32];
+        let bytes_value = self.data;
+        bytes[0..20].copy_from_slice(&bytes_value);
+
+        bytes.into()
     }
 }
 

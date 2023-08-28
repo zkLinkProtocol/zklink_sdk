@@ -2,6 +2,7 @@
 // Built-in deps
 use std::fmt::{Debug, Formatter};
 use std::str::FromStr;
+use ethers::types::Address;
 // External uses
 use super::error::AddressError as Error;
 use rand::Rng;
@@ -101,6 +102,14 @@ impl FromStr for ZkLinkAddress {
         let bytes = hex::decode(s.trim_start_matches("0x"))?;
         anyhow::ensure!(bytes.len() == 32 || bytes.len() == 20, "Size mismatch");
         Ok(ZkLinkAddress(bytes))
+    }
+}
+
+
+impl From<&ZkLinkAddress> for Address {
+    fn from(zk_address: &ZkLinkAddress) -> Self {
+        // eth address bytes len is 20
+        Address::from_slice(&zk_address.as_bytes().to_vec()[..20])
     }
 }
 
