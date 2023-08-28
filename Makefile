@@ -32,6 +32,22 @@ build:
 clean:
 	cargo clean
 
-build_bindings:
+build_binding_files:
+	export BINDINGS_DIR="${ROOT_DIR}/binding_tests/generated"
 	sh build_bindings.sh
+
+build_binding_lib:
+	cd bindings/crypto && cargo build
+
+build_bindings: build_binding_files build_binding_lib
+
+ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+LIB_DIR = ${ROOT_DIR}/target/debug
+
+test_go: build_bindings
+	export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${LIB_DIR}"
+	export CGO_LDFLAGS="-lzklink_crypto_binding -L$LIB_DIR -lm -ldl"
+	export CGO_ENABLED=1
+	cd ${ROOT_DIR}/binding_tests && go test  -v
+
 

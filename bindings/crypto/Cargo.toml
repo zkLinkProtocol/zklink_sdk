@@ -10,7 +10,7 @@ build = "build.rs"
 
 [lib]
 crate-type = ["cdylib", "staticlib", "rlib"]
-name = "zklink_crypto"
+name = "zklink_crypto_binding"
 
 [dependencies]
 uniffi = { version = "0.24" }

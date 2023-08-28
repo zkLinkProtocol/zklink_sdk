@@ -4,6 +4,8 @@ enum ZkSignerError {
     "InvalidSignature",
     "InvalidPrivKey",
     "InvalidSeed",
+    "InvalidPubkey",
+    "InvalidPubkeyHash",
     "PackedETHSignatureError",
 };
 
@@ -59,6 +61,6 @@ interface ZkLinkSigner {
         ZkLinkSignature sign_musig([ByRef] sequence<u8> msg);
 };
 
-namespace zklink_crypto {};
+namespace zklink_crypto_binding {};
 
 
