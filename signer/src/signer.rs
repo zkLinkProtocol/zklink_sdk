@@ -7,6 +7,15 @@ use zklink_crypto::zklink_signer::error::ZkSignerError;
 use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_crypto::zklink_signer::ZkLinkSigner;
+use num::BigUint;
+use zklink_types::basic_types::{AccountId, ChainId, SubAccountId, TokenId, Nonce, TimeStamp, ZkLinkAddress, SlotId};
+use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, ChangePubKeyAuthRequest, EthECDSAData};
+use zklink_types::tx_type::transfer::Transfer;
+use crate::error::ClientError;
+use crate::TxSignature;
+use zklink_types::tx_type::withdraw::Withdraw;
+use zklink_types::tx_type::forced_exit::ForcedExit;
+use zklink_types::tx_type::order_matching::{Order, OrderMatching};
 // Local imports
 
 fn signing_failed_error(err: impl ToString) -> EthSignerError {
@@ -16,20 +25,30 @@ fn signing_failed_error(err: impl ToString) -> EthSignerError {
 pub struct Signer<S: EthereumSigner> {
     pub zklink_signer: ZkLinkSigner,
     pub(crate) eth_signer: Option<S>,
+    pub pub_key_hash: PubKeyHash,
+    pub(crate) account_id: Option<AccountId>,
 }
 
 impl<S: EthereumSigner> Signer<S> {
     pub fn new(pk_bytes: &[u8], eth_signer: Option<S>) -> Result<Self, ZkSignerError> {
         let zklink_signer = ZkLinkSigner::new_from_bytes(pk_bytes)?;
+        let pub_key_hash = zklink_signer.public_key.public_key_hash();
 
         Ok(Self {
             zklink_signer,
             eth_signer,
+            pub_key_hash,
+            account_id: None
         })
     }
 
-    pub fn pubkey_hash(&self) -> PubKeyHash {
-        self.zklink_signer.public_key.public_key_hash()
+
+    pub fn set_account_id(&mut self, account_id: Option<AccountId>) {
+        self.account_id = account_id;
+    }
+
+    pub fn get_account_id(&self) -> Option<AccountId> {
+        self.account_id
     }
 
     pub fn sign_layer_two_message(&self, message: &[u8]) -> Result<ZkLinkSignature, ZkSignerError> {
@@ -89,7 +108,252 @@ impl<S: EthereumSigner> Signer<S> {
     //         //     "Can't sign ChangePubKey message with Stark signer".to_string(),
     //         // )),
     //     }?;
-
+    //
     //     Ok(eth_signature)
     // }
+
+    // #[allow(clippy::too_many_arguments)]
+    // pub async fn sign_change_pub_key(&self,
+    //                                chain_id: ChainId,
+    //                                sub_account_id: SubAccountId,
+    //                                fee_token_id: TokenId,
+    //                                fee: Option<BigUint>,
+    //                                new_pubkey_hash: &[u8],
+    //                                nonce: Nonce,
+    //                                eth_auth_type: ChangePubKeyAuthRequest,
+    //                                ts: TimeStamp,
+    // ) -> Result<ChangePubKey, ClientError> {
+    //     let chain_config = self.get_chain(&chain_id)
+    //         .ok_or_else(|| ClientError::NetworkNotSupported(chain_id))?;
+    //
+    //     let account_id = self.account_id();
+    //
+    //     let nonce = self.resolve_nonce(nonce);
+    //     let new_pk_hash = PubKeyHash::from_bytes(new_pubkey_hash)?;
+    //     let mut tx = ChangePubKey {
+    //         chain_id,
+    //         account_id,
+    //         sub_account_id,
+    //         new_pk_hash,
+    //         fee_token: fee_token_id,
+    //         fee: fee.unwrap_or_default(),
+    //         nonce,
+    //         signature: Default::default(),
+    //         eth_auth_data,
+    //         ts,
+    //     };
+    //
+    //     let eth_auth_data: Result<ChangePubKeyAuthData, ClientError> = match eth_auth_type {
+    //         ChangePubKeyAuthRequest::Onchain => Ok(ChangePubKeyAuthData::Onchain),
+    //         ChangePubKeyAuthRequest::EthECDSA => {
+    //             let eth_signature = self
+    //                 .signer
+    //                 .sign_change_pub_key_ecdsa_auth_data(&tx, &chain_config)
+    //                 .await?;
+    //
+    //             Ok(ChangePubKeyAuthData::EthECDSA(EthECDSAData { eth_signature, }))
+    //         },
+    //         ChangePubKeyAuthRequest::EthCREATE2(create2) => {
+    //             // check create2 data
+    //             let from_address = create2.get_address(self.pub_key_hash.data.to_vec());
+    //             if from_address.as_bytes() != self.address.as_bytes() {
+    //                 Err(ClientError::IncorrectTx)
+    //             } else {
+    //                 Ok(ChangePubKeyAuthData::EthCREATE2(create2))
+    //             }
+    //         }
+    //     };
+    //
+    //     tx.eth_auth_data = eth_auth_data?;
+    //     tx.signature = self.signer.sign_layer_two_message(&tx.get_bytes());
+    //
+    //     Ok(tx)
+    // }
+
+    pub async fn sign_transfer(&self,
+                                 account_id: AccountId,
+                                 from_sub_account_id: SubAccountId,
+                                 to: ZkLinkAddress,
+                                 to_sub_account_id: SubAccountId,
+                                 token_id: TokenId,
+                                 token_symbol: String,
+                                 amount: BigUint,
+                                 fee: Option<BigUint>,
+                                 nonce: Nonce,
+                                 ts: TimeStamp,
+    ) -> Result<TxSignature, ClientError> {
+        let mut tx = Transfer {
+            account_id,
+            from_sub_account_id,
+            to,
+            to_sub_account_id,
+            token: token_id,
+            amount,
+            fee: fee.unwrap_or_default(),
+            nonce,
+            signature: Default::default(),
+            ts,
+        };
+
+        // tx.fee = self.resolve_tx_fee(fee, tx.clone().into()).await?;
+        tx.signature = self.sign_layer_two_message(&tx.get_bytes())?;
+
+        let message = tx.get_ethereum_sign_message(&token_symbol).as_bytes().to_vec();
+        let eth_signature = self.sign_layer_one_message(&message.as_slice()).await?;
+
+        Ok(TxSignature {
+            tx: tx.into(),
+            eth_signature: Some(eth_signature),
+        })
+    }
+
+    pub async fn sign_withdraw(&self,
+                                 account_id: AccountId,
+                                 to_chain_id: ChainId,
+                                 sub_account_id: SubAccountId,
+                                 to: ZkLinkAddress,
+                                 l2_source_token_id: TokenId,
+                                 l2_source_token_symbol: String,
+                                 l1_target_token_id: TokenId,
+                                 amount: BigUint,
+                                 fee: BigUint,
+                                 nonce: Nonce,
+                                 fast_withdraw: bool,
+                                 withdraw_fee_ratio: u16,
+                                 ts: TimeStamp,
+    ) -> Result<TxSignature, ClientError> {
+        let fast_withdraw = if fast_withdraw {
+            1u8
+        } else {
+            0u8
+        };
+
+        let mut tx = Withdraw {
+            to_chain_id,
+            account_id,
+            sub_account_id,
+            to,
+            l2_source_token: l2_source_token_id,
+            l1_target_token: l1_target_token_id,
+            amount,
+            fee,
+            nonce,
+            fast_withdraw,
+            withdraw_fee_ratio,
+            signature: Default::default(),
+            ts,
+        };
+
+        tx.signature = self.sign_layer_two_message(&tx.get_bytes())?;
+
+        let message = tx.get_ethereum_sign_message(&l2_source_token_symbol);
+        let message = message.as_bytes().to_vec();
+        let eth_signature = self.sign_layer_one_message(&message.as_slice()).await?;
+
+        Ok(TxSignature {
+            tx: tx.into(),
+            eth_signature: Some(eth_signature),
+        })
+    }
+
+    pub async fn sign_forced_exit(&self,
+                                    account_id: AccountId,
+                                    to_chain_id: ChainId,
+                                    sub_account_id: SubAccountId,
+                                    target: ZkLinkAddress,
+                                    target_sub_account_id: SubAccountId,
+                                    l2_source_token_id: TokenId,
+                                    l1_target_token_id: TokenId,
+                                    nonce: Nonce,
+                                    exit_amount: BigUint,
+                                    ts: TimeStamp,
+
+    ) -> Result<TxSignature, ClientError> {
+        let mut tx = ForcedExit {
+            to_chain_id,
+            initiator_account_id: account_id,
+            initiator_sub_account_id: sub_account_id,
+            initiator_nonce: nonce,
+            target,
+            target_sub_account_id,
+            l2_source_token: l2_source_token_id,
+            l1_target_token: l1_target_token_id,
+            exit_amount,
+            signature: Default::default(),
+            ts
+        };
+
+        tx.signature = self.sign_layer_two_message(&tx.get_bytes())?;
+        Ok(TxSignature {
+            tx: tx.into(),
+            eth_signature: None,
+        })
+    }
+
+    pub fn sign_order(&self,
+                               account_id: AccountId,
+                               sub_account_id: SubAccountId,
+                               slot_id: SlotId,
+                               nonce: Nonce,
+                               base_token_id: TokenId,
+                               quote_token_id: TokenId,
+                               amount: BigUint,
+                               price: BigUint,
+                               is_sell: bool,
+                               fee_ratio1: u8,
+                               fee_ratio2: u8
+    ) -> Result<Order,ClientError> {
+        let is_sell = if is_sell {
+            1u8
+        } else {
+            0u8
+        };
+
+        let mut order = Order{
+            account_id,
+            sub_account_id,
+            slot_id,
+            nonce,
+            base_token_id,
+            quote_token_id,
+            amount,
+            price,
+            is_sell,
+            fee_ratio1,
+            fee_ratio2,
+            signature: Default::default()
+        };
+
+        order.signature = self.sign_layer_two_message(&order.get_bytes())?;
+        Ok(order)
+    }
+
+    pub async fn sign_order_matching(&self,
+                                       account_id: AccountId,
+                                       sub_account_id: SubAccountId,
+                                       taker: Order,
+                                       maker: Order,
+                                       fee_token_id: TokenId,
+                                       fee: BigUint,
+                                       expect_base_amount: BigUint,
+                                       expect_quote_amount: BigUint,
+    ) -> Result<TxSignature, ClientError> {
+        let mut tx = OrderMatching {
+            account_id,
+            sub_account_id,
+            taker,
+            maker,
+            fee_token: fee_token_id,
+            fee,
+            expect_base_amount,
+            expect_quote_amount,
+            signature: Default::default(), // left unset because fee is unknown now
+        };
+
+        tx.signature = self.sign_layer_two_message(&tx.get_bytes())?;
+        Ok(TxSignature {
+            tx: tx.into(),
+            eth_signature: None,
+        })
+    }
 }
