@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use super::error::ZkSignerError as Error;
 use super::{EddsaPubkey, Engine, JUBJUB_PARAMS};
 use crate::zklink_signer::private_key::PackedPrivateKey;
@@ -11,6 +10,7 @@ use franklin_crypto::alt_babyjubjub::FixedGenerators;
 use franklin_crypto::eddsa::PublicKey;
 use franklin_crypto::jubjub::edwards;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct PackedPublicKey(pub(crate) EddsaPubkey<Engine>);
@@ -49,7 +49,8 @@ impl PackedPublicKey {
         let pubkey: PackedPublicKey = JUBJUB_PARAMS
             .with(|params| {
                 PublicKey::from_private(pk.as_ref(), FixedGenerators::SpendingKeyGenerator, params)
-            }).into();
+            })
+            .into();
         pubkey
     }
 

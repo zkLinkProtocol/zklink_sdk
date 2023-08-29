@@ -49,7 +49,6 @@ impl<ADDRESS: Structuralization> EIP712Domain<ADDRESS> {
         bytes.extend_from_slice(message.hash_struct().as_bytes());
         bytes
     }
-
 }
 
 impl<ADDRESS: Structuralization> EIP712 for EIP712Domain<ADDRESS> {

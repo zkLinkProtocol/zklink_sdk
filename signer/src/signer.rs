@@ -1,4 +1,7 @@
 // Built-in imports
+use crate::error::ClientError;
+use crate::TxSignature;
+use num::BigUint;
 use zklink_crypto::eth_signer::error::EthSignerError;
 use zklink_crypto::eth_signer::eth_signature::TxEthSignature;
 use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
@@ -7,15 +10,14 @@ use zklink_crypto::zklink_signer::error::ZkSignerError;
 use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_crypto::zklink_signer::ZkLinkSigner;
-use num::BigUint;
-use zklink_types::basic_types::{AccountId, ChainId, SubAccountId, TokenId, Nonce, TimeStamp, ZkLinkAddress, SlotId};
+use zklink_types::basic_types::{
+    AccountId, ChainId, Nonce, SlotId, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
+};
 use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, EthECDSAData};
-use zklink_types::tx_type::transfer::Transfer;
-use crate::error::ClientError;
-use crate::TxSignature;
-use zklink_types::tx_type::withdraw::Withdraw;
 use zklink_types::tx_type::forced_exit::ForcedExit;
 use zklink_types::tx_type::order_matching::{Order, OrderMatching};
+use zklink_types::tx_type::transfer::Transfer;
+use zklink_types::tx_type::withdraw::Withdraw;
 // Local imports
 
 fn signing_failed_error(err: impl ToString) -> EthSignerError {
@@ -38,10 +40,9 @@ impl<S: EthereumSigner> Signer<S> {
             zklink_signer,
             eth_signer,
             pub_key_hash,
-            account_id: None
+            account_id: None,
         })
     }
-
 
     pub fn set_account_id(&mut self, account_id: Option<AccountId>) {
         self.account_id = account_id;
@@ -170,17 +171,18 @@ impl<S: EthereumSigner> Signer<S> {
     //     Ok(tx)
     // }
 
-    pub async fn sign_transfer(&self,
-                                 account_id: AccountId,
-                                 from_sub_account_id: SubAccountId,
-                                 to: ZkLinkAddress,
-                                 to_sub_account_id: SubAccountId,
-                                 token_id: TokenId,
-                                 token_symbol: String,
-                                 amount: BigUint,
-                                 fee: Option<BigUint>,
-                                 nonce: Nonce,
-                                 ts: TimeStamp,
+    pub async fn sign_transfer(
+        &self,
+        account_id: AccountId,
+        from_sub_account_id: SubAccountId,
+        to: ZkLinkAddress,
+        to_sub_account_id: SubAccountId,
+        token_id: TokenId,
+        token_symbol: String,
+        amount: BigUint,
+        fee: BigUint,
+        nonce: Nonce,
+        ts: TimeStamp,
     ) -> Result<TxSignature, ClientError> {
         let mut tx = Transfer {
             account_id,
@@ -189,7 +191,7 @@ impl<S: EthereumSigner> Signer<S> {
             to_sub_account_id,
             token: token_id,
             amount,
-            fee: fee.unwrap_or_default(),
+            fee,
             nonce,
             signature: Default::default(),
             ts,
@@ -198,7 +200,10 @@ impl<S: EthereumSigner> Signer<S> {
         // tx.fee = self.resolve_tx_fee(fee, tx.clone().into()).await?;
         tx.signature = self.sign_layer_two_message(&tx.get_bytes())?;
 
-        let message = tx.get_ethereum_sign_message(&token_symbol).as_bytes().to_vec();
+        let message = tx
+            .get_ethereum_sign_message(&token_symbol)
+            .as_bytes()
+            .to_vec();
         let eth_signature = self.sign_layer_one_message(&message.as_slice()).await?;
 
         Ok(TxSignature {
@@ -207,26 +212,23 @@ impl<S: EthereumSigner> Signer<S> {
         })
     }
 
-    pub async fn sign_withdraw(&self,
-                                 account_id: AccountId,
-                                 to_chain_id: ChainId,
-                                 sub_account_id: SubAccountId,
-                                 to: ZkLinkAddress,
-                                 l2_source_token_id: TokenId,
-                                 l2_source_token_symbol: String,
-                                 l1_target_token_id: TokenId,
-                                 amount: BigUint,
-                                 fee: BigUint,
-                                 nonce: Nonce,
-                                 fast_withdraw: bool,
-                                 withdraw_fee_ratio: u16,
-                                 ts: TimeStamp,
+    pub async fn sign_withdraw(
+        &self,
+        account_id: AccountId,
+        to_chain_id: ChainId,
+        sub_account_id: SubAccountId,
+        to: ZkLinkAddress,
+        l2_source_token_id: TokenId,
+        l2_source_token_symbol: String,
+        l1_target_token_id: TokenId,
+        amount: BigUint,
+        fee: BigUint,
+        nonce: Nonce,
+        fast_withdraw: bool,
+        withdraw_fee_ratio: u16,
+        ts: TimeStamp,
     ) -> Result<TxSignature, ClientError> {
-        let fast_withdraw = if fast_withdraw {
-            1u8
-        } else {
-            0u8
-        };
+        let fast_withdraw = if fast_withdraw { 1u8 } else { 0u8 };
 
         let mut tx = Withdraw {
             to_chain_id,
@@ -256,18 +258,18 @@ impl<S: EthereumSigner> Signer<S> {
         })
     }
 
-    pub async fn sign_forced_exit(&self,
-                                    account_id: AccountId,
-                                    to_chain_id: ChainId,
-                                    sub_account_id: SubAccountId,
-                                    target: ZkLinkAddress,
-                                    target_sub_account_id: SubAccountId,
-                                    l2_source_token_id: TokenId,
-                                    l1_target_token_id: TokenId,
-                                    nonce: Nonce,
-                                    exit_amount: BigUint,
-                                    ts: TimeStamp,
-
+    pub async fn sign_forced_exit(
+        &self,
+        account_id: AccountId,
+        to_chain_id: ChainId,
+        sub_account_id: SubAccountId,
+        target: ZkLinkAddress,
+        target_sub_account_id: SubAccountId,
+        l2_source_token_id: TokenId,
+        l1_target_token_id: TokenId,
+        nonce: Nonce,
+        exit_amount: BigUint,
+        ts: TimeStamp,
     ) -> Result<TxSignature, ClientError> {
         let mut tx = ForcedExit {
             to_chain_id,
@@ -280,7 +282,7 @@ impl<S: EthereumSigner> Signer<S> {
             l1_target_token: l1_target_token_id,
             exit_amount,
             signature: Default::default(),
-            ts
+            ts,
         };
 
         tx.signature = self.sign_layer_two_message(&tx.get_bytes())?;
@@ -290,26 +292,23 @@ impl<S: EthereumSigner> Signer<S> {
         })
     }
 
-    pub fn sign_order(&self,
-                               account_id: AccountId,
-                               sub_account_id: SubAccountId,
-                               slot_id: SlotId,
-                               nonce: Nonce,
-                               base_token_id: TokenId,
-                               quote_token_id: TokenId,
-                               amount: BigUint,
-                               price: BigUint,
-                               is_sell: bool,
-                               fee_ratio1: u8,
-                               fee_ratio2: u8
-    ) -> Result<Order,ClientError> {
-        let is_sell = if is_sell {
-            1u8
-        } else {
-            0u8
-        };
+    pub fn sign_order(
+        &self,
+        account_id: AccountId,
+        sub_account_id: SubAccountId,
+        slot_id: SlotId,
+        nonce: Nonce,
+        base_token_id: TokenId,
+        quote_token_id: TokenId,
+        amount: BigUint,
+        price: BigUint,
+        is_sell: bool,
+        fee_ratio1: u8,
+        fee_ratio2: u8,
+    ) -> Result<Order, ClientError> {
+        let is_sell = if is_sell { 1u8 } else { 0u8 };
 
-        let mut order = Order{
+        let mut order = Order {
             account_id,
             sub_account_id,
             slot_id,
@@ -321,22 +320,23 @@ impl<S: EthereumSigner> Signer<S> {
             is_sell,
             fee_ratio1,
             fee_ratio2,
-            signature: Default::default()
+            signature: Default::default(),
         };
 
         order.signature = self.sign_layer_two_message(&order.get_bytes())?;
         Ok(order)
     }
 
-    pub async fn sign_order_matching(&self,
-                                       account_id: AccountId,
-                                       sub_account_id: SubAccountId,
-                                       taker: Order,
-                                       maker: Order,
-                                       fee_token_id: TokenId,
-                                       fee: BigUint,
-                                       expect_base_amount: BigUint,
-                                       expect_quote_amount: BigUint,
+    pub async fn sign_order_matching(
+        &self,
+        account_id: AccountId,
+        sub_account_id: SubAccountId,
+        taker: Order,
+        maker: Order,
+        fee_token_id: TokenId,
+        fee: BigUint,
+        expect_base_amount: BigUint,
+        expect_quote_amount: BigUint,
     ) -> Result<TxSignature, ClientError> {
         let mut tx = OrderMatching {
             account_id,

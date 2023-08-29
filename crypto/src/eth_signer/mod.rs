@@ -1,11 +1,11 @@
 pub mod eip1271_signature;
+pub mod eip712;
 pub mod error;
 pub mod eth_signature;
 pub mod json_rpc_signer;
 pub mod packed_eth_signature;
 pub mod pk_signer;
 pub mod raw_tx;
-pub mod eip712;
 
 use async_trait::async_trait;
 use error::EthSignerError;

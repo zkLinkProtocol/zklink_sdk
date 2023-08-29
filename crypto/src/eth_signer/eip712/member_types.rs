@@ -26,7 +26,6 @@ impl Structuralization for Address {
     }
 }
 
-
 impl Structuralization for U256 {
     const MEMBER_TYPE: &'static str = "uint256";
     const IS_REFERENCE_TYPE: bool = false;

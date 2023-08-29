@@ -1,11 +1,11 @@
-use zklink_types::tx_type::zklink_tx::ZkLinkTx;
 use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
+use zklink_types::tx_type::zklink_tx::ZkLinkTx;
 
-mod credentials;
-mod error;
-mod signer;
+pub mod credentials;
+pub mod error;
+pub mod signer;
 
 pub struct TxSignature {
-    tx: ZkLinkTx,
-    eth_signature: Option<PackedEthSignature>,
+    pub tx: ZkLinkTx,
+    pub eth_signature: Option<PackedEthSignature>,
 }

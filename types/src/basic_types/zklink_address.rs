@@ -1,8 +1,8 @@
 //! Common primitives for the layer1 blockchain network interaction.
 // Built-in deps
+use ethers::types::Address;
 use std::fmt::{Debug, Formatter};
 use std::str::FromStr;
-use ethers::types::Address;
 // External uses
 use super::error::AddressError as Error;
 use rand::Rng;
@@ -104,7 +104,6 @@ impl FromStr for ZkLinkAddress {
         Ok(ZkLinkAddress(bytes))
     }
 }
-
 
 impl From<&ZkLinkAddress> for Address {
     fn from(zk_address: &ZkLinkAddress) -> Self {

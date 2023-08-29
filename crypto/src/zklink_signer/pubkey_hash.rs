@@ -1,10 +1,10 @@
 use super::error::ZkSignerError as Error;
-use crate::zklink_signer::NEW_PUBKEY_HASH_BYTES_LEN;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::convert::TryInto;
-use ethers::types::H256;
 use crate::eth_signer::eip712::Structuralization;
 use crate::zklink_signer::public_key::PackedPublicKey;
+use crate::zklink_signer::NEW_PUBKEY_HASH_BYTES_LEN;
+use ethers::types::H256;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::convert::TryInto;
 
 /// Hash of the account's owner public key.
 ///
@@ -79,7 +79,6 @@ impl PubKeyHash {
         pubkey.public_key_hash()
     }
 }
-
 
 impl Structuralization for PubKeyHash {
     const MEMBER_TYPE: &'static str = "bytes20";

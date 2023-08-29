@@ -1,0 +1,14 @@
+[package]
+name = "wallet"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+num = { version = "0.4.0", features = ["serde"] }
+chrono = { version = "0.4", features = ["serde", "rustc-serialize"] }
+zklink_types = { path = "../types" }
+zklink_crypto = { path = "../crypto" }
+zklink_provider = { path = "../provider"}
+zklink_signer = { path = "../signer" }

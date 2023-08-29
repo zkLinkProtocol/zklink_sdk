@@ -1,15 +1,15 @@
-use std::sync::Arc;
 use super::error::ZkSignerError as Error;
 use crate::eth_signer::packed_eth_signature::PackedEthSignature;
-use crate::zklink_signer::{JUBJUB_PARAMS, EddsaPrivKey, Engine};
+use crate::zklink_signer::public_key::PackedPublicKey;
+use crate::zklink_signer::{EddsaPrivKey, Engine, JUBJUB_PARAMS};
 use franklin_crypto::alt_babyjubjub::fs::{Fs, FsRepr};
 use franklin_crypto::bellman::{PrimeField, PrimeFieldRepr};
+use franklin_crypto::eddsa::PublicKey;
 use franklin_crypto::eddsa::{PrivateKey as FLPrivateKey, PrivateKey};
 use franklin_crypto::jubjub::FixedGenerators;
-use franklin_crypto::eddsa::PublicKey;
 use sha2::{Digest, Sha256};
+use std::sync::Arc;
 use web3::types::H256;
-use crate::zklink_signer::public_key::PackedPublicKey;
 
 pub struct PackedPrivateKey(EddsaPrivKey<Engine>);
 

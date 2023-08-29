@@ -162,4 +162,17 @@ impl ZkLinkTx {
             ZkLinkTx::Deposit(tx) => Nonce((tx.serial_id & 0xffffffff) as u32),
         }
     }
+
+    /// Check tx correct
+    pub fn check_correctness(&self) -> bool {
+        match self {
+            ZkLinkTx::Transfer(tx) => tx.check_correctness(),
+            ZkLinkTx::Withdraw(tx) => tx.check_correctness(),
+            ZkLinkTx::ChangePubKey(tx) => tx.check_correctness(),
+            ZkLinkTx::ForcedExit(tx) => tx.check_correctness(),
+            ZkLinkTx::OrderMatching(tx) => tx.check_correctness(),
+            ZkLinkTx::FullExit(tx) => tx.check_correctness(),
+            ZkLinkTx::Deposit(tx) => tx.check_correctness(),
+        }
+    }
 }
