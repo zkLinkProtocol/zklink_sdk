@@ -21,6 +21,11 @@ web3 = "0.18.0"
 zklink_sdk_utils = { path = "../utils" }
 ethers = "2.0.2"
 
+uniffi = { version = "0.24" }
+uniffi_macros = "0.24"
+
+[build-dependencies]
+uniffi = { version = "0.24", features = ["build"] }
 
 [dev-dependencies]
 actix-rt = "2.7"

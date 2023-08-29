@@ -16,15 +16,31 @@ interface PubKeyHash {
     constructor([ByRef] string s);
     [Throws=ZkSignerError,Name=from_bytes]
     constructor([ByRef] sequence<u8> bytes);
+    [Name=from_pubkey]
+    constructor([ByRef] PackedPublicKey pubkey);
     string as_hex();
 };
+
+
+interface PackedPrivateKey {
+    [Throws=ZkSignerError]
+    constructor();
+    [Throws=ZkSignerError,Name=new_from_seed]
+    constructor([ByRef] sequence<u8> seed);
+    [Throws=ZkSignerError,Name=new_from_hex_eth_signer]
+    constructor([ByRef] string eth_hex_private_key);
+    [Throws=ZkSignerError,Name=new_from_bytes]
+    constructor([ByRef] sequence<u8> bytes);
+};
+
 
 interface PackedPublicKey {
         [Throws=ZkSignerError,Name=from_bytes]
         constructor([ByRef] sequence<u8> bytes);
+        [Name=from_private_key]
+        constructor([ByRef] PackedPrivateKey pk);
         sequence<u8> as_bytes();
         string as_hex();
-        PubKeyHash public_key_hash();
 };
 
 interface PackedSignature {
@@ -40,6 +56,8 @@ interface ZkLinkSignature {
     constructor([ByRef] sequence<u8> bytes);
     [Throws=ZkSignerError,Name=from_hex]
     constructor([ByRef] string s);
+    [Throws=ZkSignerError,Name=sign_musig]
+    constructor([ByRef] ZkLinkSigner signer, [ByRef] sequence<u8> msg);
     sequence<u8> as_bytes();
     string as_hex();
     [Throws=ZkSignerError]
@@ -55,12 +73,8 @@ interface ZkLinkSigner {
         constructor([ByRef] string eth_hex_private_key);
         [Throws=ZkSignerError,Name=new_from_bytes]
         constructor([ByRef] sequence<u8> slice);
-        [Throws=ZkSignerError]
-        PackedPublicKey get_public_key();
-        [Throws=ZkSignerError]
-        ZkLinkSignature sign_musig([ByRef] sequence<u8> msg);
 };
 
-namespace zklink_crypto_binding {};
+namespace zklink_crypto {};
 
 

@@ -4,6 +4,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::convert::TryInto;
 use ethers::types::H256;
 use crate::eth_signer::eip712::Structuralization;
+use crate::zklink_signer::public_key::PackedPublicKey;
 
 /// Hash of the account's owner public key.
 ///
@@ -72,6 +73,10 @@ impl PubKeyHash {
             .try_into()
             .map_err(|_| Error::InvalidPubkeyHash("size mismatch".into()))?;
         Ok(PubKeyHash { data })
+    }
+
+    pub fn from_pubkey(pubkey: &PackedPublicKey) -> Self {
+        pubkey.public_key_hash()
     }
 }
 

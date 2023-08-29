@@ -1,0 +1,15 @@
+[package]
+name = "zklink_sdk"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "zklink_sdk"
+path = "src/lib.rs"
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+uniffi = { version = "0.24" }
+uniffi_macros = { version = "0.24" }
+zklink_crypto = { path = "../../crypto" }
+
