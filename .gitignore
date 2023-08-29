@@ -1,3 +1,3 @@
 /target
 /Cargo.lock
-/bindings/generated
+binding_tests/generated/

@@ -25,7 +25,7 @@ uniffi = { version = "0.24" }
 uniffi_macros = "0.24"
 
 [build-dependencies]
-uniffi = { version = "0.24", features = ["build"] }
+uniffi_build = "0.24"
 
 [dev-dependencies]
 actix-rt = "2.7"
