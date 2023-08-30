@@ -1,4 +1,4 @@
-module github.com/NordSecurity/uniffi-bindgen-go/binding_tests
+module github.com/zkLinkProtocol/zklink_sdk/binding_tests
 
 go 1.19
 
