@@ -1,13 +1,11 @@
 //! Common primitives for the layer1 blockchain network interaction.
-// Built-in deps
 use ethers::types::Address;
 use std::fmt::{Debug, Formatter};
 use std::str::FromStr;
-// External uses
 use rand::Rng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use crate::basic_types::error::TypeError;
-use crate::basic_types::error::TypeError::{DecodeFromHexErr, NotStartWithZerox, SizeMismatch};
+use crate::basic_types::error::TypeError as Error;
+use zklink_sdk_utils::serde::{Prefix, ZeroxPrefix};
 
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ZkLinkAddress(Vec<u8>);
@@ -16,9 +14,9 @@ impl ZkLinkAddress {
     /// Reads a account address from its byte sequence representation.
     ///
     /// Returns err if the slice length does not match with address length.
-    pub fn from_slice(slice: &[u8]) -> Result<Self, TypeError> {
+    pub fn from_slice(slice: &[u8]) -> Result<Self, Error> {
         if slice.len() != 32 && slice.len() != 20 {
-            Err(TypeError::InvalidAddress)
+            Err(Error::InvalidAddress)
         } else {
             let mut out = ZkLinkAddress(Vec::with_capacity(slice.len()));
             out.0.extend_from_slice(slice);
@@ -27,7 +25,7 @@ impl ZkLinkAddress {
     }
 
     /// Get bytes by consuming self
-    pub fn into_inner(self) -> Vec<u8> {
+    pub fn into_bytes(self) -> Vec<u8> {
         self.0
     }
 
@@ -60,7 +58,7 @@ impl ZkLinkAddress {
 
 impl Debug for ZkLinkAddress {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "0x{}", hex::encode(&self.0))
+        write!(f, "{}", self.to_string())
     }
 }
 
@@ -78,7 +76,7 @@ impl AsRef<[u8]> for ZkLinkAddress {
 
 impl ToString for ZkLinkAddress {
     fn to_string(&self) -> String {
-        format!("0x{}", hex::encode(&self.0))
+        format!("{}{}", ZeroxPrefix::prefix(), hex::encode(&self.0))
     }
 }
 
@@ -95,17 +93,23 @@ impl From<[u8; 20]> for ZkLinkAddress {
     }
 }
 
+impl From<[u8; 32]> for ZkLinkAddress {
+    fn from(bytes: [u8; 32]) -> Self {
+        ZkLinkAddress(bytes.to_vec())
+    }
+}
+
 impl FromStr for ZkLinkAddress {
-    type Err = TypeError;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if !s.starts_with("0x") {
-            return Err(TypeError::NotStartWithZerox);
+            return Err(Error::NotStartWithZerox);
         }
         let bytes = hex::decode(s.trim_start_matches("0x"))
-            .map_err(|e| DecodeFromHexErr(e.to_string()))?;
+            .map_err(|e| Error::DecodeFromHexErr(e.to_string()))?;
         if !(bytes.len() == 32 || bytes.len() == 20) {
-            return Err(TypeError::SizeMismatch);
+            return Err(Error::SizeMismatch);
         }
         Ok(ZkLinkAddress(bytes))
     }
@@ -137,21 +141,47 @@ impl<'de> Deserialize<'de> for ZkLinkAddress {
     }
 }
 
-#[test]
-fn test_zklink_addresses() {
-    let a = "0xffffffffffffffffffffffffffffffffffffffff";
-    let b = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    let a1 = ZkLinkAddress::from_slice(&[255u8; 20]).unwrap();
-    let b1 = ZkLinkAddress::from_slice(&[255u8; 32]).unwrap();
-    let a_str = serde_json::to_string(&a1).unwrap();
-    let b_str = serde_json::to_string(&b1).unwrap();
+    #[test]
+    fn test_zklink_addresses() {
+        let a = "0xffffffffffffffffffffffffffffffffffffffff";
+        let b = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+        let c = "0x0000000000000000000000000000000000000000";
 
-    let a_addr: ZkLinkAddress = serde_json::from_str(&a_str).unwrap();
-    let b_addr: ZkLinkAddress = serde_json::from_str(&b_str).unwrap();
+        let a1 = ZkLinkAddress::from_slice(&[255u8; 20]).unwrap();
+        let b1 = ZkLinkAddress::from_slice(&[255u8; 32]).unwrap();
+        let c1 = ZkLinkAddress::from_slice(&[0u8; 20]).unwrap();
+        assert!(c1.is_zero());
+        assert!(b1.is_global_account_address());
 
-    assert_eq!(a_addr, a1);
-    assert_eq!(a_addr, ZkLinkAddress::from_str(a).unwrap());
-    assert_eq!(b_addr, b1);
-    assert_eq!(b_addr, ZkLinkAddress::from_str(b).unwrap());
+        // test to_string
+        let a_str = a1.to_string();
+        let b_str = b1.to_string();
+        let c_str = c1.to_string();
+        assert_eq!(a, a_str);
+        assert_eq!(b, b_str);
+        assert_eq!(c, c_str);
+
+        // test serde
+        let a_str = serde_json::to_string(&a1).unwrap();
+        let a_addr: ZkLinkAddress = serde_json::from_str(&a_str).unwrap();
+        assert_eq!(a_addr, a1);
+        let b_str = serde_json::to_string(&b1).unwrap();
+        let b_addr: ZkLinkAddress = serde_json::from_str(&b_str).unwrap();
+        assert_eq!(b_addr, b1);
+        let c_str = serde_json::to_string(&c1).unwrap();
+        let c_addr: ZkLinkAddress = serde_json::from_str(&c_str).unwrap();
+        assert_eq!(c_addr, c1);
+
+        // test deserde
+        let a_addr: ZkLinkAddress = serde_json::from_str(&a_str).unwrap();
+        assert_eq!(a_addr, a1);
+        let b_addr: ZkLinkAddress = serde_json::from_str(&b_str).unwrap();
+        assert_eq!(b_addr, b1);
+        let c_addr: ZkLinkAddress = serde_json::from_str(&c_str).unwrap();
+        assert_eq!(c_addr, c1);
+    }
 }

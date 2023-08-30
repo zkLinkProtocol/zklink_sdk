@@ -1,28 +1,31 @@
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{convert::TryInto, str::FromStr};
 use zklink_sdk_utils::serde::{Prefix, ZeroxPrefix};
-use crate::basic_types::error::TypeError::{NotStartWithZerox, SizeMismatch};
-use crate::basic_types::error::TypeError;
+use crate::basic_types::error::TypeError as Error;
+
+const TX_HASH_LEN: usize = 32;
 
 /// Transaction hash.
 /// Essentially, a SHA-256 hash of transaction bytes encoded according to the zkLink protocol.
 #[derive(Debug, Copy, Clone, PartialEq, Default, Eq, Hash, PartialOrd, Ord)]
 pub struct TxHash {
-    pub(crate) data: [u8; 32],
+    pub(crate) data: [u8; TX_HASH_LEN],
 }
 
 impl TxHash {
     /// Reads a transaction hash from its byte sequence representation.
     ///
     /// Returns none if the slice length does not match with hash length.
-    pub fn from_slice(slice: &[u8]) -> Option<Self> {
-        let mut out = TxHash { data: [0_u8; 32] };
+    pub fn from_slice(slice: &[u8]) -> Result<Self, Error> {
+        let mut out = TxHash {
+            data: [0_u8; TX_HASH_LEN],
+        };
 
-        if slice.len() != out.data.len() {
-            None
+        if slice.len() != TX_HASH_LEN {
+            Err(Error::SizeMismatch)
         } else {
             out.data.copy_from_slice(slice);
-            Some(out)
+            Ok(out)
         }
     }
 }
@@ -40,17 +43,17 @@ impl ToString for TxHash {
 }
 
 impl FromStr for TxHash {
-    type Err = TypeError;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let zerox_prefix = ZeroxPrefix::prefix();
         if !s.starts_with(zerox_prefix) {
-            return Err(NotStartWithZerox);
+            return Err(Error::NotStartWithZerox);
         }
         let remove_prefix_start = zerox_prefix.len();
-        let bytes = hex::decode(&s[remove_prefix_start..]).map_err(|e| TypeError::DecodeFromHexErr(e.to_string()))?;
+        let bytes = hex::decode(&s[remove_prefix_start..]).map_err(|e| Error::DecodeFromHexErr(e.to_string()))?;
         if bytes.len() != 32 {
-            return Err(SizeMismatch);
+            return Err(Error::SizeMismatch);
         }
         Ok(TxHash {
             data: bytes.as_slice().try_into().unwrap(),

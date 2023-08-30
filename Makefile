@@ -63,6 +63,7 @@ prepare_wasm:
 build_binding_files: prepare_ffi
 	rm -rf ${BINDINGS_DIR}
 	uniffi-bindgen-go ${ROOT_DIR}/crypto/src/ffi.udl --out-dir ${BINDINGS_DIR}
+	uniffi-bindgen-go ${ROOT_DIR}/types/src/ffi.udl --out-dir ${BINDINGS_DIR}
 
 build_binding_lib:
 	cargo build --package bindings_sdk --release

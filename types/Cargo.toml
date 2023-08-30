@@ -22,7 +22,16 @@ thiserror = "1.0"
 validator = { version = "0.15", features = ["derive"] }
 zklink_crypto = { path = "../crypto" }
 zklink_sdk_utils = { path = "../utils" }
+uniffi = { version = "0.23", optional = true }
+uniffi_macros = { version = "0.23", optional = true }
 
 [dev-dependencies]
 primitive-types = "0.12.1"
 ethers = "2.0.2"
+
+[build-dependencies]
+uniffi_build = {version = "0.23", features=["builtin-bindgen"] }
+
+[features]
+default = ["ffi"]
+ffi = ["uniffi", "uniffi_macros"]

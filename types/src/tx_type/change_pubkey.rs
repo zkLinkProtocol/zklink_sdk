@@ -88,9 +88,9 @@ impl ChangePubKeyAuthData {
     //     matches!(self, ChangePubKeyAuthData::StarkECDSA(..))
     // }
 
-    pub fn get_eth_witness(&self) -> Vec<u8> {
+    pub fn get_eth_witness(&self) -> Option<Vec<u8>> {
         match self {
-            ChangePubKeyAuthData::Onchain => Vec::new(),
+            ChangePubKeyAuthData::Onchain => None,
             ChangePubKeyAuthData::EthECDSA(EthECDSAData { eth_signature, .. }) => {
                 let mut bytes = Vec::new();
                 bytes.push(0x00);
@@ -101,7 +101,7 @@ impl ChangePubKeyAuthData {
                     v += 27;
                 }
                 bytes.push(v);
-                bytes
+                Some(bytes)
             }
             ChangePubKeyAuthData::EthCREATE2(CREATE2Data {
                 creator_address,
@@ -113,7 +113,7 @@ impl ChangePubKeyAuthData {
                 bytes.extend_from_slice(creator_address.as_bytes());
                 bytes.extend_from_slice(salt_arg.as_bytes());
                 bytes.extend_from_slice(code_hash.as_bytes());
-                bytes
+                Some(bytes)
             } // ChangePubKeyAuthData::StarkECDSA(StarkECDSAData{signature, public_key}) =>{
               //     let mut bytes = Vec::new();
               //     bytes.push(0x02);

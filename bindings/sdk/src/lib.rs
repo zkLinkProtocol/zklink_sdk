@@ -4,4 +4,5 @@
 
 mod uniffi_bindings {
     zklink_crypto::uniffi_reexport_scaffolding!();
+    zklink_types::uniffi_reexport_scaffolding!();
 }

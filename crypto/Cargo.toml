@@ -34,7 +34,7 @@ uniffi_build = {version = "0.23", features=["builtin-bindgen"]}
 
 [features]
 default = []
-ffi = ["uniffi", "uniffi_macros"]
+ffi = [ "uniffi", "uniffi_macros" ]
 
 
 [dev-dependencies]

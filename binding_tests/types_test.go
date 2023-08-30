@@ -1,0 +1,19 @@
+package binding_tests
+
+import (
+	"github.com/zkLinkProtocol/zklink_sdk/binding_tests/generated/uniffi/types"
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
+
+func TestTypesZkLinkAddress(t *testing.T) {
+    slice := make([]byte, 20)
+    address, err := types.ZkLinkAddressFromSlice(slice);
+    assert.Nil(t, err)
+    assert.Equal(t, address.IsZero(), true)
+    assert.Equal(t, address.ToString(), "0x0000000000000000000000000000000000000000")
+    // invlaid address
+    slice = []byte{0,1,2,3,4,5}
+    address, err = types.ZkLinkAddressFromSlice(slice)
+    assert.NotNil(t, err)
+}
