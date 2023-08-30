@@ -16,7 +16,7 @@ Naturally, you will need the [Rust toolchain] installed.
 Besides that, for [UniFFI] language bindings, you will need the corresponding language formatters:
 
 ```bash
-cargo install uniffi-bindgen-go --git https://github.com/NordSecurity/uniffi-bindgen-go
+cargo install uniffi-bindgen-go --git https://github.com/NordSecurity/uniffi-bindgen-go --tag v0.1.3+v0.23.0
 ```
 
 For the JavaScript-Wasm bindings, you will need the `wasm-pack` to be installed:
