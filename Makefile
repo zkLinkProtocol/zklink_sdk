@@ -38,8 +38,19 @@ ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 LIB_DIR := ${ROOT_DIR}/target/debug
 LD_LIBRARY_PATH := ${LD_LIBRARY_PATH}:${LIB_DIR}
 BINDINGS_DIR?="${ROOT_DIR}/binding_tests/generated"
+UNIFFI_VERSION=0.23.0
+UNIFFI_BINDGEN_GO_VERSION=v0.1.3+v${UNIFFI_VERSION}
 
-build_binding_files:
+ffi_install:
+	@if [[ `uniffi-bindgen-go -V | grep 'v.${UNIFFI_VERSION}'` ]]; then \
+		echo "uniffi-bindgen-go ${UNIFFI_VERSION} already installed"; \
+	else \
+		echo "install uniffi-bindgen-go"; \
+		cargo install uniffi-bindgen-go --git https://github.com/NordSecurity/uniffi-bindgen-go --tag ${UNIFFI_BINDGEN_GO_VERSION}; \
+	fi
+
+
+build_binding_files: ffi_install
 	sh build_bindings.sh
 
 build_binding_lib:

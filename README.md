@@ -28,6 +28,7 @@ Depending on your target platform, you may also need additional tooling for a gi
 
 ## Generate bindings
 
+### generate binding lib
 ```bash
 uniffi-bindgen-go path/to/definitions.udl
 ```
