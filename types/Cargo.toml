@@ -22,3 +22,7 @@ thiserror = "1.0"
 validator = { version = "0.15", features = ["derive"] }
 zklink_crypto = { path = "../crypto" }
 zklink_sdk_utils = { path = "../utils" }
+
+[dev-dependencies]
+primitive-types = "0.12.1"
+ethers = "2.0.2"

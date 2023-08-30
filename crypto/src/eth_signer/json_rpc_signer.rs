@@ -337,6 +337,14 @@ mod messages {
             Self::create("personal_sign", params)
         }
 
+        pub fn sign_typed_data(address: Address, message: &[u8]) -> Self {
+            let params = vec![
+                serde_json::to_value(address).expect("serialization fail"),
+                serde_json::to_value(message).expect("serialization fail"),
+            ];
+            Self::create("eth_signTypedData_v4", params)
+        }
+
         /// Signs a transaction that can be submitted to the network.
         /// The address to sign with must be unlocked.
         pub fn sign_transaction(from: Address, tx_data: RawTransaction) -> Self {

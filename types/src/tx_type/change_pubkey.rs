@@ -1,6 +1,7 @@
 use crate::basic_types::{
     AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
+use crate::tx_type::error::FloatConvertError;
 use crate::tx_type::format_units;
 use crate::tx_type::pack::pack_fee_amount;
 use crate::tx_type::validator::*;
@@ -8,8 +9,11 @@ use ethers::types::{Address, H256};
 use num::{BigUint, Zero};
 use parity_crypto::Keccak256;
 use serde::{Deserialize, Serialize};
+use std::error::Error;
 use validator::Validate;
-use zklink_crypto::eth_signer::eip712::{AbsorbMember, EIP712Domain, Structuralization, EIP712};
+use zklink_crypto::eth_signer::eip712::eip712::{eip712_typed_data, EIP712Domain};
+use zklink_crypto::eth_signer::eip712::{BytesM, Uint};
+use zklink_crypto::eth_signer::error::EthSignerError;
 use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
@@ -287,34 +291,28 @@ impl ChangePubKey {
         message
     }
 
-    fn get_eip712_signed_data_by_domain<ADDRESS: Structuralization>(
-        &self,
-        domain: EIP712Domain<ADDRESS>,
-    ) -> Vec<u8> {
-        let mut bytes = Vec::new();
-        bytes.extend_from_slice("\x19\x01".as_bytes());
-        bytes.extend_from_slice(domain.hash_struct().as_bytes());
-        bytes.extend_from_slice(self.hash_struct().as_bytes());
-        bytes
-    }
-
-    pub fn get_eth_eip712_signed_data_of_chain(
+    pub fn to_eip712_request_payload(
         &self,
         layer_one_chain_id: u32,
         verifying_contract: &ZkLinkAddress,
-    ) -> Result<Vec<u8>, anyhow::Error> {
-        let domain = EIP712Domain::new1(layer_one_chain_id, verifying_contract.into());
-        let bytes = self.get_eip712_signed_data_by_domain(domain);
-        Ok(bytes)
+    ) -> Result<String, EthSignerError> {
+        let domain = EIP712Domain::from_chain(layer_one_chain_id, verifying_contract.to_string())?;
+        let typed_data = eip712_typed_data::<EIP712ChangePubKey>(domain, self.into())?;
+        serde_json::to_string(&typed_data)
+            .map_err(|e| EthSignerError::CustomError("serialization error".into()))
     }
 }
 
-// todo use sign_typed_data of Wallet in ethers
-impl EIP712 for ChangePubKey {
-    const STRUCT_NAME: &'static str = "ChangePubKey";
-    fn absorb_member<BUILDER: AbsorbMember>(&self, builder: &mut BUILDER) {
-        builder.absorb("pubKeyHash", &self.new_pk_hash);
-        builder.absorb("nonce", &*self.nonce);
-        builder.absorb("accountId", &*self.account_id);
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename = "ChangePubKey")]
+struct EIP712ChangePubKey {
+    pubKeyHash: BytesM<20>,
+    nonce: Uint<32>,
+    accountId: Uint<32>,
+}
+
+impl From<&ChangePubKey> for EIP712ChangePubKey {
+    fn from(value: &ChangePubKey) -> Self {
+        todo!()
     }
 }

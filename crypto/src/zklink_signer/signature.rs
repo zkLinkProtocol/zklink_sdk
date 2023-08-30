@@ -165,7 +165,7 @@ impl ZkLinkSignature {
 
 #[cfg(test)]
 mod test {
-    use crate::zklink_signer::ZkLinkSigner;
+    use crate::zklink_signer::pk_signer::ZkLinkSigner;
 
     #[test]
     fn test_signature() {

@@ -23,6 +23,8 @@ pub enum EthSignerError {
     UnlockingFailed(String),
     #[error("Decode raw transaction failed: {0}")]
     DecodeRawTxFailed(String),
+    #[error("Decode raw transaction failed: {0}")]
+    Eip712Failed(String),
     #[error("Signing key is not set in account")]
     NoSigningKey,
     #[error("Address determination error")]
