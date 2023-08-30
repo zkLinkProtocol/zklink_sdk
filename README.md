@@ -13,22 +13,35 @@ The codebase is primarily in Rust and provides cross-language bindings using mul
 
 ## Pre-requisites
 Naturally, you will need the [Rust toolchain] installed.
-Besides that, for [UniFFI] language bindings, you will need the corresponding language formatters:
+Besides that, for [UniFFI] language bindings, you will need the Golang formatters:
 
 ```bash
-cargo install uniffi-bindgen-go --git https://github.com/NordSecurity/uniffi-bindgen-go --tag v0.1.3+v0.23.0
+make prepare_ffi
 ```
 
 For the JavaScript-Wasm bindings, you will need the `wasm-pack` to be installed:
 ```bash
-curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+make prepare_wasm
 ```
 
-Depending on your target platform, you may also need additional tooling for a given platform (e.g. Android NDK).
+## Generate Golang bindings
 
-## Generate bindings
-
-### generate binding lib
+First, you need to build the rust code as a library:
 ```bash
-uniffi-bindgen-go path/to/definitions.udl
+make build_binding_lib 
 ```
+The dynamic and static system library `zklink_sdk` will be in `./target/release/lib`. Next, you need to generate the bindings:
+
+```bash
+make build_bindging_files 
+```
+
+The default binding path is `./binding_tests/generated`, if you want to generate bindings to another directory, just set the  `BINDINGS_DIR` when run the `make` command:
+
+```bash
+make build_binding_files BINDINGS_DIR=/path/to/the/bindings/directory
+```
+
+To use the bindings and the library, see the detail in `make test_go` command.
+
+

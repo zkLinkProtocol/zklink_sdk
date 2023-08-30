@@ -35,13 +35,16 @@ clean:
 	cargo clean
 
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-LIB_DIR := ${ROOT_DIR}/target/debug
+# the ffi lib directory
+LIB_DIR := ${ROOT_DIR}/target/release
+# the directory of generated golang files
+BINDINGS_DIR:=${ROOT_DIR}/binding_tests/generated
 LD_LIBRARY_PATH := ${LD_LIBRARY_PATH}:${LIB_DIR}
 BINDINGS_DIR?="${ROOT_DIR}/binding_tests/generated"
 UNIFFI_VERSION=0.23.0
 UNIFFI_BINDGEN_GO_VERSION=v0.1.3+v${UNIFFI_VERSION}
 
-ffi_install:
+prepare_ffi:
 	@if [[ `uniffi-bindgen-go -V | grep 'v.${UNIFFI_VERSION}'` ]]; then \
 		echo "uniffi-bindgen-go ${UNIFFI_VERSION} already installed"; \
 	else \
@@ -49,12 +52,20 @@ ffi_install:
 		cargo install uniffi-bindgen-go --git https://github.com/NordSecurity/uniffi-bindgen-go --tag ${UNIFFI_BINDGEN_GO_VERSION}; \
 	fi
 
+prepare_wasm:
+	@if [[ `wasm-pack -V` ]]; then \
+		echo "wasm-pack already installed"; \
+	else \
+		echo "install wasm-pack"; \
+		curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh; \
+	fi
 
-build_binding_files: ffi_install
-	sh build_bindings.sh
+build_binding_files: prepare_ffi
+	rm -rf ${BINDINGS_DIR}
+	uniffi-bindgen-go ${ROOT_DIR}/crypto/src/ffi.udl --out-dir ${BINDINGS_DIR}
 
 build_binding_lib:
-	cargo build --package bindings_sdk
+	cargo build --package bindings_sdk --release
 
 test_go: build_binding_lib build_binding_files
 	cd ${ROOT_DIR}/binding_tests && \
