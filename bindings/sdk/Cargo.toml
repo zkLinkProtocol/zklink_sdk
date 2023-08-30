@@ -1,15 +1,12 @@
 [package]
-name = "zklink_sdk"
+name = "bindings_sdk"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
 name = "zklink_sdk"
 path = "src/lib.rs"
-crate-type = ["cdylib", "staticlib", "rlib"]
+crate-type = ["cdylib", "staticlib", "lib"]
 
 [dependencies]
-uniffi = { version = "0.24" }
-uniffi_macros = { version = "0.24" }
-zklink_crypto = { path = "../../crypto" }
-
+zklink_crypto = { path = "../../crypto", features = ["ffi"] }

@@ -34,23 +34,22 @@ build:
 clean:
 	cargo clean
 
+ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+LIB_DIR := ${ROOT_DIR}/target/debug
+LD_LIBRARY_PATH := ${LD_LIBRARY_PATH}:${LIB_DIR}
+BINDINGS_DIR?="${ROOT_DIR}/binding_tests/generated"
+
 build_binding_files:
-	export BINDINGS_DIR="${ROOT_DIR}/binding_tests/generated"
 	sh build_bindings.sh
 
 build_binding_lib:
-	cargo build --package zklink_sdk
+	cargo build --package bindings_sdk
 
-build_bindings: build_binding_lib build_binding_files
-
-ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-LIB_DIR = ${ROOT_DIR}/target/x86_64-apple-darwin/debug
-
-test_go: build_bindings
-	echo ${LIB_DIR}
-	LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${LIB_DIR}" \
-	CGO_LDFLAGS="-lzklink_sdk -L$LIB_DIR -lm -ldl" \
+test_go: build_binding_lib build_binding_files
+	cd ${ROOT_DIR}/binding_tests && \
+	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} \
+	CGO_LDFLAGS="-lzklink_sdk -L${LIB_DIR} -lm -ldl" \
 	CGO_ENABLED=1 \
-	cd ${ROOT_DIR}/binding_tests && go test  -v
+	go test  -v
 
 

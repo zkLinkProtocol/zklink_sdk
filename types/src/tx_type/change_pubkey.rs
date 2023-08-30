@@ -4,12 +4,10 @@ use crate::basic_types::{
 use crate::tx_type::format_units;
 use crate::tx_type::pack::pack_fee_amount;
 use crate::tx_type::validator::*;
-use ethers::core::k256::U256;
 use ethers::types::{Address, H256};
 use num::{BigUint, Zero};
 use parity_crypto::Keccak256;
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 use validator::Validate;
 use zklink_crypto::eth_signer::eip712::{AbsorbMember, EIP712Domain, Structuralization, EIP712};
 use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;

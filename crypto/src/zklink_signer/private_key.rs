@@ -1,13 +1,12 @@
 use super::error::ZkSignerError as Error;
 use crate::eth_signer::packed_eth_signature::PackedEthSignature;
 use crate::zklink_signer::public_key::PackedPublicKey;
-use crate::zklink_signer::{EddsaPrivKey, Engine, JUBJUB_PARAMS};
+use crate::zklink_signer::{EddsaPrivKey, Engine};
 use franklin_crypto::alt_babyjubjub::fs::{Fs, FsRepr};
 use franklin_crypto::bellman::{PrimeField, PrimeFieldRepr};
-use franklin_crypto::eddsa::PublicKey;
 use franklin_crypto::eddsa::{PrivateKey as FLPrivateKey, PrivateKey};
-use franklin_crypto::jubjub::FixedGenerators;
 use sha2::{Digest, Sha256};
+#[cfg(feature = "ffi")]
 use std::sync::Arc;
 use web3::types::H256;
 
@@ -92,5 +91,15 @@ impl PackedPrivateKey {
     /// Decodes a private key from a field element.
     fn from_fs(fs: Fs) -> PackedPrivateKey {
         PrivateKey(fs).into()
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn public_key(&self) -> Arc<PackedPublicKey> {
+        Arc::new(PackedPublicKey::from_private_key(&self))
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn public_key(&self) -> PackedPublicKey {
+        PackedPublicKey::from_private_key(&self)
     }
 }

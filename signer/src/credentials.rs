@@ -3,7 +3,7 @@ use web3::types::H256;
 use zklink_crypto::eth_signer::eth_signature::TxEthSignature;
 use zklink_crypto::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_crypto::eth_signer::EthereumSigner;
-use zklink_crypto::zklink_signer::ZkLinkSigner;
+use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
 
 pub struct WalletCredentials<S: EthereumSigner> {
     pub(crate) eth_signer: Option<S>,

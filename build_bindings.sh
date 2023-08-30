@@ -15,10 +15,4 @@ function bindings() {
     uniffi-bindgen-go $1 --out-dir "$BINDINGS_DIR"
 }
 
-bindings crypto/src/crypto.udl
-
-#pushd $BINDINGS_DIR/..
-#export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}:$LIB_DIR"
-#	CGO_LDFLAGS="-lzklink_sdk -L$LIB_DIR -lm -ldl" \
-#	CGO_ENABLED=1 \
-#	go test -v
+bindings crypto/src/ffi.udl

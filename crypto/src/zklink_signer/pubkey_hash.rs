@@ -1,6 +1,5 @@
 use super::error::ZkSignerError as Error;
 use crate::eth_signer::eip712::Structuralization;
-use crate::zklink_signer::public_key::PackedPublicKey;
 use crate::zklink_signer::NEW_PUBKEY_HASH_BYTES_LEN;
 use ethers::types::H256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -75,9 +74,9 @@ impl PubKeyHash {
         Ok(PubKeyHash { data })
     }
 
-    pub fn from_pubkey(pubkey: &PackedPublicKey) -> Self {
-        pubkey.public_key_hash()
-    }
+    // pub fn from_pubkey(pubkey: &PackedPublicKey) -> Self {
+    //     pubkey.public_key_hash()
+    // }
 }
 
 impl Structuralization for PubKeyHash {

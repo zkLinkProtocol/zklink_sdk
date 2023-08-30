@@ -9,7 +9,7 @@ use zklink_signer::error::ClientError;
 use zklink_signer::signer::Signer;
 use zklink_signer::TxSignature;
 use zklink_types::basic_types::tx_hash::TxHash;
-use zklink_types::basic_types::{ChainId, Nonce, SubAccountId, TokenId, ZkLinkAddress, AccountId};
+use zklink_types::basic_types::{AccountId, ChainId, Nonce, SubAccountId, TokenId, ZkLinkAddress};
 use zklink_types::tx_type::order_matching::Order;
 
 impl<S, P> Wallet<S, P>

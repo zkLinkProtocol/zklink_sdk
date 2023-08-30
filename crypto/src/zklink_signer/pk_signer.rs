@@ -7,10 +7,12 @@ use crate::zklink_signer::utils;
 use franklin_crypto::alt_babyjubjub::FixedGenerators;
 use franklin_crypto::eddsa::Seed;
 use std::fmt;
+#[cfg(feature = "ffi")]
+use std::sync::Arc;
 
 pub struct ZkLinkSigner {
     private_key: PackedPrivateKey,
-    pub public_key: PackedPublicKey,
+    public_key: PackedPublicKey,
 }
 
 impl fmt::Display for ZkLinkSigner {
@@ -63,7 +65,8 @@ impl ZkLinkSigner {
     /// We use musig Schnorr signature scheme.
     /// It is impossible to restore signer for signature, that is why we provide public key of the signer
     /// along with signature.
-    pub fn sign_musig(&self, msg: &[u8]) -> Result<ZkLinkSignature, Error> {
+    ///
+    fn do_sign_musig(&self, msg: &[u8]) -> Result<ZkLinkSignature, Error> {
         let p_g = FixedGenerators::SpendingKeyGenerator;
         let public_key = self.public_key.clone();
         let signature = JUBJUB_PARAMS.with(|jubjub_params| {
@@ -86,8 +89,24 @@ impl ZkLinkSigner {
         Ok(signature)
     }
 
-    pub fn verify_musig(signature: &ZkLinkSignature, msg: &[u8]) -> Result<bool, Error> {
-        signature.verify_musig(msg)
+    #[cfg(feature = "ffi")]
+    pub fn sign_musig(&self, msg: &[u8]) -> Result<Arc<ZkLinkSignature>, Error> {
+        self.do_sign_musig(msg).map(Arc::new)
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn sign_musig(&self, msg: &[u8]) -> Result<ZkLinkSignature, Error> {
+        self.do_sign_musig(msg)
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn public_key(&self) -> Arc<PackedPublicKey> {
+        Arc::new(self.public_key.clone())
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn public_key(&self) -> &PackedPublicKey {
+        &self.public_key
     }
 }
 

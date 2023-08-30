@@ -7,13 +7,12 @@ use zklink_crypto::eth_signer::eth_signature::TxEthSignature;
 use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_crypto::eth_signer::EthereumSigner;
 use zklink_crypto::zklink_signer::error::ZkSignerError;
+use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
-use zklink_crypto::zklink_signer::ZkLinkSigner;
 use zklink_types::basic_types::{
     AccountId, ChainId, Nonce, SlotId, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
-use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, EthECDSAData};
 use zklink_types::tx_type::forced_exit::ForcedExit;
 use zklink_types::tx_type::order_matching::{Order, OrderMatching};
 use zklink_types::tx_type::transfer::Transfer;
@@ -34,7 +33,7 @@ pub struct Signer<S: EthereumSigner> {
 impl<S: EthereumSigner> Signer<S> {
     pub fn new(pk_bytes: &[u8], eth_signer: Option<S>) -> Result<Self, ZkSignerError> {
         let zklink_signer = ZkLinkSigner::new_from_bytes(pk_bytes)?;
-        let pub_key_hash = zklink_signer.public_key.public_key_hash();
+        let pub_key_hash = zklink_signer.public_key().public_key_hash();
 
         Ok(Self {
             zklink_signer,
@@ -53,7 +52,7 @@ impl<S: EthereumSigner> Signer<S> {
     }
 
     pub fn sign_layer_two_message(&self, message: &[u8]) -> Result<ZkLinkSignature, ZkSignerError> {
-        self.zklink_signer.sign_musig(message)
+        Ok(self.zklink_signer.sign_musig(message)?)
     }
 
     /// see eip191, pretend 'Ethereum Signed Message' to the message

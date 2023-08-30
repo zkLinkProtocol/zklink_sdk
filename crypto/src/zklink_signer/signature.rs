@@ -3,7 +3,6 @@ use super::JUBJUB_PARAMS;
 use super::RESCUE_PARAMS;
 use super::{utils, EddsaSignature, PACKED_POINT_SIZE, SIGNATURE_SIZE};
 use crate::zklink_signer::public_key::PackedPublicKey;
-use crate::zklink_signer::ZkLinkSigner;
 use franklin_crypto::alt_babyjubjub::{edwards, fs::FsRepr, FixedGenerators};
 use franklin_crypto::bellman::pairing::bn256::Bn256 as Engine;
 use franklin_crypto::bellman::pairing::ff::{PrimeField, PrimeFieldRepr};
@@ -144,10 +143,6 @@ impl ZkLinkSignature {
     pub fn as_hex(&self) -> String {
         let bytes = self.as_bytes();
         format!("0x{}", hex::encode(bytes))
-    }
-
-    pub fn sign_musig(signer: &ZkLinkSigner, msg: &[u8]) -> Result<Self, Error> {
-        signer.sign_musig(msg)
     }
 
     pub fn verify_musig(&self, msg: &[u8]) -> Result<bool, Error> {

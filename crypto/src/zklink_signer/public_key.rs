@@ -10,6 +10,7 @@ use franklin_crypto::alt_babyjubjub::FixedGenerators;
 use franklin_crypto::eddsa::PublicKey;
 use franklin_crypto::jubjub::edwards;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+#[cfg(feature = "ffi")]
 use std::sync::Arc;
 
 #[derive(Clone)]
@@ -71,7 +72,7 @@ impl PackedPublicKey {
         format!("0x{}", hex::encode(bytes))
     }
 
-    pub fn public_key_hash(&self) -> PubKeyHash {
+    fn get_public_key_hash(&self) -> PubKeyHash {
         let (pub_x, pub_y) = self.as_ref().0.into_xy();
         let pub_key_hash = rescue_hash_elements(&[pub_x, pub_y]);
         let mut pub_key_hash_bits = Vec::with_capacity(NEW_PUBKEY_HASH_WIDTH);
@@ -79,6 +80,16 @@ impl PackedPublicKey {
         let mut bytes = pack_bits_into_bytes(&pub_key_hash_bits);
         bytes.reverse();
         PubKeyHash::from_bytes(&bytes).unwrap()
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn public_key_hash(&self) -> Arc<PubKeyHash> {
+        let hash = self.get_public_key_hash();
+        Arc::new(hash)
+    }
+    #[cfg(not(feature = "ffi"))]
+    pub fn public_key_hash(&self) -> PubKeyHash {
+        self.get_public_key_hash()
     }
 }
 
