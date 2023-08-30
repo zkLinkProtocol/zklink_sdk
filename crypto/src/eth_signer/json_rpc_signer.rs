@@ -1,11 +1,12 @@
 use super::error::{EthRpcSignerError, EthSignerError};
 use super::json_rpc_signer::messages::JsonRpcRequest;
-use super::{EthereumSigner, RawTransaction};
+use super::RawTransaction;
 
 use jsonrpc_core::types::response::Output;
 
 use super::eth_signature::TxEthSignature;
 use super::packed_eth_signature::PackedEthSignature;
+use crate::eth_signer::EthereumSignerAsync;
 use serde_json::Value;
 use web3::types::Address;
 
@@ -44,7 +45,7 @@ pub struct JsonRpcSigner {
 }
 
 #[async_trait::async_trait]
-impl EthereumSigner for JsonRpcSigner {
+impl EthereumSignerAsync for JsonRpcSigner {
     /// The sign method calculates an Ethereum specific signature with:
     /// checks if the server adds a prefix if not then adds
     /// return sign(keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))).

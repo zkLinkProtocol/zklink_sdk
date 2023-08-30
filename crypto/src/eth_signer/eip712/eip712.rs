@@ -76,10 +76,10 @@ where
 
     pub fn encode(&self) -> Result<[u8; 66], EthSignerError> {
         let domain = eip712_hash_struct("EIP712Domain", &self.types, &self.domain)
-            .map_err(|e| EthSignerError::Eip712Failed("".into()))?;
+            .map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?;
 
         let message = eip712_hash_struct(self.primary_type.as_str(), &self.types, &self.message)
-            .map_err(|e| EthSignerError::Eip712Failed("".into()))?;
+            .map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?;
 
         // "\x19\x01" ‖ domainSeparator ‖ hashStruct(message)
         let mut buff = [0u8; 66];
@@ -100,18 +100,18 @@ pub fn eip712_typed_data<S: Serialize>(
     // Get primary type.
 
     let encode_type =
-        eip712_encode_type(&value).map_err(|e| EthSignerError::Eip712Failed("".into()))?;
+        eip712_encode_type(&value).map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?;
 
     let pos = encode_type.find("(").unwrap();
 
     let primary_type = encode_type[..pos].to_string();
 
-    let mut type_definitions =
-        eip712_type_definitions(&domain).map_err(|e| EthSignerError::Eip712Failed("".into()))?;
+    let mut type_definitions = eip712_type_definitions(&domain)
+        .map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?;
 
     type_definitions.extend(
         eip712_type_definitions(&value)
-            .map_err(|e| EthSignerError::Eip712Failed("".into()))?
+            .map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?
             .into_iter(),
     );
 

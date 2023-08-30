@@ -16,8 +16,14 @@ use web3::types::Address;
 pub use web3::types::H256;
 
 #[async_trait]
-pub trait EthereumSigner: Send + Sync + Clone {
+pub trait EthereumSignerAsync: Send + Sync + Clone {
     async fn sign_message(&self, message: &[u8]) -> Result<TxEthSignature, EthSignerError>;
     async fn sign_transaction(&self, raw_tx: RawTransaction) -> Result<Vec<u8>, EthSignerError>;
     async fn get_address(&self) -> Result<Address, EthSignerError>;
+}
+
+pub trait EthereumSigner: Send + Sync + Clone {
+    fn sign_message(&self, message: &[u8]) -> Result<TxEthSignature, EthSignerError>;
+    fn sign_transaction(&self, raw_tx: RawTransaction) -> Result<Vec<u8>, EthSignerError>;
+    fn get_address(&self) -> Result<Address, EthSignerError>;
 }

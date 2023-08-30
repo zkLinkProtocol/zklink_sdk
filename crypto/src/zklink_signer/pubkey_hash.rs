@@ -1,6 +1,5 @@
 use super::error::ZkSignerError as Error;
 use crate::zklink_signer::NEW_PUBKEY_HASH_BYTES_LEN;
-use ethers::types::H256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::convert::TryInto;
 

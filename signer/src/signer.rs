@@ -66,7 +66,6 @@ impl<S: EthereumSigner> Signer<S> {
             .ok_or(EthSignerError::MissingEthSigner)?;
         let eth_signature = eth_signer
             .sign_message(message)
-            .await
             .map_err(signing_failed_error)?;
 
         // it's bothersome, we will fix it later

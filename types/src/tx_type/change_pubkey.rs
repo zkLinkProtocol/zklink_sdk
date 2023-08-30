@@ -1,7 +1,6 @@
 use crate::basic_types::{
     AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
-use crate::tx_type::error::FloatConvertError;
 use crate::tx_type::format_units;
 use crate::tx_type::pack::pack_fee_amount;
 use crate::tx_type::validator::*;
@@ -9,7 +8,6 @@ use ethers::types::{Address, H256};
 use num::{BigUint, Zero};
 use parity_crypto::Keccak256;
 use serde::{Deserialize, Serialize};
-use std::error::Error;
 use validator::Validate;
 use zklink_crypto::eth_signer::eip712::eip712::{eip712_typed_data, EIP712Domain};
 use zklink_crypto::eth_signer::eip712::{BytesM, Uint};
@@ -299,7 +297,7 @@ impl ChangePubKey {
         let domain = EIP712Domain::from_chain(layer_one_chain_id, verifying_contract.to_string())?;
         let typed_data = eip712_typed_data::<EIP712ChangePubKey>(domain, self.into())?;
         serde_json::to_string(&typed_data)
-            .map_err(|e| EthSignerError::CustomError("serialization error".into()))
+            .map_err(|e| EthSignerError::CustomError(format!("serialization error: {e:?}")))
     }
 }
 
