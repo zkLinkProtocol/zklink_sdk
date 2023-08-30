@@ -1,6 +1,8 @@
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{convert::TryInto, str::FromStr};
 use zklink_sdk_utils::serde::{Prefix, ZeroxPrefix};
+use crate::basic_types::error::TypeError::{NotStartWithZerox, SizeMismatch};
+use crate::basic_types::error::TypeError;
 
 /// Transaction hash.
 /// Essentially, a SHA-256 hash of transaction bytes encoded according to the zkLink protocol.
@@ -38,17 +40,18 @@ impl ToString for TxHash {
 }
 
 impl FromStr for TxHash {
-    type Err = anyhow::Error;
+    type Err = TypeError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let zerox_prefix = ZeroxPrefix::prefix();
-        anyhow::ensure!(
-            s.starts_with(zerox_prefix),
-            format!("TxHash should start with {}", zerox_prefix)
-        );
+        if !s.starts_with(zerox_prefix) {
+            return Err(NotStartWithZerox);
+        }
         let remove_prefix_start = zerox_prefix.len();
-        let bytes = hex::decode(&s[remove_prefix_start..])?;
-        anyhow::ensure!(bytes.len() == 32, "Size mismatch");
+        let bytes = hex::decode(&s[remove_prefix_start..]).map_err(|e| TypeError::DecodeFromHexErr(e.to_string()))?;
+        if bytes.len() != 32 {
+            return Err(SizeMismatch);
+        }
         Ok(TxHash {
             data: bytes.as_slice().try_into().unwrap(),
         })

@@ -4,9 +4,10 @@ use ethers::types::Address;
 use std::fmt::{Debug, Formatter};
 use std::str::FromStr;
 // External uses
-use super::error::AddressError as Error;
 use rand::Rng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use crate::basic_types::error::TypeError;
+use crate::basic_types::error::TypeError::{DecodeFromHexErr, NotStartWithZerox, SizeMismatch};
 
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ZkLinkAddress(Vec<u8>);
@@ -15,9 +16,9 @@ impl ZkLinkAddress {
     /// Reads a account address from its byte sequence representation.
     ///
     /// Returns err if the slice length does not match with address length.
-    pub fn from_slice(slice: &[u8]) -> Result<Self, Error> {
+    pub fn from_slice(slice: &[u8]) -> Result<Self, TypeError> {
         if slice.len() != 32 && slice.len() != 20 {
-            Err(Error::InvalidAddress)
+            Err(TypeError::InvalidAddress)
         } else {
             let mut out = ZkLinkAddress(Vec::with_capacity(slice.len()));
             out.0.extend_from_slice(slice);
@@ -95,12 +96,17 @@ impl From<[u8; 20]> for ZkLinkAddress {
 }
 
 impl FromStr for ZkLinkAddress {
-    type Err = anyhow::Error;
+    type Err = TypeError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        anyhow::ensure!(s.starts_with("0x"), "Address should start with 0x");
-        let bytes = hex::decode(s.trim_start_matches("0x"))?;
-        anyhow::ensure!(bytes.len() == 32 || bytes.len() == 20, "Size mismatch");
+        if !s.starts_with("0x") {
+            return Err(TypeError::NotStartWithZerox);
+        }
+        let bytes = hex::decode(s.trim_start_matches("0x"))
+            .map_err(|e| DecodeFromHexErr(e.to_string()))?;
+        if !(bytes.len() == 32 || bytes.len() == 20) {
+            return Err(TypeError::SizeMismatch);
+        }
         Ok(ZkLinkAddress(bytes))
     }
 }
