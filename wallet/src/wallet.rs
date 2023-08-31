@@ -110,7 +110,7 @@ where
     //
     //     let tx_signature = self.signer;
     //
-    //     if !tx.check_correctness() {
+    //     if !tx.is_validate() {
     //         return Err(ClientError::IncorrectTx);
     //     }
     //
@@ -281,7 +281,7 @@ where
             None => None,
         };
 
-        if !tx_signature.tx.check_correctness() {
+        if !tx_signature.tx.is_validate() {
             return Err(ClientError::IncorrectTx);
         }
 

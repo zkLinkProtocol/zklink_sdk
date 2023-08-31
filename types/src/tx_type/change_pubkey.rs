@@ -228,7 +228,7 @@ impl ChangePubKey {
     //         ts,
     //     );
     //     tx.signature = TxSignature::sign_musig(private_key, &tx.get_bytes());
-    //     if !tx.check_correctness() {
+    //     if !tx.is_validate() {
     //         anyhow::bail!(crate::tx::TRANSACTION_SIGNATURE_ERROR);
     //     }
     //     Ok(tx)
@@ -256,7 +256,7 @@ impl ChangePubKey {
         out
     }
 
-    pub fn check_correctness(&self) -> bool {
+    pub fn is_validate(&self) -> bool {
         self.validate().is_ok()
     }
 

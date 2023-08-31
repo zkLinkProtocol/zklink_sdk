@@ -73,7 +73,7 @@ impl Deposit {
         out
     }
 
-    pub fn check_correctness(&self) -> bool {
+    pub fn is_validate(&self) -> bool {
         self.validate().is_ok()
     }
 }

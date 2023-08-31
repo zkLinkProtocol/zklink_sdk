@@ -162,7 +162,7 @@ impl Order {
     //         .map(|pub_key| PubKeyHash::from_pubkey(&pub_key))
     // }
 
-    pub fn check_correctness(&self) -> bool {
+    pub fn is_validate(&self) -> bool {
         self.validate().is_ok()
     }
 
@@ -223,7 +223,7 @@ impl Order {
     //         signature: Default::default(),
     //     };
     //     tx.signature = TxSignature::sign_musig(private_key, &tx.get_bytes());
-    //     if !tx.check_correctness() {
+    //     if !tx.is_validate() {
     //         anyhow::bail!(crate::tx::TRANSACTION_SIGNATURE_ERROR);
     //     }
     //     Ok(tx)
@@ -285,7 +285,7 @@ impl OrderMatching {
     //         None,
     //     );
     //     tx.signature = TxSignature::sign_musig(private_key, &tx.get_bytes());
-    //     if !tx.check_correctness() {
+    //     if !tx.is_validate() {
     //         anyhow::bail!(crate::tx::TRANSACTION_SIGNATURE_ERROR);
     //     }
     //     Ok(tx)
@@ -312,9 +312,9 @@ impl OrderMatching {
         out
     }
 
-    pub fn check_correctness(&self) -> bool {
+    pub fn is_validate(&self) -> bool {
         match self.validate() {
-            Ok(_) => self.maker.check_correctness() && self.taker.check_correctness(),
+            Ok(_) => self.maker.is_validate() && self.taker.is_validate(),
             Err(_) => false,
         }
     }
