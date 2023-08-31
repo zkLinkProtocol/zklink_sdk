@@ -3,6 +3,7 @@ use crate::basic_types::{ChainId, SubAccountId, TokenId, ZkLinkAddress};
 use ethers::types::H256;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 

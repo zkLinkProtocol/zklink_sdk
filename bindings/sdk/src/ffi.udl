@@ -1,5 +1,6 @@
 namespace zklink_sdk {};
 
+// ============================  crypto  ============================
 [Error]
 enum ZkSignerError {
     "CustomError",
@@ -26,9 +27,9 @@ interface PackedPublicKey {
     constructor([ByRef] sequence<u8> bytes);
     [Name=from_private_key]
     constructor([ByRef] PackedPrivateKey pk);
-sequence<u8> as_bytes();
-string as_hex();
-PubKeyHash public_key_hash();
+    sequence<u8> as_bytes();
+    string as_hex();
+    PubKeyHash public_key_hash();
 };
 
 interface PackedPrivateKey {
@@ -52,7 +53,7 @@ interface ZkLinkSigner {
     constructor([ByRef] string eth_hex_private_key);
     [Throws=ZkSignerError,Name=new_from_bytes]
     constructor([ByRef] sequence<u8> slice);
-PackedPublicKey public_key();
+    PackedPublicKey public_key();
     [Throws=ZkSignerError]
     ZkLinkSignature sign_musig([ByRef] sequence<u8> msg);
 };
@@ -68,30 +69,14 @@ string as_hex();
     boolean verify_musig([ByRef] sequence<u8> msg);
 };
 
+// ============================  basic types  ============================
 [Error]
 enum TypeError {
     "InvalidAddress",
+    "InvalidTxHash",
     "NotStartWithZerox",
     "SizeMismatch",
     "DecodeFromHexErr",
-};
-
-interface ZkLinkAddress {
-    [Throws=TypeError, Name=from_slice]
-    constructor([ByRef] sequence<u8> slice);
-    [Throws=TypeError, Name=from_str]
-    constructor([ByRef] string s);
-    string to_string();
-    boolean is_zero();
-    boolean is_global_account_address();
-};
-
-interface TxHash {
-    [Throws=TypeError, Name=from_slice]
-    constructor([ByRef] sequence<u8> slice);
-    [Throws=TypeError, Name=from_str]
-    constructor([ByRef] string s);
-    string to_string();
 };
 
 [Custom]
@@ -116,3 +101,30 @@ typedef u64 EthBlockId;
 typedef u8 ChainId;
 [Custom]
 typedef u8 SubAccountId;
+[Custom]
+typedef string H256;
+[Custom]
+typedef string BigUint;
+[Custom]
+typedef string ZkLinkAddress;
+[Custom]
+typedef string TxHash;
+
+
+
+// ============================  transaction types  ============================
+
+interface Deposit {
+    constructor(
+        ChainId from_chain_id,
+        ZkLinkAddress from,
+        SubAccountId sub_account_id,
+        ZkLinkAddress to,
+        TokenId l2_target_token,
+        TokenId l1_source_token,
+        BigUint amount,
+        u64 serial_id,
+        H256 eth_hash
+    );
+    sequence<u8> get_bytes();
+};

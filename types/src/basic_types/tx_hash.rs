@@ -1,7 +1,7 @@
+use crate::basic_types::error::TypeError as Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{convert::TryInto, str::FromStr};
 use zklink_sdk_utils::serde::{Prefix, ZeroxPrefix};
-use crate::basic_types::error::TypeError as Error;
 
 const TX_HASH_LEN: usize = 32;
 
@@ -51,7 +51,8 @@ impl FromStr for TxHash {
             return Err(Error::NotStartWithZerox);
         }
         let remove_prefix_start = zerox_prefix.len();
-        let bytes = hex::decode(&s[remove_prefix_start..]).map_err(|e| Error::DecodeFromHexErr(e.to_string()))?;
+        let bytes = hex::decode(&s[remove_prefix_start..])
+            .map_err(|e| Error::DecodeFromHexErr(e.to_string()))?;
         if bytes.len() != 32 {
             return Err(Error::SizeMismatch);
         }

@@ -16,6 +16,8 @@ pub mod error;
 pub mod params;
 pub mod tx_hash;
 pub mod zklink_address;
+pub use ethers::types::H256;
+pub use num::BigUint;
 
 basic_type!(
     /// Unique identifier of the slot in the zklink network.

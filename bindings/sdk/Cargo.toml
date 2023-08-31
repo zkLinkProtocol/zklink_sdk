@@ -11,6 +11,7 @@ crate-type = ["cdylib", "staticlib", "lib"]
 [dependencies]
 zklink_crypto = { path = "../../crypto", features = ["ffi"] }
 zklink_types = { path = "../../types", features = ["ffi"] }
+hex = "0.4"
 
 uniffi = { version = "0.23" }
 uniffi_macros = { version = "0.23" }

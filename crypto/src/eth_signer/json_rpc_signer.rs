@@ -390,6 +390,7 @@ mod tests {
     use crate::eth_signer::eth_signature::TxEthSignature;
     use crate::eth_signer::json_rpc_signer::JsonRpcSigner;
     use crate::eth_signer::packed_eth_signature::PackedEthSignature;
+    use crate::eth_signer::EthereumSignerAsync;
     use crate::eth_signer::{EthereumSigner, RawTransaction};
     use web3::types::Address;
 

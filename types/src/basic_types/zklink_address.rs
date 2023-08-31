@@ -1,10 +1,10 @@
 //! Common primitives for the layer1 blockchain network interaction.
+use crate::basic_types::error::TypeError as Error;
 use ethers::types::Address;
-use std::fmt::{Debug, Formatter};
-use std::str::FromStr;
 use rand::Rng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use crate::basic_types::error::TypeError as Error;
+use std::fmt::{Debug, Formatter};
+use std::str::FromStr;
 use zklink_sdk_utils::serde::{Prefix, ZeroxPrefix};
 
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

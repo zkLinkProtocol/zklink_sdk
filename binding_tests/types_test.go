@@ -6,29 +6,18 @@ import (
 	"testing"
 )
 
-func TestTypeZkLinkAddress(t *testing.T) {
-    // test zero address
-    slice := make([]byte, 20)
-    address, err := zklink_sdk.ZkLinkAddressFromSlice(slice);
-    assert.Nil(t, err)
-    assert.Equal(t, address.IsZero(), true)
-    assert.Equal(t, address.ToString(), "0x0000000000000000000000000000000000000000")
-    // test global account address
-    s := "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-    address, err = zklink_sdk.ZkLinkAddressFromStr(s)
-    assert.Nil(t, err)
-    assert.Equal(t, address.IsGlobalAccountAddress(), true)
-    // invlaid address
-    slice = []byte{0,1,2,3,4,5}
-    address, err = zklink_sdk.ZkLinkAddressFromSlice(slice)
-    assert.NotNil(t, err)
-}
+func TestTypeDeposit(t *testing.T) {
+    from_address := "0x0000000000000000000000000000000000000000";
+    to_address := "0x0000000000000000000000000000000000000001";
+    from_chain_id := zklink_sdk.ChainId(1)
+    sub_account_id := zklink_sdk.SubAccountId(2)
+    l2_target_token := zklink_sdk.TokenId(1)
+    l1_source_token := zklink_sdk.TokenId(2)
+    amount := zklink_sdk.BigUint("123")
+    serial_id := uint64(123)
+    eth_hash := "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 
-func TestTypeTxHash(t *testing.T) {
-    slice := make([]byte, 32)
-    hash, err := zklink_sdk.TxHashFromSlice(slice);
-    assert.Nil(t, err)
-    hash_str := hash.ToString()
-    hash2, err := zklink_sdk.TxHashFromStr(hash_str)
-    assert.Equal(t, hash_str, hash2.ToString())
+    deposit := zklink_sdk.NewDeposit(from_chain_id, from_address, sub_account_id, to_address, l2_target_token, l1_source_token, amount, serial_id, eth_hash);
+    bytes := deposit.GetBytes()
+    assert.NotNil(t, bytes)
 }
