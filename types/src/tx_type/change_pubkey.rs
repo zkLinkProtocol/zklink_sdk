@@ -28,13 +28,13 @@ use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Create2Data {
-    pub creator_address: Address,
+    pub creator_address: ZkLinkAddress,
     pub salt_arg: H256,
     pub code_hash: H256,
 }
 
 impl Create2Data {
-    pub fn get_address(&self, pubkey_hash: Vec<u8>) -> Address {
+    pub fn get_address(&self, pubkey_hash: Vec<u8>) -> ZkLinkAddress {
         let salt = {
             let mut bytes = Vec::new();
             bytes.extend_from_slice(self.salt_arg.as_bytes());
@@ -55,12 +55,8 @@ impl Create2Data {
 #[serde(tag = "type")]
 pub enum ChangePubKeyAuthData {
     Onchain,
-    EthECDSA{
-        eth_signature: PackedEthSignature
-    },
-    EthCREATE2{
-        data: Create2Data
-    },
+    EthECDSA { eth_signature: PackedEthSignature },
+    EthCREATE2 { data: Create2Data },
     // StarkECDSA{
     //     data = StarkECDSAData
     // },
@@ -74,7 +70,7 @@ impl Default for ChangePubKeyAuthData {
 
 impl ChangePubKeyAuthData {
     pub fn is_eth_ecdsa(&self) -> bool {
-        matches!(self, ChangePubKeyAuthData::EthECDSA{..})
+        matches!(self, ChangePubKeyAuthData::EthECDSA { .. })
     }
 
     pub fn is_onchain(&self) -> bool {
@@ -82,7 +78,7 @@ impl ChangePubKeyAuthData {
     }
 
     pub fn is_create2(&self) -> bool {
-        matches!(self, ChangePubKeyAuthData::EthCREATE2{..})
+        matches!(self, ChangePubKeyAuthData::EthCREATE2 { .. })
     }
 
     // pub fn is_stark_ecdsa(&self) -> bool {
@@ -92,7 +88,7 @@ impl ChangePubKeyAuthData {
     pub fn get_eth_witness(&self) -> Option<Vec<u8>> {
         match self {
             ChangePubKeyAuthData::Onchain => None,
-            ChangePubKeyAuthData::EthECDSA{ eth_signature } => {
+            ChangePubKeyAuthData::EthECDSA { eth_signature } => {
                 let mut bytes = Vec::new();
                 bytes.push(0x00);
                 bytes.extend_from_slice(&eth_signature.0[..64]);
@@ -104,7 +100,7 @@ impl ChangePubKeyAuthData {
                 bytes.push(v);
                 Some(bytes)
             }
-            ChangePubKeyAuthData::EthCREATE2{data} => {
+            ChangePubKeyAuthData::EthCREATE2 { data } => {
                 let mut bytes = Vec::new();
                 bytes.push(0x01);
                 bytes.extend_from_slice(data.creator_address.as_bytes());

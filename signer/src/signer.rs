@@ -16,7 +16,7 @@ use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_types::basic_types::{
     AccountId, ChainId, Nonce, SlotId, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
-use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, EthECDSAData};
+use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData};
 use zklink_types::tx_type::forced_exit::ForcedExit;
 use zklink_types::tx_type::order_matching::{Order, OrderMatching};
 use zklink_types::tx_type::transfer::Transfer;
@@ -154,9 +154,7 @@ impl<S: EthereumSigner> Signer<S> {
                     .sign_change_pub_key_ecdsa_auth_data(&tx, l1_client_id, &main_contract)
                     .await?;
 
-                Ok(ChangePubKeyAuthData::EthECDSA(EthECDSAData {
-                    eth_signature,
-                }))
+                Ok(ChangePubKeyAuthData::EthECDSA { eth_signature })
             }
             ChangePubKeyAuthRequest::EthCREATE2(create2) => {
                 // check create2 data
@@ -164,7 +162,7 @@ impl<S: EthereumSigner> Signer<S> {
                 if from_address.as_bytes() != account_address.as_bytes() {
                     Err(ClientError::IncorrectTx)
                 } else {
-                    Ok(ChangePubKeyAuthData::EthCREATE2(create2))
+                    Ok(ChangePubKeyAuthData::EthCREATE2 { data: create2 })
                 }
             }
         };

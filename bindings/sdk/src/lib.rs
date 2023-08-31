@@ -6,7 +6,9 @@ use crate::crypto::{get_public_key, get_public_key_hash, verify_musig};
 
 use std::str::FromStr;
 
-use zklink_crypto::eth_signer::packed_eth_signature::{PackedEthSignature, PackedETHSignatureError};
+use zklink_crypto::eth_signer::packed_eth_signature::{
+    PackedETHSignatureError, PackedEthSignature,
+};
 
 use zklink_crypto::zklink_signer::error::ZkSignerError;
 use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
@@ -16,13 +18,13 @@ use zklink_crypto::zklink_signer::public_key::PackedPublicKey;
 use zklink_crypto::zklink_signer::signature::{PackedSignature, ZkLinkSignature};
 
 use zklink_types::basic_types::error::TypeError;
-use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
 use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::zklink_address::ZkLinkAddress;
 use zklink_types::basic_types::{
     AccountId, BigUint, BlockNumber, ChainId, EthBlockId, Nonce, PairId, PriorityOpId, SlotId,
-    SubAccountId, TimeStamp, TokenId, H256, Address
+    SubAccountId, TimeStamp, TokenId, H256,
 };
+use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
 use zklink_types::tx_type::deposit::Deposit;
 use zklink_types::tx_type::withdraw::Withdraw;
 
@@ -91,7 +93,6 @@ ffi_hex_convert!(PackedSignature);
 ffi_hex_convert!(PubKeyHash);
 ffi_hex_convert!(PackedEthSignature);
 
-
 macro_rules! ffi_num_convert {
     ($(#[$attr:meta])* $name:ident, $num:expr) => {
         impl UniffiCustomTypeConverter for $name {
@@ -114,7 +115,6 @@ macro_rules! ffi_num_convert {
 }
 
 ffi_num_convert!(H256, 32);
-ffi_num_convert!(Address, 16);
 
 include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));
 
