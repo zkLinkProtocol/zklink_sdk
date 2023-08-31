@@ -11,3 +11,9 @@ crate-type = ["cdylib", "staticlib", "lib"]
 [dependencies]
 zklink_crypto = { path = "../../crypto", features = ["ffi"] }
 zklink_types = { path = "../../types", features = ["ffi"] }
+
+uniffi = { version = "0.23" }
+uniffi_macros = { version = "0.23" }
+
+[build-dependencies]
+uniffi_build = {version = "0.23", features=["builtin-bindgen"] }

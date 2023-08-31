@@ -4,10 +4,6 @@ version = "1.0.0"
 edition = "2021"
 publish = false
 
-[lib]
-crate-type = ["lib", "cdylib"]
-name = "zklink_crypto"
-
 [dependencies]
 async-trait = "0.1"
 franklin_crypto = { package = "franklin-crypto", git = "https://github.com/matter-labs/franklin-crypto.git", branch = "beta" }
@@ -26,15 +22,10 @@ zklink_sdk_utils = { path = "../utils" }
 ethers = "2.0.2"
 serde_eip712 = "0.2.2"
 ethers_primitives =  "0.2.2"
-uniffi = { version = "0.23", optional = true }
-uniffi_macros = { version = "0.23", optional = true }
-
-[build-dependencies]
-uniffi_build = {version = "0.23", features=["builtin-bindgen"]}
 
 [features]
 default = []
-ffi = [ "uniffi", "uniffi_macros" ]
+ffi = []
 
 
 [dev-dependencies]
