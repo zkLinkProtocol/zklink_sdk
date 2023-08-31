@@ -1,10 +1,3 @@
-namespace zklink_sdk {
-    [Throws=ZkSignerError]
-    boolean verify_musig(ZkLinkSignature signature, [ByRef] sequence<u8> msg);
-    PubKeyHash get_public_key_hash(PackedPublicKey public_key);
-    PackedPublicKey get_public_key(PackedPrivateKey private_key);
-};
-
 // ============================ eth crypto  ============================
 [Custom]
 typedef string PackedEthSignature;
@@ -95,6 +88,8 @@ typedef u8 SubAccountId;
 [Custom]
 typedef string H256;
 [Custom]
+typedef string Address;
+[Custom]
 typedef string BigUint;
 [Custom]
 typedef string ZkLinkAddress;
@@ -140,4 +135,47 @@ interface Withdraw {
     string get_ethereum_sign_message([ByRef] string token_symbol);
 };
 
+dictionary Create2Data {
+    Address creator_address;
+    H256 salt_arg;
+    H256 code_hash;
+};
+
+[Enum]
+interface ChangePubKeyAuthData {
+    Onchain();
+    EthECDSA(PackedEthSignature eth_signature);
+    EthCREATE2(Create2Data data);
+};
+
+
+interface ChangePubKey {
+    constructor(
+        ChainId chain_id,
+        AccountId account_id,
+        SubAccountId sub_account_id,
+        PubKeyHash new_pk_hash,
+        TokenId fee_token,
+        BigUint fee,
+        Nonce nonce,
+        ZkLinkSignature ?signature,
+        PackedEthSignature ?eth_signature,
+        TimeStamp ts
+    );
+    sequence<u8> get_bytes();
+    boolean is_validate();
+    boolean is_onchain();
+    string get_ethereum_sign_message_part([ByRef] string token_symbol, u8 decimal);
+//    [Throws=EthSignerError]
+//    string to_eip712_request_payload([ByRef] string token_symbol);
+};
+
+
+// ============================  namespace ============================
+namespace zklink_sdk {
+    [Throws=ZkSignerError]
+    boolean verify_musig(ZkLinkSignature signature, [ByRef] sequence<u8> msg);
+    PubKeyHash get_public_key_hash(PackedPublicKey public_key);
+    PackedPublicKey get_public_key(PackedPrivateKey private_key);
+};
 

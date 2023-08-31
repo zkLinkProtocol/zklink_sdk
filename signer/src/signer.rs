@@ -150,7 +150,7 @@ impl<S: EthereumSigner> Signer<S> {
     //                 .sign_change_pub_key_ecdsa_auth_data(&tx, &chain_config)
     //                 .await?;
     //
-    //             Ok(ChangePubKeyAuthData::EthECDSA(EthECDSAData { eth_signature, }))
+    //             Ok(ChangePubKeyAuthData::EthECDSA{ eth_signature })
     //         },
     //         ChangePubKeyAuthRequest::EthCREATE2(create2) => {
     //             // check create2 data
