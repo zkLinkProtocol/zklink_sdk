@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use zklink_crypto::zklink_signer::error::ZkSignerError;
 use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_crypto::zklink_signer::public_key::PackedPublicKey;

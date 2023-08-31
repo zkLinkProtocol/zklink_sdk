@@ -12,6 +12,7 @@ use franklin_crypto::eddsa::{PrivateKey as FLPrivateKey, PrivateKey, PublicKey, 
 use sha2::{Digest, Sha256};
 use std::fmt;
 use web3::types::H256;
+use once_cell::sync::OnceCell;
 
 pub struct ZkLinkSigner(EddsaPrivKey<Engine>);
 
@@ -128,16 +129,20 @@ impl ZkLinkSigner {
     }
 
     pub fn public_key(&self) -> PackedPublicKey {
-        let pubkey: PackedPublicKey = JUBJUB_PARAMS
-            .with(|params| {
-                PublicKey::from_private(
-                    self.as_ref(),
-                    FixedGenerators::SpendingKeyGenerator,
-                    params,
-                )
-            })
-            .into();
-        pubkey
+        static INSTANCE: OnceCell<PackedPublicKey> = OnceCell::new();
+        let pubkey = INSTANCE.get_or_init(||{
+            let pubkey: PackedPublicKey = JUBJUB_PARAMS
+                .with(|params| {
+                    PublicKey::from_private(
+                        self.as_ref(),
+                        FixedGenerators::SpendingKeyGenerator,
+                        params,
+                    )
+                })
+                .into();
+            pubkey
+        });
+        pubkey.clone()
     }
 }
 
