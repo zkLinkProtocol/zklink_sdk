@@ -2,10 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-mod uniffi_bindings {
-    zklink_crypto::uniffi_reexport_scaffolding!();
-    // zklink_types::uniffi_reexport_scaffolding!();
-}
+use zklink_crypto::zklink_signer::error::ZkSignerError;
+use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_crypto::zklink_signer::private_key::PackedPrivateKey;
+use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
+use zklink_crypto::zklink_signer::public_key::PackedPublicKey;
+use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
+
 
 use zklink_types::basic_types::{SlotId, TokenId, PairId, TimeStamp, AccountId, BlockNumber, Nonce, PriorityOpId, EthBlockId, ChainId, SubAccountId};
 use zklink_types::basic_types::error::TypeError;
