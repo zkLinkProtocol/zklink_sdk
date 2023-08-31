@@ -1,9 +1,7 @@
-// Built-in imports
 use crate::error::ClientError;
 use crate::error::ClientError::EthSigningError;
 use crate::{ChangePubKeyAuthRequest, TxSignature};
 use num::BigUint;
-use zklink_crypto::eth_signer::eip712::eip712::EIP712Domain;
 use zklink_crypto::eth_signer::error::EthSignerError;
 use zklink_crypto::eth_signer::error::EthSignerError::MissingEthSigner;
 use zklink_crypto::eth_signer::eth_signature::TxEthSignature;

@@ -1,6 +1,5 @@
 pub mod error;
 pub mod pk_signer;
-pub mod private_key;
 pub mod pubkey_hash;
 pub mod public_key;
 pub mod signature;

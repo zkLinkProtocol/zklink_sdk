@@ -8,7 +8,7 @@ use num::{BigUint, Zero};
 use parity_crypto::Keccak256;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
-use zklink_crypto::eth_signer::eip712::eip712::{eip712_typed_data, EIP712Domain, TypedData};
+use zklink_crypto::eth_signer::eip712::eip712::{eip712_typed_data, EIP712Domain};
 use zklink_crypto::eth_signer::eip712::{BytesM, Uint};
 use zklink_crypto::eth_signer::error::EthSignerError;
 use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
