@@ -93,12 +93,6 @@ impl PackedPrivateKey {
         PrivateKey(fs).into()
     }
 
-    #[cfg(feature = "ffi")]
-    pub fn public_key(&self) -> Arc<PackedPublicKey> {
-        Arc::new(PackedPublicKey::from_private_key(&self))
-    }
-
-    #[cfg(not(feature = "ffi"))]
     pub fn public_key(&self) -> PackedPublicKey {
         PackedPublicKey::from_private_key(&self)
     }

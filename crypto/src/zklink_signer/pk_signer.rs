@@ -89,19 +89,13 @@ impl ZkLinkSigner {
         Ok(signature)
     }
 
-    #[cfg(feature = "ffi")]
-    pub fn sign_musig(&self, msg: &[u8]) -> Result<Arc<ZkLinkSignature>, Error> {
-        self.do_sign_musig(msg).map(Arc::new)
-    }
-
-    #[cfg(not(feature = "ffi"))]
     pub fn sign_musig(&self, msg: &[u8]) -> Result<ZkLinkSignature, Error> {
         self.do_sign_musig(msg)
     }
 
     #[cfg(feature = "ffi")]
-    pub fn public_key(&self) -> Arc<PackedPublicKey> {
-        Arc::new(self.public_key.clone())
+    pub fn public_key(&self) -> PackedPublicKey {
+        self.public_key.clone()
     }
 
     #[cfg(not(feature = "ffi"))]

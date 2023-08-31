@@ -90,6 +90,13 @@ impl PackedSignature {
         let bytes = self.as_bytes();
         format!("0x{}", hex::encode(bytes))
     }
+
+    pub fn from_hex(s: &str) -> Result<Self, Error> {
+        let s = s.strip_prefix("0x").unwrap_or(s);
+        let raw = hex::decode(s)
+            .map_err(|_e| Error::InvalidSignature("can't convert string to bytes".into()))?;
+        Self::from_bytes(&raw)
+    }
 }
 
 /// ZkLink signature

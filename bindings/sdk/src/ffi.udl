@@ -1,4 +1,9 @@
-namespace zklink_sdk {};
+namespace zklink_sdk {
+    [Throws=ZkSignerError]
+    boolean verify_musig(ZkLinkSignature signature, [ByRef] sequence<u8> msg);
+    PubKeyHash get_public_key_hash(PackedPublicKey public_key);
+    PackedPublicKey get_public_key(PackedPrivateKey private_key);
+};
 
 // ============================  crypto  ============================
 [Error]
@@ -12,25 +17,13 @@ enum ZkSignerError {
     "PackedETHSignatureError",
 };
 
-interface PubKeyHash {
-    [Name=zero]
-    constructor();
-    [Throws=ZkSignerError,Name=from_hex]
-    constructor([ByRef] string s);
-    [Throws=ZkSignerError,Name=from_bytes]
-    constructor([ByRef] sequence<u8> bytes);
-string as_hex();
-};
+[Custom]
+typedef string PackedPublicKey;
+[Custom]
+typedef string PackedSignature;
+[Custom]
+typedef string PubKeyHash;
 
-interface PackedPublicKey {
-    [Throws=ZkSignerError,Name=from_bytes]
-    constructor([ByRef] sequence<u8> bytes);
-    [Name=from_private_key]
-    constructor([ByRef] PackedPrivateKey pk);
-    sequence<u8> as_bytes();
-    string as_hex();
-    PubKeyHash public_key_hash();
-};
 
 interface PackedPrivateKey {
     [Throws=ZkSignerError]
@@ -41,7 +34,7 @@ interface PackedPrivateKey {
     constructor([ByRef] string eth_hex_private_key);
     [Throws=ZkSignerError,Name=new_from_bytes]
     constructor([ByRef] sequence<u8> bytes);
-PackedPublicKey public_key();
+    PackedPublicKey public_key();
 };
 
 interface ZkLinkSigner {
@@ -58,15 +51,9 @@ interface ZkLinkSigner {
     ZkLinkSignature sign_musig([ByRef] sequence<u8> msg);
 };
 
-interface ZkLinkSignature {
-    [Throws=ZkSignerError,Name=from_bytes]
-    constructor([ByRef] sequence<u8> bytes);
-    [Throws=ZkSignerError,Name=from_hex]
-    constructor([ByRef] string s);
-sequence<u8> as_bytes();
-string as_hex();
-    [Throws=ZkSignerError]
-    boolean verify_musig([ByRef] sequence<u8> msg);
+dictionary ZkLinkSignature {
+    PackedPublicKey public_key;
+    PackedSignature signature;
 };
 
 // ============================  basic types  ============================
@@ -109,8 +96,6 @@ typedef string BigUint;
 typedef string ZkLinkAddress;
 [Custom]
 typedef string TxHash;
-
-
 
 // ============================  transaction types  ============================
 

@@ -10,19 +10,6 @@ import (
 	"testing"
 )
 
-
-func TestPubkeyHash(t *testing.T) {
-	pubkey_hash := zklink_sdk.PubKeyHashZero()
-	assert.NotNil(t, pubkey_hash)
-	hex_pubhash := pubkey_hash.AsHex()
-    assert.Equal(t, "0x0000000000000000000000000000000000000000", hex_pubhash)
-    pubkey_hash, err := zklink_sdk.PubKeyHashFromHex("0x0000000000000000000000000000000000000000")
-    assert.Nil(t, err)
-    bytes := []uint8{0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9}
-    pubkey_hash, err = zklink_sdk.PubKeyHashFromBytes(bytes)
-    assert.Nil(t, err)
-}
-
 func TestPrivateKey(t *testing.T) {
 	priv_key, err := zklink_sdk.NewPackedPrivateKey()
 	assert.Nil(t, err)
@@ -33,16 +20,9 @@ func TestPrivateKey(t *testing.T) {
 	assert.NotNil(t, priv_key)
 	pub_key := priv_key.PublicKey()
 	assert.NotNil(t, pub_key)
-	assert.Equal(t, pub_key.AsHex(), "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510")
-	pubkey_hash := pub_key.PublicKeyHash()
-	assert.Equal(t, pubkey_hash.AsHex(), "0xd8d5fb6a6caef06aa3dc2abdcdc240987e5330fe")
-}
-
-func TestPublicKey(t *testing.T) {
-	priv_key, err := zklink_sdk.NewPackedPrivateKey()
-	assert.Nil(t, err)
-	pubkey := zklink_sdk.PackedPublicKeyFromPrivateKey(priv_key);
-	assert.NotNil(t, pubkey)
+	assert.Equal(t, pub_key, "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510")
+	pubkey_hash := zklink_sdk.GetPublicKeyHash(pub_key)
+	assert.Equal(t, pubkey_hash, "0xd8d5fb6a6caef06aa3dc2abdcdc240987e5330fe")
 }
 
 func TestZkLinkSigner(t *testing.T) {
@@ -52,13 +32,13 @@ func TestZkLinkSigner(t *testing.T) {
 	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
 	signer, err = zklink_sdk.ZkLinkSignerNewFromHexEthSigner(s)
 	pub_key := signer.PublicKey()
-	assert.Equal(t, pub_key.AsHex(), "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510")
-	pubkey_hash := pub_key.PublicKeyHash()
-	assert.Equal(t, pubkey_hash.AsHex(), "0xd8d5fb6a6caef06aa3dc2abdcdc240987e5330fe")
+	assert.Equal(t, pub_key, "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510")
+	pubkey_hash := zklink_sdk.GetPublicKeyHash(pub_key)
+	assert.Equal(t, pubkey_hash, "0xd8d5fb6a6caef06aa3dc2abdcdc240987e5330fe")
 	msg := []uint8{0,1,2,3,4,5,6}
 	signature, err := signer.SignMusig(msg)
 	assert.Nil(t, err)
 	assert.NotNil(t, signature)
-	is_ok, _ := signature.VerifyMusig(msg)
+	is_ok, _ := zklink_sdk.VerifyMusig(signature, msg)
 	assert.Equal(t, is_ok, true)
 }
