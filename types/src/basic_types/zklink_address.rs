@@ -154,8 +154,8 @@ mod tests {
         let a1 = ZkLinkAddress::from_slice(&[255u8; 20]).unwrap();
         let b1 = ZkLinkAddress::from_slice(&[255u8; 32]).unwrap();
         let c1 = ZkLinkAddress::from_slice(&[0u8; 20]).unwrap();
-        assert!(c1.is_zero());
         assert!(b1.is_global_account_address());
+        assert!(c1.is_zero());
 
         // test to_string
         let a_str = a1.to_string();

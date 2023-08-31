@@ -21,5 +21,30 @@ interface ZkLinkAddress {
 interface TxHash {
     [Throws=TypeError, Name=from_slice]
     constructor([ByRef] sequence<u8> slice);
+    [Throws=TypeError, Name=from_str]
+    constructor([ByRef] string s);
     string to_string();
 };
+
+[Custom]
+typedef u32 SlotId;
+[Custom]
+typedef u32 TokenId;
+[Custom]
+typedef u16 PairId;
+[Custom]
+typedef u32 TimeStamp;
+[Custom]
+typedef u32 AccountId;
+[Custom]
+typedef u32 BlockNumber;
+[Custom]
+typedef u32 Nonce;
+[Custom]
+typedef u64 PriorityOpId;
+[Custom]
+typedef u64 EthBlockId;
+[Custom]
+typedef u8 ChainId;
+[Custom]
+typedef u8 SubAccountId;

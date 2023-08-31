@@ -66,7 +66,7 @@ build_binding_files: prepare_ffi
 	uniffi-bindgen-go ${ROOT_DIR}/types/src/ffi.udl --out-dir ${BINDINGS_DIR}
 
 build_binding_lib:
-	cargo build --package bindings_sdk --release
+	cargo build --package bindings_sdk --release --offline
 
 test_go: build_binding_lib build_binding_files
 	cd ${ROOT_DIR}/binding_tests && \

@@ -4,6 +4,7 @@
 
 pub mod eth_signer;
 pub mod zklink_signer;
+pub use zklink_signer::signature::ZkLinkSignature;
 
 #[cfg(feature = "ffi")]
 mod ffi {
@@ -12,7 +13,7 @@ mod ffi {
     use crate::zklink_signer::private_key::PackedPrivateKey;
     use crate::zklink_signer::pubkey_hash::PubKeyHash;
     use crate::zklink_signer::public_key::PackedPublicKey;
-    use crate::zklink_signer::signature::ZkLinkSignature;
+    use super::ZkLinkSignature;
 
     include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));
 }

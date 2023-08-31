@@ -22,8 +22,6 @@ interface PubKeyHash {
     constructor([ByRef] string s);
     [Throws=ZkSignerError,Name=from_bytes]
     constructor([ByRef] sequence<u8> bytes);
-//    [Name=from_pubkey]
-//    constructor([ByRef] PackedPublicKey pubkey);
     string as_hex();
 };
 
