@@ -26,6 +26,7 @@ impl<S: EthereumSigner> WalletCredentials<S> {
 
         let signature = eth_signer
             .sign_message(eth_sign_message.clone().as_slice())
+            .await
             .map_err(ClientError::EthSigningError)?;
 
         let packed_signature =

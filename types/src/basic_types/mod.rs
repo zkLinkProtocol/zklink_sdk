@@ -8,6 +8,7 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
+pub use primitive_types::{H160, H256, U128, U256};
 pub use zklink_address::ZkLinkAddress;
 
 #[macro_use]
@@ -16,7 +17,6 @@ pub mod error;
 pub mod params;
 pub mod tx_hash;
 pub mod zklink_address;
-pub use ethers::types::H256;
 pub use num::BigUint;
 
 basic_type!(

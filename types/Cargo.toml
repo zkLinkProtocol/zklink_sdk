@@ -13,6 +13,7 @@ num = { version = "0.4.0", features = ["serde"] }
 
 # Crypto stuff
 parity-crypto = { version = "0.9.0", features = ["publickey"] }
+primitive-types = "0.12.1"
 rand = "0.8"
 
 serde = "1.0.137"
@@ -24,8 +25,8 @@ zklink_crypto = { path = "../crypto" }
 zklink_sdk_utils = { path = "../utils" }
 
 [dev-dependencies]
-primitive-types = "0.12.1"
 ethers = "2.0.2"
+primitive-types = "0.12.1"
 
 [features]
 default = []

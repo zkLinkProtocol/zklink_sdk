@@ -69,6 +69,15 @@ impl PackedEthSignature {
         Ok(PackedEthSignature(signature))
     }
 
+    pub fn sign_byted_data(
+        private_key: &H256,
+        msg: &H256,
+    ) -> Result<PackedEthSignature, PackedETHSignatureError> {
+        let secret_key = (*private_key).into();
+        let signature = sign(&secret_key, msg)?;
+        Ok(PackedEthSignature(signature))
+    }
+
     fn message_to_signed_bytes(msg: &[u8]) -> H256 {
         let prefix = format!("\x19Ethereum Signed Message:\n{}", msg.len());
         let mut bytes = Vec::with_capacity(prefix.len() + msg.len());

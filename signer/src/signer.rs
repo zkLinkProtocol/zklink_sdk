@@ -1,8 +1,11 @@
 // Built-in imports
 use crate::error::ClientError;
-use crate::TxSignature;
+use crate::error::ClientError::EthSigningError;
+use crate::{ChangePubKeyAuthRequest, TxSignature};
 use num::BigUint;
+use zklink_crypto::eth_signer::eip712::eip712::EIP712Domain;
 use zklink_crypto::eth_signer::error::EthSignerError;
+use zklink_crypto::eth_signer::error::EthSignerError::MissingEthSigner;
 use zklink_crypto::eth_signer::eth_signature::TxEthSignature;
 use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_crypto::eth_signer::EthereumSigner;
@@ -13,6 +16,7 @@ use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_types::basic_types::{
     AccountId, ChainId, Nonce, SlotId, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
+use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, EthECDSAData};
 use zklink_types::tx_type::forced_exit::ForcedExit;
 use zklink_types::tx_type::order_matching::{Order, OrderMatching};
 use zklink_types::tx_type::transfer::Transfer;
@@ -66,6 +70,7 @@ impl<S: EthereumSigner> Signer<S> {
             .ok_or(EthSignerError::MissingEthSigner)?;
         let eth_signature = eth_signer
             .sign_message(message)
+            .await
             .map_err(signing_failed_error)?;
 
         // it's bothersome, we will fix it later
@@ -82,92 +87,95 @@ impl<S: EthereumSigner> Signer<S> {
         Ok(eth_signature)
     }
 
-    // pub async fn sign_change_pub_key_ecdsa_auth_data(&self, tx: &ChangePubKey, chain_config: &ChainResp) -> Result<PackedEthSignature, SignerError> {
-    //     let sign_bytes = tx.
-    //         get_eth_eip712_signed_data_of_chain(chain_config.layer_one_chain_id, &chain_config.main_contract)
-    //         .map_err(signing_failed_error)?;
-    //
-    //     let eth_signer = self
-    //         .eth_signer
-    //         .as_ref()
-    //         .ok_or(SignerError::MissingEthSigner)?;
-    //
-    //     // sign_bytes is a eip712 data, use sign_raw_message
-    //     let eth_signature = eth_signer
-    //         .sign_raw_message(sign_bytes.into())
-    //         .await
-    //         .map_err(signing_failed_error)?;
-    //
-    //     let eth_signature = match eth_signature {
-    //         TxEthSignature::EthereumSignature(packed_signature) => Ok(packed_signature),
-    //         TxEthSignature::EIP1271Signature(..) => Err(EthSignerError::CustomError(
-    //             "Can't sign ChangePubKey message with EIP1271 signer".to_string(),
-    //         )),
-    //         // TxLayer1Signature::StarkSignature(..) => Err(SignerError::CustomError(
-    //         //     "Can't sign ChangePubKey message with Stark signer".to_string(),
-    //         // )),
-    //     }?;
-    //
-    //     Ok(eth_signature)
-    // }
+    pub async fn sign_change_pub_key_ecdsa_auth_data(
+        &self,
+        tx: &ChangePubKey,
+        l1_client_id: u32,
+        main_contract: &ZkLinkAddress,
+    ) -> Result<PackedEthSignature, ClientError> {
+        let typed_data = tx.to_eip712_request_payload(l1_client_id, &main_contract)?;
+        let eth_signer = self
+            .eth_signer
+            .as_ref()
+            .ok_or(EthSigningError(MissingEthSigner))?;
 
-    // #[allow(clippy::too_many_arguments)]
-    // pub async fn sign_change_pub_key(&self,
-    //                                chain_id: ChainId,
-    //                                sub_account_id: SubAccountId,
-    //                                fee_token_id: TokenId,
-    //                                fee: Option<BigUint>,
-    //                                new_pubkey_hash: &[u8],
-    //                                nonce: Nonce,
-    //                                eth_auth_type: ChangePubKeyAuthRequest,
-    //                                ts: TimeStamp,
-    // ) -> Result<ChangePubKey, ClientError> {
-    //     let chain_config = self.get_chain(&chain_id)
-    //         .ok_or_else(|| ClientError::NetworkNotSupported(chain_id))?;
-    //
-    //     let account_id = self.account_id();
-    //
-    //     let nonce = self.resolve_nonce(nonce);
-    //     let new_pk_hash = PubKeyHash::from_bytes(new_pubkey_hash)?;
-    //     let mut tx = ChangePubKey {
-    //         chain_id,
-    //         account_id,
-    //         sub_account_id,
-    //         new_pk_hash,
-    //         fee_token: fee_token_id,
-    //         fee: fee.unwrap_or_default(),
-    //         nonce,
-    //         signature: Default::default(),
-    //         eth_auth_data,
-    //         ts,
-    //     };
-    //
-    //     let eth_auth_data: Result<ChangePubKeyAuthData, ClientError> = match eth_auth_type {
-    //         ChangePubKeyAuthRequest::Onchain => Ok(ChangePubKeyAuthData::Onchain),
-    //         ChangePubKeyAuthRequest::EthECDSA => {
-    //             let eth_signature = self
-    //                 .signer
-    //                 .sign_change_pub_key_ecdsa_auth_data(&tx, &chain_config)
-    //                 .await?;
-    //
-    //             Ok(ChangePubKeyAuthData::EthECDSA(EthECDSAData { eth_signature, }))
-    //         },
-    //         ChangePubKeyAuthRequest::EthCREATE2(create2) => {
-    //             // check create2 data
-    //             let from_address = create2.get_address(self.pub_key_hash.data.to_vec());
-    //             if from_address.as_bytes() != self.address.as_bytes() {
-    //                 Err(ClientError::IncorrectTx)
-    //             } else {
-    //                 Ok(ChangePubKeyAuthData::EthCREATE2(create2))
-    //             }
-    //         }
-    //     };
-    //
-    //     tx.eth_auth_data = eth_auth_data?;
-    //     tx.signature = self.signer.sign_layer_two_message(&tx.get_bytes());
-    //
-    //     Ok(tx)
-    // }
+        // sign_bytes is a eip712 data, use sign_raw_message
+        let eth_signature = eth_signer
+            .sign_typed_data(&typed_data)
+            .await
+            .map_err(signing_failed_error)?;
+
+        let eth_signature = match eth_signature {
+            TxEthSignature::EthereumSignature(packed_signature) => Ok(packed_signature),
+            TxEthSignature::EIP1271Signature(..) => Err(EthSignerError::CustomError(
+                "Can't sign ChangePubKey message with EIP1271 signer".to_string(),
+            )),
+            // TxLayer1Signature::StarkSignature(..) => Err(SignerError::CustomError(
+            //     "Can't sign ChangePubKey message with Stark signer".to_string(),
+            // )),
+        }?;
+
+        Ok(eth_signature)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub async fn sign_change_pub_key(
+        &self,
+        account_id: AccountId,
+        chain_id: ChainId,
+        sub_account_id: SubAccountId,
+        fee_token: TokenId,
+        fee: BigUint,
+        new_pubkey_hash: &[u8],
+        nonce: Nonce,
+        main_contract: ZkLinkAddress,
+        l1_client_id: u32,
+        account_address: ZkLinkAddress,
+        auth_request: ChangePubKeyAuthRequest,
+        ts: TimeStamp,
+    ) -> Result<TxSignature, ClientError> {
+        let new_pk_hash = PubKeyHash::from_bytes(new_pubkey_hash)?;
+        let mut tx = ChangePubKey {
+            chain_id,
+            account_id,
+            sub_account_id,
+            new_pk_hash,
+            fee_token,
+            fee,
+            nonce,
+            signature: Default::default(),
+            eth_auth_data: ChangePubKeyAuthData::Onchain,
+            ts,
+        };
+        let eth_auth_data: Result<ChangePubKeyAuthData, ClientError> = match auth_request {
+            ChangePubKeyAuthRequest::Onchain => Ok(ChangePubKeyAuthData::Onchain),
+            ChangePubKeyAuthRequest::EthECDSA => {
+                let eth_signature = self
+                    .sign_change_pub_key_ecdsa_auth_data(&tx, l1_client_id, &main_contract)
+                    .await?;
+
+                Ok(ChangePubKeyAuthData::EthECDSA(EthECDSAData {
+                    eth_signature,
+                }))
+            }
+            ChangePubKeyAuthRequest::EthCREATE2(create2) => {
+                // check create2 data
+                let from_address = create2.get_address(self.pub_key_hash.data.to_vec());
+                if from_address.as_bytes() != account_address.as_bytes() {
+                    Err(ClientError::IncorrectTx)
+                } else {
+                    Ok(ChangePubKeyAuthData::EthCREATE2(create2))
+                }
+            }
+        };
+        tx.eth_auth_data = eth_auth_data?;
+        tx.signature = self.sign_layer_two_message(&tx.get_bytes())?;
+
+        Ok(TxSignature {
+            tx: tx.into(),
+            eth_signature: None,
+        })
+    }
 
     pub async fn sign_transfer(
         &self,
@@ -195,7 +203,6 @@ impl<S: EthereumSigner> Signer<S> {
             ts,
         };
 
-        // tx.fee = self.resolve_tx_fee(fee, tx.clone().into()).await?;
         tx.signature = self.sign_layer_two_message(&tx.get_bytes())?;
 
         let message = tx

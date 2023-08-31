@@ -6,7 +6,7 @@ use jsonrpc_core::types::response::Output;
 
 use super::eth_signature::TxEthSignature;
 use super::packed_eth_signature::PackedEthSignature;
-use crate::eth_signer::EthereumSignerAsync;
+use crate::eth_signer::{EthTypedData, EthereumSigner};
 use serde_json::Value;
 use web3::types::Address;
 
@@ -45,7 +45,7 @@ pub struct JsonRpcSigner {
 }
 
 #[async_trait::async_trait]
-impl EthereumSignerAsync for JsonRpcSigner {
+impl EthereumSigner for JsonRpcSigner {
     /// The sign method calculates an Ethereum specific signature with:
     /// checks if the server adds a prefix if not then adds
     /// return sign(keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))).
@@ -112,6 +112,27 @@ impl EthereumSignerAsync for JsonRpcSigner {
 
     async fn get_address(&self) -> Result<Address, EthSignerError> {
         self.address()
+    }
+
+    async fn sign_typed_data(&self, msg: &EthTypedData) -> Result<TxEthSignature, EthSignerError> {
+        let signature: PackedEthSignature = {
+            let message = JsonRpcRequest::sign_typed_data(self.address()?, msg.raw_data.as_bytes());
+            let ret = self
+                .post(&message)
+                .await
+                .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;
+            serde_json::from_value(ret)
+                .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?
+        };
+
+        // Checks the correctness of the message signature without a prefix
+        if is_signature_from_address(&signature, msg.data_hash.as_bytes(), self.address()?)? {
+            Ok(TxEthSignature::EthereumSignature(signature))
+        } else {
+            Err(EthSignerError::SigningFailed(
+                "Invalid signature from JsonRpcSigner".to_string(),
+            ))
+        }
     }
 }
 
@@ -390,7 +411,6 @@ mod tests {
     use crate::eth_signer::eth_signature::TxEthSignature;
     use crate::eth_signer::json_rpc_signer::JsonRpcSigner;
     use crate::eth_signer::packed_eth_signature::PackedEthSignature;
-    use crate::eth_signer::EthereumSignerAsync;
     use crate::eth_signer::{EthereumSigner, RawTransaction};
     use web3::types::Address;
 

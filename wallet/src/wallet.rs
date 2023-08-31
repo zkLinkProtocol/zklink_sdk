@@ -7,7 +7,7 @@ use zklink_provider::rpc::ZkLinkRpcClient;
 use zklink_provider::types::{AccountQuery, ChainResp, TokenResp};
 use zklink_signer::error::ClientError;
 use zklink_signer::signer::Signer;
-use zklink_signer::TxSignature;
+use zklink_signer::{ChangePubKeyAuthRequest, TxSignature};
 use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::{AccountId, ChainId, Nonce, SubAccountId, TokenId, ZkLinkAddress};
 use zklink_types::tx_type::order_matching::Order;
@@ -93,31 +93,45 @@ where
         self.tokens.get(token_id).cloned()
     }
 
-    // pub async fn submit_change_pub_key(&self,
-    //                                    chain_id: ChainId,
-    //                                    sub_account_id: SubAccountId,
-    //                                    fee_token_id: TokenId,
-    //                                    fee: Option<BigUint>,
-    //                                    nonce: Option<Nonce>,
-    //                                    auth_request: ChangePubKeyAuthRequest) -> Result<SyncTransactionHandle<P>, ClientError> {
-    //     let chain_config = self.get_chain(&chain_id)
-    //         .ok_or_else(|| ClientError::NetworkNotSupported(chain_id))?;
-    //
-    //     let account_id = self.account_id();
-    //
-    //     let nonce = self.resolve_nonce(nonce);
-    //     let current_time = chrono::Utc::now().timestamp() as u32;
-    //
-    //     let tx_signature = self.signer;
-    //
-    //     if !tx.is_validate() {
-    //         return Err(ClientError::IncorrectTx);
-    //     }
-    //
-    //     let tx_hash = self.provider.tx_submit(tx.into(), None, None).await?;
-    //
-    //     Ok(SyncTransactionHandle::new(tx_hash, self.provider.clone()))
-    // }
+    pub async fn submit_change_pub_key(
+        &self,
+        chain_id: ChainId,
+        sub_account_id: SubAccountId,
+        fee_token: TokenId,
+        fee: Option<BigUint>,
+        nonce: Option<Nonce>,
+        new_pubkey_hash: &[u8],
+        auth_request: ChangePubKeyAuthRequest,
+    ) -> Result<TxHash, ClientError> {
+        let chain_config = self
+            .get_chain(&chain_id)
+            .ok_or_else(|| ClientError::NetworkNotSupported(chain_id))?;
+
+        let account_id = self.account_id();
+
+        let nonce = self.resolve_nonce(nonce);
+        let current_time = chrono::Utc::now().timestamp() as u32;
+
+        let tx_signature = self
+            .signer
+            .sign_change_pub_key(
+                account_id,
+                chain_id,
+                sub_account_id,
+                fee_token,
+                fee.unwrap_or_default(),
+                new_pubkey_hash,
+                nonce,
+                chain_config.main_contract,
+                chain_config.layer_one_chain_id,
+                self.address.clone(),
+                auth_request,
+                current_time.into(),
+            )
+            .await?;
+
+        self.submit_tx(tx_signature).await
+    }
 
     pub async fn submit_transfer(
         &self,

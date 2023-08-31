@@ -6,6 +6,8 @@ publish = false
 
 [dependencies]
 async-trait = "0.1"
+ethers = "2.0.2"
+ethers_primitives =  "0.2.2"
 franklin_crypto = { package = "franklin-crypto", git = "https://github.com/matter-labs/franklin-crypto.git", branch = "beta" }
 hex = "0.4"
 jsonrpc-core = "17"
@@ -14,25 +16,22 @@ reqwest = { version = "0.11", features = ["json", "blocking"] }
 rlp = "0.5"
 secp256k1 = { version = "0.21", features = ["std", "recovery"] }
 serde = { version = "1.0", features = ["derive"] }
+serde_eip712 = "0.2.2"
 serde_json = "1.0"
 sha2 = "0.10"
 thiserror = "1.0"
 web3 = "0.18.0"
 zklink_sdk_utils = { path = "../utils" }
-ethers = "2.0.2"
-serde_eip712 = "0.2.2"
-ethers_primitives =  "0.2.2"
 
 [features]
 default = []
 ffi = []
 
-
 [dev-dependencies]
 actix-rt = "2.7"
 actix-web = "4.2"
-futures = "0.3"
-tokio = { version = "1", features = ["full"] }
 ethers = "2.0.2"
-serde_eip712 = "0.2.2"
 ethers_primitives =  "0.2.2"
+futures = "0.3"
+serde_eip712 = "0.2.2"
+tokio = { version = "1", features = ["full"] }

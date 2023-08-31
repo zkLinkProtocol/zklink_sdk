@@ -1,18 +1,18 @@
 use crate::basic_types::{
-    AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
+    AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress, H256,
 };
 use crate::tx_type::format_units;
 use crate::tx_type::pack::pack_fee_amount;
 use crate::tx_type::validator::*;
-use ethers::types::{Address, H256};
 use num::{BigUint, Zero};
 use parity_crypto::Keccak256;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
-use zklink_crypto::eth_signer::eip712::eip712::{eip712_typed_data, EIP712Domain};
+use zklink_crypto::eth_signer::eip712::eip712::{eip712_typed_data, EIP712Domain, TypedData};
 use zklink_crypto::eth_signer::eip712::{BytesM, Uint};
 use zklink_crypto::eth_signer::error::EthSignerError;
 use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
+use zklink_crypto::eth_signer::EthTypedData;
 use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
@@ -33,13 +33,13 @@ pub struct EthECDSAData {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CREATE2Data {
-    pub creator_address: Address,
+    pub creator_address: ZkLinkAddress,
     pub salt_arg: H256,
     pub code_hash: H256,
 }
 
 impl CREATE2Data {
-    pub fn get_address(&self, pubkey_hash: Vec<u8>) -> Address {
+    pub fn get_address(&self, pubkey_hash: Vec<u8>) -> ZkLinkAddress {
         let salt = {
             let mut bytes = Vec::new();
             bytes.extend_from_slice(self.salt_arg.as_bytes());
@@ -52,7 +52,7 @@ impl CREATE2Data {
         bytes.extend_from_slice(self.creator_address.as_bytes());
         bytes.extend_from_slice(&salt);
         bytes.extend_from_slice(self.code_hash.as_bytes());
-        Address::from_slice(&bytes.keccak256()[12..])
+        ZkLinkAddress::from_slice(&bytes.keccak256()[12..]).unwrap_or_default()
     }
 }
 
@@ -293,11 +293,17 @@ impl ChangePubKey {
         &self,
         layer_one_chain_id: u32,
         verifying_contract: &ZkLinkAddress,
-    ) -> Result<String, EthSignerError> {
+    ) -> Result<EthTypedData, EthSignerError> {
         let domain = EIP712Domain::from_chain(layer_one_chain_id, verifying_contract.to_string())?;
         let typed_data = eip712_typed_data::<EIP712ChangePubKey>(domain, self.into())?;
-        serde_json::to_string(&typed_data)
-            .map_err(|e| EthSignerError::CustomError(format!("serialization error: {e:?}")))
+        let raw_data = serde_json::to_string(&typed_data)
+            .map_err(|e| EthSignerError::CustomError(format!("serialization error: {e:?}")))?;
+        let data_hash = typed_data.sign_hash()?;
+        let data_hash = zklink_crypto::eth_signer::H256::from_slice(&data_hash.0);
+        Ok(EthTypedData {
+            raw_data,
+            data_hash,
+        })
     }
 }
 
