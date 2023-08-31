@@ -34,6 +34,8 @@ pub enum PackedETHSignatureError {
     LengthMismatched,
     #[error("Crypto Error: {0:?}")]
     CryptoError(#[from] parity_crypto::publickey::Error),
+    #[error("Invalid eth signature string")]
+    InvalidSignatureStr,
 }
 
 impl PackedEthSignature {
@@ -55,6 +57,17 @@ impl PackedEthSignature {
         }
 
         Ok(PackedEthSignature(ETHSignature::from(bytes_array)))
+    }
+
+    pub fn from_hex(s: &str) -> Result<Self, PackedETHSignatureError> {
+        let s = s.strip_prefix("0x").unwrap_or(s);
+        let raw = hex::decode(s).map_err(|_e| PackedETHSignatureError::InvalidSignatureStr)?;
+        Self::deserialize_packed(&raw)
+    }
+
+    pub fn as_hex(&self) -> String {
+        let raw = self.serialize_packed();
+        format!("0x{}", hex::encode(&raw))
     }
 
     /// Signs message using ethereum private key, results are identical to signature created

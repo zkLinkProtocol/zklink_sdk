@@ -17,11 +17,6 @@ use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct EthECDSAData {
-    pub eth_signature: PackedEthSignature,
-}
 //todo: starknet
 // #[derive(Debug, Clone, Serialize, Deserialize)]
 // #[serde(rename_all = "camelCase")]
@@ -32,14 +27,14 @@ pub struct EthECDSAData {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CREATE2Data {
-    pub creator_address: ZkLinkAddress,
+pub struct Create2Data {
+    pub creator_address: Address,
     pub salt_arg: H256,
     pub code_hash: H256,
 }
 
-impl CREATE2Data {
-    pub fn get_address(&self, pubkey_hash: Vec<u8>) -> ZkLinkAddress {
+impl Create2Data {
+    pub fn get_address(&self, pubkey_hash: Vec<u8>) -> Address {
         let salt = {
             let mut bytes = Vec::new();
             bytes.extend_from_slice(self.salt_arg.as_bytes());
@@ -60,9 +55,15 @@ impl CREATE2Data {
 #[serde(tag = "type")]
 pub enum ChangePubKeyAuthData {
     Onchain,
-    EthECDSA(EthECDSAData),
-    EthCREATE2(CREATE2Data),
-    // StarkECDSA(StarkECDSAData),
+    EthECDSA{
+        eth_signature: PackedEthSignature
+    },
+    EthCREATE2{
+        data: Create2Data
+    },
+    // StarkECDSA{
+    //     data = StarkECDSAData
+    // },
 }
 
 impl Default for ChangePubKeyAuthData {
@@ -73,7 +74,7 @@ impl Default for ChangePubKeyAuthData {
 
 impl ChangePubKeyAuthData {
     pub fn is_eth_ecdsa(&self) -> bool {
-        matches!(self, ChangePubKeyAuthData::EthECDSA(..))
+        matches!(self, ChangePubKeyAuthData::EthECDSA{..})
     }
 
     pub fn is_onchain(&self) -> bool {
@@ -81,7 +82,7 @@ impl ChangePubKeyAuthData {
     }
 
     pub fn is_create2(&self) -> bool {
-        matches!(self, ChangePubKeyAuthData::EthCREATE2(..))
+        matches!(self, ChangePubKeyAuthData::EthCREATE2{..})
     }
 
     // pub fn is_stark_ecdsa(&self) -> bool {
@@ -91,7 +92,7 @@ impl ChangePubKeyAuthData {
     pub fn get_eth_witness(&self) -> Option<Vec<u8>> {
         match self {
             ChangePubKeyAuthData::Onchain => None,
-            ChangePubKeyAuthData::EthECDSA(EthECDSAData { eth_signature, .. }) => {
+            ChangePubKeyAuthData::EthECDSA{ eth_signature } => {
                 let mut bytes = Vec::new();
                 bytes.push(0x00);
                 bytes.extend_from_slice(&eth_signature.0[..64]);
@@ -103,16 +104,12 @@ impl ChangePubKeyAuthData {
                 bytes.push(v);
                 Some(bytes)
             }
-            ChangePubKeyAuthData::EthCREATE2(CREATE2Data {
-                creator_address,
-                salt_arg,
-                code_hash,
-            }) => {
+            ChangePubKeyAuthData::EthCREATE2{data} => {
                 let mut bytes = Vec::new();
                 bytes.push(0x01);
-                bytes.extend_from_slice(creator_address.as_bytes());
-                bytes.extend_from_slice(salt_arg.as_bytes());
-                bytes.extend_from_slice(code_hash.as_bytes());
+                bytes.extend_from_slice(data.creator_address.as_bytes());
+                bytes.extend_from_slice(data.salt_arg.as_bytes());
+                bytes.extend_from_slice(data.code_hash.as_bytes());
                 Some(bytes)
             } // ChangePubKeyAuthData::StarkECDSA(StarkECDSAData{signature, public_key}) =>{
               //     let mut bytes = Vec::new();
@@ -183,7 +180,7 @@ impl ChangePubKey {
         ts: TimeStamp,
     ) -> Self {
         let eth_auth_data = eth_signature
-            .map(|eth_signature| ChangePubKeyAuthData::EthECDSA(EthECDSAData { eth_signature }))
+            .map(|eth_signature| ChangePubKeyAuthData::EthECDSA { eth_signature })
             .unwrap_or(ChangePubKeyAuthData::Onchain);
 
         Self {

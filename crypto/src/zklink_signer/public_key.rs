@@ -10,8 +10,6 @@ use franklin_crypto::alt_babyjubjub::FixedGenerators;
 use franklin_crypto::eddsa::PublicKey;
 use franklin_crypto::jubjub::edwards;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-#[cfg(feature = "ffi")]
-use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct PackedPublicKey(pub(crate) EddsaPubkey<Engine>);
@@ -75,7 +73,7 @@ impl PackedPublicKey {
     pub fn from_hex(s: &str) -> Result<Self, Error> {
         let s = s.strip_prefix("0x").unwrap_or(s);
         let raw = hex::decode(s)
-            .map_err(|e| Error::InvalidPubkey("can't convert to public key".into()))?;
+            .map_err(|_| Error::InvalidPubkey("can't convert to public key".into()))?;
         Self::from_bytes(&raw)
     }
 

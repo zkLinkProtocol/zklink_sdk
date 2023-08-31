@@ -6,6 +6,8 @@ use crate::crypto::{get_public_key, get_public_key_hash, verify_musig};
 
 use std::str::FromStr;
 
+use zklink_crypto::eth_signer::packed_eth_signature::{PackedEthSignature, PackedETHSignatureError};
+
 use zklink_crypto::zklink_signer::error::ZkSignerError;
 use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_crypto::zklink_signer::private_key::PackedPrivateKey;
@@ -14,11 +16,12 @@ use zklink_crypto::zklink_signer::public_key::PackedPublicKey;
 use zklink_crypto::zklink_signer::signature::{PackedSignature, ZkLinkSignature};
 
 use zklink_types::basic_types::error::TypeError;
+use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
 use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::zklink_address::ZkLinkAddress;
 use zklink_types::basic_types::{
     AccountId, BigUint, BlockNumber, ChainId, EthBlockId, Nonce, PairId, PriorityOpId, SlotId,
-    SubAccountId, TimeStamp, TokenId, H256,
+    SubAccountId, TimeStamp, TokenId, H256, Address
 };
 use zklink_types::tx_type::deposit::Deposit;
 use zklink_types::tx_type::withdraw::Withdraw;
@@ -81,28 +84,37 @@ macro_rules! ffi_hex_convert {
         }
     };
 }
+
 ffi_hex_convert!(TxHash);
 ffi_hex_convert!(PackedPublicKey);
 ffi_hex_convert!(PackedSignature);
 ffi_hex_convert!(PubKeyHash);
+ffi_hex_convert!(PackedEthSignature);
 
-impl UniffiCustomTypeConverter for H256 {
-    type Builtin = String;
-    fn into_custom(val: String) -> uniffi::Result<Self> {
-        let s = val.as_str().strip_prefix("0x").unwrap_or(&val);
-        let raw = hex::decode(s)?;
-        if raw.len() != 32 {
-            return Err(TypeError::SizeMismatch.into());
+
+macro_rules! ffi_num_convert {
+    ($(#[$attr:meta])* $name:ident, $num:expr) => {
+        impl UniffiCustomTypeConverter for $name {
+            type Builtin = String;
+            fn into_custom(val: Self::Builtin) -> uniffi::Result<Self> {
+                let s = val.as_str().strip_prefix("0x").unwrap_or(&val);
+                let raw = hex::decode(s)?;
+                if raw.len() != $num {
+                    return Err(TypeError::SizeMismatch.into());
+                }
+                let h = $name::from_slice(&raw);
+                Ok(h)
+            }
+            fn from_custom(obj: Self) -> Self::Builtin {
+                let s = hex::encode(obj.as_bytes());
+                format!("0x{s}")
+            }
         }
-        let h = H256::from_slice(&raw);
-        Ok(h)
-    }
-
-    fn from_custom(obj: Self) -> Self::Builtin {
-        let s = hex::encode(obj.as_bytes());
-        format!("0x{s}")
-    }
+    };
 }
+
+ffi_num_convert!(H256, 32);
+ffi_num_convert!(Address, 16);
 
 include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));
 
