@@ -303,10 +303,11 @@ impl ChangePubKey {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename = "ChangePubKey")]
+#[serde(rename_all = "camelCase")]
 struct EIP712ChangePubKey {
-    pubKeyHash: BytesM<20>,
+    pub_key_hash: BytesM<20>,
     nonce: Uint<32>,
-    accountId: Uint<32>,
+    account_id: Uint<32>,
 }
 
 impl From<&ChangePubKey> for EIP712ChangePubKey {

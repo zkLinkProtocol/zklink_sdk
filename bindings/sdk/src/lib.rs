@@ -21,6 +21,7 @@ use zklink_types::basic_types::{
     SubAccountId, TimeStamp, TokenId, H256,
 };
 use zklink_types::tx_type::deposit::Deposit;
+use zklink_types::tx_type::withdraw::Withdraw;
 
 macro_rules! ffi_convert {
     ($(#[$attr:meta])* $name:ident, $type:ty) => {

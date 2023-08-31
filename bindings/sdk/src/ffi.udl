@@ -113,3 +113,23 @@ interface Deposit {
     );
     sequence<u8> get_bytes();
 };
+
+interface Withdraw {
+    constructor(
+        AccountId account_id,
+        SubAccountId sub_account_id,
+        ChainId to_chain_id,
+        ZkLinkAddress to,
+        TokenId l2_source_token,
+        TokenId l1_target_token,
+        BigUint amount,
+        BigUint fee,
+        Nonce nonce,
+        boolean fast_withdraw,
+        u16 withdraw_fee_ratio,
+        ZkLinkSignature ?signature,
+        TimeStamp ts
+    );
+    sequence<u8> get_bytes();
+};
+
