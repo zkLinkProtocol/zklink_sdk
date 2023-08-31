@@ -165,7 +165,6 @@ impl Transfer {
     }
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -173,7 +172,8 @@ mod test {
 
     #[test]
     fn test_get_bytes() {
-        let address = ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
+        let address =
+            ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
         let ts = 1693472232u32;
         let transfer = Transfer::new(
             AccountId(10),
@@ -185,9 +185,14 @@ mod test {
             BigUint::from(3u32),
             Nonce(1),
             Default::default(),
-            ts.into());
+            ts.into(),
+        );
         let bytes = transfer.get_bytes();
-        let excepted_bytes = [4, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4, 37, 215, 146, 67, 45, 158, 205, 28, 62, 38, 239, 44, 66, 233, 1, 0, 18, 0, 0, 4, 226, 0, 0, 96, 0, 0, 0, 1, 100, 240, 85, 232];
-        assert_eq!(bytes,excepted_bytes);
+        let excepted_bytes = [
+            4, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4, 37,
+            215, 146, 67, 45, 158, 205, 28, 62, 38, 239, 44, 66, 233, 1, 0, 18, 0, 0, 4, 226, 0, 0,
+            96, 0, 0, 0, 1, 100, 240, 85, 232,
+        ];
+        assert_eq!(bytes, excepted_bytes);
     }
 }

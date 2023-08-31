@@ -21,19 +21,6 @@ typedef string PackedSignature;
 [Custom]
 typedef string PubKeyHash;
 
-
-interface PackedPrivateKey {
-    [Throws=ZkSignerError]
-    constructor();
-    [Throws=ZkSignerError,Name=new_from_seed]
-    constructor([ByRef] sequence<u8> seed);
-    [Throws=ZkSignerError,Name=new_from_hex_eth_signer]
-    constructor([ByRef] string eth_hex_private_key);
-    [Throws=ZkSignerError,Name=new_from_bytes]
-    constructor([ByRef] sequence<u8> bytes);
-    PackedPublicKey public_key();
-};
-
 interface ZkLinkSigner {
     [Throws=ZkSignerError]
     constructor();
@@ -233,6 +220,5 @@ namespace zklink_sdk {
     [Throws=ZkSignerError]
     boolean verify_musig(ZkLinkSignature signature, [ByRef] sequence<u8> msg);
     PubKeyHash get_public_key_hash(PackedPublicKey public_key);
-    PackedPublicKey get_public_key(PackedPrivateKey private_key);
 };
 
