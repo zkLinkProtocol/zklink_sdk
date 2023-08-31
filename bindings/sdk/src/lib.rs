@@ -26,6 +26,9 @@ use zklink_types::basic_types::{
 };
 use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
 use zklink_types::tx_type::deposit::Deposit;
+use zklink_types::tx_type::forced_exit::ForcedExit;
+use zklink_types::tx_type::order_matching::Order;
+use zklink_types::tx_type::transfer::Transfer;
 use zklink_types::tx_type::withdraw::Withdraw;
 
 macro_rules! ffi_convert {
