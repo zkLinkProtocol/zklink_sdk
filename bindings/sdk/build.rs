@@ -3,6 +3,5 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 fn main() {
-    #[cfg(feature = "ffi")]
     uniffi_build::generate_scaffolding("./src/ffi.udl").unwrap();
 }

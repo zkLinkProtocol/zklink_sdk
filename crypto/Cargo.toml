@@ -4,10 +4,6 @@ version = "1.0.0"
 edition = "2021"
 publish = false
 
-[lib]
-crate-type = ["lib", "cdylib"]
-name = "zklink_crypto"
-
 [dependencies]
 async-trait = "0.1"
 franklin_crypto = { package = "franklin-crypto", git = "https://github.com/matter-labs/franklin-crypto.git", branch = "beta" }
