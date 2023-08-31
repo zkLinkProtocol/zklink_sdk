@@ -5,7 +5,11 @@ namespace zklink_sdk {
     PackedPublicKey get_public_key(PackedPrivateKey private_key);
 };
 
-// ============================  crypto  ============================
+// ============================ eth crypto  ============================
+[Custom]
+typedef string PackedEthSignature;
+
+// ============================ zklink crypto  ============================
 [Error]
 enum ZkSignerError {
     "CustomError",
@@ -135,4 +139,5 @@ interface Withdraw {
     string get_ethereum_sign_message_part([ByRef] string token_symbol);
     string get_ethereum_sign_message([ByRef] string token_symbol);
 };
+
 

@@ -6,6 +6,8 @@ use crate::crypto::{get_public_key, get_public_key_hash, verify_musig};
 
 use std::str::FromStr;
 
+use zklink_crypto::eth_signer::packed_eth_signature::{PackedEthSignature, PackedETHSignatureError};
+
 use zklink_crypto::zklink_signer::error::ZkSignerError;
 use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_crypto::zklink_signer::private_key::PackedPrivateKey;
@@ -85,6 +87,7 @@ ffi_hex_convert!(TxHash);
 ffi_hex_convert!(PackedPublicKey);
 ffi_hex_convert!(PackedSignature);
 ffi_hex_convert!(PubKeyHash);
+ffi_hex_convert!(PackedEthSignature);
 
 impl UniffiCustomTypeConverter for H256 {
     type Builtin = String;

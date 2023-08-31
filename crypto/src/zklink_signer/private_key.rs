@@ -6,8 +6,6 @@ use franklin_crypto::alt_babyjubjub::fs::{Fs, FsRepr};
 use franklin_crypto::bellman::{PrimeField, PrimeFieldRepr};
 use franklin_crypto::eddsa::{PrivateKey as FLPrivateKey, PrivateKey};
 use sha2::{Digest, Sha256};
-#[cfg(feature = "ffi")]
-use std::sync::Arc;
 use web3::types::H256;
 
 pub struct PackedPrivateKey(EddsaPrivKey<Engine>);

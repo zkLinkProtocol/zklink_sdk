@@ -7,8 +7,6 @@ use crate::zklink_signer::utils;
 use franklin_crypto::alt_babyjubjub::FixedGenerators;
 use franklin_crypto::eddsa::Seed;
 use std::fmt;
-#[cfg(feature = "ffi")]
-use std::sync::Arc;
 
 pub struct ZkLinkSigner {
     private_key: PackedPrivateKey,
