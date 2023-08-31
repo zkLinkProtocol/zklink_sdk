@@ -7,6 +7,7 @@ use crate::basic_types::{
 };
 use crate::tx_type::validator::*;
 use serde::{Deserialize, Serialize};
+use zklink_crypto::zklink_signer::error::ZkSignerError;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 /// `ForcedExit` transaction is used to withdraw funds from an unowned
 /// account to its corresponding L1 address.
@@ -149,10 +150,7 @@ impl ForcedExit {
         self.validate().is_ok()
     }
 
-    // /// Restores the `PubKeyHash` from the transaction signature.
-    // pub fn verify_signature(&self) -> Option<PubKeyHash> {
-    //     self.signature
-    //         .verify_musig(&self.get_bytes())
-    //         .map(|pub_key| PubKeyHash::from_pubkey(&pub_key))
-    // }
+    pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+        self.signature.verify_musig(&self.get_bytes())
+    }
 }

@@ -8,6 +8,7 @@ use crate::tx_type::validator::*;
 use num::{BigUint, ToPrimitive, Zero};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
+use zklink_crypto::zklink_signer::error::ZkSignerError;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_crypto::zklink_signer::utils::rescue_hash_orders;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
@@ -228,6 +229,9 @@ impl Order {
     //     }
     //     Ok(tx)
     // }
+    pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+        self.signature.verify_musig(&self.get_bytes())
+    }
 }
 
 impl OrderMatching {
