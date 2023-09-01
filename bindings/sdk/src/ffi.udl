@@ -6,6 +6,7 @@ enum TypeError {
     "NotStartWithZerox",
     "SizeMismatch",
     "DecodeFromHexErr",
+    "TooBigInteger",
 };
 
 [Custom]
@@ -32,8 +33,6 @@ typedef u8 ChainId;
 typedef u8 SubAccountId;
 [Custom]
 typedef string H256;
-[Custom]
-typedef string H160;
 [Custom]
 typedef string BigUint;
 [Custom]
@@ -193,6 +192,7 @@ interface OrderMatching {
 // ============================ eth crypto  ============================
 [Error]
 enum EthSignerError {
+    "InvalidEthSigner",
     "MissingEthPrivateKey",
     "MissingEthSigner",
     "SigningFailed",
@@ -209,9 +209,8 @@ enum EthSignerError {
 typedef string PackedEthSignature;
 
 interface PrivateKeySigner {
-    constructor(H256 private_key);
     [Throws=EthSignerError]
-    H160 get_address();
+    constructor([ByRef] string private_key);
     [Throws=EthSignerError]
     PackedEthSignature sign_message([ByRef] sequence<u8> message);
 };

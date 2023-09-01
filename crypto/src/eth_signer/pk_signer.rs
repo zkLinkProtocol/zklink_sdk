@@ -18,8 +18,14 @@ impl std::fmt::Debug for PrivateKeySigner {
 }
 
 impl PrivateKeySigner {
-    pub fn new(private_key: H256) -> Self {
-        Self { private_key }
+    pub fn new(private_key: &str) -> Result<Self, EthSignerError> {
+        let s = private_key.strip_prefix("0x").unwrap_or(private_key);
+        let raw = hex::decode(s).map_err(|_| EthSignerError::InvalidEthSigner)?;
+        if raw.len() != 32 {
+            return Err(EthSignerError::InvalidEthSigner);
+        }
+        let private_key = H256::from_slice(&raw);
+        Ok(Self { private_key })
     }
 
     /// Get Ethereum address that matches the private key.

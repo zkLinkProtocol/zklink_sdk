@@ -13,6 +13,8 @@ pub enum EthRpcSignerError {
 
 #[derive(Debug, Error, PartialEq)]
 pub enum EthSignerError {
+    #[error("invalid eth signer")]
+    InvalidEthSigner,
     #[error("Ethereum private key required to perform an operation")]
     MissingEthPrivateKey,
     #[error("EthereumSigner required to perform an operation")]
