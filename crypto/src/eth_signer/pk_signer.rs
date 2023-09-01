@@ -1,6 +1,6 @@
-use super::raw_tx::{RawTransaction, Transaction};
-use super::{EthSignerError, };
 use super::packed_eth_signature::PackedEthSignature;
+use super::raw_tx::{RawTransaction, Transaction};
+use super::EthSignerError;
 use crate::eth_signer::EthTypedData;
 
 use secp256k1::SecretKey;

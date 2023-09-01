@@ -16,4 +16,3 @@ pub fn verify_musig(signature: ZkLinkSignature, msg: &[u8]) -> Result<bool, ZkSi
 pub fn get_public_key_hash(public_key: PackedPublicKey) -> PubKeyHash {
     public_key.public_key_hash()
 }
-

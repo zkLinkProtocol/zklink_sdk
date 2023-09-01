@@ -1,9 +1,9 @@
 use crate::TxSignature;
-use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_types::tx_type::forced_exit::ForcedExit;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
 use zklink_crypto::zklink_signer::error::ZkSignerError;
+use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_types::tx_type::forced_exit::ForcedExit;
 
 #[cfg(feature = "sync")]
 pub fn sign_forced_exit(
@@ -21,7 +21,7 @@ pub fn sign_forced_exit(
 pub fn sign_forced_exit(
     zklink_signer: Arc<ZkLinkSigner>,
     tx: Arc<ForcedExit>,
-) -> Result<TxSignature, SignError> {
+) -> Result<TxSignature, ZkSignerError> {
     let mut tx = (*tx).clone();
     tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
     Ok(TxSignature {

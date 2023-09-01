@@ -1,9 +1,9 @@
+use crate::TxSignature;
+#[cfg(feature = "ffi")]
+use std::sync::Arc;
 use zklink_crypto::zklink_signer::error::ZkSignerError;
 use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_types::tx_type::order_matching::OrderMatching;
-#[cfg(feature = "ffi")]
-use std::sync::Arc;
-use crate::TxSignature;
 
 #[cfg(feature = "sync")]
 pub fn sign_order_matching(

@@ -9,10 +9,11 @@ path = "src/lib.rs"
 crate-type = ["cdylib", "staticlib", "lib"]
 
 [dependencies]
-zklink_crypto = { path = "../../crypto", features = ["ffi"] }
-zklink_types = { path = "../../types", features = ["ffi"] }
-zklink_interface = { path = "../../interface", features = ["ffi"] }
+zklink_crypto = { path = "../../crypto", default_features = false,features = ["ffi"] }
+zklink_types = { path = "../../types", default_features = false, features = ["ffi"] }
+zklink_interface = { path = "../../interface", default_features = false, features = ["ffi"] }
 hex = "0.4"
+serde_json = "1.0"
 
 uniffi = { version = "0.23" }
 uniffi_macros = { version = "0.23" }

@@ -45,7 +45,6 @@ pub enum ZkLinkTx {
     Deposit(Box<Deposit>),
     Transfer(Box<Transfer>),
     Withdraw(Box<Withdraw>),
-    #[doc(hidden)]
     ChangePubKey(Box<ChangePubKey>),
     ForcedExit(Box<ForcedExit>),
     OrderMatching(Box<OrderMatching>),

@@ -1,45 +1,3 @@
-// ============================ eth crypto  ============================
-[Custom]
-typedef string PackedEthSignature;
-
-// ============================ zklink crypto  ============================
-[Error]
-enum ZkSignerError {
-    "CustomError",
-    "InvalidSignature",
-    "InvalidPrivKey",
-    "InvalidSeed",
-    "InvalidPubkey",
-    "InvalidPubkeyHash",
-    "PackedETHSignatureError",
-};
-
-[Custom]
-typedef string PackedPublicKey;
-[Custom]
-typedef string PackedSignature;
-[Custom]
-typedef string PubKeyHash;
-
-interface ZkLinkSigner {
-    [Throws=ZkSignerError]
-    constructor();
-    [Throws=ZkSignerError,Name=new_from_seed]
-    constructor([ByRef] sequence<u8> seed);
-    [Throws=ZkSignerError,Name=new_from_hex_eth_signer]
-    constructor([ByRef] string eth_hex_private_key);
-    [Throws=ZkSignerError,Name=new_from_bytes]
-    constructor([ByRef] sequence<u8> slice);
-    PackedPublicKey public_key();
-    [Throws=ZkSignerError]
-    ZkLinkSignature sign_musig([ByRef] sequence<u8> msg);
-};
-
-dictionary ZkLinkSignature {
-    PackedPublicKey public_key;
-    PackedSignature signature;
-};
-
 // ============================  basic types  ============================
 [Error]
 enum TypeError {
@@ -75,6 +33,8 @@ typedef u8 SubAccountId;
 [Custom]
 typedef string H256;
 [Custom]
+typedef string H160;
+[Custom]
 typedef string BigUint;
 [Custom]
 typedef string ZkLinkAddress;
@@ -82,6 +42,18 @@ typedef string ZkLinkAddress;
 typedef string TxHash;
 
 // ============================  transaction types  ============================
+dictionary Create2Data {
+    ZkLinkAddress creator_address;
+    H256 salt_arg;
+    H256 code_hash;
+};
+
+[Enum]
+interface ChangePubKeyAuthRequest {
+    Onchain();
+    EthECDSA();
+    EthCreate2(Create2Data data);
+};
 
 interface Deposit {
     constructor(
@@ -218,19 +190,100 @@ interface OrderMatching {
     );
 };
 
+// ============================ eth crypto  ============================
+[Error]
+enum EthSignerError {
+    "MissingEthPrivateKey",
+    "MissingEthSigner",
+    "SigningFailed",
+    "UnlockingFailed",
+    "DecodeRawTxFailed",
+    "Eip712Failed",
+    "NoSigningKey",
+    "DefineAddress",
+    "RecoverAddress",
+    "CustomError",
+};
+
+[Custom]
+typedef string PackedEthSignature;
+
+interface PrivateKeySigner {
+    constructor(H256 private_key);
+    [Throws=EthSignerError]
+    H160 get_address();
+    [Throws=EthSignerError]
+    PackedEthSignature sign_message([ByRef] sequence<u8> message);
+};
+
+// ============================ zklink crypto  ============================
+[Error]
+enum ZkSignerError {
+    "CustomError",
+    "InvalidSignature",
+    "InvalidPrivKey",
+    "InvalidSeed",
+    "InvalidPubkey",
+    "InvalidPubkeyHash",
+    "PackedETHSignatureError",
+};
+
+[Custom]
+typedef string PackedPublicKey;
+[Custom]
+typedef string PackedSignature;
+[Custom]
+typedef string PubKeyHash;
+
+interface ZkLinkSigner {
+    [Throws=ZkSignerError]
+    constructor();
+    [Throws=ZkSignerError,Name=new_from_seed]
+    constructor([ByRef] sequence<u8> seed);
+    [Throws=ZkSignerError,Name=new_from_hex_eth_signer]
+    constructor([ByRef] string eth_hex_private_key);
+    [Throws=ZkSignerError,Name=new_from_bytes]
+    constructor([ByRef] sequence<u8> slice);
+    PackedPublicKey public_key();
+    [Throws=ZkSignerError]
+    ZkLinkSignature sign_musig([ByRef] sequence<u8> msg);
+};
+
+dictionary ZkLinkSignature {
+    PackedPublicKey public_key;
+    PackedSignature signature;
+};
+
+
+
+// ============================  iterface ============================
+
+[Error]
+enum SignError {
+    "EthSigningError",
+    "ZkSigningError",
+    "IncorrectTx",
+};
+
+
+[Custom]
+typedef string TxSignature;
 
 // ============================  namespace ============================
 namespace zklink_sdk {
     [Throws=ZkSignerError]
     boolean verify_musig(ZkLinkSignature signature, [ByRef] sequence<u8> msg);
     PubKeyHash get_public_key_hash(PackedPublicKey public_key);
+
+    [Throws=SignError]
+    TxSignature sign_change_pubkey(PrivateKeySigner eth_signer, ZkLinkSigner zklink_signer, ChangePubKey tx, ZkLinkAddress main_contract, u32 l1_client_id, ZkLinkAddress account_address, ChangePubKeyAuthRequest auth_request);
     [Throws=ZkSignerError]
-    Withdraw sign_tx_withdraw(ZkLinkSigner signer, Withdraw tx);
+    TxSignature sign_forced_exit(ZkLinkSigner zklink_signer, ForcedExit tx);
     [Throws=ZkSignerError]
-    ChangePubKey sign_tx_change_pubkey(ZkLinkSigner signer, ChangePubKey tx);
+    Order sign_order(ZkLinkSigner zklink_signer, Order order);
     [Throws=ZkSignerError]
-    ForcedExit sign_tx_forced_exit(ZkLinkSigner signer, ForcedExit tx);
-    [Throws=ZkSignerError]
-    Transfer sign_tx_transfer(ZkLinkSigner signer, Transfer tx);
+    TxSignature sign_order_matching(ZkLinkSigner signer, OrderMatching tx);
+    [Throws=SignError]
+    TxSignature sign_transfer(PrivateKeySigner eth_signer, ZkLinkSigner zklink_signer, Transfer tx, string token_symbol);
 };
 

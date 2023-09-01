@@ -1,10 +1,10 @@
+use crate::error::SignError;
 use crate::TxSignature;
+#[cfg(feature = "ffi")]
+use std::sync::Arc;
 use zklink_crypto::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_types::tx_type::withdraw::Withdraw;
-#[cfg(feature = "ffi")]
-use std::sync::Arc;
-use crate::error::SignError;
 
 #[cfg(feature = "sync")]
 pub fn sign_withdraw(
