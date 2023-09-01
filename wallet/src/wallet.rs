@@ -6,7 +6,6 @@ use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_provider::rpc::ZkLinkRpcClient;
 use zklink_provider::types::{AccountQuery, ChainResp, TokenResp};
 use zklink_signer::error::ClientError;
-use zklink_signer::signer::Signer;
 use zklink_signer::{ChangePubKeyAuthRequest, TxSignature};
 use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::{AccountId, ChainId, Nonce, SubAccountId, TokenId, ZkLinkAddress};

@@ -23,26 +23,23 @@ impl PrivateKeySigner {
     pub fn new(private_key: H256) -> Self {
         Self { private_key }
     }
-}
 
-#[async_trait::async_trait]
-impl EthereumSigner for PrivateKeySigner {
     /// Get Ethereum address that matches the private key.
-    async fn get_address(&self) -> Result<Address, EthSignerError> {
+    pub fn get_address(&self) -> Result<Address, EthSignerError> {
         PackedEthSignature::address_from_private_key(&self.private_key)
             .map_err(|_| EthSignerError::DefineAddress)
     }
 
     /// The sign method calculates an Ethereum specific signature with:
     /// sign(keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))).
-    async fn sign_message(&self, message: &[u8]) -> Result<TxEthSignature, EthSignerError> {
+    pub fn sign_message(&self, message: &[u8]) -> Result<PackedEthSignature, EthSignerError> {
         let pack = PackedEthSignature::sign(&self.private_key, message)
             .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;
-        Ok(TxEthSignature::EthereumSignature(pack))
+        Ok(pack)
     }
 
     /// Signs and returns the RLP-encoded transaction.
-    async fn sign_transaction(&self, raw_tx: RawTransaction) -> Result<Vec<u8>, EthSignerError> {
+    pub fn sign_transaction(&self, raw_tx: RawTransaction) -> Result<Vec<u8>, EthSignerError> {
         let key = SecretKey::from_slice(self.private_key.as_bytes()).unwrap();
 
         let gas_price = match raw_tx.max_fee_per_gas {
@@ -65,10 +62,13 @@ impl EthereumSigner for PrivateKeySigner {
         Ok(signed.raw_transaction.0)
     }
 
-    async fn sign_typed_data(&self, msg: &EthTypedData) -> Result<TxEthSignature, EthSignerError> {
+    pub fn sign_typed_data(
+        &self,
+        msg: &EthTypedData,
+    ) -> Result<PackedEthSignature, EthSignerError> {
         let pack = PackedEthSignature::sign_byted_data(&self.private_key, &msg.data_hash)
             .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;
-        Ok(TxEthSignature::EthereumSignature(pack))
+        Ok(pack)
     }
 }
 
@@ -96,10 +96,7 @@ mod test {
             transaction_type: Some(U64::from(1u32)),
             access_list: None,
         };
-        let raw_tx = signer
-            .sign_transaction(raw_transaction.clone())
-            .await
-            .unwrap();
+        let raw_tx = signer.sign_transaction(raw_transaction.clone()).unwrap();
         assert_ne!(raw_tx.len(), 1);
         // precalculated signature with right algorithm implementation
         let precalculated_raw_tx: Vec<u8> = vec![

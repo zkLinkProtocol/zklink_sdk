@@ -186,13 +186,6 @@ impl Order {
         message
     }
 
-    #[cfg(not(feature = "ffi"))]
-    pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
-        let bytes = self.get_bytes();
-        self.signature = signer.sign_musig(&bytes)?;
-        Ok(())
-    }
-
     #[cfg(feature = "ffi")]
     pub fn signature(&self) -> ZkLinkSignature {
         self.signature.clone()

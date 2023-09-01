@@ -1,7 +1,17 @@
 [package]
-name = "interface"
+name = "zklink_signer"
 version = "0.1.0"
 edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+bigdecimal = { version = "0.3.0", features = ["serde"] }
+hex = "0.4"
+jsonrpsee = { version = "0.15.1", features = ["server", "client", "macros"] }
+num = { version = "0.4.0", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+web3 = "0.18.0"
+zklink_crypto = { path = "../crypto" }
+zklink_provider = { path = "../provider" }
+zklink_types = { path = "../types" }

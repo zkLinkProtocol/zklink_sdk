@@ -6,19 +6,17 @@ members = [
     "crypto",
     "interface",
     "provider",
-    "signer",
     "types",
     "utils",
-    "wallet"
 ]
 default-members = [
     "crypto",
     "utils",
     "types",
     "provider",
-    "signer",
-    "wallet"
 ]
+
+exclude = ["wallet"]
 
 [profile.release]
 opt-level = "s"
