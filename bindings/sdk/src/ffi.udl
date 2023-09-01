@@ -205,6 +205,20 @@ interface Order {
     string get_ethereum_sign_message([ByRef] string quote_token, [ByRef] string based_token, u8 decimals);
 };
 
+interface OrderMatching {
+    constructor(
+        AccountId account_id,
+        SubAccountId sub_accoount_id,
+        Order taker,
+        Order maker,
+        BigUint fee,
+        TokenId fee_token,
+        BigUint expect_base_amount,
+        BigUint expect_quote_amount
+    );
+};
+
+
 // ============================  namespace ============================
 namespace zklink_sdk {
     [Throws=ZkSignerError]

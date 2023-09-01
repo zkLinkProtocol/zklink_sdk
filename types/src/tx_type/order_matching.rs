@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::basic_types::params::{
     ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH,
 };
@@ -207,10 +208,34 @@ impl Order {
 
 impl OrderMatching {
     /// Creates transaction from all the required fields.
-    ///
-    /// While `signature` field is mandatory for new transactions, it may be `None`
-    /// in some cases (e.g. when restoring the network state from the L1 contract data).
+    #[cfg(feature = "ffi")]
     #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        account_id: AccountId,
+        sub_account_id: SubAccountId,
+        taker: Arc<Order>,
+        maker: Arc<Order>,
+        fee: BigUint,
+        fee_token: TokenId,
+        expect_base_amount: BigUint,
+        expect_quote_amount: BigUint,
+    ) -> Self {
+        Self {
+            account_id,
+            taker: (*taker).clone(),
+            maker: (*maker).clone(),
+            fee,
+            fee_token,
+            sub_account_id,
+            expect_base_amount,
+            expect_quote_amount,
+            signature: ZkLinkSignature::default(),
+        }
+    }
+
+    /// Creates transaction from all the required fields.
+    #[allow(clippy::too_many_arguments)]
+    #[cfg(not(feature = "ffi"))]
     pub fn new(
         account_id: AccountId,
         sub_account_id: SubAccountId,
@@ -220,7 +245,6 @@ impl OrderMatching {
         fee_token: TokenId,
         expect_base_amount: BigUint,
         expect_quote_amount: BigUint,
-        signature: Option<ZkLinkSignature>,
     ) -> Self {
         Self {
             account_id,
@@ -231,40 +255,9 @@ impl OrderMatching {
             sub_account_id,
             expect_base_amount,
             expect_quote_amount,
-            signature: signature.unwrap_or_default(),
+            signature: ZkLinkSignature::default(),
         }
     }
-
-    // /// Creates a signed transaction using private key and
-    // /// checks for the transaction correcteness.
-    // #[allow(clippy::too_many_arguments)]
-    // pub fn new_signed(
-    //     submitter_id: AccountId,
-    //     sub_account_id: SubAccountId,
-    //     orders: (Order, Order),
-    //     fee: BigUint,
-    //     fee_token: TokenId,
-    //     expect_base_amount: BigUint,
-    //     expect_quote_amount: BigUint,
-    //     private_key: &PrivateKey<Engine>,
-    // ) -> Result<Self, anyhow::Error> {
-    //     let mut tx = Self::new(
-    //         submitter_id,
-    //         sub_account_id,
-    //         orders.1,
-    //         orders.0,
-    //         fee,
-    //         fee_token,
-    //         expect_base_amount,
-    //         expect_quote_amount,
-    //         None,
-    //     );
-    //     tx.signature = TxSignature::sign_musig(private_key, &tx.get_bytes());
-    //     if !tx.is_validate() {
-    //         anyhow::bail!(crate::tx::TRANSACTION_SIGNATURE_ERROR);
-    //     }
-    //     Ok(tx)
-    // }
 
     /// Encodes the transaction data as the byte sequence.
     pub fn get_bytes(&self) -> Vec<u8> {
@@ -285,6 +278,18 @@ impl OrderMatching {
         out.extend_from_slice(&self.expect_base_amount.to_u128().unwrap().to_be_bytes());
         out.extend_from_slice(&self.expect_quote_amount.to_u128().unwrap().to_be_bytes());
         out
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
+        let bytes = self.get_bytes();
+        self.signature = signer.sign_musig(&bytes)?;
+        Ok(())
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn signature(&self) -> ZkLinkSignature {
+        self.signature.clone()
     }
 
     pub fn is_validate(&self) -> bool {
