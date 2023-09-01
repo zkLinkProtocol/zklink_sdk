@@ -1,8 +1,8 @@
+use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::{
     AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress, H256,
 };
 use crate::tx_type::format_units;
-use crate::tx_type::pack::pack_fee_amount;
 use crate::tx_type::validator::*;
 use num::{BigUint, Zero};
 use parity_crypto::Keccak256;

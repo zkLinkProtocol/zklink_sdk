@@ -1,8 +1,8 @@
+use crate::basic_types::float_convert::FloatConversions;
 use crate::basic_types::params::{
     AMOUNT_EXPONENT_BIT_WIDTH, AMOUNT_MANTISSA_BIT_WIDTH, FEE_EXPONENT_BIT_WIDTH,
     FEE_MANTISSA_BIT_WIDTH,
 };
-use crate::tx_type::float_convert::FloatConversions;
 use num::{BigUint, FromPrimitive};
 
 pub fn remove_amount_packaging_uncertainly(amount: &BigUint) -> Option<BigUint> {

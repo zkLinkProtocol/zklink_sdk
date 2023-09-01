@@ -1,13 +1,14 @@
-use std::sync::Arc;
+use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
 use crate::basic_types::params::{
     ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH,
 };
 use crate::basic_types::{AccountId, Nonce, SlotId, SubAccountId, TokenId};
 use crate::tx_type::format_units;
-use crate::tx_type::pack::{pack_fee_amount, pack_token_amount};
 use crate::tx_type::validator::*;
 use num::{BigUint, ToPrimitive, Zero};
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "ffi")]
+use std::sync::Arc;
 use validator::Validate;
 use zklink_crypto::zklink_signer::error::ZkSignerError;
 #[cfg(not(feature = "ffi"))]

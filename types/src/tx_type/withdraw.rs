@@ -7,12 +7,12 @@ use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
+use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::params::TOKEN_MAX_PRECISION;
 use crate::basic_types::{
     AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
 use crate::tx_type::ethereum_sign_message_part;
-use crate::tx_type::pack::pack_fee_amount;
 use crate::tx_type::validator::*;
 
 /// `Withdraw` transaction performs a withdrawal of funds from zklink account to L1 account.

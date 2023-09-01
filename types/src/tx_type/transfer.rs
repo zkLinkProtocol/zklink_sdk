@@ -1,7 +1,7 @@
+use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
 use crate::basic_types::params::TOKEN_MAX_PRECISION;
 use crate::basic_types::{AccountId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress};
 use crate::tx_type::ethereum_sign_message_part;
-use crate::tx_type::pack::{pack_fee_amount, pack_token_amount};
 use crate::tx_type::validator::*;
 use num::BigUint;
 use serde::{Deserialize, Serialize};

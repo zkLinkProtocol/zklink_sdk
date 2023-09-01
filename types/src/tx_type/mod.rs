@@ -9,13 +9,10 @@ use crate::tx_type::withdraw::Withdraw;
 use num::{BigUint, Zero};
 use std::collections::VecDeque;
 
-pub(crate) mod float_convert;
-pub(crate) mod pack;
 pub(crate) mod validator;
 
 pub mod change_pubkey;
 pub mod deposit;
-pub mod error;
 pub mod forced_exit;
 pub mod full_exit;
 pub mod order_matching;

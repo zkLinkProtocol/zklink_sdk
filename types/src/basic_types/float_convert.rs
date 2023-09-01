@@ -1,4 +1,4 @@
-use super::error::FloatConvertError as Error;
+use super::error::TypeError as Error;
 use num::{BigUint, ToPrimitive};
 
 pub struct BitConvert;

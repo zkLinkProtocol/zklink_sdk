@@ -1,11 +1,11 @@
 #![allow(unused_doc_comments)]
+use crate::basic_types::pack::{is_fee_amount_packable, is_token_amount_packable};
 use crate::basic_types::params::{
     GLOBAL_ASSET_ACCOUNT_ID, MAX_ACCOUNT_ID, MAX_CHAIN_ID, MAX_NONCE, MAX_PRICE, MAX_SLOT_ID,
     MAX_SUB_ACCOUNT_ID, MAX_TOKEN_ID, MIN_PRICE, TOKEN_ID_ZERO, USDX_TOKEN_ID_LOWER_BOUND,
     USDX_TOKEN_ID_UPPER_BOUND,
 };
 use crate::basic_types::{AccountId, ChainId, Nonce, SlotId, SubAccountId, TokenId, ZkLinkAddress};
-use crate::tx_type::pack::{is_fee_amount_packable, is_token_amount_packable};
 use num::BigUint;
 use validator::ValidationError;
 

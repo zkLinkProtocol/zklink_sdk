@@ -12,4 +12,6 @@ pub enum TypeError {
     SizeMismatch,
     #[error("{0}")]
     DecodeFromHexErr(String),
+    #[error("Integer is too big")]
+    TooBigInteger,
 }

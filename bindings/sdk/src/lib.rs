@@ -25,10 +25,10 @@ use zklink_types::basic_types::{
     SubAccountId, TimeStamp, TokenId, H256,
 };
 use zklink_types::tx_type::change_pubkey::ChangePubKey;
-use zklink_types::tx_type::order_matching::OrderMatching;
 use zklink_types::tx_type::deposit::Deposit;
 use zklink_types::tx_type::forced_exit::ForcedExit;
 use zklink_types::tx_type::order_matching::Order;
+use zklink_types::tx_type::order_matching::OrderMatching;
 use zklink_types::tx_type::transfer::Transfer;
 use zklink_types::tx_type::withdraw::Withdraw;
 
