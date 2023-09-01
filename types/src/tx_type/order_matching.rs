@@ -9,6 +9,8 @@ use num::{BigUint, ToPrimitive, Zero};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_crypto::zklink_signer::error::ZkSignerError;
+#[cfg(not(feature = "ffi"))]
+use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_crypto::zklink_signer::utils::rescue_hash_orders;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
@@ -121,7 +123,6 @@ impl Order {
         is_sell: bool,
         fee_ratio1: u8,
         fee_ratio2: u8,
-        signature: Option<ZkLinkSignature>,
     ) -> Self {
         Self {
             account_id,
@@ -135,7 +136,7 @@ impl Order {
             is_sell: u8::from(is_sell),
             fee_ratio1,
             fee_ratio2,
-            signature: signature.unwrap_or_default(),
+            signature: ZkLinkSignature::default(),
         }
     }
 
@@ -155,16 +156,6 @@ impl Order {
         out.extend_from_slice(&self.fee_ratio2.to_be_bytes());
         out.extend_from_slice(&pack_token_amount(&self.amount));
         out
-    }
-
-    // pub fn verify_signature(&self) -> Option<PubKeyHash> {
-    //     self.signature
-    //         .verify_musig(&self.get_bytes())
-    //         .map(|pub_key| PubKeyHash::from_pubkey(&pub_key))
-    // }
-
-    pub fn is_validate(&self) -> bool {
-        self.validate().is_ok()
     }
 
     pub fn get_ethereum_sign_message(
@@ -193,44 +184,24 @@ impl Order {
         message
     }
 
-    // #[allow(clippy::too_many_arguments)]
-    // pub fn new_signed(
-    //     account_id: AccountId,
-    //     sub_account_id: SubAccountId,
-    //     slot_id: SlotId,
-    //     nonce: Nonce,
-    //     base_token_id: TokenId,
-    //     quote_token_id: TokenId,
-    //     amount: BigUint,
-    //     price: BigUint,
-    //     is_sell: bool,
-    //     fee_ratio1: u8,
-    //     fee_ratio2: u8,
-    //     private_key: &PrivateKey<Engine>,
-    // ) -> Result<Self, anyhow::Error> {
-    //     let is_sell = u8::from(is_sell);
-    //     let mut tx = Self {
-    //         account_id,
-    //         sub_account_id,
-    //         slot_id,
-    //         nonce,
-    //         base_token_id,
-    //         quote_token_id,
-    //         amount,
-    //         price,
-    //         is_sell,
-    //         fee_ratio1,
-    //         fee_ratio2,
-    //         signature: Default::default(),
-    //     };
-    //     tx.signature = TxSignature::sign_musig(private_key, &tx.get_bytes());
-    //     if !tx.is_validate() {
-    //         anyhow::bail!(crate::tx::TRANSACTION_SIGNATURE_ERROR);
-    //     }
-    //     Ok(tx)
-    // }
+    #[cfg(not(feature = "ffi"))]
+    pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
+        let bytes = self.get_bytes();
+        self.signature = signer.sign_musig(&bytes)?;
+        Ok(())
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn signature(&self) -> ZkLinkSignature {
+        self.signature.clone()
+    }
+
     pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
         self.signature.verify_musig(&self.get_bytes())
+    }
+
+    pub fn is_validate(&self) -> bool {
+        self.validate().is_ok()
     }
 }
 
@@ -323,12 +294,9 @@ impl OrderMatching {
         }
     }
 
-    // /// Restores the `PubKeyHash` from the transaction signature.
-    // pub fn verify_signature(&self) -> Option<PubKeyHash> {
-    //     self.signature
-    //         .verify_musig(&self.get_bytes())
-    //         .map(|pub_key| PubKeyHash::from_pubkey(&pub_key))
-    // }
+    pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+        self.signature.verify_musig(&self.get_bytes())
+    }
 }
 
 fn pad_front(bytes: &[u8], size: usize) -> Vec<u8> {

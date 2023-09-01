@@ -21,3 +21,34 @@ func TestTypeDeposit(t *testing.T) {
     bytes := deposit.GetBytes()
     assert.NotNil(t, bytes)
 }
+
+func TestTypeTransfer(t *testing.T) {
+    address_to := zklink_sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
+    ts := zklink_sdk.TimeStamp(1693472232)
+    account_id := zklink_sdk.AccountId(10)
+    from_sub_account_id := zklink_sdk.SubAccountId(1)
+    to_sub_account_id := zklink_sdk.SubAccountId(1)
+    token := zklink_sdk.TokenId(18)
+    amount := zklink_sdk.BigUint("10000")
+    fee := zklink_sdk.BigUint("3")
+    nonce := zklink_sdk.Nonce(1)
+    tx := zklink_sdk.NewTransfer(
+        account_id,
+        address_to,
+        from_sub_account_id,
+        to_sub_account_id,
+        token,
+        amount,
+        fee,
+        nonce,
+        nil,
+        ts,
+    )
+    bytes := tx.GetBytes()
+    bytes_expected := []byte {
+        4, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4, 37,
+        215, 146, 67, 45, 158, 205, 28, 62, 38, 239, 44, 66, 233, 1, 0, 18, 0, 0, 4, 226, 0, 0,
+        96, 0, 0, 0, 1, 100, 240, 85, 232,
+    }
+    assert.Equal(t, bytes, bytes_expected)
+}

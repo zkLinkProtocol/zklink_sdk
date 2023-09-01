@@ -6,6 +6,7 @@ use crate::tx_type::validator::*;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
+use zklink_crypto::zklink_signer::error::ZkSignerError;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
@@ -62,7 +63,6 @@ impl Transfer {
         amount: BigUint,
         fee: BigUint,
         nonce: Nonce,
-        signature: Option<ZkLinkSignature>,
         ts: TimeStamp,
     ) -> Self {
         Self {
@@ -74,44 +74,10 @@ impl Transfer {
             amount,
             fee,
             nonce,
-            signature: signature.unwrap_or_default(),
+            signature: ZkLinkSignature::default(),
             ts,
         }
     }
-
-    // /// Creates a signed transaction using private key and
-    // /// checks for the transaction correcteness.
-    // #[allow(clippy::too_many_arguments)]
-    // pub fn new_signed(
-    //     account_id: AccountId,
-    //     to: ZkLinkAddress,
-    //     from_sub_account_id: SubAccountId,
-    //     to_sub_account_id: SubAccountId,
-    //     token: TokenId,
-    //     amount: BigUint,
-    //     fee: BigUint,
-    //     nonce: Nonce,
-    //     private_key: &PrivateKey<Engine>,
-    //     ts: TimeStamp,
-    // ) -> Result<Self, anyhow::Error> {
-    //     let mut tx = Self::new(
-    //         account_id,
-    //         to,
-    //         from_sub_account_id,
-    //         to_sub_account_id,
-    //         token,
-    //         amount,
-    //         fee,
-    //         nonce,
-    //         None,
-    //         ts,
-    //     );
-    //     tx.signature = TxSignature::sign_musig(private_key, &tx.get_bytes());
-    //     if !tx.is_validate() {
-    //         anyhow::bail!(crate::tx::TRANSACTION_SIGNATURE_ERROR);
-    //     }
-    //     Ok(tx)
-    // }
 
     /// Encodes the transaction data as the byte sequence according to the zkLink protocol.
     pub fn get_bytes(&self) -> Vec<u8> {
@@ -129,16 +95,25 @@ impl Transfer {
         out
     }
 
+    #[cfg(not(feature = "ffi"))]
+    pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
+        let bytes = self.get_bytes();
+        self.signature = signer.sign_musig(&bytes)?;
+        Ok(())
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn signature(&self) -> ZkLinkSignature {
+        self.signature.clone()
+    }
+
+    pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+        self.signature.verify_musig(&self.get_bytes())
+    }
+
     pub fn is_validate(&self) -> bool {
         self.validate().is_ok()
     }
-
-    // /// Restores the `PubKeyHash` from the transaction signature.
-    // pub fn verify_signature(&self) -> Option<PubKeyHash> {
-    //     self.signature
-    //         .verify_musig(&self.get_bytes())
-    //         .map(|pub_key| PubKeyHash::from_pubkey(&pub_key))
-    // }
 
     /// Get the first part of the message we expect to be signed by Ethereum account key.
     /// The only difference is the missing `nonce` since it's added at the end of the transactions

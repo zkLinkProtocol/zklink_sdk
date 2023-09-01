@@ -9,10 +9,10 @@ use franklin_crypto::alt_babyjubjub::fs::{Fs, FsRepr};
 use franklin_crypto::alt_babyjubjub::FixedGenerators;
 use franklin_crypto::bellman::{PrimeField, PrimeFieldRepr};
 use franklin_crypto::eddsa::{PrivateKey as FLPrivateKey, PrivateKey, PublicKey, Seed};
+use once_cell::sync::OnceCell;
 use sha2::{Digest, Sha256};
 use std::fmt;
 use web3::types::H256;
-use once_cell::sync::OnceCell;
 
 pub struct ZkLinkSigner(EddsaPrivKey<Engine>);
 
@@ -130,7 +130,7 @@ impl ZkLinkSigner {
 
     pub fn public_key(&self) -> PackedPublicKey {
         static INSTANCE: OnceCell<PackedPublicKey> = OnceCell::new();
-        let pubkey = INSTANCE.get_or_init(||{
+        let pubkey = INSTANCE.get_or_init(|| {
             let pubkey: PackedPublicKey = JUBJUB_PARAMS
                 .with(|params| {
                     PublicKey::from_private(

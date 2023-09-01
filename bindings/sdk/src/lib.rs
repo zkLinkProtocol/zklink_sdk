@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 mod crypto;
-use crate::crypto::{get_public_key_hash, verify_musig};
+use crate::crypto::{get_public_key_hash, sign_tx_change_pub_key, verify_musig};
 
 use std::str::FromStr;
 
@@ -21,7 +21,7 @@ use zklink_types::basic_types::{
     AccountId, BigUint, BlockNumber, ChainId, EthBlockId, Nonce, PairId, PriorityOpId, SlotId,
     SubAccountId, TimeStamp, TokenId, H256,
 };
-use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
+use zklink_types::tx_type::change_pubkey::ChangePubKey;
 use zklink_types::tx_type::deposit::Deposit;
 use zklink_types::tx_type::forced_exit::ForcedExit;
 use zklink_types::tx_type::order_matching::Order;

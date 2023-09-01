@@ -13,6 +13,9 @@ use zklink_crypto::eth_signer::eip712::{BytesM, Uint};
 use zklink_crypto::eth_signer::error::EthSignerError;
 use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_crypto::eth_signer::EthTypedData;
+use zklink_crypto::zklink_signer::error::ZkSignerError;
+#[cfg(not(feature = "ffi"))]
+use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
@@ -56,10 +59,7 @@ impl Create2Data {
 pub enum ChangePubKeyAuthData {
     Onchain,
     EthECDSA { eth_signature: PackedEthSignature },
-    EthCREATE2 { data: Create2Data },
-    // StarkECDSA{
-    //     data = StarkECDSAData
-    // },
+    EthCREATE2(Create2Data),
 }
 
 impl Default for ChangePubKeyAuthData {
@@ -78,12 +78,8 @@ impl ChangePubKeyAuthData {
     }
 
     pub fn is_create2(&self) -> bool {
-        matches!(self, ChangePubKeyAuthData::EthCREATE2 { .. })
+        matches!(self, ChangePubKeyAuthData::EthCREATE2(..))
     }
-
-    // pub fn is_stark_ecdsa(&self) -> bool {
-    //     matches!(self, ChangePubKeyAuthData::StarkECDSA(..))
-    // }
 
     pub fn get_eth_witness(&self) -> Option<Vec<u8>> {
         match self {
@@ -100,20 +96,14 @@ impl ChangePubKeyAuthData {
                 bytes.push(v);
                 Some(bytes)
             }
-            ChangePubKeyAuthData::EthCREATE2 { data } => {
+            ChangePubKeyAuthData::EthCREATE2(data) => {
                 let mut bytes = Vec::new();
                 bytes.push(0x01);
                 bytes.extend_from_slice(data.creator_address.as_bytes());
                 bytes.extend_from_slice(data.salt_arg.as_bytes());
                 bytes.extend_from_slice(data.code_hash.as_bytes());
                 Some(bytes)
-            } // ChangePubKeyAuthData::StarkECDSA(StarkECDSAData{signature, public_key}) =>{
-              //     let mut bytes = Vec::new();
-              //     bytes.push(0x02);
-              //     bytes.extend_from_slice(&signature.0);
-              //     bytes.extend_from_slice(public_key);
-              //     bytes
-              // }
+            }
         }
     }
 }
@@ -193,47 +183,6 @@ impl ChangePubKey {
         }
     }
 
-    // /// Creates a signed transaction using private key and
-    // /// checks for the transaction correcteness.
-    // #[allow(clippy::too_many_arguments)]
-    // pub fn new_signed(
-    //     chain_id: ChainId,
-    //     account_id: AccountId,
-    //     sub_account_id: SubAccountId,
-    //     new_pk_hash: PubKeyHash,
-    //     fee_token: TokenId,
-    //     fee: BigUint,
-    //     nonce: Nonce,
-    //     eth_signature: Option<PackedEthSignature>,
-    //     private_key: &PrivateKey,
-    //     ts: TimeStamp,
-    // ) -> Result<Self, anyhow::Error> {
-    //     let mut tx = Self::new(
-    //         chain_id,
-    //         account_id,
-    //         sub_account_id,
-    //         new_pk_hash,
-    //         fee_token,
-    //         fee,
-    //         nonce,
-    //         None,
-    //         eth_signature,
-    //         ts,
-    //     );
-    //     tx.signature = TxSignature::sign_musig(private_key, &tx.get_bytes());
-    //     if !tx.is_validate() {
-    //         anyhow::bail!(crate::tx::TRANSACTION_SIGNATURE_ERROR);
-    //     }
-    //     Ok(tx)
-    // }
-
-    // /// Restores the `PubKeyHash` from the transaction signature.
-    // pub fn verify_signature(&self) -> Option<PubKeyHash> {
-    //     self.signature
-    //         .verify_musig(&self.get_bytes())
-    //         .map(|pub_key| PubKeyHash::from_pubkey(&pub_key))
-    // }
-
     /// Encodes the transaction data as the byte sequence according to the zkLink protocol.
     pub fn get_bytes(&self) -> Vec<u8> {
         let mut out = Vec::new();
@@ -247,6 +196,22 @@ impl ChangePubKey {
         out.extend_from_slice(&self.nonce.to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
         out
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
+        let bytes = self.get_bytes();
+        self.signature = signer.sign_musig(&bytes)?;
+        Ok(())
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn signature(&self) -> ZkLinkSignature {
+        self.signature.clone()
+    }
+
+    pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+        self.signature.verify_musig(&self.get_bytes())
     }
 
     pub fn is_validate(&self) -> bool {

@@ -111,7 +111,6 @@ interface Withdraw {
         Nonce nonce,
         boolean fast_withdraw,
         u16 withdraw_fee_ratio,
-        ZkLinkSignature ?signature,
         TimeStamp ts
     );
     sequence<u8> get_bytes();
@@ -119,20 +118,6 @@ interface Withdraw {
     string get_ethereum_sign_message_part([ByRef] string token_symbol);
     string get_ethereum_sign_message([ByRef] string token_symbol);
 };
-
-dictionary Create2Data {
-    ZkLinkAddress creator_address;
-    H256 salt_arg;
-    H256 code_hash;
-};
-
-[Enum]
-interface ChangePubKeyAuthData {
-    Onchain();
-    EthECDSA(PackedEthSignature eth_signature);
-    EthCREATE2(Create2Data data);
-};
-
 
 interface ChangePubKey {
     constructor(
@@ -150,9 +135,10 @@ interface ChangePubKey {
     sequence<u8> get_bytes();
     boolean is_validate();
     boolean is_onchain();
+    [Throws=ZkSignerError]
+    boolean is_signature_valid();
+    ZkLinkSignature signature();
     string get_ethereum_sign_message_part([ByRef] string token_symbol, u8 decimal);
-//    [Throws=EthSignerError]
-//    string to_eip712_request_payload(u32 layer_one_chain_id, [ByRef] ZkLinkAddress verifying_contract);
 };
 
 interface ForcedExit {
@@ -166,10 +152,10 @@ interface ForcedExit {
         TokenId l1_target_token,
         Nonce nonce,
         BigUint exit_amount,
-        ZkLinkSignature ?signature,
         TimeStamp ts
     );
     sequence<u8> get_bytes();
+    ZkLinkSignature signature();
     boolean is_validate();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
@@ -185,11 +171,13 @@ interface Transfer {
         BigUint amount,
         BigUint fee,
         Nonce nonce,
-        ZkLinkSignature ?signature,
         TimeStamp ts
     );
+    ZkLinkSignature signature();
     sequence<u8> get_bytes();
     boolean is_validate();
+    [Throws=ZkSignerError]
+    boolean is_signature_valid();
     string get_ethereum_sign_message_part([ByRef] string token_symbol);
     string get_ethereum_sign_message([ByRef] string token_symbol);
 };
@@ -207,11 +195,13 @@ interface Order {
         BigUint price,
         boolean is_sell,
         u8 fee_ratio1,
-        u8 fee_ratio2,
-        ZkLinkSignature ?signature
+        u8 fee_ratio2
     );
+    ZkLinkSignature signature();
     sequence<u8> get_bytes();
     boolean is_validate();
+    [Throws=ZkSignerError]
+    boolean is_signature_valid();
     string get_ethereum_sign_message([ByRef] string quote_token, [ByRef] string based_token, u8 decimals);
 };
 
@@ -220,5 +210,7 @@ namespace zklink_sdk {
     [Throws=ZkSignerError]
     boolean verify_musig(ZkLinkSignature signature, [ByRef] sequence<u8> msg);
     PubKeyHash get_public_key_hash(PackedPublicKey public_key);
+    [Throws=ZkSignerError]
+    ChangePubKey sign_tx_change_pub_key(ChangePubKey tx, ZkLinkSigner signer);
 };
 

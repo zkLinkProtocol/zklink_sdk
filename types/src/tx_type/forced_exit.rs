@@ -8,6 +8,8 @@ use crate::basic_types::{
 use crate::tx_type::validator::*;
 use serde::{Deserialize, Serialize};
 use zklink_crypto::zklink_signer::error::ZkSignerError;
+#[cfg(not(feature = "ffi"))]
+use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 /// `ForcedExit` transaction is used to withdraw funds from an unowned
 /// account to its corresponding L1 address.
@@ -75,7 +77,6 @@ impl ForcedExit {
         l1_target_token: TokenId,
         nonce: Nonce,
         exit_amount: BigUint,
-        signature: Option<ZkLinkSignature>,
         ts: TimeStamp,
     ) -> Self {
         Self {
@@ -87,47 +88,11 @@ impl ForcedExit {
             l2_source_token,
             l1_target_token,
             initiator_nonce: nonce,
-            signature: signature.unwrap_or_default(),
+            signature: ZkLinkSignature::default(),
             ts,
             exit_amount,
         }
     }
-
-    // /// Creates a signed transaction using private key and
-    // /// checks for the transaction correcteness.
-    // #[allow(clippy::too_many_arguments)]
-    // pub fn new_signed(
-    //     to_chain_id: ChainId,
-    //     initiator_account_id: AccountId,
-    //     initiator_sub_account_id: SubAccountId,
-    //     target: ZkLinkAddress,
-    //     target_sub_account_id: SubAccountId,
-    //     l2_token: TokenId,
-    //     l1_token: TokenId,
-    //     nonce: Nonce,
-    //     exit_amount: BigUint,
-    //     private_key: &PrivateKey<Engine>,
-    //     ts: TimeStamp,
-    // ) -> Result<Self, anyhow::Error> {
-    //     let mut tx = Self::new(
-    //         to_chain_id,
-    //         initiator_account_id,
-    //         initiator_sub_account_id,
-    //         target,
-    //         target_sub_account_id,
-    //         l2_token,
-    //         l1_token,
-    //         nonce,
-    //         exit_amount,
-    //         None,
-    //         ts,
-    //     );
-    //     tx.signature = TxSignature::sign_musig(private_key, &tx.get_bytes());
-    //     if !tx.is_validate() {
-    //         anyhow::bail!(crate::tx::TRANSACTION_SIGNATURE_ERROR);
-    //     }
-    //     Ok(tx)
-    // }
 
     /// Encodes the transaction data as the byte sequence according to the zkLink protocol.
     pub fn get_bytes(&self) -> Vec<u8> {
@@ -144,6 +109,18 @@ impl ForcedExit {
         out.extend_from_slice(&self.exit_amount.to_u128().unwrap().to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
         out
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
+        let bytes = self.get_bytes();
+        self.signature = signer.sign_musig(&bytes)?;
+        Ok(())
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn signature(&self) -> ZkLinkSignature {
+        self.signature.clone()
     }
 
     pub fn is_validate(&self) -> bool {
