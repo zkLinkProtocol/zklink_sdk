@@ -160,7 +160,7 @@ impl<S: EthereumSigner> Signer<S> {
                 if from_address.as_bytes() != account_address.as_bytes() {
                     Err(ClientError::IncorrectTx)
                 } else {
-                    Ok(ChangePubKeyAuthData::EthCREATE2 { data: create2 })
+                    Ok(ChangePubKeyAuthData::EthCREATE2(create2))
                 }
             }
         };

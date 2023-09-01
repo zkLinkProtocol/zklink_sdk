@@ -7,6 +7,8 @@ use num::BigUint;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_crypto::zklink_signer::error::ZkSignerError;
+#[cfg(not(feature = "ffi"))]
+use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
