@@ -132,12 +132,12 @@ interface ChangePubKey {
         PackedEthSignature ?eth_signature,
         TimeStamp ts
     );
+    ZkLinkSignature signature();
     sequence<u8> get_bytes();
     boolean is_validate();
     boolean is_onchain();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
-    ZkLinkSignature signature();
     string get_ethereum_sign_message_part([ByRef] string token_symbol, u8 decimal);
 };
 
@@ -154,8 +154,8 @@ interface ForcedExit {
         BigUint exit_amount,
         TimeStamp ts
     );
-    sequence<u8> get_bytes();
     ZkLinkSignature signature();
+    sequence<u8> get_bytes();
     boolean is_validate();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
@@ -211,6 +211,12 @@ namespace zklink_sdk {
     boolean verify_musig(ZkLinkSignature signature, [ByRef] sequence<u8> msg);
     PubKeyHash get_public_key_hash(PackedPublicKey public_key);
     [Throws=ZkSignerError]
-    ChangePubKey sign_tx_change_pub_key(ChangePubKey tx, ZkLinkSigner signer);
+    Withdraw sign_tx_withdraw(ZkLinkSigner signer, Withdraw tx);
+    [Throws=ZkSignerError]
+    ChangePubKey sign_tx_change_pubkey(ZkLinkSigner signer, ChangePubKey tx);
+    [Throws=ZkSignerError]
+    ForcedExit sign_tx_forced_exit(ZkLinkSigner signer, ForcedExit tx);
+    [Throws=ZkSignerError]
+    Transfer sign_tx_transfer(ZkLinkSigner signer, Transfer tx);
 };
 

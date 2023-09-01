@@ -5,6 +5,9 @@ use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_crypto::zklink_signer::public_key::PackedPublicKey;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_types::tx_type::change_pubkey::ChangePubKey;
+use zklink_types::tx_type::forced_exit::ForcedExit;
+use zklink_types::tx_type::transfer::Transfer;
+use zklink_types::tx_type::withdraw::Withdraw;
 
 pub fn verify_musig(signature: ZkLinkSignature, msg: &[u8]) -> Result<bool, ZkSignerError> {
     signature.verify_musig(msg)
@@ -14,10 +17,40 @@ pub fn get_public_key_hash(public_key: PackedPublicKey) -> PubKeyHash {
     public_key.public_key_hash()
 }
 
-pub fn sign_tx_change_pub_key(
-    tx: Arc<ChangePubKey>,
+pub fn sign_tx_withdraw(
     signer: Arc<ZkLinkSigner>,
+    tx: Arc<Withdraw>,
+) -> Result<Arc<Withdraw>, ZkSignerError> {
+    let mut tx = (*tx).clone();
+    let bytes = tx.get_bytes();
+    tx.signature = signer.sign_musig(&bytes)?;
+    Ok(Arc::new(tx))
+}
+
+pub fn sign_tx_change_pubkey(
+    signer: Arc<ZkLinkSigner>,
+    tx: Arc<ChangePubKey>,
 ) -> Result<Arc<ChangePubKey>, ZkSignerError> {
+    let mut tx = (*tx).clone();
+    let bytes = tx.get_bytes();
+    tx.signature = signer.sign_musig(&bytes)?;
+    Ok(Arc::new(tx))
+}
+
+pub fn sign_tx_forced_exit(
+    signer: Arc<ZkLinkSigner>,
+    tx: Arc<ForcedExit>,
+) -> Result<Arc<ForcedExit>, ZkSignerError> {
+    let mut tx = (*tx).clone();
+    let bytes = tx.get_bytes();
+    tx.signature = signer.sign_musig(&bytes)?;
+    Ok(Arc::new(tx))
+}
+
+pub fn sign_tx_transfer(
+    signer: Arc<ZkLinkSigner>,
+    tx: Arc<Transfer>,
+) -> Result<Arc<Transfer>, ZkSignerError> {
     let mut tx = (*tx).clone();
     let bytes = tx.get_bytes();
     tx.signature = signer.sign_musig(&bytes)?;

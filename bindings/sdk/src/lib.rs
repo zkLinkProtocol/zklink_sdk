@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 mod crypto;
-use crate::crypto::{get_public_key_hash, sign_tx_change_pub_key, verify_musig};
+use crate::crypto::{
+    get_public_key_hash, sign_tx_change_pubkey, sign_tx_forced_exit, sign_tx_transfer,
+    sign_tx_withdraw, verify_musig,
+};
 
 use std::str::FromStr;
 
