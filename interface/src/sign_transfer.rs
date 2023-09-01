@@ -1,18 +1,18 @@
-use crate::error::ClientError;
+use crate::error::{SignError};
 use crate::TxSignature;
-use web3::signing::Key;
 use zklink_crypto::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_types::basic_types::TokenId;
 use zklink_types::tx_type::transfer::Transfer;
+#[cfg(feature = "ffi")]
+use std::sync::Arc;
 
 #[cfg(feature = "sync")]
 pub async fn sign_transfer(
     eth_signer: &PrivateKeySigner,
     zklink_syner: &ZkLinkSigner,
-    tx: &mut Transfer,
+    mut tx: Transfer,
     token_symbol: String,
-) -> Result<TxSignature, ClientError> {
+) -> Result<TxSignature, SignError> {
     tx.signature = zklink_syner.sign_musig(&tx.get_bytes())?;
     let message = tx
         .get_ethereum_sign_message(&token_symbol)
@@ -32,7 +32,7 @@ pub async fn sign_transfer(
     zklink_syner: Arc<ZkLinkSigner>,
     tx: Arc<Transfer>,
     token_symbol: String,
-) -> Result<TxSignature, ClientError> {
+) -> Result<TxSignature, SignError> {
     let mut tx = (*tx).clone();
     tx.signature = zklink_syner.sign_musig(&tx.get_bytes())?;
     let message = tx

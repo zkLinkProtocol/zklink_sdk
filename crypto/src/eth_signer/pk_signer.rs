@@ -1,11 +1,9 @@
 use super::raw_tx::{RawTransaction, Transaction};
-use super::{EthSignerError, EthereumSigner};
-
-use secp256k1::SecretKey;
-
-use super::eth_signature::TxEthSignature;
+use super::{EthSignerError, };
 use super::packed_eth_signature::PackedEthSignature;
 use crate::eth_signer::EthTypedData;
+
+use secp256k1::SecretKey;
 use web3::types::{Address, H256};
 
 #[derive(Clone)]

@@ -1,5 +1,5 @@
 [package]
-name = "zklink_signer"
+name = "zklink_interface"
 version = "0.1.0"
 edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -15,3 +15,8 @@ web3 = "0.18.0"
 zklink_crypto = { path = "../crypto" }
 zklink_provider = { path = "../provider" }
 zklink_types = { path = "../types" }
+
+[features]
+default = ["sync"]
+sync = []
+ffi = []

@@ -2,14 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 mod crypto;
-use crate::crypto::{
-    get_public_key_hash, sign_tx_change_pubkey, sign_tx_forced_exit, sign_tx_transfer,
-    sign_tx_withdraw, verify_musig,
-};
+use crate::crypto::{ get_public_key_hash, verify_musig };
 
 use std::str::FromStr;
 
 use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
+use zklink_in
 
 use zklink_crypto::zklink_signer::error::ZkSignerError;
 use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;

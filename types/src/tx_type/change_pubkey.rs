@@ -59,7 +59,7 @@ impl Create2Data {
 pub enum ChangePubKeyAuthData {
     Onchain,
     EthECDSA { eth_signature: PackedEthSignature },
-    EthCREATE2(Create2Data),
+    EthCREATE2{ data: Create2Data },
 }
 
 impl Default for ChangePubKeyAuthData {
@@ -78,7 +78,7 @@ impl ChangePubKeyAuthData {
     }
 
     pub fn is_create2(&self) -> bool {
-        matches!(self, ChangePubKeyAuthData::EthCREATE2(..))
+        matches!(self, ChangePubKeyAuthData::EthCREATE2{..})
     }
 
     pub fn get_eth_witness(&self) -> Option<Vec<u8>> {
@@ -96,7 +96,7 @@ impl ChangePubKeyAuthData {
                 bytes.push(v);
                 Some(bytes)
             }
-            ChangePubKeyAuthData::EthCREATE2(data) => {
+            ChangePubKeyAuthData::EthCREATE2{data} => {
                 let mut bytes = Vec::new();
                 bytes.push(0x01);
                 bytes.extend_from_slice(data.creator_address.as_bytes());

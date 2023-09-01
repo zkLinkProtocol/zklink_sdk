@@ -1,10 +1,9 @@
 use thiserror::Error;
 use zklink_crypto::eth_signer::error::EthSignerError;
 use zklink_crypto::zklink_signer::error::ZkSignerError;
-use zklink_types::basic_types::ChainId;
 
 #[derive(Debug, Error)]
-pub enum ClientError {
+pub enum SignError {
     #[error("EthSigning error: {0}")]
     EthSigningError(EthSignerError),
     #[error("ZkSigning error: {0}")]
@@ -13,14 +12,14 @@ pub enum ClientError {
     IncorrectTx,
 }
 
-impl From<EthSignerError> for ClientError {
+impl From<EthSignerError> for SignError {
     fn from(err: EthSignerError) -> Self {
-        ClientError::EthSigningError(err)
+        SignError::EthSigningError(err)
     }
 }
 
-impl From<ZkSignerError> for ClientError {
+impl From<ZkSignerError> for SignError {
     fn from(err: ZkSignerError) -> Self {
-        ClientError::ZkSigningError(err)
+        SignError::ZkSigningError(err)
     }
 }

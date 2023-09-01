@@ -1,12 +1,14 @@
-use crate::TxSignature;
 use zklink_crypto::zklink_signer::error::ZkSignerError;
 use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_types::tx_type::order_matching::OrderMatching;
+#[cfg(feature = "ffi")]
+use std::sync::Arc;
+use crate::TxSignature;
 
 #[cfg(feature = "sync")]
 pub fn sign_order_matching(
     zklink_signer: &ZkLinkSigner,
-    tx: &mut OrderMatchinga,
+    mut tx: OrderMatching,
 ) -> Result<TxSignature, ZkSignerError> {
     tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
     Ok(TxSignature {
@@ -18,7 +20,7 @@ pub fn sign_order_matching(
 #[cfg(feature = "ffi")]
 pub fn sign_order_matching(
     zklink_signer: Arc<ZkLinkSigner>,
-    tx: Arc<OrderMatchinga>,
+    tx: Arc<OrderMatching>,
 ) -> Result<TxSignature, ZkSignerError> {
     let mut tx = (*tx).clone();
     tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
