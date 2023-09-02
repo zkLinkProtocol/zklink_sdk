@@ -80,6 +80,9 @@ impl ZkLinkSigner {
             .unwrap_or(eth_hex_private_key);
         let hex_privkey = hex::decode(eth_private_key)
             .map_err(|_| Error::invalid_privkey("invalid eth private key"))?;
+        if hex_privkey.len() != 32 {
+            return Err(Error::InvalidPrivKey("invalid eth private key".into()))
+        }
         let eth_pk = H256::from_slice(&hex_privkey);
         let signature = PackedEthSignature::sign(&eth_pk, Self::SIGN_MESSAGE.as_bytes())?;
         let seed = signature.serialize_packed();
