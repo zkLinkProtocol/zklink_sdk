@@ -33,7 +33,6 @@ use zklink_types::tx_type::order_matching::Order;
 use zklink_types::tx_type::order_matching::OrderMatching;
 use zklink_types::tx_type::transfer::Transfer;
 use zklink_types::tx_type::withdraw::Withdraw;
-use zklink_types::tx_type::zklink_tx::ZkLinkTx;
 
 use zklink_interface::error::SignError;
 use zklink_interface::sign_change_pubkey::sign_change_pubkey;
@@ -138,7 +137,7 @@ macro_rules! ffi_json_convert {
         impl UniffiCustomTypeConverter for $name {
             type Builtin = String;
             fn into_custom(val: Self::Builtin) -> uniffi::Result<Self> {
-                let s: ZkLinkTx = serde_json::from_str(&val)?;
+                let s: $name = serde_json::from_str(&val)?;
                 Ok(s)
             }
             fn from_custom(obj: Self) -> Self::Builtin {
@@ -148,7 +147,7 @@ macro_rules! ffi_json_convert {
     };
 }
 
-ffi_json_convert!(ZkLinkTx);
+ffi_json_convert!(TxSignature);
 
 include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));
 

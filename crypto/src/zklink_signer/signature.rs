@@ -101,6 +101,7 @@ impl PackedSignature {
 
 /// ZkLink signature
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct ZkLinkSignature {
     /// packed public key
     pub public_key: PackedPublicKey,

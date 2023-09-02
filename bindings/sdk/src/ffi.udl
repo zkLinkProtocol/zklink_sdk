@@ -265,12 +265,8 @@ enum SignError {
 
 
 [Custom]
-typedef string ZkLinkTx ;
+typedef string TxSignature;
 
-dictionary TxSignature {
-    ZkLinkTx tx;
-    PackedEthSignature ?eth_signature;
-};
 
 // ============================  namespace ============================
 namespace zklink_sdk {

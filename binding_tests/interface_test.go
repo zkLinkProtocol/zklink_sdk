@@ -4,6 +4,7 @@ import (
 	sdk "github.com/zkLinkProtocol/zklink_sdk/binding_tests/generated/uniffi/zklink_sdk"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"fmt"
 )
 
 func TestSignChangePubkey(t *testing.T) {
@@ -43,4 +44,5 @@ func TestSignChangePubkey(t *testing.T) {
     )
     assert.Nil(t, err)
     assert.NotNil(t, tx_signature)
+    fmt.Printf("%v\n", tx_signature)
 }
