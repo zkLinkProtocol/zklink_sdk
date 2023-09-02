@@ -41,7 +41,6 @@ func TestTypeTransfer(t *testing.T) {
         amount,
         fee,
         nonce,
-        nil,
         ts,
     )
     bytes := tx.GetBytes()

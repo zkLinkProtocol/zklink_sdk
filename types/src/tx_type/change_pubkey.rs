@@ -161,7 +161,6 @@ impl ChangePubKey {
         fee_token: TokenId,
         fee: BigUint,
         nonce: Nonce,
-        signature: Option<ZkLinkSignature>,
         eth_signature: Option<PackedEthSignature>,
         ts: TimeStamp,
     ) -> Self {
@@ -177,7 +176,7 @@ impl ChangePubKey {
             fee_token,
             fee,
             nonce,
-            signature: signature.unwrap_or_default(),
+            signature: ZkLinkSignature::default(),
             eth_auth_data,
             ts,
         }

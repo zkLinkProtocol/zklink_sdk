@@ -25,7 +25,7 @@ use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
 /// This way when we have methods that consumes &self we can be sure that ETHSignature::recover_signer works
 /// And we can be sure that we are compatible with Ethereum clients.
 ///
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct PackedEthSignature(pub ETHSignature);
 
 #[derive(Debug, Error)]
@@ -133,5 +133,19 @@ impl<'de> Deserialize<'de> for PackedEthSignature {
     {
         let bytes = ZeroPrefixHexSerde::deserialize(deserializer)?;
         Self::deserialize_packed(&bytes).map_err(serde::de::Error::custom)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_packed_eth_signature() {
+        let h = PackedEthSignature::default();
+        let s = h.as_hex();
+        let h2 = PackedEthSignature::from_hex(&s).unwrap();
+        println!("{s}");
+        println!("{h2:?}");
     }
 }

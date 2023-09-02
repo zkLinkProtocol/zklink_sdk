@@ -1,8 +1,7 @@
-use bigdecimal::BigDecimal;
-use num::bigint::ToBigInt;
 use num::{BigInt, BigUint};
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::ops::{Deref, DerefMut};
+use std::str::FromStr;
 
 #[derive(Clone, Debug, Serialize, Deserialize, Default, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct BigUintSerdeWrapper(#[serde(with = "BigUintSerdeAsRadix10Str")] pub BigUint);
@@ -141,8 +140,8 @@ impl BigUintSerdeAsRadix10Str {
     where
         S: Serializer,
     {
-        let big_dec = BigDecimal::from(val.to_bigint().unwrap());
-        BigDecimal::serialize(&big_dec, serializer)
+        let s = val.to_string();
+        serializer.serialize_str(&s)
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<BigUint, D::Error>
@@ -150,13 +149,9 @@ impl BigUintSerdeAsRadix10Str {
         D: Deserializer<'de>,
     {
         use serde::de::Error;
-        BigDecimal::deserialize(deserializer).and_then(|bigdecimal| {
-            let big_int = bigdecimal
-                .to_bigint()
-                .ok_or_else(|| Error::custom("Expected integer value"))?;
-            big_int
-                .to_biguint()
-                .ok_or_else(|| Error::custom("Expected positive value"))
-        })
+        let s = String::deserialize(deserializer)?;
+        let num =
+            BigUint::from_str(&s).map_err(|_| Error::custom("Invalid string type of big unit"))?;
+        Ok(num)
     }
 }

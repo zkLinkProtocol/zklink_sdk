@@ -33,6 +33,7 @@ use zklink_types::tx_type::order_matching::Order;
 use zklink_types::tx_type::order_matching::OrderMatching;
 use zklink_types::tx_type::transfer::Transfer;
 use zklink_types::tx_type::withdraw::Withdraw;
+use zklink_types::tx_type::zklink_tx::ZkLinkTx;
 
 use zklink_interface::error::SignError;
 use zklink_interface::sign_change_pubkey::sign_change_pubkey;
@@ -132,16 +133,22 @@ macro_rules! ffi_num_convert {
 ffi_num_convert!(H256, 32);
 ffi_num_convert!(H160, 20);
 
-impl UniffiCustomTypeConverter for TxSignature {
-    type Builtin = String;
-    fn into_custom(val: Self::Builtin) -> uniffi::Result<Self> {
-        let s: TxSignature = serde_json::from_str(&val)?;
-        Ok(s)
-    }
-    fn from_custom(obj: Self) -> Self::Builtin {
-        serde_json::to_string(&obj).expect("invalid tx signature string")
-    }
+macro_rules! ffi_json_convert {
+    ($(#[$attr:meta])* $name:ident) => {
+        impl UniffiCustomTypeConverter for $name {
+            type Builtin = String;
+            fn into_custom(val: Self::Builtin) -> uniffi::Result<Self> {
+                let s: ZkLinkTx = serde_json::from_str(&val)?;
+                Ok(s)
+            }
+            fn from_custom(obj: Self) -> Self::Builtin {
+                serde_json::to_string(&obj).expect("invalid string")
+            }
+        }
+    };
 }
+
+ffi_json_convert!(ZkLinkTx);
 
 include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));
 
@@ -160,8 +167,16 @@ mod test {
         // test BigUnit
         let b = BigUint::default();
         let s = b.to_string();
-        let b2 = BigUint::from_str("1234567890987654321").unwrap();
+        let b2 = BigUint::from_str("12345678909876543219999999999").unwrap();
         println!("big uint: {:?}", s);
+        println!("big uint: {:?}", b2);
         println!("big uint: {:?}", b2.to_string());
+
+        // test packed_eth_signature
+        let signature = PackedEthSignature::default();
+        let s = PackedEthSignature::from_custom(signature);
+        println!("packed eth signer: {s}");
+        let signature2 = PackedEthSignature::into_custom(s);
+        assert!(signature2.is_ok());
     }
 }

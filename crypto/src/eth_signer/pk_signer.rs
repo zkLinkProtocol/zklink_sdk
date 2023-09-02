@@ -78,7 +78,6 @@ impl PrivateKeySigner {
 
 #[cfg(test)]
 mod test {
-    use super::EthereumSigner;
     use super::PrivateKeySigner;
     use super::RawTransaction;
     use web3::types::{H160, H256, U256, U64};
@@ -86,7 +85,8 @@ mod test {
     #[tokio::test]
     async fn test_generating_signed_raw_transaction() {
         let private_key = H256::from([5; 32]);
-        let signer = PrivateKeySigner::new(private_key);
+        let private_key = hex::encode(private_key.as_bytes());
+        let signer = PrivateKeySigner::new(&private_key).unwrap();
         let raw_transaction = RawTransaction {
             nonce: U256::from(1u32),
             to: Some(H160::default()),

@@ -99,7 +99,6 @@ interface ChangePubKey {
         TokenId fee_token,
         BigUint fee,
         Nonce nonce,
-        ZkLinkSignature ?signature,
         PackedEthSignature ?eth_signature,
         TimeStamp ts
     );
@@ -266,7 +265,12 @@ enum SignError {
 
 
 [Custom]
-typedef string TxSignature;
+typedef string ZkLinkTx ;
+
+dictionary TxSignature {
+    ZkLinkTx tx;
+    PackedEthSignature ?eth_signature;
+};
 
 // ============================  namespace ============================
 namespace zklink_sdk {

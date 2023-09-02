@@ -161,7 +161,6 @@ mod test {
             BigUint::from(10000u32),
             BigUint::from(3u32),
             Nonce(1),
-            Default::default(),
             ts.into(),
         );
         let bytes = transfer.get_bytes();
