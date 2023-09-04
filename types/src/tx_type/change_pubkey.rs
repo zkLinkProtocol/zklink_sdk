@@ -278,3 +278,37 @@ impl From<&ChangePubKey> for EIP712ChangePubKey {
         todo!()
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::str::FromStr;
+    use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
+
+    #[test]
+    fn test_get_bytes_onchain() {
+        let eth_private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
+        let zk_signer = ZkLinkSigner::new_from_hex_eth_signer(eth_private_key).unwrap();
+        let pub_key = zk_signer.public_key().as_hex();
+        let pub_key_hash = zk_signer.public_key().public_key_hash();
+        let ts = 1693472232u32;
+        let change_pubkey = ChangePubKey::new(
+            ChainId(1),
+            AccountId(1),
+            SubAccountId(1),
+            pub_key_hash,
+            TokenId(18),
+            BigUint::from(100u32),
+            Nonce(1),
+            Default::default(),
+            ts.into(),
+        );
+        let bytes = change_pubkey.get_bytes();
+        let excepted_bytes = [
+            0, 0, 0, 0, 0, 0, 125, 1, 227, 95, 58, 57, 213, 66, 246, 210, 118, 194, 242, 3, 232,
+            253, 100, 252, 184, 191, 93, 176, 98, 183, 28, 202, 207, 69, 213, 236, 217, 212, 86,
+            243,
+        ];
+        assert_eq!(bytes, excepted_bytes);
+    }
+}

@@ -65,3 +65,35 @@ impl FullExit {
         self.validate().is_ok()
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::str::FromStr;
+
+    #[test]
+    fn test_get_bytes() {
+        let address =
+            ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
+        let eth_hash =
+            H256::from_str("0xe35f3a39d542f6d276c2f203e8fd64fcb8bf5db062b71ccacf45d5ecd9d456f3")
+                .unwrap();
+        let full_exit = FullExit::new(
+            1,
+            AccountId(10),
+            SubAccountId(1),
+            address,
+            TokenId(18),
+            TokenId(18),
+            100,
+            eth_hash,
+        );
+        let bytes = full_exit.get_bytes();
+        let excepted_bytes = [
+            0, 0, 0, 0, 0, 0, 0, 100, 227, 95, 58, 57, 213, 66, 246, 210, 118, 194, 242, 3, 232,
+            253, 100, 252, 184, 191, 93, 176, 98, 183, 28, 202, 207, 69, 213, 236, 217, 212, 86,
+            243,
+        ];
+        assert_eq!(bytes, excepted_bytes);
+    }
+}

@@ -14,6 +14,7 @@ use crate::basic_types::{
 };
 use crate::tx_type::ethereum_sign_message_part;
 use crate::tx_type::validator::*;
+use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
 
 /// `Withdraw` transaction performs a withdrawal of funds from zklink account to L1 account.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
@@ -140,6 +141,14 @@ impl Withdraw {
         self.validate().is_ok()
     }
 
+    /// Restores the `PubKeyHash` from the transaction signature.
+    pub fn verify_signature(&self) -> Option<PubKeyHash> {
+        match self.signature.verify_musig(&self.get_bytes()) {
+            Ok(ret) if ret => Some(self.signature.public_key.public_key_hash()),
+            _ => None,
+        }
+    }
+
     /// Get the first part of the message we expect to be signed by Ethereum account key.
     /// The only difference is the missing `nonce` since it's added at the end of the transactions
     /// batch message.
@@ -162,5 +171,40 @@ impl Withdraw {
         }
         message.push_str(format!("Nonce: {}", self.nonce).as_str());
         message
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::str::FromStr;
+
+    #[test]
+    fn test_get_bytes() {
+        let address =
+            ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
+        let ts = 1693472232u32;
+        let withdraw = Withdraw::new(
+            AccountId(10),
+            SubAccountId(1),
+            ChainId(1),
+            address,
+            TokenId(18),
+            TokenId(18),
+            BigUint::from(10000u32),
+            BigUint::from(3u32),
+            Nonce(1),
+            false,
+            0,
+            ts.into(),
+        );
+        let bytes = withdraw.get_bytes();
+        let excepted_bytes = [
+            3, 1, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4,
+            37, 215, 146, 67, 45, 158, 205, 28, 62, 38, 239, 44, 66, 233, 0, 18, 0, 18, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 39, 16, 0, 96, 0, 0, 0, 1, 0, 0, 0, 100, 240, 85, 232,
+        ];
+
+        assert_eq!(bytes, excepted_bytes);
     }
 }

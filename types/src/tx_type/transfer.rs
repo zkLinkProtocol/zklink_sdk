@@ -9,6 +9,7 @@ use validator::Validate;
 use zklink_crypto::zklink_signer::error::ZkSignerError;
 #[cfg(not(feature = "ffi"))]
 use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
@@ -115,6 +116,14 @@ impl Transfer {
 
     pub fn is_validate(&self) -> bool {
         self.validate().is_ok()
+    }
+
+    /// Restores the `PubKeyHash` from the transaction signature.
+    pub fn verify_signature(&self) -> Option<PubKeyHash> {
+        match self.signature.verify_musig(&self.get_bytes()) {
+            Ok(ret) if ret => Some(self.signature.public_key.public_key_hash()),
+            _ => None,
+        }
     }
 
     /// Get the first part of the message we expect to be signed by Ethereum account key.
