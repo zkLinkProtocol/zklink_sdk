@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use zklink_sdk_utils::serde::BigUintSerdeWrapper;
 
-use super::types::*;
+use super::response::*;
 use zklink_crypto::eth_signer::eth_signature::TxEthSignature;
 use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
 use zklink_types::basic_types::tx_hash::TxHash;

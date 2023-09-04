@@ -5,18 +5,18 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub enum Network {
     /// Mainnet.
-    Mainnet,
+    MainNet,
     /// Test network for testkit purposes
-    Test,
-    Localhost,
+    TestNet,
+    DevNet,
 }
 
 impl Network {
     pub fn url(&self) -> &str {
         match self {
-            Network::Mainnet => "https://api-v1.zk.link:443",
-            Network::Test => "https://aws-gw-v2.zk.link:443",
-            Network::Localhost => "http://127.0.0.1:3030",
+            Network::MainNet => "https://api-v1.zk.link:443",
+            Network::TestNet => "https://aws-gw-v2.zk.link:443",
+            Network::DevNet => "http://127.0.0.1:3030",
         }
     }
 }
