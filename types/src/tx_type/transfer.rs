@@ -155,6 +155,9 @@ impl Transfer {
 mod test {
     use super::*;
     use std::str::FromStr;
+    use zklink_crypto::zklink_signer::public_key::PackedPublicKey;
+    use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
+    use zklink_crypto::eth_signer::pk_signer::PrivateKeySigner;
 
     #[test]
     fn test_get_bytes() {
@@ -179,5 +182,45 @@ mod test {
             96, 0, 0, 0, 1, 100, 240, 85, 232,
         ];
         assert_eq!(bytes, excepted_bytes);
+    }
+
+    #[test]
+    fn test_verify_signature() {
+        let private_key_str = "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
+        let signature = "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f8125107ecbe23c307d18007ee43090940a4a43bd02bdcda206ad695f745c2f0a64f4ac4c4c8beb9ed9cbdd0e523e75ffc7dedd0281da4946bb37fa26a04283bd480a04";
+        let public_key_str = "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510";
+        let ts = 1693472232;
+        let eth_signature = "0x1f11707e54773e059bc38aa73526fe2b51af9b89a77df731af7bcc429750d0317727a857efda5d79232eb5f9a66ed60a79aad2195d4de1375f5021c0db041b221b";
+        let address =
+            ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
+        let mut tx = Transfer::new(
+            AccountId(1),
+            address,
+            SubAccountId(1),
+            SubAccountId(1),
+            TokenId(18),
+            BigUint::from_str("100000").unwrap(),
+            BigUint::from_str("100").unwrap(),
+            Nonce(1),
+            ts.into()
+        );
+        //check l2 signature
+        tx.signature = ZkLinkSignature::from_hex(&signature).unwrap();
+        let recover_pubkey_hash = tx.verify_signature().unwrap();
+        let pubkey = PackedPublicKey::from_hex(&public_key_str).unwrap();
+        let pubkey_hash = pubkey.public_key_hash();
+
+        //check l1 signature
+        let l1_signature = PackedEthSignature::from_hex(&eth_signature).unwrap();
+        let token_symbol = "USDC";
+        let message = tx
+            .get_ethereum_sign_message(&token_symbol)
+            .as_bytes()
+            .to_vec();
+        let recover_address = l1_signature.signature_recover_signer(&message).unwrap();
+        let private_key = PrivateKeySigner::new(&private_key_str).unwrap();
+        let address = private_key.get_address().unwrap();
+        assert_eq!(pubkey_hash,recover_pubkey_hash);
+        assert_eq!(address,recover_address);
     }
 }
