@@ -3,11 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 mod convert;
 mod crypto;
-mod types;
 
 use crate::crypto::{get_public_key_hash, verify_musig};
-
-use std::str::FromStr;
 
 use zklink_signers::eth_signer::error::EthSignerError;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
@@ -24,7 +21,7 @@ use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::zklink_address::ZkLinkAddress;
 use zklink_types::basic_types::{
     AccountId, BigUint, BlockNumber, ChainId, EthBlockId, Nonce, PairId, PriorityOpId, SlotId,
-    SubAccountId, TimeStamp, TokenId, H160, H256,
+    SubAccountId, TimeStamp, TokenId, H256,
 };
 use zklink_types::tx_type::change_pubkey::ChangePubKey;
 use zklink_types::tx_type::change_pubkey::Create2Data;
@@ -38,7 +35,7 @@ use zklink_types::tx_type::withdraw::Withdraw;
 use zklink_interface::error::SignError;
 use zklink_interface::sign_change_pubkey::sign_change_pubkey;
 use zklink_interface::sign_forced_exit::sign_forced_exit;
-use zklink_interface::sign_order::sign_order;
+use zklink_interface::sign_order::signed_order;
 use zklink_interface::sign_order_matching::sign_order_matching;
 use zklink_interface::sign_transfer::sign_transfer;
 use zklink_interface::sign_withdraw::sign_withdraw;

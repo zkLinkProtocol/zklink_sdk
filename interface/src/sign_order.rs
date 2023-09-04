@@ -12,7 +12,7 @@ pub fn sign(order: &mut Order, signer: &ZkLinkSigner) -> Result<(), ZkSignerErro
 }
 
 #[cfg(feature = "ffi")]
-pub fn sign_order(
+pub fn signed_order(
     zklink_signer: Arc<ZkLinkSigner>,
     order: Arc<Order>,
 ) -> Result<Arc<Order>, ZkSignerError> {

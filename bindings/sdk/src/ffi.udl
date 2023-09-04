@@ -279,7 +279,7 @@ namespace zklink_sdk {
     [Throws=ZkSignerError]
     TxSignature sign_forced_exit(ZkLinkSigner zklink_signer, ForcedExit tx);
     [Throws=ZkSignerError]
-    Order sign_order(ZkLinkSigner zklink_signer, Order order);
+    Order signed_order(ZkLinkSigner zklink_signer, Order order);
     [Throws=ZkSignerError]
     TxSignature sign_order_matching(ZkLinkSigner signer, OrderMatching tx);
     [Throws=SignError]

@@ -163,7 +163,7 @@ func TestSignOrderMatching(t *testing.T) {
         2,
         5,
     )
-    taker, err = sdk.SignOrder(
+    taker, err = sdk.SignedOrder(
         zklink_signer,
         taker,
     )
@@ -184,7 +184,7 @@ func TestSignOrderMatching(t *testing.T) {
          2,
          5,
     )
-    maker, err = sdk.SignOrder(
+    maker, err = sdk.SignedOrder(
         zklink_signer,
         maker,
     )
