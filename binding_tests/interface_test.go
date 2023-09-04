@@ -4,6 +4,7 @@ import (
 	sdk "github.com/zkLinkProtocol/zklink_sdk/binding_tests/generated/uniffi/zklink_sdk"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"math/big"
 	"fmt"
 )
 
@@ -24,7 +25,7 @@ func TestSignChangePubkey(t *testing.T) {
         sdk.SubAccountId(1),
         pubkey_hash,
         sdk.TokenId(1),
-        sdk.BigUint("1"),
+        *big.NewInt(1),
         sdk.Nonce(1),
         &packed_eth_signature,
         sdk.TimeStamp(1),
@@ -64,7 +65,7 @@ func TestSignChangePubkeyEcdsa(t *testing.T) {
         sdk.SubAccountId(1),
         pubkey_hash,
         sdk.TokenId(18),
-        sdk.BigUint("1"),
+        *big.NewInt(1),
         sdk.Nonce(1),
         &packed_eth_signature,
         sdk.TimeStamp(1),
@@ -101,7 +102,7 @@ func TestSignForcedExit(t *testing.T) {
         sdk.TokenId(18),
         sdk.TokenId(18),
         sdk.Nonce(1),
-        sdk.BigUint("100000"),
+        *big.NewInt(100000),
         sdk.TimeStamp(1693472232),
     )
     tx_signature, err := sdk.SignForcedExit(
@@ -129,8 +130,8 @@ func TestSignTransfer(t *testing.T) {
         sdk.SubAccountId(1),
         sdk.SubAccountId(1),
         sdk.TokenId(18),
-        sdk.BigUint("100000"),
-        sdk.BigUint("100"),
+        *big.NewInt(100000),
+        *big.NewInt(100),
         sdk.Nonce(1),
         sdk.TimeStamp(1693472232),
     )
@@ -157,8 +158,8 @@ func TestSignOrderMatching(t *testing.T) {
         sdk.Nonce(1),
         sdk.TokenId(18),
         sdk.TokenId(145),
-        sdk.BigUint("323289"),
-        sdk.BigUint("135"),
+        *big.NewInt(323289),
+        *big.NewInt(135),
         true,
         2,
         5,
@@ -178,8 +179,8 @@ func TestSignOrderMatching(t *testing.T) {
          sdk.Nonce(1),
          sdk.TokenId(18),
          sdk.TokenId(145),
-         sdk.BigUint("323355"),
-         sdk.BigUint("135"),
+         *big.NewInt(323355),
+         *big.NewInt(135),
          false,
          2,
          5,
@@ -197,10 +198,10 @@ func TestSignOrderMatching(t *testing.T) {
         sdk.SubAccountId(1),
         taker,
         maker,
-        sdk.BigUint("1000"),
+        *big.NewInt(1000),
         sdk.TokenId(18),
-        sdk.BigUint("808077878"),
-        sdk.BigUint("5479779"),
+        *big.NewInt(808077878),
+        *big.NewInt(5479779),
     )
     tx_signature, err := sdk.SignOrderMatching(
         zklink_signer,
@@ -228,8 +229,8 @@ func TestSignWithdraw(t *testing.T) {
         address,
         sdk.TokenId(18),
         sdk.TokenId(18),
-        sdk.BigUint("100000"),
-        sdk.BigUint("100"),
+        *big.NewInt(100000),
+        *big.NewInt(100),
         sdk.Nonce(1),
         false,
         50,

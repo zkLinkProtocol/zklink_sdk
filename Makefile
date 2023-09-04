@@ -62,7 +62,7 @@ prepare_wasm:
 
 build_binding_files: prepare_ffi
 	rm -rf ${BINDINGS_DIR}
-	uniffi-bindgen-go ${ROOT_DIR}/bindings/sdk/src/ffi.udl --out-dir ${BINDINGS_DIR}
+	uniffi-bindgen-go ${ROOT_DIR}/bindings/sdk/src/ffi.udl --out-dir ${BINDINGS_DIR} --config=${ROOT_DIR}/bindings/sdk/ffi_golang.toml
 
 build_binding_lib:
 	cargo build --package bindings_sdk --release

@@ -1,0 +1,12 @@
+[bindings.go.custom_types.BigUint]
+imports = ["math/big"]
+type_name = "big.Int"
+into_custom = """
+    n := new(big.Int)
+    n, ok := n.SetString({}, 10)
+    if !ok {
+        panic("invalid big int")
+    }
+    return *n
+"""
+from_custom = "{}.String()"
