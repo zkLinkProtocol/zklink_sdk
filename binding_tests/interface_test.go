@@ -123,13 +123,13 @@ func TestSignOrderMatching(t *testing.T) {
         2,
         5,
     )
-    taker_signature, err := sdk.SignOrder(
+    taker, err = sdk.SignOrder(
         zklink_signer,
         taker,
     )
     assert.Nil(t, err)
-    assert.NotNil(t, taker_signature)
-    fmt.Printf("%v\n", taker_signature)
+    assert.NotNil(t, taker.Signature())
+    fmt.Printf("taker signature:%v\n", taker.Signature())
 
     maker := sdk.NewOrder(
          sdk.AccountId(2),
@@ -144,13 +144,13 @@ func TestSignOrderMatching(t *testing.T) {
          2,
          5,
     )
-    maker_signature, err := sdk.SignOrder(
+    maker, err = sdk.SignOrder(
         zklink_signer,
         maker,
     )
     assert.Nil(t, err)
-    assert.NotNil(t, maker_signature)
-    fmt.Printf("%v\n", maker_signature)
+    assert.NotNil(t, maker.Signature())
+    fmt.Printf("maker signature:%v\n", maker.Signature())
 
     tx := sdk.NewOrderMatching(
         sdk.AccountId(3),
