@@ -47,6 +47,32 @@ func TestSignChangePubkey(t *testing.T) {
     fmt.Printf("%v\n", tx_signature)
 }
 
+func TestSignForcedExit(t *testing.T) {
+	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
+	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
+    assert.Nil(t, err)
+    address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
+    tx := sdk.NewForcedExit(
+        sdk.ChainId(1),
+        sdk.AccountId(1),
+        sdk.SubAccountId(1),
+        address,
+        sdk.SubAccountId(1),
+        sdk.TokenId(18),
+        sdk.TokenId(18),
+        sdk.Nonce(1),
+        sdk.BigUint("100000"),
+        sdk.TimeStamp(1693472232),
+    )
+    tx_signature, err := sdk.SignForcedExit(
+        zklink_signer,
+        tx,
+    )
+    assert.Nil(t, err)
+    assert.NotNil(t, tx_signature)
+    fmt.Printf("%v\n", tx_signature)
+}
+
 func TestSignTransfer(t *testing.T) {
     packed_eth_signature := sdk.PackedEthSignature("0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001b")
     assert.NotNil(t, packed_eth_signature)
@@ -54,7 +80,6 @@ func TestSignTransfer(t *testing.T) {
 	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
     eth_signer, err := sdk.NewPrivateKeySigner(s)
     assert.Nil(t, err)
-	s = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
 	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
     assert.Nil(t, err)
     address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
@@ -74,6 +99,72 @@ func TestSignTransfer(t *testing.T) {
         zklink_signer,
         tx,
         "USDC",
+    )
+    assert.Nil(t, err)
+    assert.NotNil(t, tx_signature)
+    fmt.Printf("%v\n", tx_signature)
+}
+
+
+func TestSignOrderMatching(t *testing.T) {
+	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
+	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
+
+    taker := sdk.NewOrder(
+        sdk.AccountId(1),
+        sdk.SubAccountId(1),
+        sdk.SlotId(3),
+        sdk.Nonce(1),
+        sdk.TokenId(18),
+        sdk.TokenId(145),
+        sdk.BigUint("323289"),
+        sdk.BigUint("135"),
+        true,
+        2,
+        5,
+    )
+    taker_signature, err := sdk.SignOrder(
+        zklink_signer,
+        taker,
+    )
+    assert.Nil(t, err)
+    assert.NotNil(t, taker_signature)
+    fmt.Printf("%v\n", taker_signature)
+
+    maker := sdk.NewOrder(
+         sdk.AccountId(2),
+         sdk.SubAccountId(1),
+         sdk.SlotId(3),
+         sdk.Nonce(1),
+         sdk.TokenId(18),
+         sdk.TokenId(145),
+         sdk.BigUint("323355"),
+         sdk.BigUint("135"),
+         false,
+         2,
+         5,
+    )
+    maker_signature, err := sdk.SignOrder(
+        zklink_signer,
+        maker,
+    )
+    assert.Nil(t, err)
+    assert.NotNil(t, maker_signature)
+    fmt.Printf("%v\n", maker_signature)
+
+    tx := sdk.NewOrderMatching(
+        sdk.AccountId(3),
+        sdk.SubAccountId(1),
+        taker,
+        maker,
+        sdk.BigUint("1000"),
+        sdk.TokenId(18),
+        sdk.BigUint("808077878"),
+        sdk.BigUint("5479779"),
+    )
+    tx_signature, err := sdk.SignOrderMatching(
+        zklink_signer,
+        tx,
     )
     assert.Nil(t, err)
     assert.NotNil(t, tx_signature)
