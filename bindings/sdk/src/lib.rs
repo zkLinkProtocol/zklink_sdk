@@ -40,6 +40,7 @@ use zklink_interface::sign_forced_exit::sign_forced_exit;
 use zklink_interface::sign_order::sign_order;
 use zklink_interface::sign_order_matching::sign_order_matching;
 use zklink_interface::sign_transfer::sign_transfer;
+use zklink_interface::sign_withdraw::sign_withdraw;
 use zklink_interface::ChangePubKeyAuthRequest;
 use zklink_interface::TxSignature;
 

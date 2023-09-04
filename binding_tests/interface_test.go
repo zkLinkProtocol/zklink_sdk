@@ -170,3 +170,38 @@ func TestSignOrderMatching(t *testing.T) {
     assert.NotNil(t, tx_signature)
     fmt.Printf("%v\n", tx_signature)
 }
+
+func TestSignWithdraw(t *testing.T) {
+    packed_eth_signature := sdk.PackedEthSignature("0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001b")
+    assert.NotNil(t, packed_eth_signature)
+
+	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
+    eth_signer, err := sdk.NewPrivateKeySigner(s)
+    assert.Nil(t, err)
+	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
+    assert.Nil(t, err)
+    address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
+    tx := sdk.NewWithdraw(
+        sdk.AccountId(1),
+        sdk.SubAccountId(1),
+        sdk.ChainId(1),
+        address,
+        sdk.TokenId(18),
+        sdk.TokenId(18),
+        sdk.BigUint("100000"),
+        sdk.BigUint("100"),
+        sdk.Nonce(1),
+        false,
+        50,
+        sdk.TimeStamp(1693472232),
+    )
+    tx_signature, err := sdk.SignWithdraw(
+        eth_signer,
+        zklink_signer,
+        tx,
+        "USDC",
+    )
+    assert.Nil(t, err)
+    assert.NotNil(t, tx_signature)
+    fmt.Printf("%v\n", tx_signature)
+}

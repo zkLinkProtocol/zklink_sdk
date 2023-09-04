@@ -284,5 +284,7 @@ namespace zklink_sdk {
     TxSignature sign_order_matching(ZkLinkSigner signer, OrderMatching tx);
     [Throws=SignError]
     TxSignature sign_transfer(PrivateKeySigner eth_signer, ZkLinkSigner zklink_signer, Transfer tx, string token_symbol);
+    [Throws=SignError]
+    TxSignature sign_withdraw(PrivateKeySigner eth_signer, ZkLinkSigner zklink_signer, Withdraw tx, string token_symbol);
 };
 
