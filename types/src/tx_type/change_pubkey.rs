@@ -274,8 +274,16 @@ struct EIP712ChangePubKey {
 }
 
 impl From<&ChangePubKey> for EIP712ChangePubKey {
-    fn from(value: &ChangePubKey) -> Self {
-        todo!()
+    fn from(change_pub_key: &ChangePubKey) -> Self {
+        let pub_key_hash: BytesM<20> = BytesM::from(change_pub_key.new_pk_hash.data);
+        let nonce: Uint<32> = Uint::from(change_pub_key.nonce.0);
+        let account_id: Uint<32> = Uint::from(change_pub_key.account_id.0);
+
+        EIP712ChangePubKey {
+            pub_key_hash,
+            nonce,
+            account_id,
+        }
     }
 }
 
