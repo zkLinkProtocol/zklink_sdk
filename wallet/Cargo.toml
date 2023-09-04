@@ -7,7 +7,7 @@ edition = "2021"
 [dependencies]
 chrono = { version = "0.4", features = ["serde", "rustc-serialize"] }
 num = { version = "0.4.0", features = ["serde"] }
-zklink_crypto = { path = "../crypto" }
+zklink_signers = { path = "../signer" }
 zklink_provider = { path = "../provider" }
 zklink_signer = { path = "../signer" }
 zklink_types = { path = "../types" }

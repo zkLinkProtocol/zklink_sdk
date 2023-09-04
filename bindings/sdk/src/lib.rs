@@ -9,15 +9,15 @@ use crate::crypto::{get_public_key_hash, verify_musig};
 
 use std::str::FromStr;
 
-use zklink_crypto::eth_signer::error::EthSignerError;
-use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
-use zklink_crypto::eth_signer::pk_signer::PrivateKeySigner;
+use zklink_signers::eth_signer::error::EthSignerError;
+use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
+use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 
-use zklink_crypto::zklink_signer::error::ZkSignerError;
-use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
-use zklink_crypto::zklink_signer::public_key::PackedPublicKey;
-use zklink_crypto::zklink_signer::signature::{PackedSignature, ZkLinkSignature};
+use zklink_signers::zklink_signer::error::ZkSignerError;
+use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
+use zklink_signers::zklink_signer::public_key::PackedPublicKey;
+use zklink_signers::zklink_signer::signature::{PackedSignature, ZkLinkSignature};
 
 use zklink_types::basic_types::error::TypeError;
 use zklink_types::basic_types::tx_hash::TxHash;

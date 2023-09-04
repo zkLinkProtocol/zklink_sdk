@@ -1,5 +1,5 @@
 [package]
-name = "zklink_crypto"
+name = "zklink_signers"
 version = "1.0.0"
 edition = "2021"
 publish = false

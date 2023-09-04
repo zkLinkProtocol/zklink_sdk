@@ -3,14 +3,14 @@ resolver = "2"
 members = [
     "bindings/sdk",
     "bindings/wasm",
-    "crypto",
+    "signer",
     "interface",
     "provider",
     "types",
     "utils",
 ]
 default-members = [
-    "crypto",
+    "signer",
     "utils",
     "types",
     "provider",

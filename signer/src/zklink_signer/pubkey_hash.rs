@@ -37,7 +37,7 @@ impl PubKeyHash {
     /// # Example
     ///
     /// ```
-    /// use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
+    /// use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
     ///
     /// let pubkey_hash = PubKeyHash::zero();
     /// assert_eq!(pubkey_hash.as_hex(), "0x0000000000000000000000000000000000000000");
@@ -53,7 +53,7 @@ impl PubKeyHash {
     ///
     ///
     /// ```
-    /// use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
+    /// use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
     ///
     /// let pubkey_hash = PubKeyHash::from_hex("0x0000000000000000000000000000000000000000").unwrap();
     /// assert_eq!(pubkey_hash, PubKeyHash::zero());

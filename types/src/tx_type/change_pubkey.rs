@@ -8,16 +8,16 @@ use num::{BigUint, Zero};
 use parity_crypto::Keccak256;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
-use zklink_crypto::eth_signer::eip712::eip712::{eip712_typed_data, EIP712Domain};
-use zklink_crypto::eth_signer::eip712::{BytesM, Uint};
-use zklink_crypto::eth_signer::error::EthSignerError;
-use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
-use zklink_crypto::eth_signer::EthTypedData;
-use zklink_crypto::zklink_signer::error::ZkSignerError;
+use zklink_signers::eth_signer::eip712::eip712::{eip712_typed_data, EIP712Domain};
+use zklink_signers::eth_signer::eip712::{BytesM, Uint};
+use zklink_signers::eth_signer::error::EthSignerError;
+use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
+use zklink_signers::eth_signer::EthTypedData;
+use zklink_signers::zklink_signer::error::ZkSignerError;
 #[cfg(not(feature = "ffi"))]
-use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
-use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
+use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
+use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 //todo: starknet
@@ -256,7 +256,7 @@ impl ChangePubKey {
         let raw_data = serde_json::to_string(&typed_data)
             .map_err(|e| EthSignerError::CustomError(format!("serialization error: {e:?}")))?;
         let data_hash = typed_data.sign_hash()?;
-        let data_hash = zklink_crypto::eth_signer::H256::from_slice(&data_hash.0);
+        let data_hash = zklink_signers::eth_signer::H256::from_slice(&data_hash.0);
         Ok(EthTypedData {
             raw_data,
             data_hash,
@@ -283,7 +283,7 @@ impl From<&ChangePubKey> for EIP712ChangePubKey {
 mod test {
     use super::*;
     use std::str::FromStr;
-    use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
+    use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 
     #[test]
     fn test_get_bytes_onchain() {

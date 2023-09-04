@@ -1,10 +1,10 @@
 use num::{BigUint, ToPrimitive};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
-use zklink_crypto::zklink_signer::error::ZkSignerError;
+use zklink_signers::zklink_signer::error::ZkSignerError;
 #[cfg(not(feature = "ffi"))]
-use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
+use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 use crate::basic_types::pack::pack_fee_amount;
@@ -14,7 +14,7 @@ use crate::basic_types::{
 };
 use crate::tx_type::ethereum_sign_message_part;
 use crate::tx_type::validator::*;
-use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
+use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 
 /// `Withdraw` transaction performs a withdrawal of funds from zklink account to L1 account.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]

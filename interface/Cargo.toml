@@ -12,7 +12,7 @@ num = { version = "0.4.0", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 thiserror = "1.0"
 web3 = "0.18.0"
-zklink_crypto = { path = "../crypto" }
+zklink_signers = { path = "../signer" }
 zklink_provider = { path = "../provider" }
 zklink_types = { path = "../types" }
 

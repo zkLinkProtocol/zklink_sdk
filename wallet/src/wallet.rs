@@ -1,8 +1,8 @@
 use crate::{AccountType, Wallet};
 use num::BigUint;
-use zklink_crypto::eth_signer::eth_signature::TxEthSignature;
-use zklink_crypto::eth_signer::{eip1271_signature, EthereumSigner};
-use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
+use zklink_signers::eth_signer::eth_signature::TxEthSignature;
+use zklink_signers::eth_signer::{eip1271_signature, EthereumSigner};
+use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_provider::rpc::ZkLinkRpcClient;
 use zklink_provider::types::{AccountQuery, ChainResp, TokenResp};
 use zklink_signer::error::ClientError;

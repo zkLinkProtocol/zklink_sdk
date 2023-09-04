@@ -2,8 +2,8 @@ use crate::error::SignError;
 use crate::{ChangePubKeyAuthRequest, TxSignature};
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
-use zklink_crypto::eth_signer::pk_signer::PrivateKeySigner;
-use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_types::basic_types::ZkLinkAddress;
 use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData};
 

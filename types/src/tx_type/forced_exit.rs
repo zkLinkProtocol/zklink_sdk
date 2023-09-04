@@ -7,10 +7,10 @@ use crate::basic_types::{
 };
 use crate::tx_type::validator::*;
 use serde::{Deserialize, Serialize};
-use zklink_crypto::zklink_signer::error::ZkSignerError;
+use zklink_signers::zklink_signer::error::ZkSignerError;
 #[cfg(not(feature = "ffi"))]
-use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
+use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 /// `ForcedExit` transaction is used to withdraw funds from an unowned
 /// account to its corresponding L1 address.
 ///

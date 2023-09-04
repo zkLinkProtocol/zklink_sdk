@@ -1,7 +1,7 @@
-use zklink_crypto::zklink_signer::error::ZkSignerError;
-use zklink_crypto::zklink_signer::pubkey_hash::PubKeyHash;
-use zklink_crypto::zklink_signer::public_key::PackedPublicKey;
-use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
+use zklink_signers::zklink_signer::error::ZkSignerError;
+use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
+use zklink_signers::zklink_signer::public_key::PackedPublicKey;
+use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 
 pub fn verify_musig(signature: ZkLinkSignature, msg: &[u8]) -> Result<bool, ZkSignerError> {
     signature.verify_musig(msg)

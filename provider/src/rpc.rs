@@ -5,8 +5,8 @@ use std::collections::HashMap;
 use zklink_sdk_utils::serde::BigUintSerdeWrapper;
 
 use super::response::*;
-use zklink_crypto::eth_signer::eth_signature::TxEthSignature;
-use zklink_crypto::zklink_signer::signature::ZkLinkSignature;
+use zklink_signers::eth_signer::eth_signature::TxEthSignature;
+use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::{
     AccountId, BlockNumber, ChainId, SubAccountId, TokenId, ZkLinkAddress,

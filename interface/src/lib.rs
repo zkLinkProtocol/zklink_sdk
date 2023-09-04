@@ -1,6 +1,6 @@
 use jsonrpsee::core::Serialize;
 use serde::Deserialize;
-use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
+use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_types::tx_type::change_pubkey::Create2Data;
 use zklink_types::tx_type::zklink_tx::ZkLinkTx;
 

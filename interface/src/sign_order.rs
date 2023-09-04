@@ -1,7 +1,7 @@
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
-use zklink_crypto::zklink_signer::error::ZkSignerError;
-use zklink_crypto::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_signers::zklink_signer::error::ZkSignerError;
+use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_types::tx_type::order_matching::Order;
 
 #[cfg(feature = "sync")]

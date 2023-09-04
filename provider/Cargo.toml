@@ -20,7 +20,7 @@ serde = "1.0.137"
 serde_json = "1.0.0"
 thiserror = "1.0"
 
-zklink_crypto = { path = "../crypto" }
+zklink_signers = { path = "../signer" }
 zklink_sdk_utils = { path = "../utils" }
 zklink_types = { path = "../types" }
 
