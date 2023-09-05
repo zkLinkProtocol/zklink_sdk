@@ -4,7 +4,6 @@ use num::{BigUint, ToPrimitive};
 pub struct BitConvert;
 
 impl BitConvert {
-
     /// Сonverts a set of bits to a set of bytes in reverse order for each byte.
     #[allow(clippy::wrong_self_convention)]
     pub fn into_bytes_ordered(bits: Vec<bool>) -> Vec<u8> {
@@ -51,7 +50,6 @@ impl FloatConversions {
         vec.reverse();
         BitConvert::into_bytes_ordered(vec)
     }
-
 
     /// Unpacks a floating point number with the given parameters.
     /// Returns `None` for numbers greater than 2 ^ 128.
@@ -156,5 +154,4 @@ impl FloatConversions {
         debug_assert_eq!(encoding.len(), exponent_length + mantissa_length);
         Ok(encoding)
     }
-
 }

@@ -1,9 +1,9 @@
 mod wallet;
 
 use std::collections::HashMap;
-use zklink_signers::eth_signer::EthereumSigner;
 use zklink_provider::types::{AccountInfoResp, ChainResp, TokenResp};
 use zklink_provider::ZkLinkRpcClient;
+use zklink_signers::eth_signer::EthereumSigner;
 use zklink_types::basic_types::{ChainId, TokenId, ZkLinkAddress};
 
 pub enum AccountType {

@@ -3,11 +3,12 @@ resolver = "2"
 members = [
     "bindings/sdk",
     "bindings/wasm",
-    "signer",
     "interface",
     "provider",
+    "signer",
     "types",
     "utils",
+    "wallet",
 ]
 default-members = [
     "signer",
@@ -15,8 +16,6 @@ default-members = [
     "types",
     "provider",
 ]
-
-exclude = ["wallet"]
 
 [profile.release]
 opt-level = "s"

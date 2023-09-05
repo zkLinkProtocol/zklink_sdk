@@ -5,23 +5,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0"
 bigdecimal = { version = "0.3.0" }
 chrono = { version = "0.4", features = ["serde", "rustc-serialize"] }
 ethers = "2.0.2"
-hex = "0.4"
 jsonrpsee = { version = "0.15.1", features = ["server", "client", "macros"] }
-num = { version = "0.4.0", features = ["serde"] }
-
-# Crypto stuff
-rand = "0.8"
 
 serde = "1.0.137"
-serde_json = "1.0.0"
-thiserror = "1.0"
+zklink_sdk_utils = { path = "../utils" }
 
 zklink_signers = { path = "../signer" }
-zklink_sdk_utils = { path = "../utils" }
 zklink_types = { path = "../types" }
 
 [dev-dependencies]

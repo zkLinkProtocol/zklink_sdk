@@ -1,6 +1,6 @@
 pub mod network;
-pub mod rpc;
 pub mod response;
+pub mod rpc;
 
 use crate::network::Network;
 use jsonrpsee::http_client::{HttpClient, HttpClientBuilder};

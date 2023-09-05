@@ -2,7 +2,6 @@ lint:
 	cargo fmt
 	cargo clippy
 	cargo sort
-	bash -c "cd ./crypto && cargo sort"
 	bash -c "cd ./interface && cargo sort"
 	bash -c "cd ./types && cargo sort"
 	bash -c "cd ./utils && cargo sort"
@@ -15,7 +14,6 @@ lint-check:
 	cargo fmt -- --check
 	cargo clippy
 	cargo sort --check
-	bash -c "cd ./crypto && cargo sort --check"
 	bash -c "cd ./interface && cargo sort --check"
 	bash -c "cd ./types && cargo sort --check"
 	bash -c "cd ./utils && cargo sort --check"

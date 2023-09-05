@@ -1,6 +1,6 @@
 use crate::{
-H256, SlotId, TokenId, PairId, TimeStamp, AccountId, BlockNumber, Nonce, PriorityOpId, EthBlockId, ChainId, SubAccountId    ,
-UniffiCustomTypeConverter, TypeError
+    AccountId, BlockNumber, ChainId, EthBlockId, Nonce, PairId, PriorityOpId, SlotId, SubAccountId,
+    TimeStamp, TokenId, TypeError, UniffiCustomTypeConverter, H256,
 };
 
 macro_rules! ffi_num_convert {

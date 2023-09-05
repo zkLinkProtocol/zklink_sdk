@@ -1,11 +1,11 @@
 use num::{BigUint, ToPrimitive};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
+use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 #[cfg(not(feature = "ffi"))]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
-use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::params::TOKEN_MAX_PRECISION;

@@ -1,4 +1,7 @@
-use crate::{TxHash, PackedSignature, PackedPublicKey, PubKeyHash, PackedEthSignature, UniffiCustomTypeConverter};
+use crate::{
+    PackedEthSignature, PackedPublicKey, PackedSignature, PubKeyHash, TxHash,
+    UniffiCustomTypeConverter,
+};
 
 macro_rules! ffi_hex_convert {
     ($(#[$attr:meta])* $name:ident) => {

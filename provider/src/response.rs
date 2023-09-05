@@ -6,8 +6,8 @@ use serde::{Deserialize, Serialize};
 
 use chrono::serde::{ts_microseconds, ts_microseconds_option};
 use ethers::types::{H256, U256};
-use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_sdk_utils::serde::BigUintSerdeWrapper;
+use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::{
     AccountId, BlockNumber, ChainId, Nonce, SlotId, SubAccountId, TokenId, ZkLinkAddress,

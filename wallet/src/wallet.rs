@@ -1,12 +1,13 @@
 use crate::{AccountType, Wallet};
 use num::BigUint;
-use zklink_signers::eth_signer::eth_signature::TxEthSignature;
-use zklink_signers::eth_signer::{eip1271_signature, EthereumSigner};
-use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
+use zklink_provider::response::AccountQuery;
 use zklink_provider::rpc::ZkLinkRpcClient;
 use zklink_provider::types::{AccountQuery, ChainResp, TokenResp};
 use zklink_signer::error::ClientError;
 use zklink_signer::{ChangePubKeyAuthRequest, TxSignature};
+use zklink_signers::eth_signer::eth_signature::TxEthSignature;
+use zklink_signers::eth_signer::{eip1271_signature, EthereumSigner};
+use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::{AccountId, ChainId, Nonce, SubAccountId, TokenId, ZkLinkAddress};
 use zklink_types::tx_type::order_matching::Order;

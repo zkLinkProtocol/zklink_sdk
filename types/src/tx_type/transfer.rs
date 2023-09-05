@@ -6,12 +6,12 @@ use crate::tx_type::validator::*;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
+use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 #[cfg(not(feature = "ffi"))]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
-use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 /// `Transfer` transaction performs a move of funds from one zklink account to another.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
@@ -155,9 +155,9 @@ impl Transfer {
 mod test {
     use super::*;
     use std::str::FromStr;
-    use zklink_crypto::zklink_signer::public_key::PackedPublicKey;
-    use zklink_crypto::eth_signer::packed_eth_signature::PackedEthSignature;
-    use zklink_crypto::eth_signer::pk_signer::PrivateKeySigner;
+    use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
+    use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+    use zklink_signers::zklink_signer::public_key::PackedPublicKey;
 
     #[test]
     fn test_get_bytes() {
@@ -202,7 +202,7 @@ mod test {
             BigUint::from_str("100000").unwrap(),
             BigUint::from_str("100").unwrap(),
             Nonce(1),
-            ts.into()
+            ts.into(),
         );
         //check l2 signature
         tx.signature = ZkLinkSignature::from_hex(&signature).unwrap();
@@ -220,7 +220,7 @@ mod test {
         let recover_address = l1_signature.signature_recover_signer(&message).unwrap();
         let private_key = PrivateKeySigner::new(&private_key_str).unwrap();
         let address = private_key.get_address().unwrap();
-        assert_eq!(pubkey_hash,recover_pubkey_hash);
-        assert_eq!(address,recover_address);
+        assert_eq!(pubkey_hash, recover_pubkey_hash);
+        assert_eq!(address, recover_address);
     }
 }

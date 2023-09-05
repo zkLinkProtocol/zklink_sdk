@@ -10,12 +10,12 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
 use validator::Validate;
+use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 #[cfg(not(feature = "ffi"))]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_signers::zklink_signer::utils::rescue_hash_orders;
-use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 /// `OrderMatching` transaction was used to match two orders.
 #[derive(Default, Debug, Clone, Serialize, Deserialize, Validate)]

@@ -8,6 +8,7 @@ use num::{BigUint, Zero};
 use parity_crypto::Keccak256;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
+use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_signers::eth_signer::eip712::eip712::{eip712_typed_data, EIP712Domain};
 use zklink_signers::eth_signer::eip712::{BytesM, Uint};
 use zklink_signers::eth_signer::error::EthSignerError;
@@ -18,7 +19,6 @@ use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
-use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 //todo: starknet
 // #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -290,14 +290,12 @@ impl From<&ChangePubKey> for EIP712ChangePubKey {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::str::FromStr;
     use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 
     #[test]
     fn test_get_bytes_onchain() {
         let eth_private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
         let zk_signer = ZkLinkSigner::new_from_hex_eth_signer(eth_private_key).unwrap();
-        let pub_key = zk_signer.public_key().as_hex();
         let pub_key_hash = zk_signer.public_key().public_key_hash();
         let ts = 1693472232u32;
         let change_pubkey = ChangePubKey::new(
