@@ -6,7 +6,6 @@ publish = false
 
 [dependencies]
 async-trait = "0.1"
-ethers = "2.0.2"
 ethers_primitives =  "0.2.2"
 franklin_crypto = { package = "franklin-crypto", git = "https://github.com/matter-labs/franklin-crypto.git", branch = "beta" }
 hex = "0.4"
@@ -31,7 +30,6 @@ ffi = []
 [dev-dependencies]
 actix-rt = "2.7"
 actix-web = "4.2"
-ethers = "2.0.2"
 ethers_primitives =  "0.2.2"
 futures = "0.3"
 serde_eip712 = "0.2.2"

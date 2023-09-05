@@ -1,9 +1,9 @@
 use crate::eth_signer::error::EthSignerError;
-use ethers::utils::keccak256;
 use ethers_primitives::{Address, H256, U256};
 use serde::{Deserialize, Serialize};
 pub use serde_eip712::*;
 use std::collections::HashMap;
+use web3::signing::keccak256;
 
 ///
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -97,7 +97,7 @@ where
         })
     }
     pub fn sign_hash(&self) -> Result<H256, EthSignerError> {
-        Ok(keccak256(self.encode()?).into())
+        Ok(keccak256(&self.encode()?).into())
     }
 
     pub fn encode(&self) -> Result<[u8; 66], EthSignerError> {
