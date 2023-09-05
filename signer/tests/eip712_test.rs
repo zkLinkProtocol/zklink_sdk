@@ -2,7 +2,7 @@ use ethers_primitives::Address;
 use serde::{Deserialize, Serialize};
 use serde_eip712::{eip712_encode_type, eip712_hash_struct, eip712_type_definitions};
 use serde_json::json;
-use zklink_signers::eth_signer::eip712::eip712::{eip712_typed_data, EIP712Domain, TypedData};
+use zklink_signers::eth_signer::eip712::eip712::{EIP712Domain, TypedData};
 
 #[test]
 fn test_mail() {
@@ -57,7 +57,10 @@ fn test_mail() {
     let expect_request: TypedData<Mail> =
         serde_json::from_str(include_str!("./eip712.json")).unwrap();
 
-    assert_eq!(eip712_typed_data(domain_1, mail).unwrap(), expect_request);
+    assert_eq!(
+        TypedData::<Mail>::new(domain_1, mail).unwrap(),
+        expect_request
+    );
 
     assert_eq!(
         hex::encode(expect_request.sign_hash().unwrap()),

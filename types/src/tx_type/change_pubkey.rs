@@ -9,7 +9,7 @@ use parity_crypto::Keccak256;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-use zklink_signers::eth_signer::eip712::eip712::{eip712_typed_data, EIP712Domain};
+use zklink_signers::eth_signer::eip712::eip712::{EIP712Domain, TypedData};
 use zklink_signers::eth_signer::eip712::{BytesM, Uint};
 use zklink_signers::eth_signer::error::EthSignerError;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
@@ -251,8 +251,9 @@ impl ChangePubKey {
         layer_one_chain_id: u32,
         verifying_contract: &ZkLinkAddress,
     ) -> Result<EthTypedData, EthSignerError> {
-        let domain = EIP712Domain::from_chain(layer_one_chain_id, verifying_contract.to_string())?;
-        let typed_data = eip712_typed_data::<EIP712ChangePubKey>(domain, self.into())?;
+        let domain =
+            EIP712Domain::new_zklink_domain(layer_one_chain_id, verifying_contract.to_string())?;
+        let typed_data = TypedData::<EIP712ChangePubKey>::new(domain, self.into())?;
         let raw_data = serde_json::to_string(&typed_data)
             .map_err(|e| EthSignerError::CustomError(format!("serialization error: {e:?}")))?;
         let data_hash = typed_data.sign_hash()?;
@@ -265,9 +266,8 @@ impl ChangePubKey {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename = "ChangePubKey")]
-#[serde(rename_all = "camelCase")]
-struct EIP712ChangePubKey {
+#[serde(rename = "ChangePubKey", rename_all = "camelCase")]
+pub struct EIP712ChangePubKey {
     pub_key_hash: BytesM<20>,
     nonce: Uint<32>,
     account_id: Uint<32>,

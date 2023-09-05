@@ -6,7 +6,6 @@ edition = "2021"
 
 [dependencies]
 jsonrpsee = { version = "0.15.1", features = ["server", "client", "macros"] }
-num = { version = "0.4.0", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 thiserror = "1.0"
 zklink_signers = { path = "../signer" }

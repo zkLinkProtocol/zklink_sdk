@@ -31,11 +31,11 @@ impl EIP712Domain {
             version,
             chain_id: U256::from(layer_one_chain_id),
             verifying_contract: Address::try_from(eth_contract_addr.as_str())
-                .map_err(|e| EthSignerError::CustomError(e.to_string()))?,
+                .map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?,
         })
     }
 
-    pub fn from_chain(
+    pub fn new_zklink_domain(
         layer_one_chain_id: u32,
         eth_contract_addr: String,
     ) -> Result<Self, EthSignerError> {
@@ -70,6 +70,32 @@ impl<M> TypedData<M>
 where
     M: Serialize,
 {
+    /// Create eth_signTypedData payload.
+    pub fn new(domain: EIP712Domain, value: M) -> Result<TypedData<M>, EthSignerError> {
+        // Get primary type.
+
+        let encode_type =
+            eip712_encode_type(&value).map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?;
+
+        let pos = encode_type.find('(').unwrap();
+
+        let primary_type = encode_type[..pos].to_string();
+
+        let mut type_definitions = eip712_type_definitions(&domain)
+            .map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?;
+
+        type_definitions.extend(
+            eip712_type_definitions(&value)
+                .map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?,
+        );
+
+        Ok(TypedData {
+            types: type_definitions,
+            primary_type,
+            domain,
+            message: value,
+        })
+    }
     pub fn sign_hash(&self) -> Result<H256, EthSignerError> {
         Ok(keccak256(self.encode()?).into())
     }
@@ -90,35 +116,4 @@ where
 
         Ok(buff)
     }
-}
-
-/// Create eth_signTypedData payload.
-pub fn eip712_typed_data<S: Serialize>(
-    domain: EIP712Domain,
-    value: S,
-) -> Result<TypedData<S>, EthSignerError> {
-    // Get primary type.
-
-    let encode_type =
-        eip712_encode_type(&value).map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?;
-
-    let pos = encode_type.find("(").unwrap();
-
-    let primary_type = encode_type[..pos].to_string();
-
-    let mut type_definitions = eip712_type_definitions(&domain)
-        .map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?;
-
-    type_definitions.extend(
-        eip712_type_definitions(&value)
-            .map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?
-            .into_iter(),
-    );
-
-    Ok(TypedData {
-        types: type_definitions,
-        primary_type,
-        domain,
-        message: value,
-    })
 }

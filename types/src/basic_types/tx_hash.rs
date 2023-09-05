@@ -30,7 +30,7 @@ impl TxHash {
     }
 
     pub fn from_hex(s: &str) -> Result<Self, Error> {
-        let hash = TxHash::from_str(&s).map_err(|_| Error::InvalidTxHash)?;
+        let hash = TxHash::from_str(s).map_err(|_| Error::InvalidTxHash)?;
         Ok(hash)
     }
 

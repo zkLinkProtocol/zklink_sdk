@@ -67,7 +67,7 @@ impl PackedEthSignature {
 
     pub fn as_hex(&self) -> String {
         let raw = self.serialize_packed();
-        format!("0x{}", hex::encode(&raw))
+        format!("0x{}", hex::encode(raw))
     }
 
     /// Signs message using ethereum private key, results are identical to signature created
