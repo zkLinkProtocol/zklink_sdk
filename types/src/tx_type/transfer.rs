@@ -218,7 +218,7 @@ mod test {
             .as_bytes()
             .to_vec();
         let recover_address = l1_signature.signature_recover_signer(&message).unwrap();
-        let private_key = PrivateKeySigner::new(&private_key_str).unwrap();
+        let private_key = PrivateKeySigner::try_from(private_key_str).unwrap();
         let address = private_key.get_address().unwrap();
         assert_eq!(pubkey_hash, recover_pubkey_hash);
         assert_eq!(address, recover_address);

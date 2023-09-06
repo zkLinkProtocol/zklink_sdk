@@ -1,4 +1,4 @@
-use crate::eth_signer::packed_eth_signature::PackedETHSignatureError;
+use crate::eth_signer::error::EthSignerError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -16,7 +16,7 @@ pub enum ZkSignerError {
     #[error("invalid public key hash:{0}")]
     InvalidPubkeyHash(String),
     #[error("invalid eth signature: {0}")]
-    PackedETHSignatureError(#[from] PackedETHSignatureError),
+    PackedETHSignatureError(#[from] EthSignerError),
 }
 
 impl ZkSignerError {

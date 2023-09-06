@@ -1,7 +1,6 @@
-use thiserror::Error;
-
+use crate::eth_signer::error::EthSignerError;
 use parity_crypto::{
-    publickey::{public_to_address, recover, sign, KeyPair, Signature as ETHSignature},
+    publickey::{public_to_address, recover, Signature as ETHSignature},
     Keccak256,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -28,25 +27,15 @@ use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct PackedEthSignature(pub ETHSignature);
 
-#[derive(Debug, Error)]
-pub enum PackedETHSignatureError {
-    #[error("Signature length mismatch")]
-    LengthMismatched,
-    #[error("Crypto Error: {0:?}")]
-    CryptoError(#[from] parity_crypto::publickey::Error),
-    #[error("Invalid eth signature string")]
-    InvalidSignatureStr,
-}
-
 impl PackedEthSignature {
     pub fn serialize_packed(&self) -> [u8; 65] {
         // adds 27 to v
         self.0.clone().into_electrum()
     }
 
-    pub fn deserialize_packed(bytes: &[u8]) -> Result<Self, PackedETHSignatureError> {
+    pub fn deserialize_packed(bytes: &[u8]) -> Result<Self, EthSignerError> {
         if bytes.len() != 65 {
-            return Err(PackedETHSignatureError::LengthMismatched);
+            return Err(EthSignerError::LengthMismatched);
         }
 
         let mut bytes_array = [0u8; 65];
@@ -59,9 +48,9 @@ impl PackedEthSignature {
         Ok(PackedEthSignature(ETHSignature::from(bytes_array)))
     }
 
-    pub fn from_hex(s: &str) -> Result<Self, PackedETHSignatureError> {
+    pub fn from_hex(s: &str) -> Result<Self, EthSignerError> {
         let s = s.strip_prefix("0x").unwrap_or(s);
-        let raw = hex::decode(s).map_err(|_e| PackedETHSignatureError::InvalidSignatureStr)?;
+        let raw = hex::decode(s).map_err(|_e| EthSignerError::InvalidSignatureStr)?;
         Self::deserialize_packed(&raw)
     }
 
@@ -70,28 +59,7 @@ impl PackedEthSignature {
         format!("0x{}", hex::encode(raw))
     }
 
-    /// Signs message using ethereum private key, results are identical to signature created
-    /// using `geth`, `ethecore/lib/types/src/gas_counter.rsrs.js`, etc. No hashing and prefixes required.
-    pub fn sign(
-        private_key: &H256,
-        msg: &[u8],
-    ) -> Result<PackedEthSignature, PackedETHSignatureError> {
-        let secret_key = (*private_key).into();
-        let signed_bytes = Self::message_to_signed_bytes(msg);
-        let signature = sign(&secret_key, &signed_bytes)?;
-        Ok(PackedEthSignature(signature))
-    }
-
-    pub fn sign_byted_data(
-        private_key: &H256,
-        msg: &H256,
-    ) -> Result<PackedEthSignature, PackedETHSignatureError> {
-        let secret_key = (*private_key).into();
-        let signature = sign(&secret_key, msg)?;
-        Ok(PackedEthSignature(signature))
-    }
-
-    fn message_to_signed_bytes(msg: &[u8]) -> H256 {
+    pub fn message_to_signed_bytes(msg: &[u8]) -> H256 {
         let prefix = format!("\x19Ethereum Signed Message:\n{}", msg.len());
         let mut bytes = Vec::with_capacity(prefix.len() + msg.len());
         bytes.extend_from_slice(prefix.as_bytes());
@@ -102,17 +70,12 @@ impl PackedEthSignature {
     /// Checks signature and returns ethereum address of the signer.
     /// message should be the same message that was passed to `eth.sign`(or similar) method
     /// as argument. No hashing and prefixes required.
-    pub fn signature_recover_signer(&self, msg: &[u8]) -> Result<Address, PackedETHSignatureError> {
+    pub fn signature_recover_signer(&self, msg: &[u8]) -> Result<Address, EthSignerError> {
         let signed_bytes = Self::message_to_signed_bytes(msg);
-        let public_key = recover(&self.0, &signed_bytes)?;
-        Ok(public_to_address(&public_key))
-    }
+        let public_key = recover(&self.0, &signed_bytes)
+            .map_err(|err| EthSignerError::RecoverAddress(err.to_string()))?;
 
-    /// Get Ethereum address from private key.
-    pub fn address_from_private_key(
-        private_key: &H256,
-    ) -> Result<Address, PackedETHSignatureError> {
-        Ok(KeyPair::from_secret((*private_key).into())?.address())
+        Ok(public_to_address(&public_key))
     }
 }
 

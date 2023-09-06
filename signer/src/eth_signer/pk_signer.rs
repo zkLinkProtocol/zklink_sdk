@@ -1,7 +1,7 @@
 use super::packed_eth_signature::PackedEthSignature;
 use super::raw_tx::{RawTransaction, Transaction};
 use super::EthSignerError;
-use crate::eth_signer::EthTypedData;
+use parity_crypto::publickey::{sign, KeyPair};
 
 use secp256k1::SecretKey;
 use web3::types::{Address, H256};
@@ -18,28 +18,17 @@ impl std::fmt::Debug for PrivateKeySigner {
 }
 
 impl PrivateKeySigner {
-    pub fn new(private_key: &str) -> Result<Self, EthSignerError> {
-        let s = private_key.strip_prefix("0x").unwrap_or(private_key);
-        let raw = hex::decode(s).map_err(|_| EthSignerError::InvalidEthSigner)?;
-        if raw.len() != 32 {
-            return Err(EthSignerError::InvalidEthSigner);
+    pub fn random() -> Self {
+        Self {
+            private_key: H256::random(),
         }
-        let private_key = H256::from_slice(&raw);
-        Ok(Self { private_key })
     }
 
     /// Get Ethereum address that matches the private key.
     pub fn get_address(&self) -> Result<Address, EthSignerError> {
-        PackedEthSignature::address_from_private_key(&self.private_key)
-            .map_err(|_| EthSignerError::DefineAddress)
-    }
-
-    /// The sign method calculates an Ethereum specific signature with:
-    /// sign(keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))).
-    pub fn sign_message(&self, message: &[u8]) -> Result<PackedEthSignature, EthSignerError> {
-        let pack = PackedEthSignature::sign(&self.private_key, message)
-            .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;
-        Ok(pack)
+        Ok(KeyPair::from_secret((self.private_key).into())
+            .map_err(|_| EthSignerError::DefineAddress)?
+            .address())
     }
 
     /// Signs and returns the RLP-encoded transaction.
@@ -66,13 +55,46 @@ impl PrivateKeySigner {
         Ok(signed.raw_transaction.0)
     }
 
-    pub fn sign_typed_data(
-        &self,
-        msg: &EthTypedData,
-    ) -> Result<PackedEthSignature, EthSignerError> {
-        let pack = PackedEthSignature::sign_byted_data(&self.private_key, &msg.data_hash)
+    /// The sign method calculates an Ethereum specific signature with:
+    /// sign(keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))).
+    /// Signs message using ethereum private key, results are identical to signature created
+    /// using `geth`, `ethecore/lib/types/src/gas_counter.rsrs.js`, etc. No hashing and prefixes required.
+    pub fn sign_message(&self, msg: &[u8]) -> Result<PackedEthSignature, EthSignerError> {
+        let secret_key = self.private_key.into();
+        let signed_bytes = PackedEthSignature::message_to_signed_bytes(msg);
+        let signature = sign(&secret_key, &signed_bytes)
             .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;
-        Ok(pack)
+        Ok(PackedEthSignature(signature))
+    }
+
+    pub fn sign_byted_data(&self, msg: &H256) -> Result<PackedEthSignature, EthSignerError> {
+        let secret_key = self.private_key.into();
+        let signature =
+            sign(&secret_key, msg).map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;
+
+        Ok(PackedEthSignature(signature))
+    }
+}
+
+impl TryFrom<&str> for PrivateKeySigner {
+    type Error = EthSignerError;
+
+    fn try_from(private_key: &str) -> Result<Self, Self::Error> {
+        let s = private_key.strip_prefix("0x").unwrap_or(private_key);
+        let raw = hex::decode(s).map_err(|_| EthSignerError::InvalidEthSigner)?;
+        if raw.len() != 32 {
+            return Err(EthSignerError::InvalidEthSigner);
+        }
+        let private_key = H256::from_slice(&raw);
+        Ok(Self { private_key })
+    }
+}
+
+impl From<&H256> for PrivateKeySigner {
+    fn from(private_key: &H256) -> Self {
+        Self {
+            private_key: *private_key,
+        }
     }
 }
 
@@ -86,7 +108,7 @@ mod test {
     async fn test_generating_signed_raw_transaction() {
         let private_key = H256::from([5; 32]);
         let private_key = hex::encode(private_key.as_bytes());
-        let signer = PrivateKeySigner::new(&private_key).unwrap();
+        let signer = PrivateKeySigner::try_from(private_key.as_str()).unwrap();
         let raw_transaction = RawTransaction {
             nonce: U256::from(1u32),
             to: Some(H160::default()),

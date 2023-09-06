@@ -1,6 +1,6 @@
 use super::error::ZkSignerError as Error;
 use super::{JUBJUB_PARAMS, RESCUE_PARAMS};
-use crate::eth_signer::packed_eth_signature::PackedEthSignature;
+
 use crate::zklink_signer::public_key::PackedPublicKey;
 use crate::zklink_signer::signature::{PackedSignature, ZkLinkSignature};
 use crate::zklink_signer::utils;
@@ -13,6 +13,8 @@ use once_cell::sync::OnceCell;
 use sha2::{Digest, Sha256};
 use std::fmt;
 use web3::types::H256;
+
+use crate::eth_signer::pk_signer::PrivateKeySigner;
 
 pub struct ZkLinkSigner(EddsaPrivKey<Engine>);
 
@@ -39,7 +41,8 @@ impl ZkLinkSigner {
         "Sign this message to create a key to interact with zkLink's layer2 services.\nNOTE: This application is powered by zkLink protocol.\n\nOnly sign this message for a trusted client!";
     pub fn new() -> Result<Self, Error> {
         let eth_pk = H256::random();
-        let signature = PackedEthSignature::sign(&eth_pk, Self::SIGN_MESSAGE.as_bytes())?;
+        let eth_signer = PrivateKeySigner::from(&eth_pk);
+        let signature = eth_signer.sign_message(Self::SIGN_MESSAGE.as_bytes())?;
         let seed = signature.serialize_packed();
         Self::new_from_seed(&seed)
     }
@@ -75,16 +78,8 @@ impl ZkLinkSigner {
     }
 
     pub fn new_from_hex_eth_signer(eth_hex_private_key: &str) -> Result<Self, Error> {
-        let eth_private_key = eth_hex_private_key
-            .strip_prefix("0x")
-            .unwrap_or(eth_hex_private_key);
-        let hex_privkey = hex::decode(eth_private_key)
-            .map_err(|_| Error::invalid_privkey("invalid eth private key"))?;
-        if hex_privkey.len() != 32 {
-            return Err(Error::InvalidPrivKey("invalid eth private key".into()));
-        }
-        let eth_pk = H256::from_slice(&hex_privkey);
-        let signature = PackedEthSignature::sign(&eth_pk, Self::SIGN_MESSAGE.as_bytes())?;
+        let eth_signer = PrivateKeySigner::try_from(eth_hex_private_key)?;
+        let signature = eth_signer.sign_message(Self::SIGN_MESSAGE.as_bytes())?;
         let seed = signature.serialize_packed();
         Self::new_from_seed(&seed)
     }

@@ -33,6 +33,12 @@ pub enum EthSignerError {
     DefineAddress,
     #[error("Recover address from signature failed: {0}")]
     RecoverAddress(String),
+    #[error("Signature length mismatch")]
+    LengthMismatched,
+    #[error("Crypto Error")]
+    CryptoError,
+    #[error("Invalid eth signature string")]
+    InvalidSignatureStr,
     #[error("{0}")]
     CustomError(String),
 }

@@ -406,11 +406,13 @@ mod tests {
     use jsonrpc_core::{Failure, Id, Output, Success, Version};
     use parity_crypto::publickey::{Generator, KeyPair, Random};
     use serde_json::json;
+    use std::ops::Deref;
 
     use super::{is_signature_from_address, messages::JsonRpcRequest};
     use crate::eth_signer::eth_signature::TxEthSignature;
     use crate::eth_signer::json_rpc_signer::JsonRpcSigner;
-    use crate::eth_signer::packed_eth_signature::PackedEthSignature;
+
+    use crate::eth_signer::pk_signer::PrivateKeySigner;
     use crate::eth_signer::{EthereumSigner, RawTransaction};
     use web3::types::Address;
 
@@ -430,8 +432,8 @@ mod tests {
                 let _address: Address = serde_json::from_value(req.params[0].clone()).unwrap();
                 let data: String = serde_json::from_value(req.params[1].clone()).unwrap();
                 let data_bytes = hex::decode(&data[2..]).unwrap();
-                let signature =
-                    PackedEthSignature::sign(state.key_pairs[0].secret(), &data_bytes).unwrap();
+                let signer = PrivateKeySigner::from(state.key_pairs[0].secret().deref());
+                let signature = signer.sign_message(&data_bytes).unwrap();
                 create_success(json!(signature))
             }
             "eth_signTransaction" => {
