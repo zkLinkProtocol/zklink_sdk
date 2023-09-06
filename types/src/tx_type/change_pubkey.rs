@@ -296,7 +296,8 @@ mod test {
     fn test_get_bytes_onchain() {
         let eth_private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
         let zk_signer = ZkLinkSigner::new_from_hex_eth_signer(eth_private_key).unwrap();
-        let pub_key_hash = zk_signer.public_key().public_key_hash();
+        let pub_key = zk_signer.public_key();
+        let pub_key_hash = pub_key.public_key_hash();
         let ts = 1693472232u32;
         let change_pubkey = ChangePubKey::new(
             ChainId(1),

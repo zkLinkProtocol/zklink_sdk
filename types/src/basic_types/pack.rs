@@ -139,54 +139,18 @@ mod test {
         ));
     }
 
-    // #[test]
-    // fn pack_to_closest_packable() {
-    //     let fee = BigUint::from(1_234_123_424u32);
-    //     assert!(
-    //         !is_fee_amount_packable(&fee),
-    //         "fee should not be packable for this test"
-    //     );
-    //     let closest_packable_fee = closest_packable_fee_amount(&fee);
-    //     assert!(
-    //         is_fee_amount_packable(&closest_packable_fee),
-    //         "repacked fee should be packable"
-    //     );
-    //     assert_ne!(
-    //         closest_packable_fee,
-    //         BigUint::from(0u32),
-    //         "repacked fee should not be 0"
-    //     );
-    //     assert!(
-    //         closest_packable_fee < fee,
-    //         "packable fee should be less then original"
-    //     );
-    //     println!(
-    //         "fee: original: {}, truncated: {}",
-    //         fee, closest_packable_fee
-    //     );
-    //
-    //     let token = BigUint::from(123_456_789_123_456_789u64);
-    //     assert!(
-    //         !is_token_amount_packable(&token),
-    //         "token should not be packable for this test"
-    //     );
-    //     let closest_packable_token = closest_packable_token_amount(&token);
-    //     assert!(
-    //         is_token_amount_packable(&closest_packable_token),
-    //         "repacked token amount should be packable"
-    //     );
-    //     assert_ne!(
-    //         closest_packable_token,
-    //         BigUint::from(0u32),
-    //         "repacked token should not be 0"
-    //     );
-    //     assert!(
-    //         closest_packable_token < token,
-    //         "packable token should be less then original"
-    //     );
-    //     println!(
-    //         "token: original: {}, packable: {}",
-    //         token, closest_packable_token
-    //     );
-    // }
+    #[test]
+    fn pack_to_closest_packable() {
+        let fee = BigUint::from(1_234_123_424u32);
+        assert!(
+            !is_fee_amount_packable(&fee),
+            "fee should not be packable for this test"
+        );
+
+        let token = BigUint::from(123_456_789_123_456_789u64);
+        assert!(
+            !is_token_amount_packable(&token),
+            "token should not be packable for this test"
+        );
+    }
 }

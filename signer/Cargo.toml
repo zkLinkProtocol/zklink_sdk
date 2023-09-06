@@ -30,7 +30,5 @@ ffi = []
 [dev-dependencies]
 actix-rt = "2.7"
 actix-web = "4.2"
-ethers_primitives =  "0.2.2"
 futures = "0.3"
-serde_eip712 = "0.2.2"
 tokio = { version = "1", features = ["full"] }
