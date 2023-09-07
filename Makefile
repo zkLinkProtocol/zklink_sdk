@@ -1,6 +1,6 @@
 lint:
 	cargo fmt
-	cargo clippy
+	cargo clippy --all-targets
 	cargo sort
 	bash -c "cd ./interface && cargo sort"
 	bash -c "cd ./types && cargo sort"
@@ -12,7 +12,7 @@ lint:
 
 lint-check:
 	cargo fmt -- --check
-	cargo clippy
+	cargo clippy  --all-targets
 	cargo sort --check
 	bash -c "cd ./interface && cargo sort --check"
 	bash -c "cd ./types && cargo sort --check"
@@ -27,7 +27,7 @@ install_tool:
 	cargo install cargo-sort cargo-machete
 
 build:
-	cargo build
+	cargo build --all-targets
 
 clean:
 	cargo clean

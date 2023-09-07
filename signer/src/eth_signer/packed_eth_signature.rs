@@ -1,10 +1,10 @@
 use crate::eth_signer::error::EthSignerError;
+use crate::eth_signer::{Address, H256};
 use parity_crypto::{
     publickey::{public_to_address, recover, Signature as ETHSignature},
     Keccak256,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use web3::types::{Address, H256};
 use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
 
 /// Struct used for working with ethereum signatures created using eth_sign (using geth, ethers.js, etc)

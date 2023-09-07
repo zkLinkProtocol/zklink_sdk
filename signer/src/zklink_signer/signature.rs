@@ -178,7 +178,7 @@ mod test {
     #[test]
     fn test_signature() {
         let eth_private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
-        let zk_signer = ZkLinkSigner::new_from_hex_eth_signer(&eth_private_key).unwrap();
+        let zk_signer = ZkLinkSigner::new_from_hex_eth_signer(eth_private_key).unwrap();
         let msg = b"hello world";
         let signature = zk_signer.sign_musig(msg).unwrap();
         let verify = signature.verify_musig(msg).unwrap();

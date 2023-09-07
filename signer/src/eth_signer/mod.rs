@@ -10,9 +10,9 @@ pub mod raw_tx;
 use async_trait::async_trait;
 use error::EthSignerError;
 use eth_signature::TxEthSignature;
+pub use primitive_types::{H160, H256};
 use raw_tx::RawTransaction;
-use web3::types::Address;
-pub use web3::types::H256;
+pub type Address = H160;
 
 #[derive(Debug, Clone)]
 pub struct EthTypedData {

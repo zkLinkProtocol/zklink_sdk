@@ -1,6 +1,7 @@
 use super::error::ZkSignerError as Error;
 use super::{JUBJUB_PARAMS, RESCUE_PARAMS};
 
+use crate::eth_signer::H256;
 use crate::zklink_signer::public_key::PackedPublicKey;
 use crate::zklink_signer::signature::{PackedSignature, ZkLinkSignature};
 use crate::zklink_signer::utils;
@@ -12,7 +13,6 @@ use franklin_crypto::eddsa::{PrivateKey as FLPrivateKey, PrivateKey, PublicKey, 
 use once_cell::sync::OnceCell;
 use sha2::{Digest, Sha256};
 use std::fmt;
-use web3::types::H256;
 
 use crate::eth_signer::pk_signer::PrivateKeySigner;
 

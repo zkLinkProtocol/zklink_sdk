@@ -3,8 +3,8 @@ use super::raw_tx::{RawTransaction, Transaction};
 use super::EthSignerError;
 use parity_crypto::publickey::{sign, KeyPair};
 
+use crate::eth_signer::{Address, H256};
 use secp256k1::SecretKey;
-use web3::types::{Address, H256};
 
 #[derive(Clone)]
 pub struct PrivateKeySigner {

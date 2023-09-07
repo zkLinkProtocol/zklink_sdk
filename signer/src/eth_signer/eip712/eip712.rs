@@ -1,5 +1,6 @@
 use crate::eth_signer::error::EthSignerError;
-use ethers_primitives::{Address, H256, U256};
+use crate::eth_signer::H256;
+use ethers_primitives::{Address, U256};
 use serde::{Deserialize, Serialize};
 pub use serde_eip712::*;
 use std::collections::HashMap;

@@ -5,10 +5,10 @@ mod crypto;
 mod type_convert;
 
 use crate::crypto::{get_public_key_hash, verify_musig};
-
 use zklink_signers::eth_signer::error::EthSignerError;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+use zklink_signers::eth_signer::H256;
 
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
@@ -21,7 +21,7 @@ use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::zklink_address::ZkLinkAddress;
 use zklink_types::basic_types::{
     AccountId, BigUint, BlockNumber, ChainId, EthBlockId, Nonce, PairId, PriorityOpId, SlotId,
-    SubAccountId, TimeStamp, TokenId, H256,
+    SubAccountId, TimeStamp, TokenId,
 };
 use zklink_types::tx_type::change_pubkey::ChangePubKey;
 use zklink_types::tx_type::change_pubkey::Create2Data;

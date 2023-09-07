@@ -205,16 +205,16 @@ mod test {
             ts.into(),
         );
         //check l2 signature
-        tx.signature = ZkLinkSignature::from_hex(&signature).unwrap();
+        tx.signature = ZkLinkSignature::from_hex(signature).unwrap();
         let recover_pubkey_hash = tx.verify_signature().unwrap();
-        let pubkey = PackedPublicKey::from_hex(&public_key_str).unwrap();
+        let pubkey = PackedPublicKey::from_hex(public_key_str).unwrap();
         let pubkey_hash = pubkey.public_key_hash();
 
         //check l1 signature
-        let l1_signature = PackedEthSignature::from_hex(&eth_signature).unwrap();
+        let l1_signature = PackedEthSignature::from_hex(eth_signature).unwrap();
         let token_symbol = "USDC";
         let message = tx
-            .get_ethereum_sign_message(&token_symbol)
+            .get_ethereum_sign_message(token_symbol)
             .as_bytes()
             .to_vec();
         let recover_address = l1_signature.signature_recover_signer(&message).unwrap();

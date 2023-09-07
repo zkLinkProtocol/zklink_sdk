@@ -1,8 +1,8 @@
 use crate::{
     AccountId, BlockNumber, ChainId, EthBlockId, Nonce, PairId, PriorityOpId, SlotId, SubAccountId,
-    TimeStamp, TokenId, TypeError, UniffiCustomTypeConverter, H256,
+    TimeStamp, TokenId, TypeError, UniffiCustomTypeConverter,
 };
-
+use zklink_signers::eth_signer::H256;
 macro_rules! ffi_num_convert {
     ($(#[$attr:meta])* $name:ident, $type:ty) => {
         impl UniffiCustomTypeConverter for $name {
@@ -55,6 +55,7 @@ ffi_num_hex_convert!(H256, 32);
 #[cfg(test)]
 mod test {
     use super::*;
+    use zklink_signers::eth_signer::H256;
 
     #[test]
     fn test_convert() {

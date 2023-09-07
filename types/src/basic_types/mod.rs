@@ -8,7 +8,6 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
-pub use primitive_types::{H160, H256, U128, U256};
 pub use zklink_address::ZkLinkAddress;
 
 #[macro_use]
