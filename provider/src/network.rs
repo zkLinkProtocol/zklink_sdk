@@ -14,8 +14,8 @@ pub enum Network {
 impl Network {
     pub fn url(&self) -> &str {
         match self {
-            Network::MainNet => "https://api-v1.zk.link:443",
-            Network::TestNet => "https://aws-gw-v2.zk.link:443",
+            Network::MainNet => "https://api-v1.zk.link",
+            Network::TestNet => "https://aws-gw-v2.zk.link",
             Network::DevNet => "http://127.0.0.1:3030",
         }
     }

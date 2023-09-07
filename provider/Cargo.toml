@@ -17,3 +17,7 @@ zklink_types = { path = "../types" }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
+
+[features]
+default = []
+ffi = []

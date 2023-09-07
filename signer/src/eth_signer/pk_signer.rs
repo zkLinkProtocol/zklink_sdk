@@ -18,7 +18,12 @@ impl std::fmt::Debug for PrivateKeySigner {
 }
 
 impl PrivateKeySigner {
-    pub fn random() -> Self {
+    #[cfg(feature = "ffi")]
+    pub fn new(s: &str) -> Result<Self, EthSignerError> {
+        s.try_into()
+    }
+
+    pub fn rand() -> Self {
         Self {
             private_key: H256::random(),
         }

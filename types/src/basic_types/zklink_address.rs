@@ -1,7 +1,6 @@
 //! Common primitives for the layer1 blockchain network interaction.
 use crate::basic_types::error::TypeError as Error;
 use parity_crypto::publickey::Address;
-use primitive_types::H160;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt::{Debug, Formatter};
 use std::str::FromStr;
@@ -52,7 +51,7 @@ impl ZkLinkAddress {
 
     /// According to Rng, it will randomly generate a ZklinkAddress.
     pub fn rand() -> Self {
-        ZkLinkAddress::from(H160::random().to_fixed_bytes())
+        ZkLinkAddress::from(Address::random().to_fixed_bytes())
     }
 }
 

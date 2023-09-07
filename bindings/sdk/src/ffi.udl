@@ -196,11 +196,14 @@ enum EthSignerError {
     "MissingEthSigner",
     "SigningFailed",
     "UnlockingFailed",
-    "DecodeRawTxFailed",
+    "InvalidRawTx",
     "Eip712Failed",
     "NoSigningKey",
     "DefineAddress",
     "RecoverAddress",
+    "LengthMismatched",
+    "CryptoError",
+    "InvalidSignatureStr",
     "CustomError",
 };
 
@@ -266,6 +269,18 @@ enum SignError {
 
 [Custom]
 typedef string TxSignature;
+
+// ============================  rpc response ============================
+dictionary  ChainResp {
+    ChainId chain_id;
+    u8 chain_type;
+    u32 layer_one_chain_id;
+    ZkLinkAddress main_contract;
+    ZkLinkAddress layer_zero_contract;
+    string web3_url;
+    TokenId  gas_token_id;
+    ZkLinkAddress validator;
+};
 
 
 // ============================  namespace ============================

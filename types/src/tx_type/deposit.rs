@@ -1,10 +1,10 @@
 use super::validator::*;
 use crate::basic_types::{ChainId, SubAccountId, TokenId, ZkLinkAddress};
 use num::BigUint;
+use primitive_types::H256;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-use zklink_signers::eth_signer::H256;
 
 /// `Mapping` transaction performs a move of funds from one zklink account to another.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]

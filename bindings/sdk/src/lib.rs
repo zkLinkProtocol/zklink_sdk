@@ -42,4 +42,6 @@ use zklink_interface::sign_withdraw::sign_withdraw;
 use zklink_interface::ChangePubKeyAuthRequest;
 use zklink_interface::TxSignature;
 
+use zklink_provider::response::ChainResp;
+
 include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));

@@ -10,7 +10,6 @@ use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::{
     AccountId, BlockNumber, ChainId, Nonce, SlotId, SubAccountId, TokenId, ZkLinkAddress, H256,
-    U256,
 };
 use zklink_types::tx_type::zklink_tx::ZkLinkTx;
 
@@ -27,7 +26,6 @@ pub struct ChainResp {
     pub main_contract: ZkLinkAddress,
     pub layer_zero_contract: ZkLinkAddress,
     pub web3_url: String,
-    pub fee_cap: U256,
     pub gas_token_id: TokenId,
     pub validator: ZkLinkAddress,
 }

@@ -104,7 +104,7 @@ impl EthereumSigner for JsonRpcSigner {
             .map(|value| &value["0x".len()..]);
 
         if let Some(raw_tx) = raw_tx {
-            hex::decode(raw_tx).map_err(|err| EthSignerError::DecodeRawTxFailed(err.to_string()))
+            hex::decode(raw_tx).map_err(|err| EthSignerError::InvalidRawTx(err.to_string()))
         } else {
             Err(EthSignerError::DefineAddress)
         }

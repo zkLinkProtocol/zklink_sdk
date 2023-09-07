@@ -12,8 +12,8 @@ use error::EthSignerError;
 use eth_signature::TxEthSignature;
 use raw_tx::RawTransaction;
 use web3::types::Address;
-
 pub use web3::types::H256;
+
 #[derive(Debug, Clone)]
 pub struct EthTypedData {
     pub raw_data: String,
