@@ -50,7 +50,7 @@ impl ZkLinkAddress {
     }
 
     /// According to Rng, it will randomly generate a ZklinkAddress.
-    pub fn rand() -> Self {
+    pub fn random() -> Self {
         ZkLinkAddress::from(Address::random().to_fixed_bytes())
     }
 }

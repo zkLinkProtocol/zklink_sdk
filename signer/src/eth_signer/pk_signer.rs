@@ -23,7 +23,7 @@ impl PrivateKeySigner {
         s.try_into()
     }
 
-    pub fn rand() -> Self {
+    pub fn random() -> Self {
         Self {
             private_key: H256::random(),
         }
