@@ -160,6 +160,11 @@ impl Order {
         out
     }
 
+    #[cfg(feature = "ffi")]
+    pub fn json_str(&self) -> String {
+        serde_json::to_string(&self).unwrap()
+    }
+
     pub fn get_ethereum_sign_message(
         &self,
         quote_token: &str,
@@ -272,6 +277,11 @@ impl OrderMatching {
         out.extend_from_slice(&self.expect_base_amount.to_u128().unwrap().to_be_bytes());
         out.extend_from_slice(&self.expect_quote_amount.to_u128().unwrap().to_be_bytes());
         out
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn json_str(&self) -> String {
+        serde_json::to_string(&self).unwrap()
     }
 
     #[cfg(not(feature = "ffi"))]

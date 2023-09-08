@@ -210,6 +210,11 @@ impl ChangePubKey {
         self.signature.clone()
     }
 
+    #[cfg(feature = "ffi")]
+    pub fn json_str(&self) -> String {
+        serde_json::to_string(&self).unwrap()
+    }
+
     pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
         self.signature.verify_musig(&self.get_bytes())
     }

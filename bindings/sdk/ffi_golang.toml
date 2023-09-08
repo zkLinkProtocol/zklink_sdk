@@ -10,3 +10,16 @@ into_custom = """
     return *n
 """
 from_custom = "{}.String()"
+
+[bindings.go.custom_types.BigDecimal]
+imports = ["math/big"]
+type_name = "big.Decimal"
+into_custom = """
+    n := new(big.Decimal)
+    n, ok := n.SetString({}, 10)
+    if !ok {
+        panic("invalid big decimal")
+    }
+    return *n
+"""
+from_custom = "{}.String()"

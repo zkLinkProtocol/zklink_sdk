@@ -17,6 +17,7 @@ zklink_types = { path = "../types" }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
+serde_json = "1.0"
 
 [features]
 default = []

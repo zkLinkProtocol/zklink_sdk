@@ -106,6 +106,11 @@ impl Transfer {
     }
 
     #[cfg(feature = "ffi")]
+    pub fn json_str(&self) -> String {
+        serde_json::to_string(&self).unwrap()
+    }
+
+    #[cfg(feature = "ffi")]
     pub fn signature(&self) -> ZkLinkSignature {
         self.signature.clone()
     }

@@ -61,6 +61,12 @@ impl FullExit {
         out
     }
 
+
+    #[cfg(feature = "ffi")]
+    pub fn json_str(&self) -> String {
+        serde_json::to_string(&self).unwrap()
+    }
+
     pub fn is_validate(&self) -> bool {
         self.validate().is_ok()
     }

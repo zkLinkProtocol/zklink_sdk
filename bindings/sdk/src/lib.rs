@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 mod crypto;
 mod type_convert;
+use bigdecimal::BigDecimal;
 
 use crate::crypto::{get_public_key_hash, verify_musig};
 use zklink_signers::eth_signer::error::EthSignerError;
@@ -42,6 +43,6 @@ use zklink_interface::sign_withdraw::sign_withdraw;
 use zklink_interface::ChangePubKeyAuthRequest;
 use zklink_interface::TxSignature;
 
-use zklink_provider::response::ChainResp;
+use zklink_provider::response::{ChainResp, TokenResp, ChainTokenResp, BlockNumberResp};
 
 include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));

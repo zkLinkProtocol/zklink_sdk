@@ -9,6 +9,7 @@ path = "src/lib.rs"
 crate-type = ["cdylib", "staticlib", "lib"]
 
 [dependencies]
+bigdecimal = "0.3"
 hex = "0.4"
 serde_json = "1.0"
 uniffi = "0.23"
