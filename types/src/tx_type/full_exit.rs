@@ -32,7 +32,7 @@ impl FullExit {
     /// in some cases (e.g. when restoring the network state from the L1 contract data).
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        chain_id: u8,
+        to_chain_id: ChainId,
         account_id: AccountId,
         sub_account_id: SubAccountId,
         exit_address: ZkLinkAddress,
@@ -42,7 +42,7 @@ impl FullExit {
         eth_hash: H256,
     ) -> Self {
         Self {
-            to_chain_id: ChainId(chain_id),
+            to_chain_id,
             account_id,
             sub_account_id,
             exit_address,
@@ -60,7 +60,6 @@ impl FullExit {
         out.extend_from_slice(self.eth_hash.as_bytes());
         out
     }
-
 
     #[cfg(feature = "ffi")]
     pub fn json_str(&self) -> String {

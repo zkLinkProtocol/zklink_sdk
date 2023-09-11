@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 mod crypto;
 mod type_convert;
-use bigdecimal::BigDecimal;
+
+use chrono::{DateTime, Utc};
 
 use crate::crypto::{get_public_key_hash, verify_musig};
 use zklink_signers::eth_signer::error::EthSignerError;
@@ -28,6 +29,7 @@ use zklink_types::tx_type::change_pubkey::ChangePubKey;
 use zklink_types::tx_type::change_pubkey::Create2Data;
 use zklink_types::tx_type::deposit::Deposit;
 use zklink_types::tx_type::forced_exit::ForcedExit;
+use zklink_types::tx_type::full_exit::FullExit;
 use zklink_types::tx_type::order_matching::Order;
 use zklink_types::tx_type::order_matching::OrderMatching;
 use zklink_types::tx_type::transfer::Transfer;
@@ -43,6 +45,6 @@ use zklink_interface::sign_withdraw::sign_withdraw;
 use zklink_interface::ChangePubKeyAuthRequest;
 use zklink_interface::TxSignature;
 
-use zklink_provider::response::{ChainResp, TokenResp, ChainTokenResp, BlockNumberResp};
+type TimeStampMicro = DateTime<Utc>;
 
 include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));

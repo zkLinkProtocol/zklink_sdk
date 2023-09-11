@@ -75,6 +75,7 @@ pub struct BlockResp {
     pub fee_account_id: AccountId,
     pub block_size: u64,
     pub ops_composition_number: u64,
+    #[serde(with = "ts_microseconds")]
     pub timestamp: DateTime<Utc>,
     pub transactions: Vec<TxHashOrDetailResp>,
 }

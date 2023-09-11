@@ -1,5 +1,4 @@
 use crate::{BigUint, UniffiCustomTypeConverter, ZkLinkAddress};
-use bigdecimal::BigDecimal;
 use std::str::FromStr;
 
 macro_rules! ffi_str_convert {
@@ -18,7 +17,6 @@ macro_rules! ffi_str_convert {
 }
 
 ffi_str_convert!(BigUint);
-ffi_str_convert!(BigDecimal);
 ffi_str_convert!(ZkLinkAddress);
 
 #[cfg(test)]

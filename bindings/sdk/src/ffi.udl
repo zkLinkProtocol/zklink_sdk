@@ -135,6 +135,23 @@ interface ForcedExit {
     boolean is_signature_valid();
 };
 
+
+interface FullExit {
+    constructor(
+        ChainId to_chain_id,
+        AccountId account_id,
+        SubAccountId sub_account_id,
+        ZkLinkAddress exit_address,
+        TokenId l2_source_token,
+        TokenId l1_target_token,
+        u64 serial_id,
+        H256 eth_hash
+    );
+    sequence<u8> get_bytes();
+    string json_str();
+    boolean is_validate();
+};
+
 interface Transfer {
     constructor(
         AccountId account_id,
@@ -278,51 +295,7 @@ typedef string TxSignature;
 
 // ============================  rpc response ============================
 [Custom]
-typedef string BigDecimal;
-
-dictionary  ChainResp {
-    ChainId chain_id;
-    u8 chain_type;
-    u32 layer_one_chain_id;
-    ZkLinkAddress main_contract;
-    ZkLinkAddress layer_zero_contract;
-    string web3_url;
-    TokenId  gas_token_id;
-    ZkLinkAddress validator;
-};
-
-dictionary TokenResp {
-   TokenId id;
-    string symbol;
-    BigDecimal usd_price;
-    record<ChainId, ChainTokenResp> chains;
-};
-
-dictionary ChainTokenResp {
-    ChainId chain_id;
-    ZkLinkAddress address;
-    u8 decimals;
-    boolean fast_withdraw;
-};
-
-dictionary BlockNumberResp {
-    u32 last_block_number;
-    u64 timestamp;
-    u32 committed;
-    u32 verified;
-};
-
-//dictionary BlockResp {
-//    BlockNumber number;
-//    H256 commitment;
-//    H256 root_hash ;
-//    AccountId fee_account_id ;
-//    u64 block_size ;
-//    u64 ops_composition_number ;
-//    DateTime<Utc> timestamp;
-//    Vec<TxHashOrDetailResp> transactions;
-//};
-
+typedef u64 TimeStampMicro;
 
 // ============================  namespace ============================
 namespace zklink_sdk {
