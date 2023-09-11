@@ -84,7 +84,7 @@ mod test {
             H256::from_str("0xe35f3a39d542f6d276c2f203e8fd64fcb8bf5db062b71ccacf45d5ecd9d456f3")
                 .unwrap();
         let full_exit = FullExit::new(
-            1,
+            ChainId(1),
             AccountId(10),
             SubAccountId(1),
             address,

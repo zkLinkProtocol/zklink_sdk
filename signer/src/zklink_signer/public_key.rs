@@ -7,6 +7,7 @@ use crate::zklink_signer::utils::{
 use crate::zklink_signer::{NEW_PUBKEY_HASH_WIDTH, PACKED_POINT_SIZE};
 use franklin_crypto::jubjub::edwards;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::fmt::{Display, Formatter};
 
 #[derive(Clone)]
 pub struct PackedPublicKey(pub(crate) EddsaPubkey<Engine>);
@@ -18,7 +19,13 @@ impl AsRef<EddsaPubkey<Engine>> for PackedPublicKey {
 }
 
 impl std::fmt::Debug for PackedPublicKey {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        Display::fmt(self, f)
+    }
+}
+
+impl Display for PackedPublicKey {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.as_hex())
     }
 }

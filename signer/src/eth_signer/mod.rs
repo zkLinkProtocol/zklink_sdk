@@ -13,6 +13,7 @@ use eth_signature::TxEthSignature;
 pub use primitive_types::{H160, H256};
 use raw_tx::RawTransaction;
 pub type Address = H160;
+pub use ethers_primitives::Address as EIP712Address;
 
 #[derive(Debug, Clone)]
 pub struct EthTypedData {
