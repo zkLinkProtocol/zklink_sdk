@@ -7,6 +7,8 @@ mod type_convert;
 use chrono::{DateTime, Utc};
 
 use crate::crypto::{get_public_key_hash, verify_musig};
+use crate::type_convert::json_convert::json_str_of_zklink_signature;
+
 use zklink_signers::eth_signer::error::EthSignerError;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
@@ -34,9 +36,10 @@ use zklink_types::tx_type::order_matching::Order;
 use zklink_types::tx_type::order_matching::OrderMatching;
 use zklink_types::tx_type::transfer::Transfer;
 use zklink_types::tx_type::withdraw::Withdraw;
+use zklink_types::tx_type::change_pubkey::ChangePubKeyAuthData;
 
 use zklink_interface::error::SignError;
-use zklink_interface::sign_change_pubkey::sign_change_pubkey;
+use zklink_interface::sign_change_pubkey::{eth_signature_of_change_pubkey, create_submitter_signature, create_signed_change_pubkey};
 use zklink_interface::sign_forced_exit::sign_forced_exit;
 use zklink_interface::sign_order::signed_order;
 use zklink_interface::sign_order_matching::sign_order_matching;

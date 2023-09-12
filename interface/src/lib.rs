@@ -19,7 +19,7 @@ pub struct TxSignature {
 }
 
 pub enum ChangePubKeyAuthRequest {
-    Onchain,
+    OnChain,
     EthECDSA,
     EthCreate2 { data: Create2Data },
 }

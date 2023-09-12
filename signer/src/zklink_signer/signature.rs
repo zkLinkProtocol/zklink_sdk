@@ -117,6 +117,7 @@ impl Default for ZkLinkSignature {
         }
     }
 }
+
 impl ZkLinkSignature {
     /// Create a ZkLinkSignature from u8 slice
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {

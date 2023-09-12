@@ -49,8 +49,15 @@ dictionary Create2Data {
 
 [Enum]
 interface ChangePubKeyAuthRequest {
-    Onchain();
+    OnChain();
     EthECDSA();
+    EthCreate2(Create2Data data);
+};
+
+[Enum]
+interface ChangePubKeyAuthData {
+    OnChain();
+    EthECDSA(PackedEthSignature eth_signature);
     EthCreate2(Create2Data data);
 };
 
@@ -280,6 +287,7 @@ dictionary ZkLinkSignature {
 
 
 
+
 // ============================  iterface ============================
 
 [Error]
@@ -303,8 +311,17 @@ namespace zklink_sdk {
     boolean verify_musig(ZkLinkSignature signature, [ByRef] sequence<u8> msg);
     PubKeyHash get_public_key_hash(PackedPublicKey public_key);
 
+
+    string json_str_of_zklink_signature(ZkLinkSignature signature);
+
+    // for change pubkey
     [Throws=SignError]
-    TxSignature sign_change_pubkey(PrivateKeySigner eth_signer, ZkLinkSigner zklink_signer, ChangePubKey tx, ZkLinkAddress main_contract, u32 l1_client_id, ZkLinkAddress account_address, ChangePubKeyAuthRequest auth_request);
+    PackedEthSignature eth_signature_of_change_pubkey(u32 l1_client_id, ChangePubKey tx, PrivateKeySigner eth_signer, ZkLinkAddress main_contract);
+    [Throws=SignError]
+    ZkLinkSignature create_submitter_signature([ByRef] sequence<u8> tx_bytes, ZkLinkSigner zklink_signer);
+    [Throws=SignError]
+    ChangePubKey create_signed_change_pubkey(ZkLinkSigner zklink_signer, ChangePubKey tx, ChangePubKeyAuthData eth_auth_data);
+
     [Throws=ZkSignerError]
     TxSignature sign_forced_exit(ZkLinkSigner zklink_signer, ForcedExit tx);
     [Throws=ZkSignerError]

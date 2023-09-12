@@ -58,14 +58,14 @@ impl Create2Data {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ChangePubKeyAuthData {
-    Onchain,
+    OnChain,
     EthECDSA { eth_signature: PackedEthSignature },
     EthCreate2 { data: Create2Data },
 }
 
 impl Default for ChangePubKeyAuthData {
     fn default() -> Self {
-        Self::Onchain
+        Self::OnChain
     }
 }
 
@@ -75,7 +75,7 @@ impl ChangePubKeyAuthData {
     }
 
     pub fn is_onchain(&self) -> bool {
-        matches!(self, ChangePubKeyAuthData::Onchain)
+        matches!(self, ChangePubKeyAuthData::OnChain)
     }
 
     pub fn is_create2(&self) -> bool {
@@ -84,7 +84,7 @@ impl ChangePubKeyAuthData {
 
     pub fn get_eth_witness(&self) -> Option<Vec<u8>> {
         match self {
-            ChangePubKeyAuthData::Onchain => None,
+            ChangePubKeyAuthData::OnChain => None,
             ChangePubKeyAuthData::EthECDSA { eth_signature } => {
                 let mut bytes = Vec::new();
                 bytes.push(0x00);
@@ -167,7 +167,7 @@ impl ChangePubKey {
     ) -> Self {
         let eth_auth_data = eth_signature
             .map(|eth_signature| ChangePubKeyAuthData::EthECDSA { eth_signature })
-            .unwrap_or(ChangePubKeyAuthData::Onchain);
+            .unwrap_or(ChangePubKeyAuthData::OnChain);
 
         Self {
             chain_id,
@@ -198,6 +198,12 @@ impl ChangePubKey {
         out
     }
 
+    #[cfg(feature = "ffi")]
+    pub fn json_str(&self) -> String {
+        serde_json::to_string(&self).unwrap()
+    }
+
+
     #[cfg(not(feature = "ffi"))]
     pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
         let bytes = self.get_bytes();
@@ -208,11 +214,6 @@ impl ChangePubKey {
     #[cfg(feature = "ffi")]
     pub fn signature(&self) -> ZkLinkSignature {
         self.signature.clone()
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn json_str(&self) -> String {
-        serde_json::to_string(&self).unwrap()
     }
 
     pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {

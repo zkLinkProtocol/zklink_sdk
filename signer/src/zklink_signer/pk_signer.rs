@@ -36,6 +36,12 @@ impl fmt::Display for ZkLinkSigner {
     }
 }
 
+pub fn sha256_bytes(input: &[u8]) -> Vec<u8> {
+    let mut hasher = Sha256::new();
+    hasher.update(input);
+    hasher.finalize().to_vec()
+}
+
 impl ZkLinkSigner {
     const SIGN_MESSAGE: &'static str =
         "Sign this message to create a key to interact with zkLink's layer2 services.\nNOTE: This application is powered by zkLink protocol.\n\nOnly sign this message for a trusted client!";
@@ -50,12 +56,6 @@ impl ZkLinkSigner {
     pub fn new_from_seed(seed: &[u8]) -> Result<Self, Error> {
         if seed.len() < 32 {
             return Err(Error::InvalidSeed("seed is too short".into()));
-        };
-
-        let sha256_bytes = |input: &[u8]| -> Vec<u8> {
-            let mut hasher = Sha256::new();
-            hasher.update(input);
-            hasher.finalize().to_vec()
         };
 
         let mut effective_seed = sha256_bytes(seed);

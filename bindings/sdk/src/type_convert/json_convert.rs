@@ -1,3 +1,4 @@
+use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 use crate::{TxSignature, UniffiCustomTypeConverter};
 
 macro_rules! ffi_json_convert {
@@ -16,3 +17,7 @@ macro_rules! ffi_json_convert {
 }
 
 ffi_json_convert!(TxSignature);
+
+pub fn json_str_of_zklink_signature(signature: ZkLinkSignature) -> String {
+    serde_json::to_string(&signature).unwrap()
+}
