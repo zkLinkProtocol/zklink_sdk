@@ -1,3 +1,4 @@
+#[cfg(not(feature = "ffi"))]
 use crate::TxSignature;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
@@ -18,14 +19,11 @@ pub fn sign_forced_exit(
 }
 
 #[cfg(feature = "ffi")]
-pub fn sign_forced_exit(
+pub fn create_signed_forced_exit(
     zklink_signer: Arc<ZkLinkSigner>,
     tx: Arc<ForcedExit>,
-) -> Result<TxSignature, ZkSignerError> {
+) -> Result<Arc<ForcedExit>, ZkSignerError> {
     let mut tx = (*tx).clone();
     tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
-    Ok(TxSignature {
-        tx: tx.into(),
-        eth_signature: None,
-    })
+    Ok(Arc::new(tx))
 }

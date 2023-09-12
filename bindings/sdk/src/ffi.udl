@@ -92,11 +92,16 @@ interface Withdraw {
         u16 withdraw_fee_ratio,
         TimeStamp ts
     );
+    ZkLinkSignature signature();
     sequence<u8> get_bytes();
     string json_str();
     boolean is_validate();
+    [Throws=ZkSignerError]
+    boolean is_signature_valid();
     string get_ethereum_sign_message_part([ByRef] string token_symbol);
     string get_ethereum_sign_message([ByRef] string token_symbol);
+    [Throws=ZkSignerError]
+    PackedEthSignature  eth_signature(PrivateKeySigner eth_signer, [ByRef] string l2_source_token_symbol);
 };
 
 interface ChangePubKey {
@@ -179,6 +184,8 @@ interface Transfer {
     boolean is_signature_valid();
     string get_ethereum_sign_message_part([ByRef] string token_symbol);
     string get_ethereum_sign_message([ByRef] string token_symbol);
+    [Throws=ZkSignerError]
+    PackedEthSignature  eth_signature(PrivateKeySigner eth_signer, [ByRef] string token_symbol);
 };
 
 
@@ -216,6 +223,12 @@ interface OrderMatching {
         BigUint expect_base_amount,
         BigUint expect_quote_amount
     );
+    ZkLinkSignature signature();
+    sequence<u8> get_bytes();
+    string json_str();
+    boolean is_validate();
+        [Throws=ZkSignerError]
+        boolean is_signature_valid();
 };
 
 // ============================ eth crypto  ============================
@@ -297,10 +310,6 @@ enum SignError {
     "IncorrectTx",
 };
 
-
-[Custom]
-typedef string TxSignature;
-
 // ============================  rpc response ============================
 [Custom]
 typedef u64 TimeStampMicro;
@@ -313,6 +322,9 @@ namespace zklink_sdk {
 
 
     string json_str_of_zklink_signature(ZkLinkSignature signature);
+    // network
+    string zklink_main_net_url();
+    string zklink_test_net_url();
 
     // for change pubkey
     [Throws=SignError]
@@ -323,14 +335,14 @@ namespace zklink_sdk {
     ChangePubKey create_signed_change_pubkey(ZkLinkSigner zklink_signer, ChangePubKey tx, ChangePubKeyAuthData eth_auth_data);
 
     [Throws=ZkSignerError]
-    TxSignature sign_forced_exit(ZkLinkSigner zklink_signer, ForcedExit tx);
+    ForcedExit create_signed_forced_exit(ZkLinkSigner zklink_signer, ForcedExit tx);
     [Throws=ZkSignerError]
-    Order signed_order(ZkLinkSigner zklink_signer, Order order);
+    Order create_signed_order(ZkLinkSigner zklink_signer, Order order);
     [Throws=ZkSignerError]
-    TxSignature sign_order_matching(ZkLinkSigner signer, OrderMatching tx);
+    OrderMatching create_signed_order_matching(ZkLinkSigner signer, OrderMatching tx);
     [Throws=SignError]
-    TxSignature sign_transfer(PrivateKeySigner eth_signer, ZkLinkSigner zklink_signer, Transfer tx, string token_symbol);
+    Transfer create_signed_transfer(ZkLinkSigner zklink_signer, Transfer tx);
     [Throws=SignError]
-    TxSignature sign_withdraw(PrivateKeySigner eth_signer, ZkLinkSigner zklink_signer, Withdraw tx, string token_symbol);
+    Withdraw create_signed_withdraw(ZkLinkSigner zklink_signer, Withdraw tx);
 };
 

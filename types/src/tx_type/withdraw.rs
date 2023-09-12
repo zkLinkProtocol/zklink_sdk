@@ -1,7 +1,10 @@
 use num::{BigUint, ToPrimitive};
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
+use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
+use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 #[cfg(not(feature = "ffi"))]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
@@ -176,6 +179,17 @@ impl Withdraw {
         }
         message.push_str(format!("Nonce: {}", self.nonce).as_str());
         message
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn eth_signature(
+        &self,
+        eth_signer: Arc<PrivateKeySigner>,
+        l2_source_token_symbol: &str,
+    ) -> Result<PackedEthSignature, ZkSignerError> {
+        let message = self.get_ethereum_sign_message(&l2_source_token_symbol);
+        let eth_signature = eth_signer.sign_message(message.as_bytes())?;
+        Ok(eth_signature)
     }
 }
 

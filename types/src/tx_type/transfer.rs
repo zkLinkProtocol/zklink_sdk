@@ -5,8 +5,11 @@ use crate::tx_type::ethereum_sign_message_part;
 use crate::tx_type::validator::*;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
+use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
+use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 #[cfg(not(feature = "ffi"))]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
@@ -153,6 +156,20 @@ impl Transfer {
         }
         message.push_str(format!("Nonce: {}", self.nonce).as_str());
         message
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn eth_signature(
+        &self,
+        eth_signer: Arc<PrivateKeySigner>,
+        token_symbol: &str,
+    ) -> Result<PackedEthSignature, ZkSignerError> {
+        let message = self
+            .get_ethereum_sign_message(token_symbol)
+            .as_bytes()
+            .to_vec();
+        let eth_signature = eth_signer.sign_message(&message)?;
+        Ok(eth_signature)
     }
 }
 

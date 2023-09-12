@@ -203,7 +203,6 @@ impl ChangePubKey {
         serde_json::to_string(&self).unwrap()
     }
 
-
     #[cfg(not(feature = "ffi"))]
     pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
         let bytes = self.get_bytes();

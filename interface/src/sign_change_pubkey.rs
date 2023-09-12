@@ -1,5 +1,8 @@
 use crate::error::SignError;
-use crate::{ChangePubKeyAuthRequest, TxSignature};
+#[cfg(feature = "sync")]
+use crate::ChangePubKeyAuthRequest;
+#[cfg(not(feature = "ffi"))]
+use crate::TxSignature;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
@@ -51,12 +54,11 @@ pub fn eth_signature_of_change_pubkey(
     tx: Arc<ChangePubKey>,
     eth_signer: Arc<PrivateKeySigner>,
     main_contract: ZkLinkAddress,
-) -> Result<PackedEthSignature, SignError>{
+) -> Result<PackedEthSignature, SignError> {
     let typed_data = tx.to_eip712_request_payload(l1_client_id, &main_contract)?;
     let eth_signature = eth_signer.sign_byted_data(&typed_data.data_hash)?;
     Ok(eth_signature)
 }
-
 
 #[cfg(feature = "ffi")]
 pub fn create_submitter_signature(
@@ -69,7 +71,11 @@ pub fn create_submitter_signature(
 }
 
 #[cfg(feature = "ffi")]
-pub fn check_create2data(zklink_singer: Arc<ZkLinkSigner>, data: Create2Data, account_address: ZkLinkAddress) -> Result<(), SignError> {
+pub fn check_create2data(
+    zklink_singer: Arc<ZkLinkSigner>,
+    data: Create2Data,
+    account_address: ZkLinkAddress,
+) -> Result<(), SignError> {
     let pubkey_hash = zklink_singer.public_key().public_key_hash();
     let from_address = data.get_address(pubkey_hash.data.to_vec());
     if from_address.as_bytes() != account_address.as_bytes() {
@@ -78,7 +84,6 @@ pub fn check_create2data(zklink_singer: Arc<ZkLinkSigner>, data: Create2Data, ac
         Ok(())
     }
 }
-
 
 #[cfg(feature = "ffi")]
 pub fn create_signed_change_pubkey(

@@ -8,7 +8,6 @@ pub enum Network {
     MainNet,
     /// Test network for testkit purposes
     TestNet,
-    DevNet,
 }
 
 impl Network {
@@ -16,7 +15,6 @@ impl Network {
         match self {
             Network::MainNet => "https://api-v1.zk.link",
             Network::TestNet => "https://aws-gw-v2.zk.link",
-            Network::DevNet => "http://127.0.0.1:3030",
         }
     }
 }

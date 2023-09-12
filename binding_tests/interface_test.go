@@ -53,45 +53,6 @@ func TestSignChangePubkey(t *testing.T) {
     fmt.Printf("submitter signature: %v\n", sdk.JsonStrOfZklinkSignature(submitter_signature))
 }
 
-// func TestSignChangePubkeyEcdsa(t *testing.T) {
-//     packed_eth_signature := sdk.PackedEthSignature("0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001b")
-//     assert.NotNil(t, packed_eth_signature)
-//
-// 	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
-//     eth_signer, err := sdk.NewPrivateKeySigner(s)
-//     assert.Nil(t, err)
-// 	s = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
-// 	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
-//     assert.Nil(t, err)
-//     pubkey_hash := sdk.PubKeyHash("0xd8d5fb6a6caef06aa3dc2abdcdc240987e5330fe")
-//     tx := sdk.NewChangePubKey(
-//         sdk.ChainId(1),
-//         sdk.AccountId(1),
-//         sdk.SubAccountId(1),
-//         pubkey_hash,
-//         sdk.TokenId(18),
-//         *big.NewInt(1),
-//         sdk.Nonce(1),
-//         &packed_eth_signature,
-//         sdk.TimeStamp(1),
-//     )
-//     main_contract := sdk.ZkLinkAddress("0x959Ae135F0387C55DC8bbFe8a4Db753485067D59")
-//     account_address := sdk.ZkLinkAddress("0x526212fBD41080B455aE81014B5B6bF859c30094")
-//     l1_client_id := uint32(80001)
-//     auth_request := sdk.ChangePubKeyAuthRequestEthEcdsa{}
-//     tx_signature, err := sdk.SignChangePubkey(
-//         eth_signer,
-//         zklink_signer,
-//         tx,
-//         main_contract,
-//         l1_client_id,
-//         account_address,
-//         auth_request,
-//     )
-//     assert.Nil(t, err)
-//     assert.NotNil(t, tx_signature)
-//     fmt.Printf("%v\n", tx_signature)
-// }
 
 func TestSignForcedExit(t *testing.T) {
 	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
@@ -110,13 +71,15 @@ func TestSignForcedExit(t *testing.T) {
         *big.NewInt(100000),
         sdk.TimeStamp(1693472232),
     )
-    tx_signature, err := sdk.SignForcedExit(
+    signed_tx, err := sdk.CreateSignedForcedExit(
         zklink_signer,
         tx,
     )
     assert.Nil(t, err)
-    assert.NotNil(t, tx_signature)
-    fmt.Printf("%v\n", tx_signature)
+    should_be_valid, err := signed_tx.IsSignatureValid();
+    assert.Nil(t, err)
+    assert.Equal(t, should_be_valid, true)
+    fmt.Printf("signed forced exit:%v\n", signed_tx.JsonStr())
 }
 
 func TestSignTransfer(t *testing.T) {
@@ -140,15 +103,19 @@ func TestSignTransfer(t *testing.T) {
         sdk.Nonce(1),
         sdk.TimeStamp(1693472232),
     )
-    tx_signature, err := sdk.SignTransfer(
-        eth_signer,
+    signed_tx, err := sdk.CreateSignedTransfer(
         zklink_signer,
         tx,
-        "USDC",
     )
     assert.Nil(t, err)
-    assert.NotNil(t, tx_signature)
-    fmt.Printf("%v\n", tx_signature)
+    should_be_valid, err := signed_tx.IsSignatureValid();
+    assert.Nil(t, err)
+    assert.Equal(t, should_be_valid, true)
+    fmt.Printf("%v\n", signed_tx.JsonStr())
+    // get eth signature
+    eth_signature, err := signed_tx.EthSignature(eth_signer, "USDT")
+    assert.Nil(t, err)
+    fmt.Printf("eth signature: %v\n", eth_signature)
 }
 
 
@@ -169,7 +136,7 @@ func TestSignOrderMatching(t *testing.T) {
         2,
         5,
     )
-    taker, err = sdk.SignedOrder(
+    taker, err = sdk.CreateSignedOrder(
         zklink_signer,
         taker,
     )
@@ -190,7 +157,7 @@ func TestSignOrderMatching(t *testing.T) {
          2,
          5,
     )
-    maker, err = sdk.SignedOrder(
+    maker, err = sdk.CreateSignedOrder(
         zklink_signer,
         maker,
     )
@@ -208,13 +175,15 @@ func TestSignOrderMatching(t *testing.T) {
         *big.NewInt(808077878),
         *big.NewInt(5479779),
     )
-    tx_signature, err := sdk.SignOrderMatching(
+    signed_tx, err := sdk.CreateSignedOrderMatching(
         zklink_signer,
         tx,
     )
     assert.Nil(t, err)
-    assert.NotNil(t, tx_signature)
-    fmt.Printf("%v\n", tx_signature)
+    should_be_valid, err := signed_tx.IsSignatureValid();
+    assert.Nil(t, err)
+    assert.Equal(t, should_be_valid, true)
+    fmt.Printf("%v\n", signed_tx.JsonStr())
 }
 
 func TestSignWithdraw(t *testing.T) {
@@ -241,13 +210,18 @@ func TestSignWithdraw(t *testing.T) {
         50,
         sdk.TimeStamp(1693472232),
     )
-    tx_signature, err := sdk.SignWithdraw(
-        eth_signer,
+    signed_tx, err := sdk.CreateSignedWithdraw(
         zklink_signer,
         tx,
-        "USDC",
     )
     assert.Nil(t, err)
-    assert.NotNil(t, tx_signature)
-    fmt.Printf("%v\n", tx_signature)
+    should_be_valid, err := signed_tx.IsSignatureValid();
+    assert.Nil(t, err)
+    assert.Equal(t, should_be_valid, true)
+    fmt.Printf("%v\n", signed_tx.JsonStr())
+
+    // eth signature
+    eth_signature, err := signed_tx.EthSignature(eth_signer, "USDC")
+    assert.Nil(t, err)
+    fmt.Printf("%v\n", eth_signature)
 }
