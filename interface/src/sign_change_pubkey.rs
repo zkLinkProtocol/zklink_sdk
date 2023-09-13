@@ -25,7 +25,7 @@ pub fn sign_change_pubkey(
         ChangePubKeyAuthRequest::OnChain => Ok(ChangePubKeyAuthData::OnChain),
         ChangePubKeyAuthRequest::EthECDSA => {
             let typed_data = tx.to_eip712_request_payload(l1_client_id, &main_contract)?;
-            let eth_signature = eth_signer.sign_typed_data(&typed_data)?;
+            let eth_signature = eth_signer.sign_byted_data(&typed_data.data_hash)?;
             Ok(ChangePubKeyAuthData::EthECDSA { eth_signature })
         }
         ChangePubKeyAuthRequest::EthCreate2 { data } => {

@@ -1,6 +1,8 @@
 #[cfg(not(feature = "ffi"))]
 use crate::error::SignError;
 #[cfg(not(feature = "ffi"))]
+use serde::{Deserialize, Serialize};
+#[cfg(not(feature = "ffi"))]
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_types::tx_type::change_pubkey::Create2Data;
 #[cfg(not(feature = "ffi"))]

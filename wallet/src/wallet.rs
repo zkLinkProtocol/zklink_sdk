@@ -1,25 +1,25 @@
+use crate::error::ClientError;
+use crate::signer::Signer;
 use crate::{AccountType, Wallet};
 use num::BigUint;
-use zklink_provider::response::AccountQuery;
+use zklink_interface::{ChangePubKeyAuthRequest, TxSignature};
+use zklink_provider::response::{AccountQuery, ChainResp, TokenResp};
 use zklink_provider::rpc::ZkLinkRpcClient;
-use zklink_provider::types::{AccountQuery, ChainResp, TokenResp};
-use zklink_signer::error::ClientError;
-use zklink_signer::{ChangePubKeyAuthRequest, TxSignature};
 use zklink_signers::eth_signer::eth_signature::TxEthSignature;
-use zklink_signers::eth_signer::{eip1271_signature, EthereumSigner};
+use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+use zklink_signers::eth_signer::EthereumSigner;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::{AccountId, ChainId, Nonce, SubAccountId, TokenId, ZkLinkAddress};
 use zklink_types::tx_type::order_matching::Order;
 
-impl<S, P> Wallet<S, P>
+impl<P> Wallet<P>
 where
-    S: EthereumSigner,
     P: ZkLinkRpcClient + Sync + Clone,
 {
     pub async fn new(
         provider: P,
-        signer: Signer<S>,
+        signer: Signer,
         address: ZkLinkAddress,
         account_type: AccountType,
     ) -> Result<Self, ClientError> {
@@ -287,9 +287,7 @@ where
     async fn submit_tx(&self, tx_signature: TxSignature) -> Result<TxHash, ClientError> {
         let tx_l1_signature = match tx_signature.eth_signature {
             Some(eth_signature) => match self.account_type {
-                AccountType::CREATE2 => Some(TxEthSignature::EIP1271Signature(
-                    eip1271_signature::EIP1271Signature(eth_signature.serialize_packed().to_vec()),
-                )),
+                AccountType::CREATE2 => Some(TxEthSignature::EIP1271Signature(eth_signature)),
                 _ => Some(TxEthSignature::EthereumSignature(eth_signature)),
             },
             None => None,

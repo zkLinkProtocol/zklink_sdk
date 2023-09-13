@@ -7,6 +7,8 @@ edition = "2021"
 [dependencies]
 chrono = { version = "0.4", features = ["serde", "rustc-serialize"] }
 num = { version = "0.4.0", features = ["serde"] }
+thiserror = "1.0"
+zklink_interface = { path = "../interface" }
 zklink_provider = { path = "../provider" }
 zklink_signers = { path = "../signer" }
 zklink_types = { path = "../types" }
