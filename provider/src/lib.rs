@@ -35,4 +35,6 @@ mod not_ffi {
 #[cfg(not(feature = "ffi"))]
 pub use crate::rpc::ZkLinkRpcClient;
 #[cfg(not(feature = "ffi"))]
+pub use jsonrpsee::core::Error as RpcError;
+#[cfg(not(feature = "ffi"))]
 pub use not_ffi::*;

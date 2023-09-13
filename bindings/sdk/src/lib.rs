@@ -11,10 +11,10 @@ use crate::crypto::{get_public_key_hash, verify_musig};
 use crate::network::{zklink_main_net_url, zklink_test_net_url};
 
 use zklink_signers::eth_signer::error::EthSignerError;
+use zklink_signers::eth_signer::eth_signature::TxEthSignature;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::eth_signer::H256;
-use zklink_signers::eth_signer::eth_signature::TxEthSignature;
 
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;

@@ -1,4 +1,3 @@
-pub mod eip1271_signature;
 pub mod eip712;
 pub mod error;
 pub mod eth_signature;

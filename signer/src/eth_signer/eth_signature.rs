@@ -1,4 +1,3 @@
-use super::eip1271_signature::EIP1271Signature;
 use super::packed_eth_signature::PackedEthSignature;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
@@ -11,7 +10,7 @@ use std::fmt::{Display, Formatter};
 #[serde(tag = "type", content = "signature")]
 pub enum TxEthSignature {
     EthereumSignature(PackedEthSignature),
-    EIP1271Signature(EIP1271Signature),
+    EIP1271Signature(PackedEthSignature),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -61,10 +60,9 @@ impl TxEthSignatureVariant {
 impl Display for TxEthSignature {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::EthereumSignature(sign) => {
+            Self::EthereumSignature(sign) | Self::EIP1271Signature(sign) => {
                 write!(f, "0x{}", hex::encode(sign.serialize_packed()))
             }
-            Self::EIP1271Signature(sign) => write!(f, "0x{}", hex::encode(sign.0.clone())),
         }
     }
 }

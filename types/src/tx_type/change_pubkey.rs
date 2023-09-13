@@ -269,7 +269,7 @@ impl ChangePubKey {
         let raw_data = serde_json::to_string(&typed_data)
             .map_err(|e| EthSignerError::CustomError(format!("serialization error: {e:?}")))?;
         let data_hash = typed_data.sign_hash()?;
-        let data_hash = zklink_signers::eth_signer::H256::from_slice(&data_hash.0);
+        let data_hash = H256::from_slice(&data_hash.0);
         Ok(EthTypedData {
             raw_data,
             data_hash,

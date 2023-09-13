@@ -1,5 +1,5 @@
-use crate::UniffiCustomTypeConverter;
 use crate::TxEthSignature;
+use crate::UniffiCustomTypeConverter;
 
 macro_rules! ffi_json_convert {
     ($(#[$attr:meta])* $name:ident) => {
