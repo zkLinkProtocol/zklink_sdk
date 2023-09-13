@@ -14,6 +14,7 @@ use zklink_signers::eth_signer::error::EthSignerError;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::eth_signer::H256;
+use zklink_signers::eth_signer::eth_signature::TxEthSignature;
 
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
@@ -43,7 +44,7 @@ use zklink_types::tx_type::withdraw::Withdraw;
 
 use zklink_interface::error::SignError;
 use zklink_interface::sign_change_pubkey::{
-    create_signed_change_pubkey, create_submitter_signature, eth_signature_of_change_pubkey,
+    create_signed_change_pubkey, eth_signature_of_change_pubkey,
 };
 use zklink_interface::sign_forced_exit::create_signed_forced_exit;
 use zklink_interface::sign_order::create_signed_order;

@@ -74,6 +74,7 @@ interface Deposit {
         H256 eth_hash
     );
     sequence<u8> get_bytes();
+    sequence<u8> tx_hash();
     string json_str();
 };
 
@@ -94,11 +95,11 @@ interface Withdraw {
     );
     ZkLinkSignature signature();
     sequence<u8> get_bytes();
+    sequence<u8> tx_hash();
     string json_str();
     boolean is_validate();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
-    string get_ethereum_sign_message_part([ByRef] string token_symbol);
     string get_ethereum_sign_message([ByRef] string token_symbol);
     [Throws=ZkSignerError]
     PackedEthSignature  eth_signature(PrivateKeySigner eth_signer, [ByRef] string l2_source_token_symbol);
@@ -118,12 +119,12 @@ interface ChangePubKey {
     );
     ZkLinkSignature signature();
     sequence<u8> get_bytes();
+    sequence<u8> tx_hash();
     string json_str();
     boolean is_validate();
     boolean is_onchain();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
-    string get_ethereum_sign_message_part([ByRef] string token_symbol, u8 decimal);
 };
 
 interface ForcedExit {
@@ -141,6 +142,7 @@ interface ForcedExit {
     );
     ZkLinkSignature signature();
     sequence<u8> get_bytes();
+    sequence<u8> tx_hash();
     string json_str();
     boolean is_validate();
     [Throws=ZkSignerError]
@@ -160,6 +162,7 @@ interface FullExit {
         H256 eth_hash
     );
     sequence<u8> get_bytes();
+    sequence<u8> tx_hash();
     string json_str();
     boolean is_validate();
 };
@@ -178,14 +181,14 @@ interface Transfer {
     );
     ZkLinkSignature signature();
     sequence<u8> get_bytes();
+    sequence<u8> tx_hash();
     string json_str();
     boolean is_validate();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
-    string get_ethereum_sign_message_part([ByRef] string token_symbol);
     string get_ethereum_sign_message([ByRef] string token_symbol);
     [Throws=ZkSignerError]
-    PackedEthSignature  eth_signature(PrivateKeySigner eth_signer, [ByRef] string token_symbol);
+    TxEthSignature  eth_signature(PrivateKeySigner eth_signer, [ByRef] string token_symbol);
 };
 
 
@@ -225,11 +228,15 @@ interface OrderMatching {
     );
     ZkLinkSignature signature();
     sequence<u8> get_bytes();
+    sequence<u8> tx_hash();
     string json_str();
     boolean is_validate();
         [Throws=ZkSignerError]
         boolean is_signature_valid();
 };
+
+[Custom]
+typedef string TxEthSignature;
 
 // ============================ eth crypto  ============================
 [Error]
@@ -329,8 +336,6 @@ namespace zklink_sdk {
     // for change pubkey
     [Throws=SignError]
     PackedEthSignature eth_signature_of_change_pubkey(u32 l1_client_id, ChangePubKey tx, PrivateKeySigner eth_signer, ZkLinkAddress main_contract);
-    [Throws=SignError]
-    ZkLinkSignature create_submitter_signature([ByRef] sequence<u8> tx_bytes, ZkLinkSigner zklink_signer);
     [Throws=SignError]
     ChangePubKey create_signed_change_pubkey(ZkLinkSigner zklink_signer, ChangePubKey tx, ChangePubKeyAuthData eth_auth_data);
 

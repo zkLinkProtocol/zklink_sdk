@@ -5,12 +5,16 @@ use crate::tx_type::ethereum_sign_message_part;
 use crate::tx_type::validator::*;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "ffi")]
 use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
+#[cfg(feature = "ffi")]
+use zklink_signers::eth_signer::eth_signature::TxEthSignature;
+#[cfg(feature = "ffi")]
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
+use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
 #[cfg(not(feature = "ffi"))]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
@@ -101,6 +105,11 @@ impl Transfer {
         out
     }
 
+    pub fn tx_hash(&self) -> Vec<u8> {
+        let bytes = self.get_bytes();
+        sha256_bytes(&bytes)
+    }
+
     #[cfg(not(feature = "ffi"))]
     pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
         let bytes = self.get_bytes();
@@ -163,13 +172,14 @@ impl Transfer {
         &self,
         eth_signer: Arc<PrivateKeySigner>,
         token_symbol: &str,
-    ) -> Result<PackedEthSignature, ZkSignerError> {
+    ) -> Result<TxEthSignature, ZkSignerError> {
         let message = self
             .get_ethereum_sign_message(token_symbol)
             .as_bytes()
             .to_vec();
         let eth_signature = eth_signer.sign_message(&message)?;
-        Ok(eth_signature)
+        let tx_eth_signature = TxEthSignature::EthereumSignature(eth_signature);
+        Ok(tx_eth_signature)
     }
 }
 

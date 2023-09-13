@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_signers::eth_signer::H256;
+use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
 
 /// `Mapping` transaction performs a move of funds from one zklink account to another.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
@@ -71,6 +72,11 @@ impl Deposit {
         out.extend_from_slice(&self.serial_id.to_be_bytes());
         out.extend_from_slice(self.eth_hash.as_bytes());
         out
+    }
+
+    pub fn tx_hash(&self) -> Vec<u8> {
+        let bytes = self.get_bytes();
+        sha256_bytes(&bytes)
     }
 
     #[cfg(feature = "ffi")]

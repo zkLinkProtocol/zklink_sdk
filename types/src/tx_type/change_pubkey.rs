@@ -16,6 +16,7 @@ use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_signers::eth_signer::EthTypedData;
 use zklink_signers::eth_signer::H256;
 use zklink_signers::zklink_signer::error::ZkSignerError;
+use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
 #[cfg(not(feature = "ffi"))]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
@@ -196,6 +197,11 @@ impl ChangePubKey {
         out.extend_from_slice(&self.nonce.to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
         out
+    }
+
+    pub fn tx_hash(&self) -> Vec<u8> {
+        let bytes = self.get_bytes();
+        sha256_bytes(&bytes)
     }
 
     #[cfg(feature = "ffi")]

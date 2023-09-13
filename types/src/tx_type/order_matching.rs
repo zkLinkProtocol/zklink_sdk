@@ -12,6 +12,7 @@ use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_signers::zklink_signer::error::ZkSignerError;
+use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
 #[cfg(not(feature = "ffi"))]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
@@ -277,6 +278,11 @@ impl OrderMatching {
         out.extend_from_slice(&self.expect_base_amount.to_u128().unwrap().to_be_bytes());
         out.extend_from_slice(&self.expect_quote_amount.to_u128().unwrap().to_be_bytes());
         out
+    }
+
+    pub fn tx_hash(&self) -> Vec<u8> {
+        let bytes = self.get_bytes();
+        sha256_bytes(&bytes)
     }
 
     #[cfg(feature = "ffi")]

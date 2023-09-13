@@ -8,6 +8,7 @@ use crate::basic_types::{
 use crate::tx_type::validator::*;
 use serde::{Deserialize, Serialize};
 use zklink_signers::zklink_signer::error::ZkSignerError;
+use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
 #[cfg(not(feature = "ffi"))]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
@@ -109,6 +110,11 @@ impl ForcedExit {
         out.extend_from_slice(&self.exit_amount.to_u128().unwrap().to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
         out
+    }
+
+    pub fn tx_hash(&self) -> Vec<u8> {
+        let bytes = self.get_bytes();
+        sha256_bytes(&bytes)
     }
 
     #[cfg(feature = "ffi")]

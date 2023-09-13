@@ -7,8 +7,7 @@ use crate::TxSignature;
 use std::sync::Arc;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
-use zklink_signers::zklink_signer::pk_signer::{sha256_bytes, ZkLinkSigner};
-use zklink_signers::zklink_signer::signature::ZkLinkSignature;
+use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_types::basic_types::ZkLinkAddress;
 use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
 
@@ -58,16 +57,6 @@ pub fn eth_signature_of_change_pubkey(
     let typed_data = tx.to_eip712_request_payload(l1_client_id, &main_contract)?;
     let eth_signature = eth_signer.sign_byted_data(&typed_data.data_hash)?;
     Ok(eth_signature)
-}
-
-#[cfg(feature = "ffi")]
-pub fn create_submitter_signature(
-    tx_bytes: &[u8],
-    zklink_signer: Arc<ZkLinkSigner>,
-) -> Result<ZkLinkSignature, SignError> {
-    let bytes_sha_256 = sha256_bytes(&tx_bytes);
-    let signature = zklink_signer.sign_musig(&bytes_sha_256)?;
-    Ok(signature)
 }
 
 #[cfg(feature = "ffi")]

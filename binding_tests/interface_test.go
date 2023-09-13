@@ -47,8 +47,8 @@ func TestSignChangePubkey(t *testing.T) {
     fmt.Printf("%v\n", tx.JsonStr())
 
     // submitter signature
-    bytes := tx.GetBytes()
-    submitter_signature, err := sdk.CreateSubmitterSignature( bytes, zklink_signer)
+    txHash := tx.TxHash()
+    submitter_signature, err := zklink_signer.SignMusig(txHash)
     assert.Nil(t, err)
     fmt.Printf("submitter signature: %v\n", sdk.JsonStrOfZklinkSignature(submitter_signature))
 }

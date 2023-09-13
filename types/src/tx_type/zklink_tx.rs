@@ -1,4 +1,3 @@
-use parity_crypto::digest::sha256;
 use serde::{Deserialize, Serialize};
 use validator::{Validate, ValidationErrors};
 
@@ -107,19 +106,18 @@ impl ZkLinkTx {
     }
     /// Returns the hash of the transaction.
     pub fn hash(&self) -> TxHash {
-        let bytes = match self {
-            ZkLinkTx::Transfer(tx) => tx.get_bytes(),
-            ZkLinkTx::Withdraw(tx) => tx.get_bytes(),
-            ZkLinkTx::ChangePubKey(tx) => tx.get_bytes(),
-            ZkLinkTx::ForcedExit(tx) => tx.get_bytes(),
-            ZkLinkTx::Deposit(tx) => tx.get_bytes(),
-            ZkLinkTx::FullExit(tx) => tx.get_bytes(),
-            ZkLinkTx::OrderMatching(tx) => tx.get_bytes(),
+        let tx_hash = match self {
+            ZkLinkTx::Transfer(tx) => tx.tx_hash(),
+            ZkLinkTx::Withdraw(tx) => tx.tx_hash(),
+            ZkLinkTx::ChangePubKey(tx) => tx.tx_hash(),
+            ZkLinkTx::ForcedExit(tx) => tx.tx_hash(),
+            ZkLinkTx::Deposit(tx) => tx.tx_hash(),
+            ZkLinkTx::FullExit(tx) => tx.tx_hash(),
+            ZkLinkTx::OrderMatching(tx) => tx.tx_hash(),
         };
 
-        let hash = sha256(&bytes);
         let mut out = [0u8; 32];
-        out.copy_from_slice(&hash);
+        out.copy_from_slice(&tx_hash);
         TxHash { data: out }
     }
 
