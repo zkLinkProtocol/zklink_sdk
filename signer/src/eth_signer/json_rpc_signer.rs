@@ -6,9 +6,10 @@ use jsonrpc_core::types::response::Output;
 
 use super::eth_signature::TxEthSignature;
 use super::packed_eth_signature::PackedEthSignature;
-use crate::eth_signer::{EthTypedData, EthereumSigner};
+use crate::eth_signer::EthTypedData;
 use serde_json::Value;
 use web3::types::Address;
+use wasm_bindgen::prelude::wasm_bindgen;
 
 pub fn is_signature_from_address(
     signature: &PackedEthSignature,
@@ -30,6 +31,7 @@ pub enum AddressOrIndex {
 
 /// Describes whether to add a prefix `\x19Ethereum Signed Message:\n`
 /// when requesting a message signature.
+#[wasm_bindgen]
 #[derive(Debug, Clone)]
 pub enum SignerType {
     NotNeedPrefix,
@@ -44,12 +46,11 @@ pub struct JsonRpcSigner {
     signer_type: Option<SignerType>,
 }
 
-#[async_trait::async_trait]
-impl EthereumSigner for JsonRpcSigner {
+impl JsonRpcSigner {
     /// The sign method calculates an Ethereum specific signature with:
     /// checks if the server adds a prefix if not then adds
     /// return sign(keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))).
-    async fn sign_message(&self, msg: &[u8]) -> Result<TxEthSignature, EthSignerError> {
+    pub async fn sign_message(&self, msg: &[u8]) -> Result<TxEthSignature, EthSignerError> {
         let signature: PackedEthSignature = {
             let msg = match &self.signer_type {
                 Some(SignerType::NotNeedPrefix) => msg.to_vec(),
@@ -413,7 +414,7 @@ mod tests {
     use crate::eth_signer::json_rpc_signer::JsonRpcSigner;
 
     use crate::eth_signer::pk_signer::EthSigner;
-    use crate::eth_signer::{EthereumSigner, RawTransaction};
+    use crate::eth_signer::RawTransaction;
     use web3::types::Address;
 
     #[post("/")]
