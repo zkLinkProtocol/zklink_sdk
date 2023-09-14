@@ -1,6 +1,6 @@
 use thiserror::Error;
 use zklink_provider::RpcError;
-use zklink_signers::eth_signer::error::{EthSignerError, RpcFailure};
+use zklink_signers::eth_signer::error::EthSignerError;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_types::basic_types::ChainId;
 
@@ -19,7 +19,7 @@ pub enum ClientError {
     IncorrectCredentials,
     #[error("Seed too short, must be at least 32 bytes long")]
     SeedTooShort,
-    #[error("Token is not supported by zkSync")]
+    #[error("Token is not supported by zkLink")]
     UnknownToken,
     #[error("Incorrect address")]
     IncorrectAddress,

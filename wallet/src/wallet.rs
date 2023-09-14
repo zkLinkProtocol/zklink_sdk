@@ -6,8 +6,7 @@ use zklink_interface::{ChangePubKeyAuthRequest, TxSignature};
 use zklink_provider::response::{AccountQuery, ChainResp, TokenResp};
 use zklink_provider::rpc::ZkLinkRpcClient;
 use zklink_signers::eth_signer::eth_signature::TxEthSignature;
-use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
-use zklink_signers::eth_signer::EthereumSigner;
+
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::{AccountId, ChainId, Nonce, SubAccountId, TokenId, ZkLinkAddress};
@@ -50,16 +49,16 @@ where
 
     /// Returns the current account id
     pub fn account_id(&self) -> AccountId {
-        self.account_info.id.clone()
+        self.account_info.id
     }
 
     /// Returns the current account pub key hash
     pub fn account_pubkey_hash(&self) -> PubKeyHash {
-        self.account_info.pub_key_hash.clone()
+        self.account_info.pub_key_hash
     }
 
     pub fn account_nonce(&self) -> Nonce {
-        self.account_info.nonce.clone()
+        self.account_info.nonce
     }
 
     /// Updates account info stored in the wallet.
@@ -72,7 +71,7 @@ where
         Ok(())
     }
 
-    /// Returns `true` if signing key for account was set in zkSync network.
+    /// Returns `true` if signing key for account was set in zkLink network.
     /// In other words, returns `true` if `ChangePubKey` operation was performed for the
     /// account.
     ///
@@ -86,13 +85,14 @@ where
     }
 
     pub fn get_chain(&self, chain_id: &ChainId) -> Option<ChainResp> {
-        self.chains.get(chain_id).map(|r| r.clone())
+        self.chains.get(chain_id).cloned()
     }
 
     pub fn get_token(&self, token_id: &TokenId) -> Option<TokenResp> {
         self.tokens.get(token_id).cloned()
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn submit_change_pub_key(
         &self,
         chain_id: ChainId,
@@ -112,27 +112,25 @@ where
         let nonce = self.resolve_nonce(nonce);
         let current_time = chrono::Utc::now().timestamp() as u32;
 
-        let tx_signature = self
-            .signer
-            .sign_change_pub_key(
-                account_id,
-                chain_id,
-                sub_account_id,
-                fee_token,
-                fee.unwrap_or_default(),
-                new_pubkey_hash,
-                nonce,
-                chain_config.main_contract,
-                chain_config.layer_one_chain_id,
-                self.address.clone(),
-                auth_request,
-                current_time.into(),
-            )
-            .await?;
+        let tx_signature = self.signer.sign_change_pub_key(
+            account_id,
+            chain_id,
+            sub_account_id,
+            fee_token,
+            fee.unwrap_or_default(),
+            Some(new_pubkey_hash),
+            nonce,
+            chain_config.main_contract,
+            chain_config.layer_one_chain_id,
+            self.address.clone(),
+            auth_request,
+            current_time.into(),
+        )?;
 
         self.submit_tx(tx_signature).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn submit_transfer(
         &self,
         from_sub_account_id: SubAccountId,
@@ -152,25 +150,23 @@ where
         let nonce = self.resolve_nonce(nonce);
         let current_time = chrono::Utc::now().timestamp() as u32;
 
-        let tx_signature = self
-            .signer
-            .sign_transfer(
-                account_id,
-                from_sub_account_id,
-                to,
-                to_sub_account_id,
-                token_id,
-                token.symbol,
-                amount,
-                fee.unwrap_or_default(),
-                nonce,
-                current_time.into(),
-            )
-            .await?;
+        let tx_signature = self.signer.sign_transfer(
+            account_id,
+            from_sub_account_id,
+            to,
+            to_sub_account_id,
+            token_id,
+            token.symbol,
+            amount,
+            fee.unwrap_or_default(),
+            nonce,
+            current_time.into(),
+        )?;
 
         self.submit_tx(tx_signature).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn submit_withdraw(
         &self,
         to_chain_id: ChainId,
@@ -192,27 +188,25 @@ where
 
         let nonce = self.resolve_nonce(nonce);
         let current_time = chrono::Utc::now().timestamp() as u32;
-        let tx_signature = self
-            .signer
-            .sign_withdraw(
-                account_id,
-                to_chain_id,
-                sub_account_id,
-                to,
-                l2_source_token_id,
-                l2_source_token.symbol,
-                l1_target_token_id,
-                amount,
-                fee.unwrap_or_default(),
-                nonce,
-                fast_withdraw,
-                withdraw_fee_ratio,
-                current_time.into(),
-            )
-            .await?;
+        let tx_signature = self.signer.sign_withdraw(
+            account_id,
+            to_chain_id,
+            sub_account_id,
+            to,
+            l2_source_token_id,
+            l2_source_token.symbol,
+            l1_target_token_id,
+            amount,
+            fee.unwrap_or_default(),
+            nonce,
+            fast_withdraw,
+            withdraw_fee_ratio,
+            current_time.into(),
+        )?;
         self.submit_tx(tx_signature).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn submit_forced_exit(
         &self,
         to_chain_id: ChainId,
@@ -228,25 +222,23 @@ where
         let nonce = self.resolve_nonce(nonce);
         let current_time = chrono::Utc::now().timestamp() as u32;
 
-        let tx_signature = self
-            .signer
-            .sign_forced_exit(
-                account_id,
-                to_chain_id,
-                sub_account_id,
-                target,
-                target_sub_account_id,
-                l2_source_token_id,
-                l1_target_token_id,
-                nonce,
-                exit_amount,
-                current_time.into(),
-            )
-            .await?;
+        let tx_signature = self.signer.sign_forced_exit(
+            account_id,
+            to_chain_id,
+            sub_account_id,
+            target,
+            target_sub_account_id,
+            l2_source_token_id,
+            l1_target_token_id,
+            nonce,
+            exit_amount,
+            current_time.into(),
+        )?;
 
         self.submit_tx(tx_signature).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn submit_order_matching(
         &self,
         sub_account_id: SubAccountId,
@@ -259,29 +251,25 @@ where
     ) -> Result<TxHash, ClientError> {
         let account_id = self.account_id();
 
-        let tx_signature = self
-            .signer
-            .sign_order_matching(
-                account_id,
-                sub_account_id,
-                taker,
-                maker,
-                fee_token_id,
-                fee.unwrap_or_default(),
-                expect_base_amount,
-                expect_quote_amount,
-            )
-            .await?;
+        let tx_signature = self.signer.sign_order_matching(
+            account_id,
+            sub_account_id,
+            taker,
+            maker,
+            fee_token_id,
+            fee.unwrap_or_default(),
+            expect_base_amount,
+            expect_quote_amount,
+        )?;
 
         self.submit_tx(tx_signature).await
     }
 
     fn resolve_nonce(&self, nonce: Option<Nonce>) -> Nonce {
-        let nonce = match nonce {
+        match nonce {
             Some(nonce) => nonce,
             None => self.account_nonce(),
-        };
-        nonce
+        }
     }
 
     async fn submit_tx(&self, tx_signature: TxSignature) -> Result<TxHash, ClientError> {
@@ -299,7 +287,7 @@ where
 
         let tx_hash = self
             .provider
-            .tx_submit(tx_signature.tx.into(), tx_l1_signature, None)
+            .tx_submit(tx_signature.tx, tx_l1_signature, None)
             .await?;
         Ok(tx_hash)
     }

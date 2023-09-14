@@ -35,7 +35,7 @@ impl Serialize for PackedSignature {
     where
         S: Serializer,
     {
-        let s = self.as_hex();
+        let s = hex::encode(self.as_bytes());
         serializer.serialize_str(&s)
     }
 }
@@ -104,7 +104,7 @@ impl PackedSignature {
 #[serde(rename_all = "camelCase")]
 pub struct ZkLinkSignature {
     /// packed public key
-    pub public_key: PackedPublicKey,
+    pub pub_key: PackedPublicKey,
     /// packed signature
     pub signature: PackedSignature,
 }
@@ -117,7 +117,7 @@ pub fn json_str_of_zklink_signature(signature: ZkLinkSignature) -> String {
 impl Default for ZkLinkSignature {
     fn default() -> Self {
         Self {
-            public_key: PackedPublicKey::from_bytes(&[0; 32]).unwrap(),
+            pub_key: PackedPublicKey::from_bytes(&[0; 32]).unwrap(),
             signature: PackedSignature::from_bytes(&[0; 64]).unwrap(),
         }
     }
@@ -130,7 +130,7 @@ impl ZkLinkSignature {
             return Err(Error::InvalidSignature("Signature length is not 96 bytes. Make sure it contains both the public key and the signature itself.".into()));
         }
         Ok(Self {
-            public_key: PackedPublicKey::from_bytes(&bytes[0..PACKED_POINT_SIZE])?,
+            pub_key: PackedPublicKey::from_bytes(&bytes[0..PACKED_POINT_SIZE])?,
             signature: PackedSignature::from_bytes(&bytes[PACKED_POINT_SIZE..])?,
         })
     }
@@ -145,12 +145,12 @@ impl ZkLinkSignature {
 
     /// converts signature to a hex string with the 0x prefix
     pub fn as_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::with_capacity(SIGNATURE_SIZE);
-        let public_bytes = self.public_key.as_bytes();
+        let mut bytes = [0u8; SIGNATURE_SIZE];
+        let public_bytes = self.pub_key.as_bytes();
         let signature_bytes = self.signature.as_bytes();
         bytes[0..PACKED_POINT_SIZE].copy_from_slice(&public_bytes);
         bytes[PACKED_POINT_SIZE..].copy_from_slice(&signature_bytes);
-        bytes
+        bytes.to_vec()
     }
 
     /// converts signature to a hex string with the 0x prefix
@@ -163,7 +163,7 @@ impl ZkLinkSignature {
         let msg = utils::rescue_hash_tx_msg(msg);
         let value = JUBJUB_PARAMS.with(|jubjub_params| {
             RESCUE_PARAMS.with(|rescue_params| {
-                self.public_key.as_ref().verify_musig_rescue(
+                self.pub_key.as_ref().verify_musig_rescue(
                     &msg,
                     self.signature.as_ref(),
                     FixedGenerators::SpendingKeyGenerator,

@@ -161,7 +161,7 @@ impl Withdraw {
     /// Restores the `PubKeyHash` from the transaction signature.
     pub fn verify_signature(&self) -> Option<PubKeyHash> {
         match self.signature.verify_musig(&self.get_bytes()) {
-            Ok(ret) if ret => Some(self.signature.public_key.public_key_hash()),
+            Ok(ret) if ret => Some(self.signature.pub_key.public_key_hash()),
             _ => None,
         }
     }

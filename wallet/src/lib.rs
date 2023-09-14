@@ -1,13 +1,14 @@
-mod error;
-mod signer;
-mod wallet;
+pub mod error;
+pub mod signer;
+pub mod wallet;
+pub use zklink_interface::ChangePubKeyAuthRequest;
+pub use zklink_types::*;
 
 use crate::signer::Signer;
 use std::collections::HashMap;
 use zklink_provider::response::{AccountInfoResp, ChainResp, TokenResp};
 use zklink_provider::ZkLinkRpcClient;
-use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
-use zklink_signers::eth_signer::EthereumSigner;
+
 use zklink_types::basic_types::{ChainId, TokenId, ZkLinkAddress};
 
 pub enum AccountType {

@@ -11,3 +11,5 @@ serde_json = "1.0"
 
 
 zklink_signers = {path = "../../../signer"}
+zklink_wallet = { path = "../../../wallet"}
+hex = "0.4.3"

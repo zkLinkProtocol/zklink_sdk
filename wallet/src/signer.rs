@@ -4,9 +4,9 @@ use num::BigUint;
 use zklink_interface::{ChangePubKeyAuthRequest, TxSignature};
 use zklink_signers::eth_signer::error::EthSignerError;
 use zklink_signers::eth_signer::error::EthSignerError::MissingEthSigner;
-use zklink_signers::eth_signer::eth_signature::TxEthSignature;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+use zklink_signers::eth_signer::H256;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
@@ -29,7 +29,6 @@ pub struct Signer {
     pub zklink_signer: ZkLinkSigner,
     pub(crate) eth_signer: Option<PrivateKeySigner>,
     pub pub_key_hash: PubKeyHash,
-    pub(crate) account_id: Option<AccountId>,
 }
 
 impl Signer {
@@ -44,24 +43,27 @@ impl Signer {
             zklink_signer,
             eth_signer,
             pub_key_hash,
-            account_id: None,
         })
     }
 
-    pub fn set_account_id(&mut self, account_id: Option<AccountId>) {
-        self.account_id = account_id;
-    }
+    pub fn from_eth(eth_pk: &H256) -> Result<Self, ZkSignerError> {
+        let eth_signer = PrivateKeySigner::from(eth_pk);
+        let zklink_signer = ZkLinkSigner::new_from_eth_signer(eth_pk)?;
+        let pub_key_hash = zklink_signer.public_key().public_key_hash();
 
-    pub fn get_account_id(&self) -> Option<AccountId> {
-        self.account_id
+        Ok(Self {
+            zklink_signer,
+            eth_signer: Some(eth_signer),
+            pub_key_hash,
+        })
     }
 
     pub fn sign_layer_two_message(&self, message: &[u8]) -> Result<ZkLinkSignature, ZkSignerError> {
-        Ok(self.zklink_signer.sign_musig(message)?)
+        self.zklink_signer.sign_musig(message)
     }
 
     /// see eip191, pretend 'Ethereum Signed Message' to the message
-    pub async fn sign_layer_one_message(
+    pub fn sign_layer_one_message(
         &self,
         message: &[u8],
     ) -> Result<PackedEthSignature, EthSignerError> {
@@ -76,13 +78,13 @@ impl Signer {
         Ok(eth_signature)
     }
 
-    pub async fn sign_change_pub_key_ecdsa_auth_data(
+    pub fn sign_change_pub_key_ecdsa_auth_data(
         &self,
         tx: &ChangePubKey,
-        l1_client_id: u32,
+        l1_chain_id: u32,
         main_contract: &ZkLinkAddress,
     ) -> Result<PackedEthSignature, ClientError> {
-        let typed_data = tx.to_eip712_request_payload(l1_client_id, &main_contract)?;
+        let typed_data = tx.to_eip712_request_payload(l1_chain_id, main_contract)?;
         let eth_signer = self
             .eth_signer
             .as_ref()
@@ -97,22 +99,26 @@ impl Signer {
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub async fn sign_change_pub_key(
+    pub fn sign_change_pub_key(
         &self,
         account_id: AccountId,
         chain_id: ChainId,
         sub_account_id: SubAccountId,
         fee_token: TokenId,
         fee: BigUint,
-        new_pubkey_hash: &[u8],
+        new_pubkey_hash: Option<&[u8]>,
         nonce: Nonce,
         main_contract: ZkLinkAddress,
-        l1_client_id: u32,
+        l1_chain_id: u32,
         account_address: ZkLinkAddress,
         auth_request: ChangePubKeyAuthRequest,
         ts: TimeStamp,
     ) -> Result<TxSignature, ClientError> {
-        let new_pk_hash = PubKeyHash::from_bytes(new_pubkey_hash)?;
+        let new_pk_hash = if let Some(pub_key_hash) = new_pubkey_hash {
+            PubKeyHash::from_bytes(pub_key_hash)?
+        } else {
+            self.pub_key_hash
+        };
         let mut tx = ChangePubKey {
             chain_id,
             account_id,
@@ -128,9 +134,8 @@ impl Signer {
         let eth_auth_data: Result<ChangePubKeyAuthData, ClientError> = match auth_request {
             ChangePubKeyAuthRequest::OnChain => Ok(ChangePubKeyAuthData::OnChain),
             ChangePubKeyAuthRequest::EthECDSA => {
-                let eth_signature = self
-                    .sign_change_pub_key_ecdsa_auth_data(&tx, l1_client_id, &main_contract)
-                    .await?;
+                let eth_signature =
+                    self.sign_change_pub_key_ecdsa_auth_data(&tx, l1_chain_id, &main_contract)?;
 
                 Ok(ChangePubKeyAuthData::EthECDSA { eth_signature })
             }
@@ -153,7 +158,8 @@ impl Signer {
         })
     }
 
-    pub async fn sign_transfer(
+    #[allow(clippy::too_many_arguments)]
+    pub fn sign_transfer(
         &self,
         account_id: AccountId,
         from_sub_account_id: SubAccountId,
@@ -185,7 +191,7 @@ impl Signer {
             .get_ethereum_sign_message(&token_symbol)
             .as_bytes()
             .to_vec();
-        let eth_signature = self.sign_layer_one_message(&message.as_slice()).await?;
+        let eth_signature = self.sign_layer_one_message(message.as_slice())?;
 
         Ok(TxSignature {
             tx: tx.into(),
@@ -193,7 +199,8 @@ impl Signer {
         })
     }
 
-    pub async fn sign_withdraw(
+    #[allow(clippy::too_many_arguments)]
+    pub fn sign_withdraw(
         &self,
         account_id: AccountId,
         to_chain_id: ChainId,
@@ -231,7 +238,7 @@ impl Signer {
 
         let message = tx.get_ethereum_sign_message(&l2_source_token_symbol);
         let message = message.as_bytes().to_vec();
-        let eth_signature = self.sign_layer_one_message(&message.as_slice()).await?;
+        let eth_signature = self.sign_layer_one_message(message.as_slice())?;
 
         Ok(TxSignature {
             tx: tx.into(),
@@ -239,28 +246,29 @@ impl Signer {
         })
     }
 
-    pub async fn sign_forced_exit(
+    #[allow(clippy::too_many_arguments)]
+    pub fn sign_forced_exit(
         &self,
-        account_id: AccountId,
+        initiator_account_id: AccountId,
         to_chain_id: ChainId,
-        sub_account_id: SubAccountId,
+        initiator_sub_account_id: SubAccountId,
         target: ZkLinkAddress,
         target_sub_account_id: SubAccountId,
-        l2_source_token_id: TokenId,
-        l1_target_token_id: TokenId,
-        nonce: Nonce,
+        l2_source_token: TokenId,
+        l1_target_token: TokenId,
+        initiator_nonce: Nonce,
         exit_amount: BigUint,
         ts: TimeStamp,
     ) -> Result<TxSignature, ClientError> {
         let mut tx = ForcedExit {
             to_chain_id,
-            initiator_account_id: account_id,
-            initiator_sub_account_id: sub_account_id,
-            initiator_nonce: nonce,
+            initiator_account_id,
+            initiator_sub_account_id,
+            initiator_nonce,
             target,
             target_sub_account_id,
-            l2_source_token: l2_source_token_id,
-            l1_target_token: l1_target_token_id,
+            l2_source_token,
+            l1_target_token,
             exit_amount,
             signature: Default::default(),
             ts,
@@ -273,6 +281,7 @@ impl Signer {
         })
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn sign_order(
         &self,
         account_id: AccountId,
@@ -308,7 +317,8 @@ impl Signer {
         Ok(order)
     }
 
-    pub async fn sign_order_matching(
+    #[allow(clippy::too_many_arguments)]
+    pub fn sign_order_matching(
         &self,
         account_id: AccountId,
         sub_account_id: SubAccountId,
