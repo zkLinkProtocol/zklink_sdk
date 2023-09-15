@@ -10,7 +10,6 @@ use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
-#[cfg(not(feature = "ffi"))]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 
@@ -19,6 +18,7 @@ use crate::basic_types::params::TOKEN_MAX_PRECISION;
 use crate::basic_types::{
     AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
+use crate::tx_builder::WithdrawBuilder;
 use crate::tx_type::ethereum_sign_message_part;
 use crate::tx_type::validator::*;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
@@ -75,37 +75,23 @@ impl Withdraw {
     ///
     /// While `signature` field is mandatory for new transactions, it may be `None`
     /// in some cases (e.g. when restoring the network state from the L1 contract data).
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        account_id: AccountId,
-        sub_account_id: SubAccountId,
-        to_chain_id: ChainId,
-        to: ZkLinkAddress,
-        l2_source_token: TokenId,
-        l1_target_token: TokenId,
-        amount: BigUint,
-        fee: BigUint,
-        nonce: Nonce,
-        fast_withdraw: bool,
-        withdraw_fee_ratio: u16,
-        ts: TimeStamp,
-    ) -> Self {
-        let fast_withdraw = u8::from(fast_withdraw);
+    pub fn new(builder: WithdrawBuilder) -> Self {
+        let fast_withdraw = u8::from(builder.fast_withdraw);
 
         Self {
-            to_chain_id,
-            account_id,
-            sub_account_id,
-            to,
-            l2_source_token,
-            l1_target_token,
-            amount,
-            fee,
-            nonce,
+            to_chain_id: builder.to_chain_id,
+            account_id: builder.account_id,
+            sub_account_id: builder.sub_account_id,
+            to: builder.to_address,
+            l2_source_token: builder.l2_source_token,
+            l1_target_token: builder.l1_target_token,
+            amount: builder.amount,
+            fee: builder.fee,
+            nonce: builder.nonce,
             signature: ZkLinkSignature::default(),
             fast_withdraw,
-            withdraw_fee_ratio,
-            ts,
+            withdraw_fee_ratio: builder.withdraw_fee_ratio,
+            ts: builder.timestamp,
         }
     }
 
@@ -138,7 +124,6 @@ impl Withdraw {
         serde_json::to_string(&self).unwrap()
     }
 
-    #[cfg(not(feature = "ffi"))]
     pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
         let bytes = self.get_bytes();
         self.signature = signer.sign_musig(&bytes)?;

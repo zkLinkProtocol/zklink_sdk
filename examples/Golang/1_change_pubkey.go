@@ -3,7 +3,7 @@ package main
 import (
 	sdk "github.com/zkLinkProtocol/zklink_sdk/go_example/generated/uniffi/zklink_sdk"
 	"github.com/stretchr/testify/assert"
-	"testing"
+	"net/http"
 	"math/big"
 	"fmt"
 )
@@ -11,7 +11,7 @@ import (
 
 type RPCTransaction struct {
      Id      int64             `json:"id"`
-     JSONRpc string            `json:"jsonrpc"`
+     JsonRpc string            `json:"jsonrpc"`
      Method  string            `json:"method"`
      Params  []json.RawMessage `json:"params"`
 }
@@ -55,10 +55,10 @@ func main() {
 		req.Ts,
 	)
 
-	// create AuthData
+	// create ethAuthData
 	// AuthData has 3 types of enum
 	// 1. sdk.ChangePubKeyAuthDataOnChain{}
-	// 2. sdk.ChangePubKeyAuthDataEthCreate2 { Data: Create2Data }
+	// 2. sdk.ChangePubKeyAuthDataEthCreate2 { Data: sdk.Create2Data }
 	// 3. sdk.ChangePubKeyAuthDataEthEcdsa
 
 	// TODO: use real main contract address
@@ -90,7 +90,7 @@ func main() {
 	zkLinkUrl = sdk.ZkLinkTestNetUrl()
 	tx := RPCTransaction{
 		Id:      1,
-		JSONRpc: "2.0",
+		JsonRpc: "2.0",
 		Method:  "sendTransaction",
 		Params: []json.RawMessage{
 		[]bytes(txJsonStr),
@@ -100,6 +100,11 @@ func main() {
 	JsonTx, err := json.Marshal(tx)
 	fmt.Println("ChangePubKey rpc request:",  string(JsonTx))
 	zklinkUrl = sdk.ZkLinkTestNetUrl()
-	response, err := post.PostJson(zklinkUrl, JsonTx)
-	fmt.Println("ChangePubKey rpc response:",  response, "err", err)
+	response, err := http.Post(zklinkUrl, "application/json",bytes.NewBuffer(JsonTx))
+	if err != nil {
+        fmt.Println(err)
+    }
+    defer resp.Body.Close()
+    body, _ := ioutil.ReadAll(resp.Body)
+    fmt.Println(string(body))
 }

@@ -39,6 +39,99 @@ typedef string BigUint;
 typedef string ZkLinkAddress;
 [Custom]
 typedef string TxHash;
+[Custom]
+typedef string TxEthSignature;
+
+// ============================ tx builder  ============================
+dictionary ChangePubKeyBuilder {
+    ChainId chain_id;
+    AccountId account_id;
+    SubAccountId sub_account_id;
+    PubKeyHash new_pubkey_hash;
+    TokenId fee_token;
+    BigUint fee;
+    Nonce nonce;
+    PackedEthSignature ?eth_signature;
+    TimeStamp ts;
+};
+
+dictionary TransferBuilder {
+    AccountId account_id;
+    ZkLinkAddress to_address;
+    SubAccountId from_sub_account_id;
+    SubAccountId to_sub_account_id;
+    TokenId token;
+    BigUint amount;
+    BigUint fee;
+    Nonce nonce;
+    TimeStamp timestamp;
+};
+
+
+dictionary DepositBuilder {
+    ZkLinkAddress from_address;
+    ZkLinkAddress to_address;
+    ChainId from_chain_id;
+    SubAccountId sub_account_id;
+    TokenId l2_target_token;
+    TokenId l1_source_token;
+    BigUint amount;
+    u64 serial_id;
+    H256 eth_hash;
+};
+
+
+dictionary WithdrawBuilder {
+    AccountId account_id;
+    SubAccountId sub_account_id;
+    ChainId to_chain_id;
+    ZkLinkAddress to_address;
+    TokenId l2_source_token;
+    TokenId l1_target_token;
+    BigUint amount;
+    BigUint fee;
+    Nonce nonce;
+    boolean fast_withdraw;
+    u16 withdraw_fee_ratio;
+    TimeStamp timestamp;
+};
+
+dictionary ForecedExitBuilder {
+    ChainId to_chain_id;
+    AccountId initiator_account_id;
+    SubAccountId initiator_sub_account_id;
+    ZkLinkAddress target;
+    SubAccountId target_sub_account_id;
+    TokenId l2_source_token;
+    TokenId l1_target_token;
+    Nonce initiator_nonce;
+    BigUint exit_amount;
+    TimeStamp ts;
+};
+
+dictionary FullExitBuilder {
+    ChainId to_chain_id;
+    AccountId account_id;
+    SubAccountId sub_account_id;
+    ZkLinkAddress exit_address;
+    TokenId l2_source_token;
+    TokenId l1_target_token;
+    u64 serial_id;
+    H256 eth_hash;
+};
+
+
+dictionary OrderMatchingBuilder {
+    AccountId account_id;
+    SubAccountId sub_account_id;
+    Order taker;
+    Order maker;
+    BigUint fee;
+    TokenId fee_token;
+    BigUint expect_base_amount;
+    BigUint expect_quote_amount;
+};
+
 
 // ============================  transaction types  ============================
 dictionary Create2Data {
@@ -62,37 +155,14 @@ interface ChangePubKeyAuthData {
 };
 
 interface Deposit {
-    constructor(
-        ChainId from_chain_id,
-        ZkLinkAddress from,
-        SubAccountId sub_account_id,
-        ZkLinkAddress to,
-        TokenId l2_target_token,
-        TokenId l1_source_token,
-        BigUint amount,
-        u64 serial_id,
-        H256 eth_hash
-    );
+    constructor(DepositBuilder builder);
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
     string json_str();
 };
 
 interface Withdraw {
-    constructor(
-        AccountId account_id,
-        SubAccountId sub_account_id,
-        ChainId to_chain_id,
-        ZkLinkAddress to,
-        TokenId l2_source_token,
-        TokenId l1_target_token,
-        BigUint amount,
-        BigUint fee,
-        Nonce nonce,
-        boolean fast_withdraw,
-        u16 withdraw_fee_ratio,
-        TimeStamp ts
-    );
+    constructor(WithdrawBuilder builder);
     ZkLinkSignature signature();
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
@@ -106,17 +176,7 @@ interface Withdraw {
 };
 
 interface ChangePubKey {
-    constructor(
-        ChainId chain_id,
-        AccountId account_id,
-        SubAccountId sub_account_id,
-        PubKeyHash new_pk_hash,
-        TokenId fee_token,
-        BigUint fee,
-        Nonce nonce,
-        PackedEthSignature ?eth_signature,
-        TimeStamp ts
-    );
+    constructor(ChangePubKeyBuilder builder);
     ZkLinkSignature signature();
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
@@ -128,18 +188,7 @@ interface ChangePubKey {
 };
 
 interface ForcedExit {
-    constructor(
-        ChainId to_chain_id,
-        AccountId initiator_account_id,
-        SubAccountId initiator_sub_account_id,
-        ZkLinkAddress target,
-        SubAccountId target_sub_account_id,
-        TokenId l2_source_token,
-        TokenId l1_target_token,
-        Nonce nonce,
-        BigUint exit_amount,
-        TimeStamp ts
-    );
+    constructor(ForecedExitBuilder builder);
     ZkLinkSignature signature();
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
@@ -151,16 +200,7 @@ interface ForcedExit {
 
 
 interface FullExit {
-    constructor(
-        ChainId to_chain_id,
-        AccountId account_id,
-        SubAccountId sub_account_id,
-        ZkLinkAddress exit_address,
-        TokenId l2_source_token,
-        TokenId l1_target_token,
-        u64 serial_id,
-        H256 eth_hash
-    );
+    constructor(FullExitBuilder builder);
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
     string json_str();
@@ -168,17 +208,7 @@ interface FullExit {
 };
 
 interface Transfer {
-    constructor(
-        AccountId account_id,
-        ZkLinkAddress to,
-        SubAccountId from_sub_account_id,
-        SubAccountId to_sub_account_id,
-        TokenId token,
-        BigUint amount,
-        BigUint fee,
-        Nonce nonce,
-        TimeStamp ts
-    );
+    constructor(TransferBuilder builder);
     ZkLinkSignature signature();
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
@@ -188,7 +218,7 @@ interface Transfer {
     boolean is_signature_valid();
     string get_ethereum_sign_message([ByRef] string token_symbol);
     [Throws=ZkSignerError]
-    TxEthSignature  eth_signature(PrivateKeySigner eth_signer, [ByRef] string token_symbol);
+    TxEthSignature eth_signature(PrivateKeySigner eth_signer, [ByRef]string token_symbol);
 };
 
 
@@ -216,16 +246,7 @@ interface Order {
 };
 
 interface OrderMatching {
-    constructor(
-        AccountId account_id,
-        SubAccountId sub_accoount_id,
-        Order taker,
-        Order maker,
-        BigUint fee,
-        TokenId fee_token,
-        BigUint expect_base_amount,
-        BigUint expect_quote_amount
-    );
+    constructor( OrderMatchingBuilder builder);
     ZkLinkSignature signature();
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
@@ -235,8 +256,6 @@ interface OrderMatching {
         boolean is_signature_valid();
 };
 
-[Custom]
-typedef string TxEthSignature;
 
 // ============================ eth crypto  ============================
 [Error]
@@ -349,5 +368,24 @@ namespace zklink_sdk {
     Transfer create_signed_transfer(ZkLinkSigner zklink_signer, Transfer tx);
     [Throws=SignError]
     Withdraw create_signed_withdraw(ZkLinkSigner zklink_signer, Withdraw tx);
+
+    [Throws=SignError]
+    string build_change_pubkey_request_with_create2data([ByRef] string private_key, ChangePubKeyBuilder builder, Create2Data create2data);
+    [Throws=SignError]
+    string build_change_pubkey_request_with_onchain_auth_data([ByRef] string private_key, ChangePubKeyBuilder builder);
+    [Throws=SignError]
+    string build_change_pubkey_request_with_eth_ecdsa_auth_data([ByRef] string private_key, ChangePubKeyBuilder builder, u32 l1_client_id, ZkLinkAddress main_contract_address);
+    [Throws=SignError]
+    string build_transfer_request([ByRef] string private_key, TransferBuilder builder, [ByRef] string token_symbol);
+    [Throws=SignError]
+    string build_deposit_request(DepositBuilder builder);
+    [Throws=SignError]
+    string build_withdraw_request([ByRef] string private_key, WithdrawBuilder builder);
+    [Throws=SignError]
+    string build_forced_exit_request([ByRef] string private_key, ForecedExitBuilder builder);
+    [Throws=SignError]
+    string build_full_exit_request(FullExitBuilder builder);
+    [Throws=SignError]
+    string build_order_matching_request([ByRef] string private_key, OrderMatchingBuilder builder);
 };
 

@@ -1,5 +1,6 @@
 use super::validator::*;
 use crate::basic_types::{AccountId, ChainId, SubAccountId, TokenId, ZkLinkAddress};
+use crate::tx_builder::FullExitBuilder;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_signers::eth_signer::H256;
@@ -32,25 +33,16 @@ impl FullExit {
     /// While `signature` field is mandatory for new transactions, it may be `None`
     /// in some cases (e.g. when restoring the network state from the L1 contract data).
     #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        to_chain_id: ChainId,
-        account_id: AccountId,
-        sub_account_id: SubAccountId,
-        exit_address: ZkLinkAddress,
-        l2_source_token: TokenId,
-        l1_target_token: TokenId,
-        serial_id: u64,
-        eth_hash: H256,
-    ) -> Self {
+    pub fn new(builder: FullExitBuilder) -> Self {
         Self {
-            to_chain_id,
-            account_id,
-            sub_account_id,
-            exit_address,
-            l2_source_token,
-            l1_target_token,
-            serial_id,
-            eth_hash,
+            to_chain_id: builder.to_chain_id,
+            account_id: builder.account_id,
+            sub_account_id: builder.sub_account_id,
+            exit_address: builder.exit_address,
+            l2_source_token: builder.l2_source_token,
+            l1_target_token: builder.l1_target_token,
+            serial_id: builder.serial_id,
+            eth_hash: builder.eth_hash,
         }
     }
 

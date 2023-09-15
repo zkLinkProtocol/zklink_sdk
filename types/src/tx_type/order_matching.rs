@@ -3,17 +3,15 @@ use crate::basic_types::params::{
     ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH,
 };
 use crate::basic_types::{AccountId, Nonce, SlotId, SubAccountId, TokenId};
+use crate::tx_builder::OrderMatchingBuilder;
 use crate::tx_type::format_units;
 use crate::tx_type::validator::*;
 use num::{BigUint, ToPrimitive, Zero};
 use serde::{Deserialize, Serialize};
-#[cfg(feature = "ffi")]
-use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
-#[cfg(not(feature = "ffi"))]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_signers::zklink_signer::utils::rescue_hash_orders;
@@ -209,52 +207,31 @@ impl Order {
 impl OrderMatching {
     /// Creates transaction from all the required fields.
     #[cfg(feature = "ffi")]
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        account_id: AccountId,
-        sub_account_id: SubAccountId,
-        taker: Arc<Order>,
-        maker: Arc<Order>,
-        fee: BigUint,
-        fee_token: TokenId,
-        expect_base_amount: BigUint,
-        expect_quote_amount: BigUint,
-    ) -> Self {
+    pub fn new(builder: OrderMatchingBuilder) -> Self {
         Self {
-            account_id,
-            taker: (*taker).clone(),
-            maker: (*maker).clone(),
-            fee,
-            fee_token,
-            sub_account_id,
-            expect_base_amount,
-            expect_quote_amount,
+            account_id: builder.account_id,
+            taker: (*builder.taker).clone(),
+            maker: (*builder.maker).clone(),
+            fee: builder.fee,
+            fee_token: builder.fee_token,
+            sub_account_id: builder.sub_account_id,
+            expect_base_amount: builder.expect_base_amount,
+            expect_quote_amount: builder.expect_quote_amount,
             signature: ZkLinkSignature::default(),
         }
     }
 
-    /// Creates transaction from all the required fields.
-    #[allow(clippy::too_many_arguments)]
     #[cfg(not(feature = "ffi"))]
-    pub fn new(
-        account_id: AccountId,
-        sub_account_id: SubAccountId,
-        taker: Order,
-        maker: Order,
-        fee: BigUint,
-        fee_token: TokenId,
-        expect_base_amount: BigUint,
-        expect_quote_amount: BigUint,
-    ) -> Self {
+    pub fn new(builder: OrderMatchingBuilder) -> Self {
         Self {
-            account_id,
-            taker,
-            maker,
-            fee,
-            fee_token,
-            sub_account_id,
-            expect_base_amount,
-            expect_quote_amount,
+            account_id: builder.account_id,
+            taker: builder.taker,
+            maker: builder.maker,
+            fee: builder.fee,
+            fee_token: builder.fee_token,
+            sub_account_id: builder.sub_account_id,
+            expect_base_amount: builder.expect_base_amount,
+            expect_quote_amount: builder.expect_quote_amount,
             signature: ZkLinkSignature::default(),
         }
     }
@@ -290,7 +267,6 @@ impl OrderMatching {
         serde_json::to_string(&self).unwrap()
     }
 
-    #[cfg(not(feature = "ffi"))]
     pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
         let bytes = self.get_bytes();
         self.signature = signer.sign_musig(&bytes)?;

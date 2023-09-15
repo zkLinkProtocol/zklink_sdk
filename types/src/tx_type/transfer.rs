@@ -3,19 +3,18 @@ use crate::basic_types::params::TOKEN_MAX_PRECISION;
 use crate::basic_types::{AccountId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress};
 use crate::tx_type::ethereum_sign_message_part;
 use crate::tx_type::validator::*;
+
+use crate::tx_builder::TransferBuilder;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-#[cfg(feature = "ffi")]
 use zklink_signers::eth_signer::eth_signature::TxEthSignature;
-#[cfg(feature = "ffi")]
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
-#[cfg(not(feature = "ffi"))]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
@@ -63,29 +62,18 @@ impl Transfer {
     ///
     /// While `signature` field is mandatory for new transactions, it may be `None`
     /// in some cases (e.g. when restoring the network state from the L1 contract data).
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        account_id: AccountId,
-        to: ZkLinkAddress,
-        from_sub_account_id: SubAccountId,
-        to_sub_account_id: SubAccountId,
-        token: TokenId,
-        amount: BigUint,
-        fee: BigUint,
-        nonce: Nonce,
-        ts: TimeStamp,
-    ) -> Self {
+    pub fn new(builder: TransferBuilder) -> Self {
         Self {
-            account_id,
-            from_sub_account_id,
-            to_sub_account_id,
-            to,
-            token,
-            amount,
-            fee,
-            nonce,
+            account_id: builder.account_id,
+            from_sub_account_id: builder.from_sub_account_id,
+            to_sub_account_id: builder.to_sub_account_id,
+            to: builder.to_address,
+            token: builder.token,
+            amount: builder.amount,
+            fee: builder.fee,
+            nonce: builder.nonce,
             signature: ZkLinkSignature::default(),
-            ts,
+            ts: builder.timestamp,
         }
     }
 
@@ -110,7 +98,6 @@ impl Transfer {
         sha256_bytes(&bytes)
     }
 
-    #[cfg(not(feature = "ffi"))]
     pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
         let bytes = self.get_bytes();
         self.signature = signer.sign_musig(&bytes)?;
@@ -165,6 +152,21 @@ impl Transfer {
         }
         message.push_str(format!("Nonce: {}", self.nonce).as_str());
         message
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn eth_signature(
+        &self,
+        eth_signer: &PrivateKeySigner,
+        token_symbol: &str,
+    ) -> Result<TxEthSignature, ZkSignerError> {
+        let message = self
+            .get_ethereum_sign_message(token_symbol)
+            .as_bytes()
+            .to_vec();
+        let eth_signature = eth_signer.sign_message(&message)?;
+        let tx_eth_signature = TxEthSignature::EthereumSignature(eth_signature);
+        Ok(tx_eth_signature)
     }
 
     #[cfg(feature = "ffi")]

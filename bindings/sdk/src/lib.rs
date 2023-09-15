@@ -1,14 +1,18 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-mod crypto;
-mod network;
-mod type_convert;
-
-use chrono::{DateTime, Utc};
-
 use crate::crypto::{get_public_key_hash, verify_musig};
 use crate::network::{zklink_main_net_url, zklink_test_net_url};
+use crate::rpc_request_builder::{
+    build_change_pubkey_request_with_create2data,
+    build_change_pubkey_request_with_eth_ecdsa_auth_data,
+    build_change_pubkey_request_with_onchain_auth_data, build_deposit_request,
+    build_forced_exit_request, build_full_exit_request, build_order_matching_request,
+    build_transfer_request, build_withdraw_request,
+};
+
+mod crypto;
+mod network;
+mod rpc_request_builder;
+mod type_convert;
+use chrono::{DateTime, Utc};
 
 use zklink_signers::eth_signer::error::EthSignerError;
 use zklink_signers::eth_signer::eth_signature::TxEthSignature;
@@ -30,6 +34,10 @@ use zklink_types::basic_types::zklink_address::ZkLinkAddress;
 use zklink_types::basic_types::{
     AccountId, BigUint, BlockNumber, ChainId, EthBlockId, Nonce, PairId, PriorityOpId, SlotId,
     SubAccountId, TimeStamp, TokenId,
+};
+use zklink_types::tx_builder::{
+    ChangePubKeyBuilder, DepositBuilder, ForecedExitBuilder, FullExitBuilder, OrderMatchingBuilder,
+    TransferBuilder, WithdrawBuilder,
 };
 use zklink_types::tx_type::change_pubkey::ChangePubKey;
 use zklink_types::tx_type::change_pubkey::ChangePubKeyAuthData;

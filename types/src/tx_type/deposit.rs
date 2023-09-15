@@ -1,5 +1,6 @@
 use super::validator::*;
 use crate::basic_types::{ChainId, SubAccountId, TokenId, ZkLinkAddress};
+use crate::tx_builder::DepositBuilder;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
@@ -11,11 +12,14 @@ use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct Deposit {
+    /// Layer1 address of the transaction initiator's L1 account.
+    pub from: ZkLinkAddress,
+    /// Layer1 address of L2 account to deposit funds to.
+    #[validate(custom = "zklink_address_validator")]
+    pub to: ZkLinkAddress,
     /// The source chain ID of the transaction.
     #[validate(custom = "chain_id_validator")]
     pub from_chain_id: ChainId,
-    /// Layer1 address of the transaction initiator's L1 account.
-    pub from: ZkLinkAddress,
     /// The target sub-account id of depositing amount.
     #[validate(custom = "sub_account_validator")]
     pub sub_account_id: SubAccountId,
@@ -28,9 +32,6 @@ pub struct Deposit {
     #[serde(with = "BigUintSerdeAsRadix10Str")]
     #[validate(custom = "amount_unpackable")]
     pub amount: BigUint,
-    /// Layer1 address of L2 account to deposit funds to.
-    #[validate(custom = "zklink_address_validator")]
-    pub to: ZkLinkAddress,
     /// serial id for unique tx_hash
     pub serial_id: u64,
     pub eth_hash: H256,
@@ -41,28 +42,17 @@ impl Deposit {
     ///
     /// While `signature` field is mandatory for new transactions, it may be `None`
     /// in some cases (e.g. when restoring the network state from the L1 contract data).
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        from_chain_id: ChainId,
-        from: ZkLinkAddress,
-        sub_account_id: SubAccountId,
-        to: ZkLinkAddress,
-        l2_target_token: TokenId,
-        l1_source_token: TokenId,
-        amount: BigUint,
-        serial_id: u64,
-        eth_hash: H256,
-    ) -> Self {
+    pub fn new(builder: DepositBuilder) -> Self {
         Self {
-            from_chain_id,
-            from,
-            sub_account_id,
-            l2_target_token,
-            l1_source_token,
-            amount,
-            to,
-            serial_id,
-            eth_hash,
+            from: builder.from_address,
+            to: builder.to_address,
+            from_chain_id: builder.from_chain_id,
+            sub_account_id: builder.sub_account_id,
+            l2_target_token: builder.l2_target_token,
+            l1_source_token: builder.l1_source_token,
+            amount: builder.amount,
+            serial_id: builder.serial_id,
+            eth_hash: builder.eth_hash,
         }
     }
 

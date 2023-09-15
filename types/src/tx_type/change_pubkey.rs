@@ -2,6 +2,7 @@ use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::{
     AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
+use crate::tx_builder::ChangePubKeyBuilder;
 use crate::tx_type::format_units;
 use crate::tx_type::validator::*;
 use num::{BigUint, Zero};
@@ -17,18 +18,9 @@ use zklink_signers::eth_signer::EthTypedData;
 use zklink_signers::eth_signer::H256;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
-#[cfg(not(feature = "ffi"))]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
-
-//todo: starknet
-// #[derive(Debug, Clone, Serialize, Deserialize)]
-// #[serde(rename_all = "camelCase")]
-// pub struct StarkECDSAData {
-//     pub signature: StarkECDSASignature,
-//     pub public_key: Vec<u8>,
-// }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -154,33 +146,23 @@ impl ChangePubKey {
     ///
     /// While `signature` field is mandatory for new transactions, it may be `None`
     /// in some cases (e.g. when restoring the network state from the L1 contract data).
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        chain_id: ChainId,
-        account_id: AccountId,
-        sub_account_id: SubAccountId,
-        new_pk_hash: PubKeyHash,
-        fee_token: TokenId,
-        fee: BigUint,
-        nonce: Nonce,
-        eth_signature: Option<PackedEthSignature>,
-        ts: TimeStamp,
-    ) -> Self {
-        let eth_auth_data = eth_signature
+    pub fn new(builder: ChangePubKeyBuilder) -> Self {
+        let eth_auth_data = builder
+            .eth_signature
             .map(|eth_signature| ChangePubKeyAuthData::EthECDSA { eth_signature })
             .unwrap_or(ChangePubKeyAuthData::OnChain);
 
         Self {
-            chain_id,
-            account_id,
-            sub_account_id,
-            new_pk_hash,
-            fee_token,
-            fee,
-            nonce,
+            chain_id: builder.chain_id,
+            account_id: builder.account_id,
+            sub_account_id: builder.sub_account_id,
+            new_pk_hash: builder.new_pubkey_hash,
+            fee_token: builder.fee_token,
+            fee: builder.fee,
+            nonce: builder.nonce,
             signature: ZkLinkSignature::default(),
             eth_auth_data,
-            ts,
+            ts: builder.ts,
         }
     }
 
@@ -209,7 +191,6 @@ impl ChangePubKey {
         serde_json::to_string(&self).unwrap()
     }
 
-    #[cfg(not(feature = "ffi"))]
     pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
         let bytes = self.get_bytes();
         self.signature = signer.sign_musig(&bytes)?;

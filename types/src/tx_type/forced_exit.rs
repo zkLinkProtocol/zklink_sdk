@@ -5,11 +5,11 @@ use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use crate::basic_types::{
     AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
+use crate::tx_builder::ForecedExitBuilder;
 use crate::tx_type::validator::*;
 use serde::{Deserialize, Serialize};
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
-#[cfg(not(feature = "ffi"))]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 /// `ForcedExit` transaction is used to withdraw funds from an unowned
@@ -67,31 +67,19 @@ impl ForcedExit {
     ///
     /// While `signature` field is mandatory for new transactions, it may be `None`
     /// in some cases (e.g. when restoring the network state from the L1 contract data).
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        to_chain_id: ChainId,
-        initiator_account_id: AccountId,
-        initiator_sub_account_id: SubAccountId,
-        target: ZkLinkAddress,
-        target_sub_account_id: SubAccountId,
-        l2_source_token: TokenId,
-        l1_target_token: TokenId,
-        nonce: Nonce,
-        exit_amount: BigUint,
-        ts: TimeStamp,
-    ) -> Self {
+    pub fn new(builder: ForecedExitBuilder) -> Self {
         Self {
-            to_chain_id,
-            initiator_account_id,
-            initiator_sub_account_id,
-            target_sub_account_id,
-            target,
-            l2_source_token,
-            l1_target_token,
-            initiator_nonce: nonce,
+            to_chain_id: builder.to_chain_id,
+            initiator_account_id: builder.initiator_account_id,
+            initiator_sub_account_id: builder.initiator_sub_account_id,
+            target_sub_account_id: builder.target_sub_account_id,
+            target: builder.target,
+            l2_source_token: builder.l2_source_token,
+            l1_target_token: builder.l1_target_token,
+            initiator_nonce: builder.initiator_nonce,
             signature: ZkLinkSignature::default(),
-            ts,
-            exit_amount,
+            ts: builder.ts,
+            exit_amount: builder.exit_amount,
         }
     }
 
@@ -122,7 +110,6 @@ impl ForcedExit {
         serde_json::to_string(&self).unwrap()
     }
 
-    #[cfg(not(feature = "ffi"))]
     pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
         let bytes = self.get_bytes();
         self.signature = signer.sign_musig(&bytes)?;
