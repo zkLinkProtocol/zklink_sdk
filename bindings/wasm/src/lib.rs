@@ -2,9 +2,35 @@ use wasm_bindgen::prelude::*;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
-use zklink_signers::eth_signer::json_rpc_signer::JsonRpcSigner;
 use zklink_signers::eth_signer::eth_signature::TxEthSignature;
 use wasm_bindgen_futures::{JsFuture, future_to_promise};
+use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+
+#[wasm_bindgen]
+pub struct EthPrivateKeySignerWasm {
+    signer: PrivateKeySigner,
+}
+
+#[wasm_bindgen]
+impl EthPrivateKeySignerWasm {
+    #[wasm_bindgen]
+    pub fn new_from_hex_pk(private_key: &str) -> Result<EthPrivateKeySignerWasm,JsValue> {
+        let signer = PrivateKeySigner::try_from(private_key)?;
+        Ok(Self {signer})
+    }
+
+    #[wasm_bindgen]
+    pub fn get_address(&self) -> Result<String,JsValue> {
+        let address = self.signer.get_address()?;
+        Ok(format!("{:?}",address))
+
+    }
+    #[wasm_bindgen]
+    pub fn sign_message(&self,msg: &[u8]) ->Result<String,JsValue> {
+        let signature = self.signer.sign_message(msg)?;
+        Ok(signature.as_hex())
+    }
+}
 
 #[wasm_bindgen]
 pub struct ZklinkSignerWasm {
@@ -13,6 +39,12 @@ pub struct ZklinkSignerWasm {
 
 #[wasm_bindgen]
 impl ZklinkSignerWasm {
+    #[wasm_bindgen(js_name=NewRand)]
+    pub fn new_rand() -> Result<ZklinkSignerWasm,JsValue> {
+        let zklink_signer = ZkLinkSigner::new()?;
+        Ok(ZklinkSignerWasm { signer: zklink_signer})
+    }
+
     #[wasm_bindgen(js_name=NewFromEthSigner)]
     pub fn new_from_hex_eth_signer(eth_hex_private_key: &str) -> Result<ZklinkSignerWasm,JsValue> {
         let zklink_signer = ZkLinkSigner::new_from_hex_eth_signer(eth_hex_private_key)?;
@@ -25,26 +57,3 @@ impl ZklinkSignerWasm {
         Ok(signature.as_hex())
     }
 }
-
-// #[wasm_bindgen]
-// pub struct EthJsonRpcSignerWasm {
-//     signer: JsonRpcSigner,
-// }
-//
-// #[wasm_bindgen]
-// impl EthJsonRpcSignerWasm {
-//     #[wasm_bindgen(constructor)]
-//     pub fn new(rpc_addr: String) -> Self {
-//         //todo: address_or_index,signer_type,password_to_unlock set to None first
-//         let signer = JsonRpcSigner::new(rpc_addr,None,None,None);
-//         Self {
-//             signer
-//         }
-//     }
-//
-//     #[wasm_bindgen]
-//     pub async fn sign_message(&self,msg: &[u8]) -> js_sys::Promise {
-//         let future = self.signer.sign_message(msg);
-//         future_to_promise(future)
-//     }
-// }
