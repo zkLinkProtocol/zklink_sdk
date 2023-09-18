@@ -9,7 +9,7 @@ use zklink_types::basic_types::TokenId;
 #[tokio::test]
 async fn test_get_tokens() {
     let client = ZkLinkRpcProvider::new(Network::MainNet, Duration::from_secs(3));
-    let result: HashMap<TokenId, TokenResp> = client.as_ref().tokens().await.unwrap();
+    let result: HashMap<TokenId, TokenResp> = client.tokens().await.unwrap();
     println!("{:?}", result);
     assert!(!result.is_empty());
 }

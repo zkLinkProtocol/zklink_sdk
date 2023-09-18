@@ -41,7 +41,8 @@ pub enum ClientError {
 
     #[error("Provided value is not packable")]
     NotPackableValue,
-
+    #[error("Non-zero subAccountId required submitter signer")]
+    MissSubmitterSigner,
     #[error("Incorrect tx format")]
     IncorrectTx,
 }

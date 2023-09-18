@@ -7,6 +7,7 @@ pub mod rpc;
 mod not_ffi {
     use crate::network::Network;
     use jsonrpsee::http_client::{HttpClient, HttpClientBuilder};
+    use std::ops::Deref;
     use std::time::Duration;
 
     /// `ZkLinkRpcProvider` is capable of interacting with the ZKLink node via its
@@ -14,8 +15,10 @@ mod not_ffi {
     #[derive(Debug, Clone)]
     pub struct ZkLinkRpcProvider(HttpClient);
 
-    impl AsRef<HttpClient> for ZkLinkRpcProvider {
-        fn as_ref(&self) -> &HttpClient {
+    impl Deref for ZkLinkRpcProvider {
+        type Target = HttpClient;
+
+        fn deref(&self) -> &Self::Target {
             &self.0
         }
     }

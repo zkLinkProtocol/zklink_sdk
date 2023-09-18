@@ -6,8 +6,11 @@ use zklink_interface::{ChangePubKeyAuthRequest, TxSignature};
 use zklink_provider::response::{AccountQuery, ChainResp, TokenResp};
 use zklink_provider::rpc::ZkLinkRpcClient;
 use zklink_signers::eth_signer::eth_signature::TxEthSignature;
+use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
+use zklink_signers::zklink_signer::signature::ZkLinkSignature;
+use zklink_types::basic_types::params::MAIN_SUB_ACCOUNT_ID;
 use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::{AccountId, ChainId, Nonce, SubAccountId, TokenId, ZkLinkAddress};
 use zklink_types::tx_type::order_matching::Order;
@@ -93,7 +96,7 @@ where
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub async fn submit_change_pub_key(
+    pub fn submit_change_pub_key(
         &self,
         chain_id: ChainId,
         sub_account_id: SubAccountId,
@@ -102,7 +105,7 @@ where
         nonce: Option<Nonce>,
         new_pubkey_hash: &[u8],
         auth_request: ChangePubKeyAuthRequest,
-    ) -> Result<TxHash, ClientError> {
+    ) -> Result<TxSignature, ClientError> {
         let chain_config = self
             .get_chain(&chain_id)
             .ok_or_else(|| ClientError::NetworkNotSupported(chain_id))?;
@@ -112,7 +115,7 @@ where
         let nonce = self.resolve_nonce(nonce);
         let current_time = chrono::Utc::now().timestamp() as u32;
 
-        let tx_signature = self.signer.sign_change_pub_key(
+        self.signer.sign_change_pub_key(
             account_id,
             chain_id,
             sub_account_id,
@@ -125,13 +128,11 @@ where
             self.address.clone(),
             auth_request,
             current_time.into(),
-        )?;
-
-        self.submit_tx(tx_signature).await
+        )
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub async fn submit_transfer(
+    pub fn submit_transfer(
         &self,
         from_sub_account_id: SubAccountId,
         to: ZkLinkAddress,
@@ -140,7 +141,7 @@ where
         amount: BigUint,
         fee: Option<BigUint>,
         nonce: Option<Nonce>,
-    ) -> Result<TxHash, ClientError> {
+    ) -> Result<TxSignature, ClientError> {
         let account_id = self.account_id();
 
         let token = self
@@ -150,7 +151,7 @@ where
         let nonce = self.resolve_nonce(nonce);
         let current_time = chrono::Utc::now().timestamp() as u32;
 
-        let tx_signature = self.signer.sign_transfer(
+        self.signer.sign_transfer(
             account_id,
             from_sub_account_id,
             to,
@@ -161,13 +162,11 @@ where
             fee.unwrap_or_default(),
             nonce,
             current_time.into(),
-        )?;
-
-        self.submit_tx(tx_signature).await
+        )
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub async fn submit_withdraw(
+    pub fn submit_withdraw(
         &self,
         to_chain_id: ChainId,
         sub_account_id: SubAccountId,
@@ -179,7 +178,7 @@ where
         nonce: Option<Nonce>,
         fast_withdraw: bool,
         withdraw_fee_ratio: u16,
-    ) -> Result<TxHash, ClientError> {
+    ) -> Result<TxSignature, ClientError> {
         let account_id = self.account_id();
 
         let l2_source_token = self
@@ -188,7 +187,7 @@ where
 
         let nonce = self.resolve_nonce(nonce);
         let current_time = chrono::Utc::now().timestamp() as u32;
-        let tx_signature = self.signer.sign_withdraw(
+        self.signer.sign_withdraw(
             account_id,
             to_chain_id,
             sub_account_id,
@@ -202,12 +201,11 @@ where
             fast_withdraw,
             withdraw_fee_ratio,
             current_time.into(),
-        )?;
-        self.submit_tx(tx_signature).await
+        )
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub async fn submit_forced_exit(
+    pub fn submit_forced_exit(
         &self,
         to_chain_id: ChainId,
         sub_account_id: SubAccountId,
@@ -217,12 +215,12 @@ where
         l1_target_token_id: TokenId,
         nonce: Option<Nonce>,
         exit_amount: BigUint,
-    ) -> Result<TxHash, ClientError> {
+    ) -> Result<TxSignature, ClientError> {
         let account_id = self.account_id();
         let nonce = self.resolve_nonce(nonce);
         let current_time = chrono::Utc::now().timestamp() as u32;
 
-        let tx_signature = self.signer.sign_forced_exit(
+        self.signer.sign_forced_exit(
             account_id,
             to_chain_id,
             sub_account_id,
@@ -233,13 +231,11 @@ where
             nonce,
             exit_amount,
             current_time.into(),
-        )?;
-
-        self.submit_tx(tx_signature).await
+        )
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub async fn submit_order_matching(
+    pub fn submit_order_matching(
         &self,
         sub_account_id: SubAccountId,
         taker: Order,
@@ -248,10 +244,10 @@ where
         fee: Option<BigUint>,
         expect_base_amount: BigUint,
         expect_quote_amount: BigUint,
-    ) -> Result<TxHash, ClientError> {
+    ) -> Result<TxSignature, ClientError> {
         let account_id = self.account_id();
 
-        let tx_signature = self.signer.sign_order_matching(
+        self.signer.sign_order_matching(
             account_id,
             sub_account_id,
             taker,
@@ -260,9 +256,7 @@ where
             fee.unwrap_or_default(),
             expect_base_amount,
             expect_quote_amount,
-        )?;
-
-        self.submit_tx(tx_signature).await
+        )
     }
 
     fn resolve_nonce(&self, nonce: Option<Nonce>) -> Nonce {
@@ -272,7 +266,11 @@ where
         }
     }
 
-    async fn submit_tx(&self, tx_signature: TxSignature) -> Result<TxHash, ClientError> {
+    pub async fn submit_tx(
+        &self,
+        tx_signature: TxSignature,
+        submitter_signer: Option<ZkLinkSigner>,
+    ) -> Result<TxHash, ClientError> {
         let tx_l1_signature = match tx_signature.eth_signature {
             Some(eth_signature) => match self.account_type {
                 AccountType::CREATE2 => Some(TxEthSignature::EIP1271Signature(eth_signature)),
@@ -285,9 +283,25 @@ where
             return Err(ClientError::IncorrectTx);
         }
 
+        let reduced_sub_account = tx_signature.tx.asset_reduced_sub_account();
+        // MAIN_SUB_ACCOUNT_ID doesn't need any submitter
+        let submitter_signature = if reduced_sub_account.is_empty()
+            || reduced_sub_account
+                .iter()
+                .all(|sid| *sid == MAIN_SUB_ACCOUNT_ID)
+        {
+            None
+        } else {
+            if let Some(signer) = submitter_signer {
+                Some(signer.sign_musig(tx_signature.tx.hash().as_ref())?)
+            } else {
+                return Err(ClientError::MissSubmitterSigner);
+            }
+        };
+
         let tx_hash = self
             .provider
-            .tx_submit(tx_signature.tx, tx_l1_signature, None)
+            .tx_submit(tx_signature.tx, tx_l1_signature, submitter_signature)
             .await?;
         Ok(tx_hash)
     }

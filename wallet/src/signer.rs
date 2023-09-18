@@ -4,6 +4,7 @@ use num::BigUint;
 use zklink_interface::{ChangePubKeyAuthRequest, TxSignature};
 use zklink_signers::eth_signer::error::EthSignerError;
 use zklink_signers::eth_signer::error::EthSignerError::MissingEthSigner;
+use zklink_signers::eth_signer::eth_signature::TxEthSignature;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::eth_signer::H256;
@@ -27,8 +28,8 @@ fn signing_failed_error(err: impl ToString) -> EthSignerError {
 
 pub struct Signer {
     pub zklink_signer: ZkLinkSigner,
-    pub(crate) eth_signer: Option<PrivateKeySigner>,
     pub pub_key_hash: PubKeyHash,
+    pub(crate) eth_signer: Option<PrivateKeySigner>,
 }
 
 impl Signer {
