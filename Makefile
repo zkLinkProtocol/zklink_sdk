@@ -76,7 +76,7 @@ test_go: build_binding_lib build_binding_files
 wasm:
 	cd ${ROOT_DIR}/bindings/wasm && \
 	wasm-pack build --release --target=web --out-name=zklink-sdk-web --out-dir=web-dist
-	#wasm-pack build --release --target=nodejs --out-name=zklink-sdk-node --out-dir=node-dist
+	wasm-pack build --release --target=nodejs --out-name=zklink-sdk-node --out-dir=node-dist
 	#wasm-pack build --release --target=bundler --out-name=zklink-bundler-node --out-dir=dist
 
 
