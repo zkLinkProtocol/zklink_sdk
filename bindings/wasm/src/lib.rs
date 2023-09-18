@@ -57,3 +57,21 @@ impl ZklinkSignerWasm {
         Ok(signature.as_hex())
     }
 }
+
+#[wasm_bindgen]
+pub struct ZklinkSignatureWasm {
+    signature: ZkLinkSignature,
+}
+
+#[wasm_bindgen]
+impl ZklinkSignatureWasm {
+    #[wasm_bindgen(js_name=NewFromHexStr)]
+    pub fn new_from_hex_str(signature_str: &str) -> Result<ZklinkSignatureWasm,JsValue> {
+        let signature = ZkLinkSignature::from_hex(signature_str)?;
+        Ok(ZklinkSignatureWasm { signature })
+    }
+    #[wasm_bindgen]
+    pub fn verify(&self,msg: &[u8]) -> Result<bool,JsValue> {
+        Ok(self.signature.verify_musig(msg)?)
+    }
+}
