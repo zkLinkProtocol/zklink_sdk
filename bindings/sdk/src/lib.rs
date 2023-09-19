@@ -1,18 +1,13 @@
-use crate::crypto::{get_public_key_hash, verify_musig};
-use crate::network::{zklink_main_net_url, zklink_test_net_url};
-use crate::rpc_request_builder::{
-    build_change_pubkey_request_with_create2data,
-    build_change_pubkey_request_with_eth_ecdsa_auth_data,
-    build_change_pubkey_request_with_onchain_auth_data, build_deposit_request,
-    build_forced_exit_request, build_full_exit_request, build_order_matching_request,
-    build_transfer_request, build_withdraw_request,
-};
-
 mod crypto;
 mod network;
 mod rpc_request_builder;
 mod type_convert;
-use chrono::{DateTime, Utc};
+mod zklink_tx;
+
+use crate::crypto::{get_public_key_hash, verify_musig};
+use crate::network::{zklink_main_net_url, zklink_test_net_url};
+use crate::rpc_request_builder::*;
+use crate::zklink_tx::*;
 
 use zklink_signers::eth_signer::error::EthSignerError;
 use zklink_signers::eth_signer::eth_signature::TxEthSignature;
@@ -36,7 +31,7 @@ use zklink_types::basic_types::{
     SubAccountId, TimeStamp, TokenId,
 };
 use zklink_types::tx_builder::{
-    ChangePubKeyBuilder, DepositBuilder, ForecedExitBuilder, FullExitBuilder, OrderMatchingBuilder,
+    ChangePubKeyBuilder, DepositBuilder, ForcedExitBuilder, FullExitBuilder, OrderMatchingBuilder,
     TransferBuilder, WithdrawBuilder,
 };
 use zklink_types::tx_type::change_pubkey::ChangePubKey;
@@ -49,6 +44,7 @@ use zklink_types::tx_type::order_matching::Order;
 use zklink_types::tx_type::order_matching::OrderMatching;
 use zklink_types::tx_type::transfer::Transfer;
 use zklink_types::tx_type::withdraw::Withdraw;
+use zklink_types::tx_type::zklink_tx::ZkLinkTx;
 
 use zklink_interface::error::SignError;
 use zklink_interface::sign_change_pubkey::{
@@ -60,7 +56,5 @@ use zklink_interface::sign_order_matching::create_signed_order_matching;
 use zklink_interface::sign_transfer::create_signed_transfer;
 use zklink_interface::sign_withdraw::create_signed_withdraw;
 use zklink_interface::ChangePubKeyAuthRequest;
-
-type TimeStampMicro = DateTime<Utc>;
 
 include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));

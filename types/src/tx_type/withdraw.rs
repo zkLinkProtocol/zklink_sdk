@@ -197,20 +197,21 @@ mod test {
         let address =
             ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
         let ts = 1693472232u32;
-        let withdraw = Withdraw::new(
-            AccountId(10),
-            SubAccountId(1),
-            ChainId(1),
-            address,
-            TokenId(18),
-            TokenId(18),
-            BigUint::from(10000u32),
-            BigUint::from(3u32),
-            Nonce(1),
-            false,
-            0,
-            ts.into(),
-        );
+        let builder = WithdrawBuilder {
+            account_id: AccountId(10),
+            sub_account_id: SubAccountId(1),
+            to_chain_id: ChainId(1),
+            to_address: address,
+            l2_source_token: TokenId(18),
+            l1_target_token: TokenId(18),
+            amount: BigUint::from(10000u32),
+            fee: BigUint::from(3u32),
+            nonce: Nonce(1),
+            fast_withdraw: false,
+            withdraw_fee_ratio: 0,
+            timestamp: ts.into(),
+        };
+        let withdraw = Withdraw::new(builder);
         let bytes = withdraw.get_bytes();
         let excepted_bytes = [
             3, 1, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4,

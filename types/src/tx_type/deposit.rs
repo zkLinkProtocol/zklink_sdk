@@ -91,17 +91,18 @@ mod test {
         let eth_hash =
             H256::from_str("0xe35f3a39d542f6d276c2f203e8fd64fcb8bf5db062b71ccacf45d5ecd9d456f3")
                 .unwrap();
-        let deposit = Deposit::new(
-            ChainId(1),
-            address.clone(),
-            SubAccountId(1),
-            address,
-            TokenId(18),
-            TokenId(18),
-            BigUint::from(100u32),
-            32001,
+        let builder = DepositBuilder {
+            from_address: address.clone(),
+            to_address: address.clone(),
+            from_chain_id: ChainId(1),
+            sub_account_id: SubAccountId(1),
+            l2_target_token: TokenId(18),
+            l1_source_token: TokenId(18),
+            amount: BigUint::from(100u32),
+            serial_id: 32001,
             eth_hash,
-        );
+        };
+        let deposit = Deposit::new(builder);
         let bytes = deposit.get_bytes();
         let excepted_bytes = [
             0, 0, 0, 0, 0, 0, 125, 1, 227, 95, 58, 57, 213, 66, 246, 210, 118, 194, 242, 3, 232,

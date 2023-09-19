@@ -33,12 +33,4 @@ pub fn create_signed_withdraw(
     let mut tx = (*tx).clone();
     tx.signature = zklink_singer.sign_musig(&tx.get_bytes())?;
     Ok(Arc::new(tx))
-    // let message = tx.get_ethereum_sign_message(&l2_source_token_symbol);
-    // let eth_signature = eth_signer.sign_message(message.as_bytes())?;
-
-    // Ok(TxSignature {
-    //     tx: tx.into(),
-    //     eth_signature: Some(eth_signature),
-    // })
 }
-// l2_source_token_symbol

@@ -81,16 +81,17 @@ mod test {
         let eth_hash =
             H256::from_str("0xe35f3a39d542f6d276c2f203e8fd64fcb8bf5db062b71ccacf45d5ecd9d456f3")
                 .unwrap();
-        let full_exit = FullExit::new(
-            ChainId(1),
-            AccountId(10),
-            SubAccountId(1),
-            address,
-            TokenId(18),
-            TokenId(18),
-            100,
+        let builder = FullExitBuilder {
+            to_chain_id: ChainId(1),
+            account_id: AccountId(10),
+            sub_account_id: SubAccountId(1),
+            exit_address: address,
+            l2_source_token: TokenId(18),
+            l1_target_token: TokenId(18),
+            serial_id: 100,
             eth_hash,
-        );
+        };
+        let full_exit = FullExit::new(builder);
         let bytes = full_exit.get_bytes();
         let excepted_bytes = [
             0, 0, 0, 0, 0, 0, 0, 100, 227, 95, 58, 57, 213, 66, 246, 210, 118, 194, 242, 3, 232,

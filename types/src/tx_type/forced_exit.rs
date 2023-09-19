@@ -5,7 +5,7 @@ use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use crate::basic_types::{
     AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
-use crate::tx_builder::ForecedExitBuilder;
+use crate::tx_builder::ForcedExitBuilder;
 use crate::tx_type::validator::*;
 use serde::{Deserialize, Serialize};
 use zklink_signers::zklink_signer::error::ZkSignerError;
@@ -67,7 +67,7 @@ impl ForcedExit {
     ///
     /// While `signature` field is mandatory for new transactions, it may be `None`
     /// in some cases (e.g. when restoring the network state from the L1 contract data).
-    pub fn new(builder: ForecedExitBuilder) -> Self {
+    pub fn new(builder: ForcedExitBuilder) -> Self {
         Self {
             to_chain_id: builder.to_chain_id,
             initiator_account_id: builder.initiator_account_id,
@@ -140,18 +140,19 @@ mod test {
         let address =
             ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
         let ts = 1693472232u32;
-        let forced_exit = ForcedExit::new(
-            ChainId(1),
-            AccountId(10),
-            SubAccountId(1),
-            address,
-            SubAccountId(1),
-            TokenId(18),
-            TokenId(18),
-            Nonce(1),
-            BigUint::from(10000u32),
-            ts.into(),
-        );
+        let builder = ForcedExitBuilder {
+            to_chain_id: ChainId(1),
+            initiator_account_id: AccountId(10),
+            initiator_sub_account_id: SubAccountId(1),
+            target: address,
+            target_sub_account_id: SubAccountId(1),
+            l2_source_token: TokenId(18),
+            l1_target_token: TokenId(18),
+            initiator_nonce: Nonce(1),
+            exit_amount: BigUint::from(10000u32),
+            ts: ts.into(),
+        };
+        let forced_exit = ForcedExit::new(builder);
         let bytes = forced_exit.get_bytes();
         println!("{:?}", bytes);
         let excepted_bytes = [

@@ -37,6 +37,7 @@ ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 LIB_DIR := ${ROOT_DIR}/target/release
 # the directory of generated golang files
 BINDINGS_DIR:=${ROOT_DIR}/binding_tests/generated
+BINDINGS_DIR_EXAMPLE:=${ROOT_DIR}/examples/Golang/generated
 LD_LIBRARY_PATH := ${LD_LIBRARY_PATH}:${LIB_DIR}
 BINDINGS_DIR?="${ROOT_DIR}/binding_tests/generated"
 UNIFFI_VERSION=0.23.0
@@ -61,6 +62,7 @@ prepare_wasm:
 build_binding_files: prepare_ffi
 	rm -rf ${BINDINGS_DIR}
 	uniffi-bindgen-go ${ROOT_DIR}/bindings/sdk/src/ffi.udl --out-dir ${BINDINGS_DIR} --config=${ROOT_DIR}/bindings/sdk/ffi_golang.toml
+	uniffi-bindgen-go ${ROOT_DIR}/bindings/sdk/src/ffi.udl --out-dir ${BINDINGS_DIR_EXAMPLE} --config=${ROOT_DIR}/bindings/sdk/ffi_golang.toml
 
 build_binding_lib:
 	cargo build --package bindings_sdk --release

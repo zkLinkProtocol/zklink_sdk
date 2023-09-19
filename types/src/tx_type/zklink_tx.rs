@@ -173,3 +173,16 @@ impl ZkLinkTx {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_zklink_tx_deserde() {
+        let s = r#"{"type":"ChangePubKey","chainId":1,"accountId":2,"subAccountId":4,"newPkHash":"0xd8d5fb6a6caef06aa3dc2abdcdc240987e5330fe","feeToken":1,"fee":"100","nonce":100,"signature":{"pubKey":"0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510","signature":"8ae9ee90a7c19ced45bb70cf9cee0b392659cea87891a5021fe558f8e18b8680865ca2f008f75ba69146e7b5412c223d1339443aa4be18a9f62142fdefb79600"},"ethAuthData":{"type":"EthECDSA","ethSignature":"0x66eeec379a192c64ac44bf3b2cafbb0ebb2fca8c7c1699095599e8173d618e860dae34989661497834cd89bf5e5772bda322050a4d8d958011d192eda69df8dc1b"},"ts":1695105758}"#;
+        let tx: Result<ZkLinkTx, _> = serde_json::from_str(s);
+        println!("{tx:?}");
+        assert!(tx.is_ok());
+    }
+}

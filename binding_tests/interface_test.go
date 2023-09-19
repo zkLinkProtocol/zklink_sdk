@@ -18,7 +18,7 @@ func TestSignChangePubkey(t *testing.T) {
 	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
     assert.Nil(t, err)
     pubkey_hash := sdk.PubKeyHash("0xd8d5fb6a6caef06aa3dc2abdcdc240987e5330fe")
-    tx := sdk.NewChangePubKey(
+    builder := sdk.ChangePubKeyBuilder {
         sdk.ChainId(1),
         sdk.AccountId(1),
         sdk.SubAccountId(1),
@@ -28,7 +28,8 @@ func TestSignChangePubkey(t *testing.T) {
         sdk.Nonce(1),
         &packed_eth_signature,
         sdk.TimeStamp(1),
-    )
+    };
+    tx := sdk.NewChangePubKey(builder)
 
     // create auth data
     main_contract := sdk.ZkLinkAddress("0x0000000000000000000000000000000000000000")
@@ -45,6 +46,9 @@ func TestSignChangePubkey(t *testing.T) {
     valid, err := tx.IsSignatureValid();
     assert.Equal(t, valid, true)
     fmt.Printf("%v\n", tx.JsonStr())
+    // create ZkLinkTx
+    zkinkTx := sdk.ZklinkTxFromChangePubkey(tx)
+    fmt.Printf("%s\n", zkinkTx)
 
     // submitter signature
     txHash := tx.TxHash()
@@ -59,7 +63,7 @@ func TestSignForcedExit(t *testing.T) {
 	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
     assert.Nil(t, err)
     address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
-    tx := sdk.NewForcedExit(
+    builder := sdk.ForcedExitBuilder{
         sdk.ChainId(1),
         sdk.AccountId(1),
         sdk.SubAccountId(1),
@@ -70,7 +74,8 @@ func TestSignForcedExit(t *testing.T) {
         sdk.Nonce(1),
         *big.NewInt(100000),
         sdk.TimeStamp(1693472232),
-    )
+    }
+    tx := sdk.NewForcedExit(builder)
     signed_tx, err := sdk.CreateSignedForcedExit(
         zklink_signer,
         tx,
@@ -80,6 +85,8 @@ func TestSignForcedExit(t *testing.T) {
     assert.Nil(t, err)
     assert.Equal(t, should_be_valid, true)
     fmt.Printf("signed forced exit:%v\n", signed_tx.JsonStr())
+    zklink_tx := sdk.ZklinkTxFromForcedExit(tx)
+    fmt.Printf("forced exit tx: %s", zklink_tx)
 }
 
 func TestSignTransfer(t *testing.T) {
@@ -92,7 +99,7 @@ func TestSignTransfer(t *testing.T) {
 	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
     assert.Nil(t, err)
     address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
-    tx := sdk.NewTransfer(
+    builder := sdk.TransferBuilder{
         sdk.AccountId(1),
         address,
         sdk.SubAccountId(1),
@@ -102,7 +109,8 @@ func TestSignTransfer(t *testing.T) {
         *big.NewInt(100),
         sdk.Nonce(1),
         sdk.TimeStamp(1693472232),
-    )
+    }
+    tx := sdk.NewTransfer(builder)
     signed_tx, err := sdk.CreateSignedTransfer(
         zklink_signer,
         tx,
@@ -116,6 +124,9 @@ func TestSignTransfer(t *testing.T) {
     eth_signature, err := signed_tx.EthSignature(eth_signer, "USDT")
     assert.Nil(t, err)
     fmt.Printf("eth signature: %v\n", eth_signature)
+    // get ZklinkTx
+    zklinkTx := sdk.ZklinkTxFromTransfer(tx)
+    fmt.Printf("zklink Tx: %s\n", zklinkTx)
 }
 
 
@@ -165,7 +176,7 @@ func TestSignOrderMatching(t *testing.T) {
     assert.NotNil(t, maker.Signature())
     fmt.Printf("maker signature:%v\n", maker.Signature())
 
-    tx := sdk.NewOrderMatching(
+    builder := sdk.OrderMatchingBuilder{
         sdk.AccountId(3),
         sdk.SubAccountId(1),
         taker,
@@ -174,7 +185,8 @@ func TestSignOrderMatching(t *testing.T) {
         sdk.TokenId(18),
         *big.NewInt(808077878),
         *big.NewInt(5479779),
-    )
+    }
+    tx := sdk.NewOrderMatching(builder)
     signed_tx, err := sdk.CreateSignedOrderMatching(
         zklink_signer,
         tx,
@@ -183,7 +195,9 @@ func TestSignOrderMatching(t *testing.T) {
     should_be_valid, err := signed_tx.IsSignatureValid();
     assert.Nil(t, err)
     assert.Equal(t, should_be_valid, true)
-    fmt.Printf("%v\n", signed_tx.JsonStr())
+    fmt.Printf("order matching: %v\n", signed_tx.JsonStr())
+    zklinkTx := sdk.ZklinkTxFromOrderMatching(tx)
+    fmt.Printf("zklink tx: %s\n", zklinkTx)
 }
 
 func TestSignWithdraw(t *testing.T) {
@@ -196,7 +210,7 @@ func TestSignWithdraw(t *testing.T) {
 	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
     assert.Nil(t, err)
     address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
-    tx := sdk.NewWithdraw(
+    builder := sdk.WithdrawBuilder{
         sdk.AccountId(1),
         sdk.SubAccountId(1),
         sdk.ChainId(1),
@@ -209,7 +223,8 @@ func TestSignWithdraw(t *testing.T) {
         false,
         50,
         sdk.TimeStamp(1693472232),
-    )
+    }
+    tx := sdk.NewWithdraw(builder)
     signed_tx, err := sdk.CreateSignedWithdraw(
         zklink_signer,
         tx,
@@ -218,10 +233,14 @@ func TestSignWithdraw(t *testing.T) {
     should_be_valid, err := signed_tx.IsSignatureValid();
     assert.Nil(t, err)
     assert.Equal(t, should_be_valid, true)
-    fmt.Printf("%v\n", signed_tx.JsonStr())
+    fmt.Printf("signed withraw tx: %v\n", signed_tx.JsonStr())
 
     // eth signature
     eth_signature, err := signed_tx.EthSignature(eth_signer, "USDC")
     assert.Nil(t, err)
-    fmt.Printf("%v\n", eth_signature)
+    fmt.Printf("eth signature: %v\n", eth_signature)
+
+    // zklink tx
+    zklinkTx := sdk.ZklinkTxFromWithdraw(tx)
+    fmt.Printf("zklink tx: %s\n", zklinkTx)
 }

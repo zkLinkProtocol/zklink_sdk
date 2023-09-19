@@ -198,17 +198,18 @@ mod test {
         let address =
             ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
         let ts = 1693472232u32;
-        let transfer = Transfer::new(
-            AccountId(10),
-            address,
-            SubAccountId(1),
-            SubAccountId(1),
-            TokenId(18),
-            BigUint::from(10000u32),
-            BigUint::from(3u32),
-            Nonce(1),
-            ts.into(),
-        );
+        let builder = TransferBuilder {
+            account_id: AccountId(10),
+            to_address: address,
+            from_sub_account_id: SubAccountId(1),
+            to_sub_account_id: SubAccountId(1),
+            token: TokenId(18),
+            amount: BigUint::from(10000u32),
+            fee: BigUint::from(3u32),
+            nonce: Nonce(1),
+            timestamp: ts.into(),
+        };
+        let transfer = Transfer::new(builder);
         let bytes = transfer.get_bytes();
         let excepted_bytes = [
             4, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4, 37,
@@ -227,17 +228,18 @@ mod test {
         let eth_signature = "0x1f11707e54773e059bc38aa73526fe2b51af9b89a77df731af7bcc429750d0317727a857efda5d79232eb5f9a66ed60a79aad2195d4de1375f5021c0db041b221b";
         let address =
             ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
-        let mut tx = Transfer::new(
-            AccountId(1),
-            address,
-            SubAccountId(1),
-            SubAccountId(1),
-            TokenId(18),
-            BigUint::from_str("100000").unwrap(),
-            BigUint::from_str("100").unwrap(),
-            Nonce(1),
-            ts.into(),
-        );
+        let builder = TransferBuilder {
+            account_id: AccountId(1),
+            to_address: address,
+            from_sub_account_id: SubAccountId(1),
+            to_sub_account_id: SubAccountId(1),
+            token: TokenId(18),
+            amount: BigUint::from_str("100000").unwrap(),
+            fee: BigUint::from_str("100").unwrap(),
+            nonce: Nonce(1),
+            timestamp: ts.into(),
+        };
+        let mut tx = Transfer::new(builder);
         //check l2 signature
         tx.signature = ZkLinkSignature::from_hex(signature).unwrap();
         let recover_pubkey_hash = tx.verify_signature().unwrap();

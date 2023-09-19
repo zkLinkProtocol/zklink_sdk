@@ -47,16 +47,6 @@ impl PackedPublicKey {
         Ok(Self(pubkey))
     }
 
-    // /// Converts private key into a corresponding public key.
-    // pub fn from_private_key(pk: &PackedPrivateKey) -> PackedPublicKey {
-    //     let pubkey: PackedPublicKey = JUBJUB_PARAMS
-    //         .with(|params| {
-    //             PublicKey::from_private(pk.as_ref(), FixedGenerators::SpendingKeyGenerator, params)
-    //         })
-    //         .into();
-    //     pubkey
-    // }
-
     /// converts public key to byte array
     pub fn as_bytes(&self) -> Vec<u8> {
         let mut pubkey_buf = Vec::with_capacity(PACKED_POINT_SIZE);
@@ -71,7 +61,8 @@ impl PackedPublicKey {
     /// converts public key to a hex string with the 0x prefix
     pub fn as_hex(&self) -> String {
         let bytes = self.as_bytes();
-        format!("0x{}", hex::encode(bytes))
+        hex::encode(bytes)
+        // format!("0x{}", hex::encode(bytes))
     }
 
     pub fn from_hex(s: &str) -> Result<Self, Error> {

@@ -1,3 +1,4 @@
 /target
 /Cargo.lock
 binding_tests/generated/
+examples/Golang/generated/

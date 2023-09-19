@@ -5,7 +5,7 @@ use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_types::basic_types::ZkLinkAddress;
 use zklink_types::tx_builder::{
-    ChangePubKeyBuilder, DepositBuilder, ForecedExitBuilder, FullExitBuilder, OrderMatchingBuilder,
+    ChangePubKeyBuilder, DepositBuilder, ForcedExitBuilder, FullExitBuilder, OrderMatchingBuilder,
     TransferBuilder, WithdrawBuilder,
 };
 use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
@@ -15,6 +15,7 @@ use zklink_types::tx_type::full_exit::FullExit;
 use zklink_types::tx_type::order_matching::OrderMatching;
 use zklink_types::tx_type::transfer::Transfer;
 use zklink_types::tx_type::withdraw::Withdraw;
+use zklink_types::tx_type::zklink_tx::ZkLinkTx;
 
 pub fn build_change_pubkey_request_with_create2data(
     private_key: &str,
@@ -37,12 +38,14 @@ pub fn build_change_pubkey_request_with_create2data(
     let submitter_signature = zklink_signer.sign_musig(&bytes)?;
 
     // build rpc request
-    let request = [
-        serde_json::to_value(tx).unwrap(),
+    let zklink_tx: ZkLinkTx = tx.into();
+    let request = (
+        serde_json::to_value(zklink_tx).unwrap(),
         Value::Null,
         serde_json::to_value(submitter_signature).unwrap(),
-    ];
+    );
     let s = serde_json::to_string(&request).unwrap();
+    println!("xxxxxxxxxxxxxxx: {s}");
     Ok(s)
 }
 
@@ -155,7 +158,7 @@ pub fn build_withdraw_request(
 
 pub fn build_forced_exit_request(
     private_key: &str,
-    builder: ForecedExitBuilder,
+    builder: ForcedExitBuilder,
 ) -> Result<String, SignError> {
     let zklink_signer = ZkLinkSigner::new_from_hex_eth_signer(private_key)?;
     let mut tx = ForcedExit::new(builder);

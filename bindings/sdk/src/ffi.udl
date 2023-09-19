@@ -96,7 +96,7 @@ dictionary WithdrawBuilder {
     TimeStamp timestamp;
 };
 
-dictionary ForecedExitBuilder {
+dictionary ForcedExitBuilder {
     ChainId to_chain_id;
     AccountId initiator_account_id;
     SubAccountId initiator_sub_account_id;
@@ -188,7 +188,7 @@ interface ChangePubKey {
 };
 
 interface ForcedExit {
-    constructor(ForecedExitBuilder builder);
+    constructor(ForcedExitBuilder builder);
     ZkLinkSignature signature();
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
@@ -320,7 +320,7 @@ interface ZkLinkSigner {
 };
 
 dictionary ZkLinkSignature {
-    PackedPublicKey public_key;
+    PackedPublicKey pub_key;
     PackedSignature signature;
 };
 
@@ -336,9 +336,8 @@ enum SignError {
     "IncorrectTx",
 };
 
-// ============================  rpc response ============================
 [Custom]
-typedef u64 TimeStampMicro;
+typedef string ZkLinkTx;
 
 // ============================  namespace ============================
 namespace zklink_sdk {
@@ -369,6 +368,14 @@ namespace zklink_sdk {
     [Throws=SignError]
     Withdraw create_signed_withdraw(ZkLinkSigner zklink_signer, Withdraw tx);
 
+    ZkLinkTx zklink_tx_from_change_pubkey(ChangePubKey tx);
+    ZkLinkTx zklink_tx_from_transfer(Transfer tx);
+    ZkLinkTx zklink_tx_from_deposit(Deposit tx);
+    ZkLinkTx zklink_tx_from_withdraw(Withdraw tx);
+    ZkLinkTx zklink_tx_from_forced_exit(ForcedExit tx);
+    ZkLinkTx zklink_tx_from_full_exit(FullExit tx);
+    ZkLinkTx zklink_tx_from_order_matching(OrderMatching tx);
+
     [Throws=SignError]
     string build_change_pubkey_request_with_create2data([ByRef] string private_key, ChangePubKeyBuilder builder, Create2Data create2data);
     [Throws=SignError]
@@ -382,7 +389,7 @@ namespace zklink_sdk {
     [Throws=SignError]
     string build_withdraw_request([ByRef] string private_key, WithdrawBuilder builder);
     [Throws=SignError]
-    string build_forced_exit_request([ByRef] string private_key, ForecedExitBuilder builder);
+    string build_forced_exit_request([ByRef] string private_key, ForcedExitBuilder builder);
     [Throws=SignError]
     string build_full_exit_request(FullExitBuilder builder);
     [Throws=SignError]

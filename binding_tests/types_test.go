@@ -17,15 +17,25 @@ func TestTypeDeposit(t *testing.T) {
     amount := *big.NewInt(123)
     serial_id := uint64(123)
     eth_hash := "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-
-    deposit := sdk.NewDeposit(from_chain_id, from_address, sub_account_id, to_address, l2_target_token, l1_source_token, amount, serial_id, eth_hash);
+    builder := sdk.DepositBuilder{
+        from_address,
+        to_address,
+        from_chain_id,
+        sub_account_id,
+        l2_target_token,
+        l1_source_token,
+        amount,
+        serial_id,
+        eth_hash,
+    }
+    deposit := sdk.NewDeposit(builder);
     bytes := deposit.GetBytes()
     assert.NotNil(t, bytes)
 }
 
 func TestTypeTransfer(t *testing.T) {
-    address_to := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
-    ts := sdk.TimeStamp(1693472232)
+    to_address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
+    timestamp := sdk.TimeStamp(1693472232)
     account_id := sdk.AccountId(10)
     from_sub_account_id := sdk.SubAccountId(1)
     to_sub_account_id := sdk.SubAccountId(1)
@@ -33,17 +43,18 @@ func TestTypeTransfer(t *testing.T) {
     amount := *big.NewInt(10000)
     fee := *big.NewInt(3)
     nonce := sdk.Nonce(1)
-    tx := sdk.NewTransfer(
+    builder := sdk.TransferBuilder{
         account_id,
-        address_to,
+        to_address,
         from_sub_account_id,
         to_sub_account_id,
         token,
         amount,
         fee,
         nonce,
-        ts,
-    )
+        timestamp,
+    }
+    tx := sdk.NewTransfer(builder)
     bytes := tx.GetBytes()
     bytes_expected := []byte {
         4, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4, 37,

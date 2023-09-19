@@ -61,7 +61,7 @@ pub struct WithdrawBuilder {
     pub timestamp: TimeStamp,
 }
 
-pub struct ForecedExitBuilder {
+pub struct ForcedExitBuilder {
     pub to_chain_id: ChainId,
     pub initiator_account_id: AccountId,
     pub initiator_sub_account_id: SubAccountId,

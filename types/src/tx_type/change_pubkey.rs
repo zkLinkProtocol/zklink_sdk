@@ -52,8 +52,13 @@ impl Create2Data {
 #[serde(tag = "type")]
 pub enum ChangePubKeyAuthData {
     OnChain,
-    EthECDSA { eth_signature: PackedEthSignature },
-    EthCreate2 { data: Create2Data },
+    EthECDSA {
+        #[serde(rename = "ethSignature")]
+        eth_signature: PackedEthSignature,
+    },
+    EthCreate2 {
+        data: Create2Data,
+    },
 }
 
 impl Default for ChangePubKeyAuthData {
@@ -292,17 +297,18 @@ mod test {
         let pub_key = zk_signer.public_key();
         let pub_key_hash = pub_key.public_key_hash();
         let ts = 1693472232u32;
-        let change_pubkey = ChangePubKey::new(
-            ChainId(1),
-            AccountId(1),
-            SubAccountId(1),
-            pub_key_hash,
-            TokenId(18),
-            BigUint::from(100u32),
-            Nonce(1),
-            Default::default(),
-            ts.into(),
-        );
+        let builder = ChangePubKeyBuilder {
+            chain_id: ChainId(1),
+            account_id: AccountId(1),
+            sub_account_id: SubAccountId(1),
+            new_pubkey_hash: pub_key_hash,
+            fee_token: TokenId(18),
+            fee: BigUint::from(100u32),
+            nonce: Nonce(1),
+            eth_signature: None,
+            ts: ts.into(),
+        };
+        let change_pubkey = ChangePubKey::new(builder);
         let bytes = change_pubkey.get_bytes();
         let excepted_bytes = [
             0, 0, 0, 0, 0, 0, 125, 1, 227, 95, 58, 57, 213, 66, 246, 210, 118, 194, 242, 3, 232,
