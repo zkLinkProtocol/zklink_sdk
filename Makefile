@@ -74,4 +74,11 @@ test_go: build_binding_lib build_binding_files
 	CGO_ENABLED=1 \
 	go test  -v
 
+run_example_go: build_binding_lib build_binding_files
+	cd ${ROOT_DIR}/examples/Golang && \
+	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} \
+	CGO_LDFLAGS="-lzklink_sdk -L${LIB_DIR} -lm -ldl" \
+	CGO_ENABLED=1 \
+	go run 1_change_pubkey.go
+
 
