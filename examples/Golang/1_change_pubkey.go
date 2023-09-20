@@ -1,7 +1,6 @@
 package main
 
 import (
-	sdk "github.com/zkLinkProtocol/zklink_sdk/go_example/generated/uniffi/zklink_sdk"
 	"net/http"
 	"math/big"
 	"encoding/json"
@@ -9,6 +8,7 @@ import (
 	"time"
 	"bytes"
 	"io/ioutil"
+	sdk "github.com/zkLinkProtocol/zklink_sdk/go_example/generated/uniffi/zklink_sdk"
 )
 
 
@@ -19,7 +19,15 @@ type RPCTransaction struct {
      Params  []json.RawMessage `json:"params"`
 }
 
-func LowLevel() {
+
+type RPCTransaction2 struct {
+     Id      int64             `json:"id"`
+     JsonRpc string            `json:"jsonrpc"`
+     Method  string            `json:"method"`
+     Params  json.RawMessage `json:"params"`
+}
+
+func LowLevelChangePubkey() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
     // create eth signer
     ethSigner, err := sdk.NewPrivateKeySigner(privateKey)
@@ -67,9 +75,9 @@ func LowLevel() {
 	// 3. sdk.ChangePubKeyAuthDataEthEcdsa
 
 	// TODO: use real main contract address
-    main_contract := sdk.ZkLinkAddress("0x0000000000000000000000000000000000000000")
-    l1_client_id := uint32(1)
-    ethSignature, err = sdk.EthSignatureOfChangePubkey(l1_client_id, tx, ethSigner, main_contract);
+    mainContract := sdk.ZkLinkAddress("0x0000000000000000000000000000000000000000")
+    l1ClientId := uint32(1)
+    ethSignature, err = sdk.EthSignatureOfChangePubkey(l1ClientId, tx, ethSigner, mainContract);
     if err != nil {
         return
     }
@@ -93,25 +101,24 @@ func LowLevel() {
 
     // create submitter signature
     txHash := tx.TxHash()
-    submitter_signature, err := zklinkSigner.SignMusig(txHash)
+    submitterSignature, err := zklinkSigner.SignMusig(txHash)
     if err != nil {
         return
     }
-	json_str_of_submitter_signature := sdk.JsonStrOfZklinkSignature(submitter_signature)
-    fmt.Println("changePubKey submitter signature: %v", json_str_of_submitter_signature)
+	jsonStrOfSubmitterSignature := sdk.JsonStrOfZklinkSignature(submitterSignature)
+    fmt.Println("changePubKey submitter signature: %v", jsonStrOfSubmitterSignature)
 
     // rpc request with `sendTransaction`
-    // [a, b, c]
-	tx_req := RPCTransaction {
+	txReq := RPCTransaction {
 		Id:      1,
 		JsonRpc: "2.0",
 		Method:  "sendTransaction",
 		Params: []json.RawMessage{
 		[]byte(zklinkTx),
 		nil,
-		[]byte(json_str_of_submitter_signature)},
+		[]byte(jsonStrOfSubmitterSignature)},
     }
-	JsonTx, err := json.Marshal(tx_req)
+	JsonTx, err := json.Marshal(txReq)
 	fmt.Println("ChangePubKey rpc request:",  string(JsonTx))
 	zklinkUrl := sdk.ZklinkTestNetUrl()
 	response, err := http.Post(zklinkUrl, "application/json",bytes.NewBuffer(JsonTx))
@@ -123,7 +130,7 @@ func LowLevel() {
     fmt.Println(string(body))
 }
 
-func HighLevel() {
+func HighLevelChangePubkey() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
 	chainId := sdk.ChainId(1)
 	accountId := sdk.AccountId(2)
@@ -138,7 +145,7 @@ func HighLevel() {
     now := time.Now()
     timeStamp := sdk.TimeStamp(now.Unix())
 	// TODO: use real main contract address
-    main_contract := sdk.ZkLinkAddress("0x0000000000000000000000000000000000000000")
+    mainContract := sdk.ZkLinkAddress("0x0000000000000000000000000000000000000000")
 
     // create ChangePubKey transaction type without signed
 	changePubKeyBuilder := sdk.ChangePubKeyBuilder{
@@ -152,21 +159,17 @@ func HighLevel() {
 		&ethSignature,
 		timeStamp,
 	}
-    l1_client_id := uint32(1)
-    params, err := sdk.BuildChangePubkeyRequestWithEthEcdsaAuthData(privateKey, changePubKeyBuilder, l1_client_id, main_contract)
+    l1ClientId := uint32(1)
+    params, err := sdk.BuildChangePubkeyRequestWithEthEcdsaAuthData(privateKey, changePubKeyBuilder, l1ClientId, mainContract)
     if err != nil {
         return
     }
     // rpc request with `sendTransaction`
-    // [a, b, c] json string
-    // [[a, b, c]]
-    fmt.Println("xxxxxxxxx: %s", params)
-    params_bytes := []byte(params)
-	tx := RPCTransaction{
+	tx := RPCTransaction2 {
 		Id:      1,
 		JsonRpc: "2.0",
 		Method:  "sendTransaction",
-		Params: []json.RawMessage{params_bytes},
+		Params: json.RawMessage(params),
     }
 	JsonTx, err := json.Marshal(tx)
 	fmt.Println("ChangePubKey rpc request:",  string(JsonTx))
@@ -181,6 +184,6 @@ func HighLevel() {
 }
 
 func main() {
-    LowLevel()
-    HighLevel()
+    LowLevelChangePubkey()
+    HighLevelChangePubkey()
 }

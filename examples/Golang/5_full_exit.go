@@ -2,14 +2,13 @@ package main
 
 import (
 	"net/http"
-	"math/big"
 	"encoding/json"
 	"fmt"
-	"time"
 	"bytes"
 	"io/ioutil"
 	sdk "github.com/zkLinkProtocol/zklink_sdk/go_example/generated/uniffi/zklink_sdk"
 )
+
 
 type RPCTransaction struct {
      Id      int64             `json:"id"`
@@ -18,38 +17,21 @@ type RPCTransaction struct {
      Params  json.RawMessage `json:"params"`
 }
 
-func HighLevelWithdraw() {
-    privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
-	accountId := sdk.AccountId(8300)
-	subAccountId := sdk.SubAccountId(4)
-	toChainId := sdk.ChainId(1)
-    toAddress := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
-    l2SourceToken := sdk.TokenId(6)
-    l1TargetToken := sdk.TokenId(5)
-	amount := *big.NewInt(1000000)
-	fee := *big.NewInt(1000)
-	nonce := sdk.Nonce(1)
-	fastWithdraw := false
-	withdrawFeeRatio := uint16(50)
-    // get current timestamp
-    now := time.Now()
-    timestamp := sdk.TimeStamp(now.Unix())
-
-    builder := sdk.WithdrawBuilder{
-        accountId,
-        subAccountId,
-        toChainId,
-        toAddress,
-        l2SourceToken,
-        l1TargetToken,
-        amount,
-        fee,
-        nonce,
-        fastWithdraw,
-        withdrawFeeRatio,
-        timestamp,
+func HighLevelFullExit() {
+    address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
+    ethHash := "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    seriaId := uint64(123)
+    builder := sdk.FullExitBuilder{
+        sdk.ChainId(1),
+        sdk.AccountId(1),
+        sdk.SubAccountId(1),
+        address,
+        sdk.TokenId(17),
+        sdk.TokenId(18),
+        seriaId,
+        ethHash,
     }
-    params, err := sdk.BuildWithdrawRequest(privateKey, builder)
+    params, err := sdk.BuildFullExitRequest(builder)
     if err != nil {
         return
     }
@@ -74,5 +56,5 @@ func HighLevelWithdraw() {
 }
 
 func main() {
-    HighLevelWithdraw()
+    HighLevelFullExit()
 }

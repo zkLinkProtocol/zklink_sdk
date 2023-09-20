@@ -200,6 +200,25 @@ func TestSignOrderMatching(t *testing.T) {
     fmt.Printf("zklink tx: %s\n", zklinkTx)
 }
 
+func TestDeposit(t *testing.T) {
+    fromAddress := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
+    toAddress := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
+    ethHash := "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    builder := DepositBuilder {
+      fromAddress,
+      toAddress,
+      sdk.ChainId(1),
+      sdk.SubAccountId(2),
+      sdk.TokenId(3),
+      sdk.TokenId(4),
+      *big.NewInt(100),
+      100,
+      ethHash,
+    }
+    tx := sdk.NewDeposit(builder)
+    assert.NotNil(t, tx)
+}
+
 func TestSignWithdraw(t *testing.T) {
     packed_eth_signature := sdk.PackedEthSignature("0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001b")
     assert.NotNil(t, packed_eth_signature)
@@ -244,3 +263,5 @@ func TestSignWithdraw(t *testing.T) {
     zklinkTx := sdk.ZklinkTxFromWithdraw(tx)
     fmt.Printf("zklink tx: %s\n", zklinkTx)
 }
+
+

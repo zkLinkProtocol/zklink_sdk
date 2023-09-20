@@ -74,11 +74,13 @@ test_go: build_binding_lib build_binding_files
 	CGO_ENABLED=1 \
 	go test  -v
 
-run_example_go: build_binding_lib build_binding_files
-	cd ${ROOT_DIR}/examples/Golang && \
+run_example_go_%: ${ROOT_DIR}/examples/Golang/%.go
+	@cd ${ROOT_DIR}/examples/Golang && \
 	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} \
 	CGO_LDFLAGS="-lzklink_sdk -L${LIB_DIR} -lm -ldl" \
 	CGO_ENABLED=1 \
-	go run 1_change_pubkey.go
+	go run $<
 
-
+GO_FILES = 1_change_pubkey 2_withdraw 3_transfer 4_forced_exit 5_full_exit 6_deposit 7_order_matching
+RUN_GO_EXAMPLES = $(patsubst %, run_example_go_%, $(GO_FILES))
+run_example_go:  ${RUN_GO_EXAMPLES}

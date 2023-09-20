@@ -45,7 +45,6 @@ pub fn build_change_pubkey_request_with_create2data(
         serde_json::to_value(submitter_signature).unwrap(),
     );
     let s = serde_json::to_string(&request).unwrap();
-    println!("xxxxxxxxxxxxxxx: {s}");
     Ok(s)
 }
 
@@ -68,8 +67,9 @@ pub fn build_change_pubkey_request_with_onchain_auth_data(
     let submitter_signature = zklink_signer.sign_musig(&bytes)?;
 
     // build rpc request
+    let zklink_tx: ZkLinkTx = tx.into();
     let request = [
-        serde_json::to_value(tx).unwrap(),
+        serde_json::to_value(zklink_tx).unwrap(),
         Value::Null,
         serde_json::to_value(submitter_signature).unwrap(),
     ];
@@ -100,8 +100,9 @@ pub fn build_change_pubkey_request_with_eth_ecdsa_auth_data(
     let submitter_signature = zklink_signer.sign_musig(&bytes)?;
 
     // build rpc request
+    let zklink_tx: ZkLinkTx = tx.into();
     let request = [
-        serde_json::to_value(tx).unwrap(),
+        serde_json::to_value(zklink_tx).unwrap(),
         Value::Null,
         serde_json::to_value(submitter_signature).unwrap(),
     ];
@@ -128,8 +129,9 @@ pub fn build_transfer_request(
     let tx_hash = tx.tx_hash();
     let submitter_signature = zklink_signer.sign_musig(&tx_hash)?;
 
+    let zklink_tx: ZkLinkTx = tx.into();
     let req = [
-        serde_json::to_value(tx).unwrap(),
+        serde_json::to_value(zklink_tx).unwrap(),
         serde_json::to_value(eth_signature).unwrap(),
         serde_json::to_value(submitter_signature).unwrap(),
     ];
@@ -139,7 +141,8 @@ pub fn build_transfer_request(
 
 pub fn build_deposit_request(builder: DepositBuilder) -> Result<String, SignError> {
     let tx = Deposit::new(builder);
-    let req = [serde_json::to_value(tx).unwrap(), Value::Null, Value::Null];
+    let zklink_tx: ZkLinkTx = tx.into();
+    let req = [serde_json::to_value(zklink_tx).unwrap(), Value::Null, Value::Null];
     let s = serde_json::to_string(&req).unwrap();
     Ok(s)
 }
@@ -151,7 +154,8 @@ pub fn build_withdraw_request(
     let zk_signer = ZkLinkSigner::new_from_hex_eth_signer(private_key)?;
     let mut tx = Withdraw::new(builder);
     tx.sign(&zk_signer)?;
-    let req = [serde_json::to_value(tx).unwrap(), Value::Null, Value::Null];
+    let zklink_tx: ZkLinkTx = tx.into();
+    let req = [serde_json::to_value(zklink_tx).unwrap(), Value::Null, Value::Null];
     let s = serde_json::to_string(&req).unwrap();
     Ok(s)
 }
@@ -163,14 +167,16 @@ pub fn build_forced_exit_request(
     let zklink_signer = ZkLinkSigner::new_from_hex_eth_signer(private_key)?;
     let mut tx = ForcedExit::new(builder);
     tx.sign(&zklink_signer)?;
-    let req = [serde_json::to_value(tx).unwrap(), Value::Null, Value::Null];
+    let zklink_tx: ZkLinkTx = tx.into();
+    let req = [serde_json::to_value(zklink_tx).unwrap(), Value::Null, Value::Null];
     let s = serde_json::to_string(&req).unwrap();
     Ok(s)
 }
 
 pub fn build_full_exit_request(builder: FullExitBuilder) -> Result<String, SignError> {
     let tx = FullExit::new(builder);
-    let req = [serde_json::to_value(tx).unwrap(), Value::Null, Value::Null];
+    let zklink_tx: ZkLinkTx = tx.into();
+    let req = [serde_json::to_value(zklink_tx).unwrap(), Value::Null, Value::Null];
     let s = serde_json::to_string(&req).unwrap();
     Ok(s)
 }
@@ -182,7 +188,8 @@ pub fn build_order_matching_request(
     let zklink_signer = ZkLinkSigner::new_from_hex_eth_signer(private_key)?;
     let mut tx = OrderMatching::new(builder);
     tx.sign(&zklink_signer)?;
-    let req = [serde_json::to_value(tx).unwrap(), Value::Null, Value::Null];
+    let zklink_tx: ZkLinkTx = tx.into();
+    let req = [serde_json::to_value(zklink_tx).unwrap(), Value::Null, Value::Null];
     let s = serde_json::to_string(&req).unwrap();
     Ok(s)
 }

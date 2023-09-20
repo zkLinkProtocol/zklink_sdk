@@ -10,7 +10,6 @@ import (
 	sdk "github.com/zkLinkProtocol/zklink_sdk/go_example/generated/uniffi/zklink_sdk"
 )
 
-
 type RPCTransaction struct {
      Id      int64             `json:"id"`
      JsonRpc string            `json:"jsonrpc"`
@@ -18,22 +17,61 @@ type RPCTransaction struct {
      Params  json.RawMessage `json:"params"`
 }
 
-func HighLevelTransfer() {
+func HighLevelOrderMatching() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
-    address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
-    builder := sdk.TransferBuilder {
+    // create zklink signer
+	zklinkSigner, err := sdk.ZkLinkSignerNewFromHexEthSigner(privateKey)
+	if err != nil {
+		return
+	}
+    taker := sdk.NewOrder(
         sdk.AccountId(1),
-        address,
         sdk.SubAccountId(1),
-        sdk.SubAccountId(1),
-        sdk.TokenId(18),
-        *big.NewInt(100000),
-        *big.NewInt(100),
+        sdk.SlotId(3),
         sdk.Nonce(1),
-        sdk.TimeStamp(1693472232),
+        sdk.TokenId(18),
+        sdk.TokenId(145),
+        *big.NewInt(323289),
+        *big.NewInt(135),
+        true,
+        2,
+        5,
+    )
+    taker, err = sdk.CreateSignedOrder(
+        zklinkSigner,
+        taker,
+    )
+
+    maker := sdk.NewOrder(
+         sdk.AccountId(2),
+         sdk.SubAccountId(1),
+         sdk.SlotId(3),
+         sdk.Nonce(1),
+         sdk.TokenId(18),
+         sdk.TokenId(145),
+         *big.NewInt(323355),
+         *big.NewInt(135),
+         false,
+         2,
+         5,
+    )
+    maker, err = sdk.CreateSignedOrder(
+        zklinkSigner,
+        maker,
+    )
+
+    builder := sdk.OrderMatchingBuilder{
+        sdk.AccountId(3),
+        sdk.SubAccountId(1),
+        taker,
+        maker,
+        *big.NewInt(1000),
+        sdk.TokenId(18),
+        *big.NewInt(808077878),
+        *big.NewInt(5479779),
     }
-    tokenSymbol := "DAI"
-    params, err := sdk.BuildTransferRequest(privateKey, builder, tokenSymbol)
+
+    params, err := sdk.BuildOrderMatchingRequest(privateKey, builder)
     if err != nil {
         return
     }
@@ -58,5 +96,5 @@ func HighLevelTransfer() {
 }
 
 func main() {
-    HighLevelTransfer()
+    HighLevelOrderMatching()
 }
