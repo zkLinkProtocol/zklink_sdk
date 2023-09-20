@@ -181,7 +181,7 @@ impl Withdraw {
         eth_signer: Arc<PrivateKeySigner>,
         l2_source_token_symbol: &str,
     ) -> Result<PackedEthSignature, ZkSignerError> {
-        let message = self.get_ethereum_sign_message(&l2_source_token_symbol);
+        let message = self.get_ethereum_sign_message(l2_source_token_symbol);
         let eth_signature = eth_signer.sign_message(message.as_bytes())?;
         Ok(eth_signature)
     }

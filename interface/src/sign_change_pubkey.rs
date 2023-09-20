@@ -5,11 +5,14 @@ use crate::ChangePubKeyAuthRequest;
 use crate::TxSignature;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
+#[cfg(feature = "ffi")]
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_types::basic_types::ZkLinkAddress;
-use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
+use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData};
+#[cfg(feature = "ffi")]
+use zklink_types::tx_type::change_pubkey::Create2Data;
 
 #[cfg(feature = "sync")]
 pub fn sign_change_pubkey(

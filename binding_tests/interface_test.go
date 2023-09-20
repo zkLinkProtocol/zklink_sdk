@@ -204,7 +204,7 @@ func TestDeposit(t *testing.T) {
     fromAddress := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
     toAddress := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
     ethHash := "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-    builder := DepositBuilder {
+    builder := sdk.DepositBuilder {
       fromAddress,
       toAddress,
       sdk.ChainId(1),

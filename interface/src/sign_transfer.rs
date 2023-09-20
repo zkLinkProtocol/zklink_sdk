@@ -4,8 +4,6 @@ use crate::TxSignature;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
 #[cfg(not(feature = "ffi"))]
-use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
-#[cfg(not(feature = "ffi"))]
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_types::tx_type::transfer::Transfer;

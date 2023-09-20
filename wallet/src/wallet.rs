@@ -9,7 +9,6 @@ use zklink_signers::eth_signer::eth_signature::TxEthSignature;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
-use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_types::basic_types::params::MAIN_SUB_ACCOUNT_ID;
 use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::{AccountId, ChainId, Nonce, SubAccountId, TokenId, ZkLinkAddress};
@@ -291,12 +290,10 @@ where
                 .all(|sid| *sid == MAIN_SUB_ACCOUNT_ID)
         {
             None
+        } else if let Some(signer) = submitter_signer {
+            Some(signer.sign_musig(tx_signature.tx.hash().as_ref())?)
         } else {
-            if let Some(signer) = submitter_signer {
-                Some(signer.sign_musig(tx_signature.tx.hash().as_ref())?)
-            } else {
-                return Err(ClientError::MissSubmitterSigner);
-            }
+            return Err(ClientError::MissSubmitterSigner);
         };
 
         let tx_hash = self
