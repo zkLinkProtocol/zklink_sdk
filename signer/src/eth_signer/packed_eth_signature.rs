@@ -36,10 +36,6 @@ impl PackedEthSignature {
         let mut bytes_array = [0u8; 65];
         bytes_array.copy_from_slice(bytes);
 
-        // if bytes_array[64] >= 27 {
-        //     bytes_array[64] -= 27;
-        // }
-
         Ok(PackedEthSignature(Signature::try_from(bytes_array.as_slice())
             .map_err(|_err| EthSignerError::InvalidEthSigner)?))
     }
@@ -91,13 +87,22 @@ mod tests {
     use super::*;
     use crate::eth_signer::Address;
     use std::str::FromStr;
+    use crate::eth_signer::pk_signer::PrivateKeySigner;
 
     #[test]
     fn test_packed_eth_signature() {
-        let signature_str = "0xd226c38ff38e07f50d8455fa004168bdd3eb6d860d72ecb1549c0891db64a56e52d450091f0c1dbff67d2bb8394e01df9a4a7c13d47c9fa10897e0bbcab122de1b";
-        let sig = PackedEthSignature::from_hex(&signature_str).unwrap();
+        let private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
         let msg = vec![1,2,3,4,5];
+        let pk = PrivateKeySigner::try_from(private_key).unwrap();
+        let signature = pk.sign_message(&msg).unwrap();
+        let signature_str = "0xd226c38ff38e07f50d8455fa004168bdd3eb6d860d72ecb1549c0891db64a56e52d450091f0c1dbff67d2bb8394e01df9a4a7c13d47c9fa10897e0bbcab122de1b";
+        assert_eq!(signature.as_hex(),signature_str);
+
+        let sig = PackedEthSignature::from_hex(&signature_str).unwrap();
         let address = sig.signature_recover_signer(&msg).unwrap();
+        let pk_address = pk.get_address().unwrap();
+        assert_eq!(address,pk_address);
+
         let sign_address = Address::from_str("0xdec58607c3f5a0f8bc51ca50cc2578ab282865fc").unwrap();
         assert_eq!(address,sign_address);
     }
