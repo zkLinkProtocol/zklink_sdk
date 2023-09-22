@@ -1,4 +1,3 @@
-#![cfg(target_arch = "wasm32")]
 use crate::zklink_signer::error::ZkSignerError;
 use wasm_bindgen::JsValue;
 

@@ -1,4 +1,3 @@
-#![cfg(target_arch = "wasm32")]
 use wasm_bindgen::JsValue;
 use crate::eth_signer::error::EthSignerError;
 use crate::eth_signer::eth_signature::TxEthSignature;
