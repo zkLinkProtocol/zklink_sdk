@@ -13,6 +13,7 @@ use zklink_types::basic_types::ZkLinkAddress;
 #[cfg(feature = "ffi")]
 use zklink_types::tx_type::change_pubkey::Create2Data;
 use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData};
+use zklink_types::tx_type::TxTrait;
 
 #[cfg(feature = "sync")]
 pub fn sign_change_pubkey(

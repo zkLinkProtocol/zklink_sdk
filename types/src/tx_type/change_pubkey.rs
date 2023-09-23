@@ -1,12 +1,10 @@
-#[cfg(feature = "ffi")]
-use std::sync::Arc;
 use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::{
     AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
 use crate::tx_builder::ChangePubKeyBuilder;
-use crate::tx_type::format_units;
 use crate::tx_type::validator::*;
+use crate::tx_type::{format_units, TxTrait, ZkSignatureTrait};
 use num::{BigUint, Zero};
 use parity_crypto::Keccak256;
 use serde::{Deserialize, Serialize};
@@ -19,7 +17,6 @@ use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_signers::eth_signer::EthTypedData;
 use zklink_signers::eth_signer::H256;
 use zklink_signers::zklink_signer::error::ZkSignerError;
-use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
@@ -148,6 +145,38 @@ pub struct ChangePubKey {
     pub ts: TimeStamp,
 }
 
+impl TxTrait for ChangePubKey {
+    fn get_bytes(&self) -> Vec<u8> {
+        let mut out = Vec::new();
+        out.extend_from_slice(&[Self::TX_TYPE]);
+        out.extend_from_slice(&self.chain_id.to_be_bytes());
+        out.extend_from_slice(&self.account_id.to_be_bytes());
+        out.extend_from_slice(&self.sub_account_id.to_be_bytes());
+        out.extend_from_slice(&self.new_pk_hash.data);
+        out.extend_from_slice(&(*self.fee_token as u16).to_be_bytes());
+        out.extend_from_slice(&pack_fee_amount(&self.fee));
+        out.extend_from_slice(&self.nonce.to_be_bytes());
+        out.extend_from_slice(&self.ts.to_be_bytes());
+        out
+    }
+}
+
+impl ZkSignatureTrait for ChangePubKey {
+    fn set_signature(&mut self, signature: ZkLinkSignature) {
+        self.signature = signature;
+    }
+
+    #[cfg(feature = "ffi")]
+    fn signature(&self) -> ZkLinkSignature {
+        self.signature.clone()
+    }
+
+    fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+        let bytes = self.get_bytes();
+        self.signature.verify_musig(&bytes)
+    }
+}
+
 impl ChangePubKey {
     /// Creates transaction from all the required fields.
     ///
@@ -173,55 +202,10 @@ impl ChangePubKey {
         }
     }
 
-    /// Encodes the transaction data as the byte sequence according to the zkLink protocol.
-    pub fn get_bytes(&self) -> Vec<u8> {
-        let mut out = Vec::new();
-        out.extend_from_slice(&[Self::TX_TYPE]);
-        out.extend_from_slice(&self.chain_id.to_be_bytes());
-        out.extend_from_slice(&self.account_id.to_be_bytes());
-        out.extend_from_slice(&self.sub_account_id.to_be_bytes());
-        out.extend_from_slice(&self.new_pk_hash.data);
-        out.extend_from_slice(&(*self.fee_token as u16).to_be_bytes());
-        out.extend_from_slice(&pack_fee_amount(&self.fee));
-        out.extend_from_slice(&self.nonce.to_be_bytes());
-        out.extend_from_slice(&self.ts.to_be_bytes());
-        out
-    }
-
-    pub fn tx_hash(&self) -> Vec<u8> {
-        let bytes = self.get_bytes();
-        sha256_bytes(&bytes)
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn json_str(&self) -> String {
-        serde_json::to_string(&self).unwrap()
-    }
-
     pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
         let bytes = self.get_bytes();
         self.signature = signer.sign_musig(&bytes)?;
         Ok(())
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn submitter_signature(&self, signer: Arc<ZkLinkSigner>) -> Result<ZkLinkSignature, ZkSignerError> {
-        let bytes = self.tx_hash();
-        let signature = signer.sign_musig(&bytes)?;
-        Ok(signature)
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn signature(&self) -> ZkLinkSignature {
-        self.signature.clone()
-    }
-
-    pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
-        self.signature.verify_musig(&self.get_bytes())
-    }
-
-    pub fn is_validate(&self) -> bool {
-        self.validate().is_ok()
     }
 
     pub fn is_onchain(&self) -> bool {

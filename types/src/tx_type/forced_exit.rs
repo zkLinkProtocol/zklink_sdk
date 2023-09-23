@@ -1,5 +1,3 @@
-#[cfg(feature = "ffi")]
-use std::sync::Arc;
 use num::{BigUint, ToPrimitive};
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
@@ -9,11 +7,11 @@ use crate::basic_types::{
 };
 use crate::tx_builder::ForcedExitBuilder;
 use crate::tx_type::validator::*;
+use crate::tx_type::{TxTrait, ZkSignatureTrait};
 use serde::{Deserialize, Serialize};
 use zklink_signers::zklink_signer::error::ZkSignerError;
-use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
-use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
+
 /// `ForcedExit` transaction is used to withdraw funds from an unowned
 /// account to its corresponding L1 address.
 ///
@@ -85,8 +83,17 @@ impl ForcedExit {
         }
     }
 
-    /// Encodes the transaction data as the byte sequence according to the zkLink protocol.
-    pub fn get_bytes(&self) -> Vec<u8> {
+    pub fn get_eth_sign_msg_part(&self) -> String {
+        todo!("get eth sign message part")
+    }
+
+    pub fn get_eth_sign_msg(&self) -> String {
+        todo!("get eth sign msg")
+    }
+}
+
+impl TxTrait for ForcedExit {
+    fn get_bytes(&self) -> Vec<u8> {
         let mut out = Vec::new();
         out.extend_from_slice(&[Self::TX_TYPE]);
         out.extend_from_slice(&self.to_chain_id.to_be_bytes());
@@ -101,53 +108,22 @@ impl ForcedExit {
         out.extend_from_slice(&self.ts.to_be_bytes());
         out
     }
+}
 
-    pub fn tx_hash(&self) -> Vec<u8> {
-        let bytes = self.get_bytes();
-        sha256_bytes(&bytes)
+impl ZkSignatureTrait for ForcedExit {
+    fn set_signature(&mut self, signature: ZkLinkSignature) {
+        self.signature = signature;
     }
 
     #[cfg(feature = "ffi")]
-    pub fn json_str(&self) -> String {
-        serde_json::to_string(&self).unwrap()
-    }
-
-    pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
-        let bytes = self.get_bytes();
-        self.signature = signer.sign_musig(&bytes)?;
-        Ok(())
-    }
-
-
-    #[cfg(feature = "ffi")]
-    pub fn submitter_signature(&self, signer: Arc<ZkLinkSigner>) -> Result<ZkLinkSignature, ZkSignerError> {
-        let bytes = self.tx_hash();
-        let signature = signer.sign_musig(&bytes)?;
-        Ok(signature)
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn signature(&self) -> ZkLinkSignature {
+    fn signature(&self) -> ZkLinkSignature {
         self.signature.clone()
     }
 
-    pub fn is_validate(&self) -> bool {
-        self.validate().is_ok()
+    fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+        let bytes = self.get_bytes();
+        self.signature.verify_musig(&bytes)
     }
-
-    pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
-        self.signature.verify_musig(&self.get_bytes())
-    }
-
-    pub fn get_eth_sign_msg_part(&self) -> String {
-        todo!("get eth sign message part")
-    }
-
-    pub fn get_eth_sign_msg(&self) -> String {
-        todo!("get eth sign msg")
-    }
-
-
 }
 
 #[cfg(test)]

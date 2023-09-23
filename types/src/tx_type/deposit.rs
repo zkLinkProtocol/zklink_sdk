@@ -1,12 +1,12 @@
 use super::validator::*;
 use crate::basic_types::{ChainId, SubAccountId, TokenId, ZkLinkAddress};
 use crate::tx_builder::DepositBuilder;
+use crate::tx_type::TxTrait;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_signers::eth_signer::H256;
-use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
 
 /// `Mapping` transaction performs a move of funds from one zklink account to another.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
@@ -55,27 +55,14 @@ impl Deposit {
             eth_hash: builder.eth_hash,
         }
     }
+}
 
-    /// Be used to compute hashes to facilitate the frontend to track priority transactions.
-    pub fn get_bytes(&self) -> Vec<u8> {
+impl TxTrait for Deposit {
+    fn get_bytes(&self) -> Vec<u8> {
         let mut out = Vec::new();
         out.extend_from_slice(&self.serial_id.to_be_bytes());
         out.extend_from_slice(self.eth_hash.as_bytes());
         out
-    }
-
-    pub fn tx_hash(&self) -> Vec<u8> {
-        let bytes = self.get_bytes();
-        sha256_bytes(&bytes)
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn json_str(&self) -> String {
-        serde_json::to_string(&self).unwrap()
-    }
-
-    pub fn is_validate(&self) -> bool {
-        self.validate().is_ok()
     }
 }
 

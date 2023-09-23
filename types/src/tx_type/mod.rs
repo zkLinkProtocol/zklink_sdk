@@ -6,8 +6,15 @@ use crate::tx_type::full_exit::FullExit;
 use crate::tx_type::order_matching::OrderMatching;
 use crate::tx_type::transfer::Transfer;
 use crate::tx_type::withdraw::Withdraw;
+use ::validator::Validate;
 use num::{BigUint, Zero};
+use serde::Serialize;
 use std::collections::VecDeque;
+#[cfg(feature = "ffi")]
+use std::sync::Arc;
+use zklink_signers::zklink_signer::error::ZkSignerError;
+use zklink_signers::zklink_signer::pk_signer::{sha256_bytes, ZkLinkSigner};
+use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 
 pub(crate) mod validator;
 
@@ -103,4 +110,49 @@ pub fn format_units(wei: impl ToString, units: u8) -> String {
         chars.push_back('0');
     }
     chars.iter().collect()
+}
+
+pub trait TxTrait: Validate + Serialize {
+    /// Encodes the transaction data as the byte sequence according to the zkLink protocol.
+    fn get_bytes(&self) -> Vec<u8>;
+
+    fn tx_hash(&self) -> Vec<u8> {
+        let bytes = self.get_bytes();
+        sha256_bytes(&bytes)
+    }
+
+    #[cfg(feature = "ffi")]
+    fn json_str(&self) -> String {
+        serde_json::to_string(&self).unwrap()
+    }
+
+    fn is_validate(&self) -> bool {
+        self.validate().is_ok()
+    }
+}
+
+pub trait ZkSignatureTrait: TxTrait {
+    fn set_signature(&mut self, signature: ZkLinkSignature);
+
+    #[cfg(feature = "ffi")]
+    fn signature(&self) -> ZkLinkSignature;
+
+    fn is_signature_valid(&self) -> Result<bool, ZkSignerError>;
+
+    fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
+        let bytes = self.get_bytes();
+        let signature = signer.sign_musig(&bytes)?;
+        self.set_signature(signature);
+        Ok(())
+    }
+
+    #[cfg(feature = "ffi")]
+    fn submitter_signature(
+        &self,
+        signer: Arc<ZkLinkSigner>,
+    ) -> Result<ZkLinkSignature, ZkSignerError> {
+        let bytes = self.tx_hash();
+        let signature = signer.sign_musig(&bytes)?;
+        Ok(signature)
+    }
 }

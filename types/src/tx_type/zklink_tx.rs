@@ -9,6 +9,7 @@ use crate::tx_type::full_exit::FullExit;
 use crate::tx_type::order_matching::OrderMatching;
 use crate::tx_type::transfer::Transfer;
 use crate::tx_type::withdraw::Withdraw;
+use crate::tx_type::TxTrait;
 
 /// A set of L2 transaction type supported by the zklink network.
 #[derive(Debug, Clone, Serialize, Deserialize)]

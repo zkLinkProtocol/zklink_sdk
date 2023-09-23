@@ -17,6 +17,7 @@ use zklink_types::tx_type::order_matching::OrderMatching;
 use zklink_types::tx_type::transfer::Transfer;
 use zklink_types::tx_type::withdraw::Withdraw;
 use zklink_types::tx_type::zklink_tx::ZkLinkTx;
+use zklink_types::tx_type::ZkSignatureTrait;
 
 pub struct Signer {
     zklink_signer: ZkLinkSigner,

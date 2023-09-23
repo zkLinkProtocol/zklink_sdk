@@ -17,9 +17,7 @@ use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_signers::zklink_signer::public_key::PackedPublicKey;
-use zklink_signers::zklink_signer::signature::{
-    PackedSignature, ZkLinkSignature,
-};
+use zklink_signers::zklink_signer::signature::{PackedSignature, ZkLinkSignature};
 
 use zklink_types::basic_types::error::TypeError;
 use zklink_types::basic_types::tx_hash::TxHash;
@@ -43,6 +41,7 @@ use zklink_types::tx_type::order_matching::OrderMatching;
 use zklink_types::tx_type::transfer::Transfer;
 use zklink_types::tx_type::withdraw::Withdraw;
 use zklink_types::tx_type::zklink_tx::ZkLinkTx;
+use zklink_types::tx_type::{TxTrait, ZkSignatureTrait};
 
 use zklink_interface::error::SignError;
 use zklink_interface::sign_change_pubkey::{

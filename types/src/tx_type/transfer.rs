@@ -1,8 +1,8 @@
 use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
 use crate::basic_types::params::TOKEN_MAX_PRECISION;
 use crate::basic_types::{AccountId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress};
-use crate::tx_type::ethereum_sign_message_part;
 use crate::tx_type::validator::*;
+use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait};
 
 use crate::tx_builder::TransferBuilder;
 use num::BigUint;
@@ -14,8 +14,6 @@ use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_signers::eth_signer::eth_signature::TxEthSignature;
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
-use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
-use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 
@@ -77,59 +75,6 @@ impl Transfer {
         }
     }
 
-    /// Encodes the transaction data as the byte sequence according to the zkLink protocol.
-    pub fn get_bytes(&self) -> Vec<u8> {
-        let mut out = Vec::new();
-        out.extend_from_slice(&[Self::TX_TYPE]);
-        out.extend_from_slice(&self.account_id.to_be_bytes());
-        out.extend_from_slice(&self.from_sub_account_id.to_be_bytes());
-        out.extend_from_slice(&self.to.to_fixed_bytes());
-        out.extend_from_slice(&self.to_sub_account_id.to_be_bytes());
-        out.extend_from_slice(&(*self.token as u16).to_be_bytes());
-        out.extend_from_slice(&pack_token_amount(&self.amount));
-        out.extend_from_slice(&pack_fee_amount(&self.fee));
-        out.extend_from_slice(&self.nonce.to_be_bytes());
-        out.extend_from_slice(&self.ts.to_be_bytes());
-        out
-    }
-
-    pub fn tx_hash(&self) -> Vec<u8> {
-        let bytes = self.get_bytes();
-        sha256_bytes(&bytes)
-    }
-
-    pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
-        let bytes = self.get_bytes();
-        self.signature = signer.sign_musig(&bytes)?;
-        Ok(())
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn json_str(&self) -> String {
-        serde_json::to_string(&self).unwrap()
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn signature(&self) -> ZkLinkSignature {
-        self.signature.clone()
-    }
-
-
-    #[cfg(feature = "ffi")]
-    pub fn submitter_signature(&self, signer: Arc<ZkLinkSigner>) -> Result<ZkLinkSignature, ZkSignerError> {
-        let bytes = self.tx_hash();
-        let signature = signer.sign_musig(&bytes)?;
-        Ok(signature)
-    }
-
-    pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
-        self.signature.verify_musig(&self.get_bytes())
-    }
-
-    pub fn is_validate(&self) -> bool {
-        self.validate().is_ok()
-    }
-
     /// Restores the `PubKeyHash` from the transaction signature.
     pub fn verify_signature(&self) -> Option<PubKeyHash> {
         match self.signature.verify_musig(&self.get_bytes()) {
@@ -168,10 +113,7 @@ impl Transfer {
         eth_signer: &PrivateKeySigner,
         token_symbol: &str,
     ) -> Result<TxEthSignature, ZkSignerError> {
-        let message = self
-            .get_eth_sign_msg(token_symbol)
-            .as_bytes()
-            .to_vec();
+        let message = self.get_eth_sign_msg(token_symbol).as_bytes().to_vec();
         let eth_signature = eth_signer.sign_message(&message)?;
         let tx_eth_signature = TxEthSignature::EthereumSignature(eth_signature);
         Ok(tx_eth_signature)
@@ -187,6 +129,38 @@ impl Transfer {
         let eth_signature = eth_signer.sign_message(message.as_bytes())?;
         let tx_eth_signature = TxEthSignature::EthereumSignature(eth_signature);
         Ok(tx_eth_signature)
+    }
+}
+
+impl TxTrait for Transfer {
+    fn get_bytes(&self) -> Vec<u8> {
+        let mut out = Vec::new();
+        out.extend_from_slice(&[Self::TX_TYPE]);
+        out.extend_from_slice(&self.account_id.to_be_bytes());
+        out.extend_from_slice(&self.from_sub_account_id.to_be_bytes());
+        out.extend_from_slice(&self.to.to_fixed_bytes());
+        out.extend_from_slice(&self.to_sub_account_id.to_be_bytes());
+        out.extend_from_slice(&(*self.token as u16).to_be_bytes());
+        out.extend_from_slice(&pack_token_amount(&self.amount));
+        out.extend_from_slice(&pack_fee_amount(&self.fee));
+        out.extend_from_slice(&self.nonce.to_be_bytes());
+        out.extend_from_slice(&self.ts.to_be_bytes());
+        out
+    }
+}
+
+impl ZkSignatureTrait for Transfer {
+    fn set_signature(&mut self, signature: ZkLinkSignature) {
+        self.signature = signature
+    }
+
+    #[cfg(feature = "ffi")]
+    fn signature(&self) -> ZkLinkSignature {
+        self.signature.clone()
+    }
+
+    fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+        self.signature.verify_musig(&self.get_bytes())
     }
 }
 

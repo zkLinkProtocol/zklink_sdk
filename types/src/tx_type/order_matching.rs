@@ -1,19 +1,22 @@
-#[cfg(feature = "ffi")]
-use std::sync::Arc;
 use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
-use crate::basic_types::params::{ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH, TOKEN_MAX_PRECISION};
+use crate::basic_types::params::{
+    ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH,
+    TOKEN_MAX_PRECISION,
+};
 use crate::basic_types::{AccountId, Nonce, SlotId, SubAccountId, TokenId};
 use crate::tx_builder::OrderMatchingBuilder;
-use crate::tx_type::format_units;
 use crate::tx_type::validator::*;
+use crate::tx_type::{format_units, TxTrait, ZkSignatureTrait};
 use num::{BigUint, ToPrimitive, Zero};
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "ffi")]
+use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_signers::eth_signer::eth_signature::TxEthSignature;
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
-use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
+#[cfg(feature = "ffi")]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_signers::zklink_signer::utils::rescue_hash_orders;
@@ -85,35 +88,7 @@ impl Order {
         }
     }
 
-    /// Encodes the transaction data.
-    pub fn get_bytes(&self) -> Vec<u8> {
-        let mut out = Vec::with_capacity(SIGNED_ORDER_BIT_WIDTH / 8);
-        out.extend_from_slice(&[Self::MSG_TYPE]);
-        out.extend_from_slice(&self.account_id.to_be_bytes());
-        out.extend_from_slice(&self.sub_account_id.to_be_bytes());
-        out.extend_from_slice(&(*self.slot_id as u16).to_be_bytes());
-        out.extend_from_slice(&self.nonce.to_be_bytes()[1..]);
-        out.extend_from_slice(&(*self.base_token_id as u16).to_be_bytes());
-        out.extend_from_slice(&(*self.quote_token_id as u16).to_be_bytes());
-        out.extend_from_slice(&pad_front(&self.price.to_bytes_be(), PRICE_BIT_WIDTH / 8));
-        out.extend_from_slice(&self.is_sell.to_be_bytes());
-        out.extend_from_slice(&self.fee_ratio1.to_be_bytes());
-        out.extend_from_slice(&self.fee_ratio2.to_be_bytes());
-        out.extend_from_slice(&pack_token_amount(&self.amount));
-        out
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn json_str(&self) -> String {
-        serde_json::to_string(&self).unwrap()
-    }
-
-    pub fn get_eth_sign_msg(
-        &self,
-        quote_token: &str,
-        based_token: &str,
-        decimals: u8,
-    ) -> String {
+    pub fn get_eth_sign_msg(&self, quote_token: &str, based_token: &str, decimals: u8) -> String {
         let mut message = if self.amount.is_zero() {
             format!("Limit order for {} -> {}\n", quote_token, based_token)
         } else {
@@ -133,18 +108,48 @@ impl Order {
         .as_str();
         message
     }
+}
+
+impl TxTrait for Order {
+    fn get_bytes(&self) -> Vec<u8> {
+        let mut out = Vec::with_capacity(SIGNED_ORDER_BIT_WIDTH / 8);
+        out.extend_from_slice(&[Self::MSG_TYPE]);
+        out.extend_from_slice(&self.account_id.to_be_bytes());
+        out.extend_from_slice(&self.sub_account_id.to_be_bytes());
+        out.extend_from_slice(&(*self.slot_id as u16).to_be_bytes());
+        out.extend_from_slice(&self.nonce.to_be_bytes()[1..]);
+        out.extend_from_slice(&(*self.base_token_id as u16).to_be_bytes());
+        out.extend_from_slice(&(*self.quote_token_id as u16).to_be_bytes());
+        out.extend_from_slice(&pad_front(&self.price.to_bytes_be(), PRICE_BIT_WIDTH / 8));
+        out.extend_from_slice(&self.is_sell.to_be_bytes());
+        out.extend_from_slice(&self.fee_ratio1.to_be_bytes());
+        out.extend_from_slice(&self.fee_ratio2.to_be_bytes());
+        out.extend_from_slice(&pack_token_amount(&self.amount));
+        out
+    }
+}
+
+impl ZkSignatureTrait for Order {
+    fn set_signature(&mut self, signature: ZkLinkSignature) {
+        self.signature = signature;
+    }
 
     #[cfg(feature = "ffi")]
-    pub fn signature(&self) -> ZkLinkSignature {
+    fn signature(&self) -> ZkLinkSignature {
         self.signature.clone()
     }
 
-    pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
-        self.signature.verify_musig(&self.get_bytes())
+    fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+        let bytes = self.get_bytes();
+        self.signature.verify_musig(&bytes)
     }
 
-    pub fn is_validate(&self) -> bool {
-        self.validate().is_ok()
+    #[cfg(feature = "ffi")]
+    fn submitter_signature(
+        &self,
+        _signer: Arc<ZkLinkSigner>,
+    ) -> Result<ZkLinkSignature, ZkSignerError> {
+        unreachable!("no need submitter signature for Order")
     }
 }
 
@@ -237,68 +242,12 @@ impl OrderMatching {
         }
     }
 
-    /// Encodes the transaction data as the byte sequence.
-    pub fn get_bytes(&self) -> Vec<u8> {
-        let maker_order_bytes = self.maker.get_bytes();
-        let mut orders_bytes = Vec::with_capacity(maker_order_bytes.len() * 2);
-        orders_bytes.extend(maker_order_bytes);
-        orders_bytes.extend(self.taker.get_bytes());
-        // todo do not resize, sdk should be update
-        orders_bytes.resize(ORDERS_BYTES, 0);
-
-        let mut out = Vec::with_capacity(SIGNED_ORDER_MATCHING_BIT_WIDTH / 8);
-        out.push(Self::TX_TYPE);
-        out.extend_from_slice(&self.account_id.to_be_bytes());
-        out.extend_from_slice(&self.sub_account_id.to_be_bytes());
-        out.extend(rescue_hash_orders(&orders_bytes));
-        out.extend_from_slice(&(*self.fee_token as u16).to_be_bytes());
-        out.extend_from_slice(&pack_fee_amount(&self.fee));
-        out.extend_from_slice(&self.expect_base_amount.to_u128().unwrap().to_be_bytes());
-        out.extend_from_slice(&self.expect_quote_amount.to_u128().unwrap().to_be_bytes());
-        out
-    }
-
-    pub fn tx_hash(&self) -> Vec<u8> {
-        let bytes = self.get_bytes();
-        sha256_bytes(&bytes)
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn json_str(&self) -> String {
-        serde_json::to_string(&self).unwrap()
-    }
-
-    pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
-        let bytes = self.get_bytes();
-        self.signature = signer.sign_musig(&bytes)?;
-        Ok(())
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn signature(&self) -> ZkLinkSignature {
-        self.signature.clone()
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn submitter_signature(&self, signer: Arc<ZkLinkSigner>) -> Result<ZkLinkSignature, ZkSignerError> {
-        let bytes = self.tx_hash();
-        let signature = signer.sign_musig(&bytes)?;
-        Ok(signature)
-    }
-
-    pub fn is_validate(&self) -> bool {
-        match self.validate() {
-            Ok(_) => self.maker.is_validate() && self.taker.is_validate(),
-            Err(_) => false,
-        }
-    }
-
-    pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
-        self.signature.verify_musig(&self.get_bytes())
-    }
-
     pub fn get_eth_sign_msg(&self) -> String {
-        format!("OrderMatching fee: {} {}\n", format_units(&self.fee, TOKEN_MAX_PRECISION), self.fee_token)
+        format!(
+            "OrderMatching fee: {} {}\n",
+            format_units(&self.fee, TOKEN_MAX_PRECISION),
+            self.fee_token
+        )
     }
 
     #[cfg(feature = "ffi")]
@@ -321,6 +270,52 @@ impl OrderMatching {
         let eth_signature = eth_signer.sign_message(msg.as_bytes())?;
         let tx_eth_signature = TxEthSignature::EthereumSignature(eth_signature);
         Ok(tx_eth_signature)
+    }
+}
+
+impl TxTrait for OrderMatching {
+    fn get_bytes(&self) -> Vec<u8> {
+        let maker_order_bytes = self.maker.get_bytes();
+        let mut orders_bytes = Vec::with_capacity(maker_order_bytes.len() * 2);
+        orders_bytes.extend(maker_order_bytes);
+        orders_bytes.extend(self.taker.get_bytes());
+        // todo do not resize, sdk should be update
+        orders_bytes.resize(ORDERS_BYTES, 0);
+
+        let mut out = Vec::with_capacity(SIGNED_ORDER_MATCHING_BIT_WIDTH / 8);
+        out.push(Self::TX_TYPE);
+        out.extend_from_slice(&self.account_id.to_be_bytes());
+        out.extend_from_slice(&self.sub_account_id.to_be_bytes());
+        out.extend(rescue_hash_orders(&orders_bytes));
+        out.extend_from_slice(&(*self.fee_token as u16).to_be_bytes());
+        out.extend_from_slice(&pack_fee_amount(&self.fee));
+        out.extend_from_slice(&self.expect_base_amount.to_u128().unwrap().to_be_bytes());
+        out.extend_from_slice(&self.expect_quote_amount.to_u128().unwrap().to_be_bytes());
+        out
+    }
+
+    fn is_validate(&self) -> bool {
+        let order_valid = match self.validate() {
+            Ok(_) => self.maker.is_validate() && self.taker.is_validate(),
+            Err(_) => false,
+        };
+        order_valid && self.validate().is_ok()
+    }
+}
+
+impl ZkSignatureTrait for OrderMatching {
+    fn set_signature(&mut self, signature: ZkLinkSignature) {
+        self.signature = signature;
+    }
+
+    #[cfg(feature = "ffi")]
+    fn signature(&self) -> ZkLinkSignature {
+        self.signature.clone()
+    }
+
+    fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+        let bytes = self.get_bytes();
+        self.signature.verify_musig(&bytes)
     }
 }
 
