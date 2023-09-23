@@ -82,7 +82,7 @@ impl Signer {
 
         // create auth data
         let typed_data = tx.to_eip712_request_payload(l1_client_id, &main_contract_address)?;
-        let eth_signature = self.eth_signer.sign_byted_data(&typed_data.data_hash)?;
+        let eth_signature = self.eth_signer.sign_hash(typed_data.data_hash.as_bytes())?;
         tx.eth_auth_data = ChangePubKeyAuthData::EthECDSA { eth_signature };
 
         Ok(TxSignature {

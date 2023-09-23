@@ -46,7 +46,7 @@ fn main() {
     let typed_data = TypedData::new(domain, message).unwrap();
 
     let signature = pk_signer
-        .sign_byted_data(&typed_data.sign_hash().unwrap())
+        .sign_hash(&typed_data.sign_hash().unwrap())
         .unwrap();
 
     assert_eq!(signature.as_hex(), "0xbf24877c59766e95717686e71a0402ba12f5db4a8aa93ac6c30b5742925ebfc26c91d6b6bb949a2b0578c397e296830dde9cc3531adbb259c4b4b06441b1a9c51b");

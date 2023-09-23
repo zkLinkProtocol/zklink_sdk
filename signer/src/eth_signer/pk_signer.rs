@@ -4,6 +4,7 @@ use super::EthSignerError;
 use crate::eth_signer::{Address, H256};
 use ethers::types::transaction::eip2718::TypedTransaction;
 use ethers::signers::{LocalWallet, Signer};
+use ethers::types::TxHash;
 use ethers::utils::hash_message;
 use k256::ecdsa::SigningKey;
 
@@ -53,13 +54,18 @@ impl EthSigner {
     /// Signs message using ethereum private key, results are identical to signature created
     /// using `geth`, `ethecore/lib/types/src/gas_counter.rsrs.js`, etc. No hashing and prefixes required.
     pub fn sign_message(&self, msg: &[u8]) -> Result<PackedEthSignature, EthSignerError> {
+        let hash = hash_message(msg);
+        self.sign_hash(hash.as_bytes())
+    }
+
+    pub fn sign_hash(&self, hash: &[u8]) -> Result<PackedEthSignature, EthSignerError> {
+        let tx_hash = TxHash::from_slice(hash);
         let key = SigningKey::from_slice(self.private_key.as_bytes())
             .map_err(|_| EthSignerError::DefineAddress)?;
-        let msg_hash = hash_message(msg);
-        let signed = LocalWallet::from(key)
-            .sign_hash(msg_hash)
+        let signature = LocalWallet::from(key)
+            .sign_hash(tx_hash)
             .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;
-        Ok(PackedEthSignature(signed))
+        Ok(PackedEthSignature(signature))
     }
 }
 
