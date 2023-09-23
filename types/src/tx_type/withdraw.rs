@@ -5,7 +5,7 @@ use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
-use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+use zklink_signers::eth_signer::pk_signer::EthSigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
@@ -196,7 +196,7 @@ impl Withdraw {
     #[cfg(feature = "ffi")]
     pub fn eth_signature(
         &self,
-        eth_signer: Arc<PrivateKeySigner>,
+        eth_signer: Arc<EthSigner>,
         l2_source_token_symbol: &str,
     ) -> Result<PackedEthSignature, ZkSignerError> {
         let message = self.get_eth_sign_msg(l2_source_token_symbol);
@@ -207,7 +207,7 @@ impl Withdraw {
     #[cfg(not(feature = "ffi"))]
     pub fn eth_signature(
         &self,
-        eth_signer: &PrivateKeySigner,
+        eth_signer: &EthSigner,
         l2_source_token_symbol: &str,
     ) -> Result<PackedEthSignature, ZkSignerError> {
         let message = self.get_eth_sign_msg(l2_source_token_symbol);

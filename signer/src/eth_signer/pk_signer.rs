@@ -7,17 +7,17 @@ use crate::eth_signer::{Address, H256};
 use secp256k1::SecretKey;
 
 #[derive(Clone)]
-pub struct PrivateKeySigner {
+pub struct EthSigner {
     private_key: H256,
 }
 
-impl std::fmt::Debug for PrivateKeySigner {
+impl std::fmt::Debug for EthSigner {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "PrivateKeySigner")
     }
 }
 
-impl PrivateKeySigner {
+impl EthSigner {
     #[cfg(feature = "ffi")]
     pub fn new(s: &str) -> Result<Self, EthSignerError> {
         s.try_into()
@@ -78,7 +78,7 @@ impl PrivateKeySigner {
     }
 }
 
-impl TryFrom<&str> for PrivateKeySigner {
+impl TryFrom<&str> for EthSigner {
     type Error = EthSignerError;
 
     fn try_from(private_key: &str) -> Result<Self, Self::Error> {
@@ -92,7 +92,7 @@ impl TryFrom<&str> for PrivateKeySigner {
     }
 }
 
-impl From<&H256> for PrivateKeySigner {
+impl From<&H256> for EthSigner {
     fn from(private_key: &H256) -> Self {
         Self {
             private_key: *private_key,
@@ -102,7 +102,7 @@ impl From<&H256> for PrivateKeySigner {
 
 #[cfg(test)]
 mod test {
-    use super::PrivateKeySigner;
+    use super::EthSigner;
     use super::RawTransaction;
     use web3::types::{H160, H256, U256, U64};
 
@@ -110,7 +110,7 @@ mod test {
     async fn test_generating_signed_raw_transaction() {
         let private_key = H256::from([5; 32]);
         let private_key = hex::encode(private_key.as_bytes());
-        let signer = PrivateKeySigner::try_from(private_key.as_str()).unwrap();
+        let signer = EthSigner::try_from(private_key.as_str()).unwrap();
         let raw_transaction = RawTransaction {
             nonce: U256::from(1u32),
             to: Some(H160::default()),

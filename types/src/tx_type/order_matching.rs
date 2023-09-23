@@ -14,7 +14,7 @@ use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_signers::eth_signer::eth_signature::TxEthSignature;
-use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+use zklink_signers::eth_signer::pk_signer::EthSigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 #[cfg(feature = "ffi")]
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
@@ -253,7 +253,7 @@ impl OrderMatching {
     #[cfg(feature = "ffi")]
     pub fn eth_signature(
         &self,
-        eth_signer: Arc<PrivateKeySigner>,
+        eth_signer: Arc<EthSigner>,
     ) -> Result<TxEthSignature, ZkSignerError> {
         let msg = self.get_eth_sign_msg();
         let eth_signature = eth_signer.sign_message(msg.as_bytes())?;
@@ -264,7 +264,7 @@ impl OrderMatching {
     #[cfg(not(feature = "ffi"))]
     pub fn eth_signature(
         &self,
-        eth_signer: &PrivateKeySigner,
+        eth_signer: &EthSigner,
     ) -> Result<TxEthSignature, ZkSignerError> {
         let msg = self.get_eth_sign_msg();
         let eth_signature = eth_signer.sign_message(msg.as_bytes())?;

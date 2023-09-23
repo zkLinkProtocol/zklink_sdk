@@ -10,7 +10,7 @@ use crate::zklink_tx::*;
 use zklink_signers::eth_signer::error::EthSignerError;
 use zklink_signers::eth_signer::eth_signature::TxEthSignature;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
-use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+use zklink_signers::eth_signer::pk_signer::EthSigner;
 use zklink_signers::eth_signer::H256;
 
 use zklink_signers::zklink_signer::error::ZkSignerError;

@@ -13,7 +13,7 @@ func TestSignChangePubkey(t *testing.T) {
     assert.NotNil(t, packed_eth_signature)
 
 	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
-    eth_signer, err := sdk.NewPrivateKeySigner(s)
+    eth_signer, err := sdk.NewEthSigner(s)
     assert.Nil(t, err)
 	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
     assert.Nil(t, err)
@@ -94,7 +94,7 @@ func TestSignTransfer(t *testing.T) {
     assert.NotNil(t, packed_eth_signature)
 
 	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
-    eth_signer, err := sdk.NewPrivateKeySigner(s)
+    eth_signer, err := sdk.NewEthSigner(s)
     assert.Nil(t, err)
 	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
     assert.Nil(t, err)
@@ -224,7 +224,7 @@ func TestSignWithdraw(t *testing.T) {
     assert.NotNil(t, packed_eth_signature)
 
 	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
-    eth_signer, err := sdk.NewPrivateKeySigner(s)
+    eth_signer, err := sdk.NewEthSigner(s)
     assert.Nil(t, err)
 	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
     assert.Nil(t, err)

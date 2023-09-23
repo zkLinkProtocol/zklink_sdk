@@ -2,13 +2,13 @@ use crate::error::SignError;
 use crate::TxSignature;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
-use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+use zklink_signers::eth_signer::pk_signer::EthSigner;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_types::tx_type::transfer::Transfer;
 use zklink_types::tx_type::TxTrait;
 
 pub fn sign_transfer(
-    eth_signer: &PrivateKeySigner,
+    eth_signer: &EthSigner,
     zklink_syner: &ZkLinkSigner,
     mut tx: Transfer,
     token_symbol: &str,

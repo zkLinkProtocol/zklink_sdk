@@ -174,7 +174,7 @@ interface Withdraw {
     boolean is_signature_valid();
     string get_eth_sign_msg([ByRef] string token_symbol);
     [Throws=ZkSignerError]
-    PackedEthSignature  eth_signature(PrivateKeySigner eth_signer, [ByRef] string l2_source_token_symbol);
+    PackedEthSignature  eth_signature(EthSigner eth_signer, [ByRef] string l2_source_token_symbol);
     [Throws=ZkSignerError]
     ZkLinkSignature submitter_signature(ZkLinkSigner signer);
 };
@@ -226,7 +226,7 @@ interface Transfer {
     boolean is_signature_valid();
     string get_eth_sign_msg([ByRef] string token_symbol);
     [Throws=ZkSignerError]
-    TxEthSignature eth_signature(PrivateKeySigner eth_signer, [ByRef]string token_symbol);
+    TxEthSignature eth_signature(EthSigner eth_signer, [ByRef]string token_symbol);
     [Throws=ZkSignerError]
     ZkLinkSignature submitter_signature(ZkLinkSigner signer);
 };
@@ -289,7 +289,7 @@ enum EthSignerError {
 [Custom]
 typedef string PackedEthSignature;
 
-interface PrivateKeySigner {
+interface EthSigner {
     [Throws=EthSignerError]
     constructor([ByRef] string private_key);
     [Throws=EthSignerError]
@@ -381,7 +381,7 @@ namespace zklink_sdk {
 
     // for change pubkey
     [Throws=SignError]
-    PackedEthSignature eth_signature_of_change_pubkey(u32 l1_client_id, ChangePubKey tx, PrivateKeySigner eth_signer, ZkLinkAddress main_contract);
+    PackedEthSignature eth_signature_of_change_pubkey(u32 l1_client_id, ChangePubKey tx, EthSigner eth_signer, ZkLinkAddress main_contract);
     [Throws=SignError]
     ChangePubKey create_signed_change_pubkey(ZkLinkSigner zklink_signer, ChangePubKey tx, ChangePubKeyAuthData eth_auth_data);
 

@@ -14,7 +14,7 @@ use once_cell::sync::OnceCell;
 use sha2::{Digest, Sha256};
 use std::fmt;
 
-use crate::eth_signer::pk_signer::PrivateKeySigner;
+use crate::eth_signer::pk_signer::EthSigner;
 
 pub struct ZkLinkSigner(EddsaPrivKey<Engine>);
 
@@ -47,7 +47,7 @@ impl ZkLinkSigner {
         "Sign this message to create a key to interact with zkLink's layer2 services.\nNOTE: This application is powered by zkLink protocol.\n\nOnly sign this message for a trusted client!";
     pub fn new() -> Result<Self, Error> {
         let eth_pk = H256::random();
-        let eth_signer = PrivateKeySigner::from(&eth_pk);
+        let eth_signer = EthSigner::from(&eth_pk);
         let signature = eth_signer.sign_message(Self::SIGN_MESSAGE.as_bytes())?;
         let seed = signature.serialize_packed();
         Self::new_from_seed(&seed)
@@ -78,14 +78,14 @@ impl ZkLinkSigner {
     }
 
     pub fn new_from_hex_eth_signer(eth_hex_private_key: &str) -> Result<Self, Error> {
-        let eth_signer = PrivateKeySigner::try_from(eth_hex_private_key)?;
+        let eth_signer = EthSigner::try_from(eth_hex_private_key)?;
         let signature = eth_signer.sign_message(Self::SIGN_MESSAGE.as_bytes())?;
         let seed = signature.serialize_packed();
         Self::new_from_seed(&seed)
     }
 
     pub fn new_from_eth_signer(eth_private_key: &H256) -> Result<Self, Error> {
-        let eth_signer = PrivateKeySigner::from(eth_private_key);
+        let eth_signer = EthSigner::from(eth_private_key);
         let signature = eth_signer.sign_message(Self::SIGN_MESSAGE.as_bytes())?;
         let seed = signature.serialize_packed();
         Self::new_from_seed(&seed)

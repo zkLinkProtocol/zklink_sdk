@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use zklink_signers::eth_signer::eip712::eip712::{EIP712Domain, TypedData};
-use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+use zklink_signers::eth_signer::pk_signer::EthSigner;
 use zklink_signers::eth_signer::EIP712Address;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -18,7 +18,7 @@ struct Mail {
 }
 fn main() {
     let private_key = "0xb32593e347bf09436b058fbeabc17ebd2c7c1fa42e542f5f78fc3580faef83b7";
-    let pk_signer = PrivateKeySigner::try_from(private_key).unwrap();
+    let pk_signer = EthSigner::try_from(private_key).unwrap();
 
     let message = json!(
       {

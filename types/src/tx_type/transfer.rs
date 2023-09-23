@@ -12,7 +12,7 @@ use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_signers::eth_signer::eth_signature::TxEthSignature;
-use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+use zklink_signers::eth_signer::pk_signer::EthSigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
@@ -110,7 +110,7 @@ impl Transfer {
     #[cfg(not(feature = "ffi"))]
     pub fn eth_signature(
         &self,
-        eth_signer: &PrivateKeySigner,
+        eth_signer: &EthSigner,
         token_symbol: &str,
     ) -> Result<TxEthSignature, ZkSignerError> {
         let message = self.get_eth_sign_msg(token_symbol).as_bytes().to_vec();
@@ -122,7 +122,7 @@ impl Transfer {
     #[cfg(feature = "ffi")]
     pub fn eth_signature(
         &self,
-        eth_signer: Arc<PrivateKeySigner>,
+        eth_signer: Arc<EthSigner>,
         token_symbol: &str,
     ) -> Result<TxEthSignature, ZkSignerError> {
         let message = self.get_eth_sign_msg(token_symbol);
@@ -169,7 +169,7 @@ mod test {
     use super::*;
     use std::str::FromStr;
     use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
-    use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+    use zklink_signers::eth_signer::pk_signer::EthSigner;
     use zklink_signers::zklink_signer::public_key::PackedPublicKey;
 
     #[test]
@@ -233,7 +233,7 @@ mod test {
             .as_bytes()
             .to_vec();
         let recover_address = l1_signature.signature_recover_signer(&message).unwrap();
-        let private_key = PrivateKeySigner::try_from(private_key_str).unwrap();
+        let private_key = EthSigner::try_from(private_key_str).unwrap();
         let address = private_key.get_address().unwrap();
         assert_eq!(pubkey_hash, recover_pubkey_hash);
         assert_eq!(address, recover_address);

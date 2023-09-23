@@ -7,7 +7,7 @@ use crate::TxSignature;
 
 use std::sync::Arc;
 use zklink_signers::eth_signer::error::EthSignerError;
-use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+use zklink_signers::eth_signer::pk_signer::EthSigner;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_types::basic_types::ZkLinkAddress;
@@ -21,13 +21,13 @@ use zklink_types::tx_type::ZkSignatureTrait;
 
 pub struct Signer {
     zklink_signer: ZkLinkSigner,
-    eth_signer: PrivateKeySigner,
+    eth_signer: EthSigner,
 }
 
 impl Signer {
     pub fn new(private_key: &str) -> Result<Self, SignError> {
         let zklink_signer = ZkLinkSigner::new_from_hex_eth_signer(private_key)?;
-        let eth_signer = PrivateKeySigner::try_from(private_key)
+        let eth_signer = EthSigner::try_from(private_key)
             .map_err(|_| EthSignerError::InvalidEthSigner)?;
         Ok(Self {
             zklink_signer,

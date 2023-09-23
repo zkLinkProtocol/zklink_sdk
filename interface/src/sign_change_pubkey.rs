@@ -7,7 +7,7 @@ use crate::TxSignature;
 use std::sync::Arc;
 #[cfg(feature = "ffi")]
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
-use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
+use zklink_signers::eth_signer::pk_signer::EthSigner;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_types::basic_types::ZkLinkAddress;
 #[cfg(feature = "ffi")]
@@ -17,7 +17,7 @@ use zklink_types::tx_type::TxTrait;
 
 #[cfg(feature = "sync")]
 pub fn sign_change_pubkey(
-    eth_signer: &PrivateKeySigner,
+    eth_signer: &EthSigner,
     zklink_singer: &ZkLinkSigner,
     mut tx: ChangePubKey,
     main_contract: ZkLinkAddress,
@@ -55,7 +55,7 @@ pub fn sign_change_pubkey(
 pub fn eth_signature_of_change_pubkey(
     l1_client_id: u32,
     tx: Arc<ChangePubKey>,
-    eth_signer: Arc<PrivateKeySigner>,
+    eth_signer: Arc<EthSigner>,
     main_contract: ZkLinkAddress,
 ) -> Result<PackedEthSignature, SignError> {
     let typed_data = tx.to_eip712_request_payload(l1_client_id, &main_contract)?;
