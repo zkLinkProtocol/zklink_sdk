@@ -90,3 +90,23 @@ impl From<&H256> for EthSigner {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_eth_signer() {
+        let private_key = H256::from([5; 32]);
+        let private_key = hex::encode(private_key.as_bytes());
+        let signer = EthSigner::try_from(private_key.as_str()).unwrap();
+        let msg = b"hello world";
+        let signature = signer.sign_message(msg).unwrap();
+        println!("msg signature {:?}", signature.as_hex());
+        assert_eq!(signature.as_hex(), "0x8be74156ea8739cc0d524b91ca972c610f7f0cc5a4408a9ceece1fdd8395d92e6581158309b1a50545260c5100e529f22eb00fea97c41072c265f7d8fb08a9621b");
+        let hash = [1; 32];
+        let signature = signer.sign_hash(&hash).unwrap();
+        println!("hash signature: {:?}", signature.as_hex());
+        assert_eq!(signature.as_hex(), "0xe57f551f38c5ffd4f78fcd4eccdb6f8ea322dc6d6f639f49d0daf24684094eca629a2faaecdced17898068511142658c58325b7f9e648bec971b92a9820e08521c");
+    }
+}

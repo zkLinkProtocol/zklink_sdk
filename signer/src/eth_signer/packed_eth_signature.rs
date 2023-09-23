@@ -87,13 +87,13 @@ mod tests {
     use super::*;
     use crate::eth_signer::Address;
     use std::str::FromStr;
-    use crate::eth_signer::pk_signer::PrivateKeySigner;
+    use crate::eth_signer::pk_signer::EthSigner;
 
     #[test]
     fn test_packed_eth_signature() {
         let private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
         let msg = vec![1,2,3,4,5];
-        let pk = PrivateKeySigner::try_from(private_key).unwrap();
+        let pk = EthSigner::try_from(private_key).unwrap();
         let signature = pk.sign_message(&msg).unwrap();
         let signature_str = "0xd226c38ff38e07f50d8455fa004168bdd3eb6d860d72ecb1549c0891db64a56e52d450091f0c1dbff67d2bb8394e01df9a4a7c13d47c9fa10897e0bbcab122de1b";
         assert_eq!(signature.as_hex(),signature_str);
