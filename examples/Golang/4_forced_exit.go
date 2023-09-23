@@ -15,7 +15,7 @@ type RPCTransaction struct {
      Id      int64             `json:"id"`
      JsonRpc string            `json:"jsonrpc"`
      Method  string            `json:"method"`
-     Params  json.RawMessage `json:"params"`
+     Params  []json.RawMessage `json:"params"`
 }
 
 func HighLevelForcedExit() {
@@ -33,16 +33,33 @@ func HighLevelForcedExit() {
         *big.NewInt(100000),
         sdk.TimeStamp(1693472232),
     }
-    params, err := sdk.BuildForcedExitRequest(privateKey, builder)
+    tx := sdk.NewForcedExit(builder)
+    signer, err := sdk.NewSigner(privateKey)
     if err != nil {
         return
     }
+    txSignature, err := signer.SignForcedExit(tx)
+    if err != nil {
+        return
+    }
+    fmt.Println("tx signature: %s", txSignature)
+    // get eth signature
+    var ethSignature2 []byte = nil;
+    if txSignature.EthSignature != nil {
+        ethSignature2 = []byte(fmt.Sprintf(`"%s"`, *txSignature.EthSignature))
+    }
+
 	rpc_req := RPCTransaction {
 		Id:      1,
 		JsonRpc: "2.0",
 		Method:  "sendTransaction",
-		Params: json.RawMessage(params),
+		Params: []json.RawMessage{
+		    []byte(txSignature.Tx),
+		    nil,
+            ethSignature2,
+		},
     }
+
 	JsonTx, err := json.Marshal(rpc_req)
 	fmt.Println("ChangePubKey rpc request:",  string(JsonTx))
 	// get the testnet url or main net url

@@ -1,23 +1,20 @@
 use crate::error::SignError;
-#[cfg(not(feature = "ffi"))]
 use crate::TxSignature;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
-#[cfg(not(feature = "ffi"))]
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_types::tx_type::transfer::Transfer;
 
-#[cfg(feature = "sync")]
 pub fn sign_transfer(
     eth_signer: &PrivateKeySigner,
     zklink_syner: &ZkLinkSigner,
     mut tx: Transfer,
-    token_symbol: String,
+    token_symbol: &str,
 ) -> Result<TxSignature, SignError> {
     tx.signature = zklink_syner.sign_musig(&tx.get_bytes())?;
     let message = tx
-        .get_ethereum_sign_message(&token_symbol)
+        .get_eth_sign_msg(token_symbol)
         .as_bytes()
         .to_vec();
     let eth_signature = eth_signer.sign_message(&message)?;

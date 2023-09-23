@@ -1,12 +1,10 @@
 mod crypto;
 mod network;
-mod rpc_request_builder;
 mod type_convert;
 mod zklink_tx;
 
 use crate::crypto::{get_public_key_hash, verify_musig};
 use crate::network::{zklink_main_net_url, zklink_test_net_url};
-use crate::rpc_request_builder::*;
 use crate::zklink_tx::*;
 
 use zklink_signers::eth_signer::error::EthSignerError;
@@ -20,7 +18,7 @@ use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_signers::zklink_signer::public_key::PackedPublicKey;
 use zklink_signers::zklink_signer::signature::{
-    json_str_of_zklink_signature, PackedSignature, ZkLinkSignature,
+    PackedSignature, ZkLinkSignature,
 };
 
 use zklink_types::basic_types::error::TypeError;
@@ -55,6 +53,8 @@ use zklink_interface::sign_order::create_signed_order;
 use zklink_interface::sign_order_matching::create_signed_order_matching;
 use zklink_interface::sign_transfer::create_signed_transfer;
 use zklink_interface::sign_withdraw::create_signed_withdraw;
+use zklink_interface::signer::Signer;
 use zklink_interface::ChangePubKeyAuthRequest;
+use zklink_interface::TxSignature;
 
 include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));

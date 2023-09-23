@@ -2,7 +2,7 @@ use crate::basic_types::{AccountId, ChainId, Nonce, SlotId, SubAccountId, TokenI
 use num::BigUint;
 
 /// Maximum precision of token amount
-pub const TOKEN_MAX_PRECISION: u64 = 18;
+pub const TOKEN_MAX_PRECISION: u8 = 18;
 /// Order price decimals will be improved accuracy by 10^18
 pub fn precision_magnified() -> BigUint {
     BigUint::from(10u8).pow(TOKEN_MAX_PRECISION as u32)

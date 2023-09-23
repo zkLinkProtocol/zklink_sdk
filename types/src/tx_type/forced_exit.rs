@@ -1,3 +1,5 @@
+#[cfg(feature = "ffi")]
+use std::sync::Arc;
 use num::{BigUint, ToPrimitive};
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
@@ -116,6 +118,14 @@ impl ForcedExit {
         Ok(())
     }
 
+
+    #[cfg(feature = "ffi")]
+    pub fn submitter_signature(&self, signer: Arc<ZkLinkSigner>) -> Result<ZkLinkSignature, ZkSignerError> {
+        let bytes = self.tx_hash();
+        let signature = signer.sign_musig(&bytes)?;
+        Ok(signature)
+    }
+
     #[cfg(feature = "ffi")]
     pub fn signature(&self) -> ZkLinkSignature {
         self.signature.clone()
@@ -128,6 +138,16 @@ impl ForcedExit {
     pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
         self.signature.verify_musig(&self.get_bytes())
     }
+
+    pub fn get_eth_sign_msg_part(&self) -> String {
+        todo!("get eth sign message part")
+    }
+
+    pub fn get_eth_sign_msg(&self) -> String {
+        todo!("get eth sign msg")
+    }
+
+
 }
 
 #[cfg(test)]

@@ -105,7 +105,7 @@ impl ZkLinkTx {
         }
     }
     /// Returns the hash of the transaction.
-    pub fn hash(&self) -> TxHash {
+    pub fn tx_hash(&self) -> TxHash {
         let tx_hash = match self {
             ZkLinkTx::Transfer(tx) => tx.tx_hash(),
             ZkLinkTx::Withdraw(tx) => tx.tx_hash(),

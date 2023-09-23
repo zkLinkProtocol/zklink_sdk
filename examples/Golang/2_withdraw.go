@@ -15,7 +15,7 @@ type RPCTransaction struct {
      Id      int64             `json:"id"`
      JsonRpc string            `json:"jsonrpc"`
      Method  string            `json:"method"`
-     Params  json.RawMessage `json:"params"`
+     Params  []json.RawMessage `json:"params"`
 }
 
 func HighLevelWithdraw() {
@@ -49,17 +49,37 @@ func HighLevelWithdraw() {
         withdrawFeeRatio,
         timestamp,
     }
-    params, err := sdk.BuildWithdrawRequest(privateKey, builder)
+    tx := sdk.NewWithdraw(builder)
+    signer, err := sdk.NewSigner(privateKey)
     if err != nil {
         return
+    }
+    txSignature, err := signer.SignWithdraw(tx, "USDT")
+    fmt.Println("tx signature: %s", txSignature)
+    if err != nil {
+        return
+    }
+    // get the eth signature
+    var ethSignature2 []byte = nil;
+    if txSignature.EthSignature != nil {
+        ethSignature2 = []byte(fmt.Sprintf(`"%s"`, *txSignature.EthSignature))
     }
 	rpc_req := RPCTransaction {
 		Id:      1,
 		JsonRpc: "2.0",
 		Method:  "sendTransaction",
-		Params: json.RawMessage(params),
+		Params: []json.RawMessage{
+		    []byte(txSignature.Tx),
+		    nil,
+            ethSignature2,
+		},
     }
+
 	JsonTx, err := json.Marshal(rpc_req)
+	if err != nil {
+	    fmt.Println(err)
+	    return
+	}
 	fmt.Println("ChangePubKey rpc request:",  string(JsonTx))
 	// get the testnet url or main net url
 	zklinkUrl := sdk.ZklinkTestNetUrl()

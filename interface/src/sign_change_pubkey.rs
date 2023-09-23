@@ -10,9 +10,9 @@ use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_types::basic_types::ZkLinkAddress;
-use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData};
 #[cfg(feature = "ffi")]
 use zklink_types::tx_type::change_pubkey::Create2Data;
+use zklink_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData};
 
 #[cfg(feature = "sync")]
 pub fn sign_change_pubkey(
@@ -69,7 +69,7 @@ pub fn check_create2data(
     account_address: ZkLinkAddress,
 ) -> Result<(), SignError> {
     let pubkey_hash = zklink_singer.public_key().public_key_hash();
-    let from_address = data.get_address(pubkey_hash.data.to_vec());
+    let from_address = data.get_address(&pubkey_hash.data);
     if from_address.as_bytes() != account_address.as_bytes() {
         Err(SignError::IncorrectTx)
     } else {

@@ -14,7 +14,7 @@ type RPCTransaction struct {
      Id      int64             `json:"id"`
      JsonRpc string            `json:"jsonrpc"`
      Method  string            `json:"method"`
-     Params  json.RawMessage `json:"params"`
+     Params  []json.RawMessage `json:"params"`
 }
 
 func HighLevelOrderMatching() {
@@ -70,16 +70,32 @@ func HighLevelOrderMatching() {
         *big.NewInt(808077878),
         *big.NewInt(5479779),
     }
-
-    params, err := sdk.BuildOrderMatchingRequest(privateKey, builder)
+    tx := sdk.NewOrderMatching(builder)
+    signer, err := sdk.NewSigner(privateKey)
     if err != nil {
         return
     }
+    txSignature, err := signer.SignOrderMatching(tx)
+    if err != nil {
+        return
+    }
+    fmt.Println("tx signature: %s", txSignature)
+
+    // get eth signature
+    var ethSignature []byte = nil;
+    if txSignature.EthSignature != nil {
+        ethSignature = []byte(*txSignature.EthSignature)
+    }
+
 	rpc_req := RPCTransaction {
 		Id:      1,
 		JsonRpc: "2.0",
 		Method:  "sendTransaction",
-		Params: json.RawMessage(params),
+		Params: []json.RawMessage{
+		    []byte(txSignature.Tx),
+		    nil,
+		    ethSignature,
+		},
     }
 	JsonTx, err := json.Marshal(rpc_req)
 	fmt.Println("ChangePubKey rpc request:",  string(JsonTx))

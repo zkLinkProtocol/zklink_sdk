@@ -1,3 +1,5 @@
+#[cfg(feature = "ffi")]
+use std::sync::Arc;
 use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::{
     AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
@@ -31,14 +33,14 @@ pub struct Create2Data {
 }
 
 impl Create2Data {
-    pub fn get_address(&self, pubkey_hash: Vec<u8>) -> ZkLinkAddress {
-        let salt = {
-            let mut bytes = Vec::new();
-            bytes.extend_from_slice(self.salt_arg.as_bytes());
-            bytes.extend_from_slice(&pubkey_hash);
-            bytes.keccak256()
-        };
-
+    pub fn salt(&self, pubkey_hash: &[u8]) -> [u8; 32] {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(self.salt_arg.as_bytes());
+        bytes.extend_from_slice(pubkey_hash);
+        bytes.keccak256()
+    }
+    pub fn get_address(&self, pubkey_hash: &[u8]) -> ZkLinkAddress {
+        let salt = self.salt(pubkey_hash);
         let mut bytes = Vec::new();
         bytes.push(0xff);
         bytes.extend_from_slice(self.creator_address.as_bytes());
@@ -203,6 +205,13 @@ impl ChangePubKey {
     }
 
     #[cfg(feature = "ffi")]
+    pub fn submitter_signature(&self, signer: Arc<ZkLinkSigner>) -> Result<ZkLinkSignature, ZkSignerError> {
+        let bytes = self.tx_hash();
+        let signature = signer.sign_musig(&bytes)?;
+        Ok(signature)
+    }
+
+    #[cfg(feature = "ffi")]
     pub fn signature(&self) -> ZkLinkSignature {
         self.signature.clone()
     }
@@ -226,7 +235,7 @@ impl ChangePubKey {
     /// [Fee: {fee} {token}]
     ///
     /// Note that the second line is optional.
-    pub fn get_ethereum_sign_message_part(&self, token_symbol: &str, decimals: u8) -> String {
+    pub fn get_eth_sign_msg_part(&self, token_symbol: &str, decimals: u8) -> String {
         let mut message = format!(
             "Set signing key: {}",
             hex::encode(self.new_pk_hash.data).to_ascii_lowercase()
@@ -265,7 +274,7 @@ impl ChangePubKey {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename = "ChangePubKey", rename_all = "camelCase")]
-pub struct EIP712ChangePubKey {
+pub(crate) struct EIP712ChangePubKey {
     pub_key_hash: BytesM<20>,
     nonce: Uint<32>,
     account_id: Uint<32>,

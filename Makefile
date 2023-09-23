@@ -81,6 +81,6 @@ run_example_go_%: ${ROOT_DIR}/examples/Golang/%.go
 	CGO_ENABLED=1 \
 	go run $<
 
-GO_FILES = 1_change_pubkey 2_withdraw 3_transfer 4_forced_exit 5_full_exit 6_deposit 7_order_matching
+GO_FILES = 1_change_pubkey 2_withdraw 3_transfer 4_forced_exit 5_order_matching
 RUN_GO_EXAMPLES = $(patsubst %, run_example_go_%, $(GO_FILES))
 run_example_go:  ${RUN_GO_EXAMPLES}

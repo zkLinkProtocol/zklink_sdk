@@ -4,9 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-#[cfg(feature = "ffi")]
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
-#[cfg(feature = "ffi")]
 use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
@@ -135,6 +133,20 @@ impl Withdraw {
         self.signature.clone()
     }
 
+    #[cfg(feature = "ffi")]
+    pub fn submitter_signature(&self, signer: Arc<ZkLinkSigner>) -> Result<ZkLinkSignature, ZkSignerError> {
+        let bytes = self.tx_hash();
+        let signature = signer.sign_musig(&bytes)?;
+        Ok(signature)
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn submitter_signature(&self, signer: &ZkLinkSigner) -> Result<ZkLinkSignature, ZkSignerError> {
+        let bytes = self.tx_hash();
+        let signature = signer.sign_musig(&bytes)?;
+        Ok(signature)
+    }
+
     pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
         self.signature.verify_musig(&self.get_bytes())
     }
@@ -154,11 +166,11 @@ impl Withdraw {
     /// Get the first part of the message we expect to be signed by Ethereum account key.
     /// The only difference is the missing `nonce` since it's added at the end of the transactions
     /// batch message.
-    pub fn get_ethereum_sign_message_part(&self, token_symbol: &str) -> String {
+    pub fn get_eth_sign_message_part(&self, token_symbol: &str) -> String {
         ethereum_sign_message_part(
             "Withdraw",
             token_symbol,
-            TOKEN_MAX_PRECISION as u8,
+            TOKEN_MAX_PRECISION,
             &self.amount,
             &self.fee,
             &self.to,
@@ -166,8 +178,8 @@ impl Withdraw {
     }
 
     /// Get message that should be signed by Ethereum keys of the account for 2-Factor authentication.
-    pub fn get_ethereum_sign_message(&self, token_symbol: &str) -> String {
-        let mut message = self.get_ethereum_sign_message_part(token_symbol);
+    pub fn get_eth_sign_msg(&self, token_symbol: &str) -> String {
+        let mut message = self.get_eth_sign_message_part(token_symbol);
         if !message.is_empty() {
             message.push('\n');
         }
@@ -181,7 +193,18 @@ impl Withdraw {
         eth_signer: Arc<PrivateKeySigner>,
         l2_source_token_symbol: &str,
     ) -> Result<PackedEthSignature, ZkSignerError> {
-        let message = self.get_ethereum_sign_message(l2_source_token_symbol);
+        let message = self.get_eth_sign_msg(l2_source_token_symbol);
+        let eth_signature = eth_signer.sign_message(message.as_bytes())?;
+        Ok(eth_signature)
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn eth_signature(
+        &self,
+        eth_signer: &PrivateKeySigner,
+        l2_source_token_symbol: &str,
+    ) -> Result<PackedEthSignature, ZkSignerError> {
+        let message = self.get_eth_sign_msg(l2_source_token_symbol);
         let eth_signature = eth_signer.sign_message(message.as_bytes())?;
         Ok(eth_signature)
     }

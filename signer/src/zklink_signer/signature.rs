@@ -109,11 +109,6 @@ pub struct ZkLinkSignature {
     pub signature: PackedSignature,
 }
 
-#[cfg(feature = "ffi")]
-pub fn json_str_of_zklink_signature(signature: ZkLinkSignature) -> String {
-    serde_json::to_string(&signature).unwrap()
-}
-
 impl Default for ZkLinkSignature {
     fn default() -> Self {
         Self {

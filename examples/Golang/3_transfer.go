@@ -15,7 +15,7 @@ type RPCTransaction struct {
      Id      int64             `json:"id"`
      JsonRpc string            `json:"jsonrpc"`
      Method  string            `json:"method"`
-     Params  json.RawMessage `json:"params"`
+     Params  []json.RawMessage `json:"params"`
 }
 
 func HighLevelTransfer() {
@@ -33,15 +33,34 @@ func HighLevelTransfer() {
         sdk.TimeStamp(1693472232),
     }
     tokenSymbol := "DAI"
-    params, err := sdk.BuildTransferRequest(privateKey, builder, tokenSymbol)
+    tx := sdk.NewTransfer(builder)
+    signer, err := sdk.NewSigner(privateKey)
     if err != nil {
         return
     }
+    txSignature, err := signer.SignTransfer(tx, tokenSymbol)
+    if err != nil {
+        return
+    }
+    fmt.Println("tx signature: %s", txSignature)
+    // get the eth signature
+    var ethSignature2 []byte = nil;
+    if txSignature.EthSignature != nil {
+        ethSignature2 = []byte(fmt.Sprintf(`"%s"`, *txSignature.EthSignature))
+    }
+    // create the submitter signature
+    zklinkTx := sdk.ZklinkTxFromTransfer(tx)
+    submitterSignature, err := signer.SubmitterSignature(zklinkTx)
+
 	rpc_req := RPCTransaction {
 		Id:      1,
 		JsonRpc: "2.0",
 		Method:  "sendTransaction",
-		Params: json.RawMessage(params),
+		Params: []json.RawMessage{
+		    []byte(txSignature.Tx),
+		    []byte(submitterSignature),
+            ethSignature2,
+		},
     }
 	JsonTx, err := json.Marshal(rpc_req)
 	fmt.Println("ChangePubKey rpc request:",  string(JsonTx))

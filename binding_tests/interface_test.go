@@ -52,9 +52,9 @@ func TestSignChangePubkey(t *testing.T) {
 
     // submitter signature
     txHash := tx.TxHash()
-    submitter_signature, err := zklink_signer.SignMusig(txHash)
+    submitterSignature, err := zklink_signer.SignMusig(txHash)
     assert.Nil(t, err)
-    fmt.Printf("submitter signature: %v\n", sdk.JsonStrOfZklinkSignature(submitter_signature))
+    fmt.Printf("submitter signature: %v\n", submitterSignature)
 }
 
 
@@ -244,24 +244,39 @@ func TestSignWithdraw(t *testing.T) {
         sdk.TimeStamp(1693472232),
     }
     tx := sdk.NewWithdraw(builder)
-    signed_tx, err := sdk.CreateSignedWithdraw(
+    signedTx, err := sdk.CreateSignedWithdraw(
         zklink_signer,
         tx,
     )
     assert.Nil(t, err)
-    should_be_valid, err := signed_tx.IsSignatureValid();
+    should_be_valid, err := signedTx.IsSignatureValid();
     assert.Nil(t, err)
     assert.Equal(t, should_be_valid, true)
-    fmt.Printf("signed withraw tx: %v\n", signed_tx.JsonStr())
+    fmt.Printf("signed withraw tx: %v\n", signedTx.JsonStr())
 
     // eth signature
-    eth_signature, err := signed_tx.EthSignature(eth_signer, "USDC")
+    l2SourceTokenSymbol := "USDC"
+    ethSignature, err := signedTx.EthSignature(eth_signer, l2SourceTokenSymbol)
     assert.Nil(t, err)
-    fmt.Printf("eth signature: %v\n", eth_signature)
+    fmt.Printf("eth signature: %v\n", ethSignature)
 
-    // zklink tx
-    zklinkTx := sdk.ZklinkTxFromWithdraw(tx)
+    // create zklink tx
+    zklinkTx := sdk.ZklinkTxFromWithdraw(signedTx)
     fmt.Printf("zklink tx: %s\n", zklinkTx)
+
+    // test signer
+    signer, err := sdk.NewSigner(s);
+    assert.Nil(t, err)
+    tx_signature, err := signer.SignWithdraw(tx, l2SourceTokenSymbol)
+    assert.Nil(t, err)
+    assert.Equal(t, tx_signature.Tx, zklinkTx)
+    assert.Equal(t, *tx_signature.EthSignature, ethSignature)
+
+    // test submitter
+    submitterSignature, err := tx.SubmitterSignature(zklink_signer)
+    submitterSignature2, err := signer.SubmitterSignature(tx_signature.Tx)
+    assert.Nil(t, err)
+    fmt.Printf("submitter signature: %s\n", submitterSignature)
+    fmt.Printf("submitter signature: %s\n", submitterSignature2)
+    assert.Equal(t, submitterSignature, submitterSignature2)
 }
-
-

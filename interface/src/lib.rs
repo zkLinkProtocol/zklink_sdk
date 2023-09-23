@@ -1,9 +1,6 @@
-#[cfg(not(feature = "ffi"))]
 use serde::{Deserialize, Serialize};
-#[cfg(not(feature = "ffi"))]
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_types::tx_type::change_pubkey::Create2Data;
-#[cfg(not(feature = "ffi"))]
 use zklink_types::tx_type::zklink_tx::ZkLinkTx;
 
 pub mod error;
@@ -13,8 +10,8 @@ pub mod sign_order;
 pub mod sign_order_matching;
 pub mod sign_transfer;
 pub mod sign_withdraw;
+pub mod signer;
 
-#[cfg(not(feature = "ffi"))]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TxSignature {
     pub tx: ZkLinkTx,

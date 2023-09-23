@@ -1,7 +1,7 @@
+#[cfg(feature = "ffi")]
+use std::sync::Arc;
 use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
-use crate::basic_types::params::{
-    ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH,
-};
+use crate::basic_types::params::{ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH, TOKEN_MAX_PRECISION};
 use crate::basic_types::{AccountId, Nonce, SlotId, SubAccountId, TokenId};
 use crate::tx_builder::OrderMatchingBuilder;
 use crate::tx_type::format_units;
@@ -10,69 +10,13 @@ use num::{BigUint, ToPrimitive, Zero};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
+use zklink_signers::eth_signer::eth_signature::TxEthSignature;
+use zklink_signers::eth_signer::pk_signer::PrivateKeySigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_signers::zklink_signer::utils::rescue_hash_orders;
-
-/// `OrderMatching` transaction was used to match two orders.
-#[derive(Default, Debug, Clone, Serialize, Deserialize, Validate)]
-#[serde(rename_all = "camelCase")]
-pub struct OrderMatching {
-    /// zklink network account ID of the transaction initiator.
-    #[validate(custom = "account_validator")]
-    pub account_id: AccountId,
-    #[validate(custom = "sub_account_validator")]
-    pub sub_account_id: SubAccountId,
-    /// all content of Taker and Maker orders
-    #[validate]
-    pub taker: Order,
-    #[validate]
-    pub maker: Order,
-
-    /// Fee for the transaction, need packaging
-    #[serde(with = "BigUintSerdeAsRadix10Str")]
-    #[validate(custom = "fee_packable")]
-    pub fee: BigUint,
-    #[validate(custom = "token_validator")]
-    pub fee_token: TokenId,
-
-    /// The maximum base(quote) token amount that tx submitter expects to trade
-    /// These two value will be smaller than the maximum amount can be traded between maker and taker
-    /// The zero value will not affect the actual amount of the order
-    /// example: BTC/USD orderbook of dex:
-    /// sell (price, amount)
-    /// 10000, 4
-    /// 8000, 2
-    /// buy (price, amount)
-    /// 7000, 3
-    /// when a user buy 3 BTC for price 10000, dex will submit two OrderMathcing
-    /// maker: 8000, 2 <-> taker: 10000, 3
-    /// maker: 10000, 4 <-> taker: 10000, 3
-    /// if all is well, all OrderMathcing will be executed in sequence
-    /// but when the balance of maker (8000, 2) is not enough, the first OrderMathcing will be failed
-    /// and the second OrderMathcing will be still success, the second maker (10000, 4) will be trade for 3 BTC
-    /// but the result may be not dex want to see
-    /// dex can set `expect_base_amount` and `expect_quote_amount` to limit the maximum trade amount
-    /// maker: 8000, 2, <-> taker: 10000, 3 <-> expect_base_amount 2 => the maximum of BTC traded will be 2
-    /// maker: 10000, 4<-> taker: 10000, 3 <-> expect_base_amount 1 => the maximum of BTC traded will be 1
-    #[serde(with = "BigUintSerdeAsRadix10Str")]
-    /// why not pack expect_base_amount and expect_quote_amount?
-    /// for example:
-    /// maker: 8000, m1 <-> taker: 10000, t1 <-> expect_base_amount t1, (m1 <= t1)
-    /// maker: 10000, m2 <-> taker: taker: 10000, t2 <-> expect_base_amount t2 - t1, (t2 <= m2)
-    /// t1 and t2 both packable, but (t2 - t1) may not be packable
-    #[validate(custom = "amount_unpackable")]
-    pub expect_base_amount: BigUint,
-    #[serde(with = "BigUintSerdeAsRadix10Str")]
-    #[validate(custom = "amount_unpackable")]
-    pub expect_quote_amount: BigUint,
-
-    /// Time range when the transaction is valid(layer2).
-    #[serde(default)]
-    pub signature: ZkLinkSignature,
-}
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
@@ -164,7 +108,7 @@ impl Order {
         serde_json::to_string(&self).unwrap()
     }
 
-    pub fn get_ethereum_sign_message(
+    pub fn get_eth_sign_msg(
         &self,
         quote_token: &str,
         based_token: &str,
@@ -204,6 +148,63 @@ impl Order {
     }
 }
 
+/// `OrderMatching` transaction was used to match two orders.
+#[derive(Default, Debug, Clone, Serialize, Deserialize, Validate)]
+#[serde(rename_all = "camelCase")]
+pub struct OrderMatching {
+    /// zklink network account ID of the transaction initiator.
+    #[validate(custom = "account_validator")]
+    pub account_id: AccountId,
+    #[validate(custom = "sub_account_validator")]
+    pub sub_account_id: SubAccountId,
+    /// all content of Taker and Maker orders
+    #[validate]
+    pub taker: Order,
+    #[validate]
+    pub maker: Order,
+
+    /// Fee for the transaction, need packaging
+    #[serde(with = "BigUintSerdeAsRadix10Str")]
+    #[validate(custom = "fee_packable")]
+    pub fee: BigUint,
+    #[validate(custom = "token_validator")]
+    pub fee_token: TokenId,
+
+    /// The maximum base(quote) token amount that tx submitter expects to trade
+    /// These two value will be smaller than the maximum amount can be traded between maker and taker
+    /// The zero value will not affect the actual amount of the order
+    /// example: BTC/USD orderbook of dex:
+    /// sell (price, amount)
+    /// 10000, 4
+    /// 8000, 2
+    /// buy (price, amount)
+    /// 7000, 3
+    /// when a user buy 3 BTC for price 10000, dex will submit two OrderMathcing
+    /// maker: 8000, 2 <-> taker: 10000, 3
+    /// maker: 10000, 4 <-> taker: 10000, 3
+    /// if all is well, all OrderMathcing will be executed in sequence
+    /// but when the balance of maker (8000, 2) is not enough, the first OrderMathcing will be failed
+    /// and the second OrderMathcing will be still success, the second maker (10000, 4) will be trade for 3 BTC
+    /// but the result may be not dex want to see
+    /// dex can set `expect_base_amount` and `expect_quote_amount` to limit the maximum trade amount
+    /// maker: 8000, 2, <-> taker: 10000, 3 <-> expect_base_amount 2 => the maximum of BTC traded will be 2
+    /// maker: 10000, 4<-> taker: 10000, 3 <-> expect_base_amount 1 => the maximum of BTC traded will be 1
+    #[serde(with = "BigUintSerdeAsRadix10Str")]
+    /// why not pack expect_base_amount and expect_quote_amount?
+    /// for example:
+    /// maker: 8000, m1 <-> taker: 10000, t1 <-> expect_base_amount t1, (m1 <= t1)
+    /// maker: 10000, m2 <-> taker: taker: 10000, t2 <-> expect_base_amount t2 - t1, (t2 <= m2)
+    /// t1 and t2 both packable, but (t2 - t1) may not be packable
+    #[validate(custom = "amount_unpackable")]
+    pub expect_base_amount: BigUint,
+    #[serde(with = "BigUintSerdeAsRadix10Str")]
+    #[validate(custom = "amount_unpackable")]
+    pub expect_quote_amount: BigUint,
+
+    /// Time range when the transaction is valid(layer2).
+    #[serde(default)]
+    pub signature: ZkLinkSignature,
+}
 impl OrderMatching {
     /// Creates transaction from all the required fields.
     #[cfg(feature = "ffi")]
@@ -278,6 +279,13 @@ impl OrderMatching {
         self.signature.clone()
     }
 
+    #[cfg(feature = "ffi")]
+    pub fn submitter_signature(&self, signer: Arc<ZkLinkSigner>) -> Result<ZkLinkSignature, ZkSignerError> {
+        let bytes = self.tx_hash();
+        let signature = signer.sign_musig(&bytes)?;
+        Ok(signature)
+    }
+
     pub fn is_validate(&self) -> bool {
         match self.validate() {
             Ok(_) => self.maker.is_validate() && self.taker.is_validate(),
@@ -287,6 +295,32 @@ impl OrderMatching {
 
     pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
         self.signature.verify_musig(&self.get_bytes())
+    }
+
+    pub fn get_eth_sign_msg(&self) -> String {
+        format!("OrderMatching fee: {} {}\n", format_units(&self.fee, TOKEN_MAX_PRECISION), self.fee_token)
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn eth_signature(
+        &self,
+        eth_signer: Arc<PrivateKeySigner>,
+    ) -> Result<TxEthSignature, ZkSignerError> {
+        let msg = self.get_eth_sign_msg();
+        let eth_signature = eth_signer.sign_message(msg.as_bytes())?;
+        let tx_eth_signature = TxEthSignature::EthereumSignature(eth_signature);
+        Ok(tx_eth_signature)
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn eth_signature(
+        &self,
+        eth_signer: &PrivateKeySigner,
+    ) -> Result<TxEthSignature, ZkSignerError> {
+        let msg = self.get_eth_sign_msg();
+        let eth_signature = eth_signer.sign_message(msg.as_bytes())?;
+        let tx_eth_signature = TxEthSignature::EthereumSignature(eth_signature);
+        Ok(tx_eth_signature)
     }
 }
 

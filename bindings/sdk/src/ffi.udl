@@ -41,6 +41,8 @@ typedef string ZkLinkAddress;
 typedef string TxHash;
 [Custom]
 typedef string TxEthSignature;
+[Custom]
+typedef string ZkLinkSignature;
 
 // ============================ tx builder  ============================
 dictionary ChangePubKeyBuilder {
@@ -170,9 +172,11 @@ interface Withdraw {
     boolean is_validate();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
-    string get_ethereum_sign_message([ByRef] string token_symbol);
+    string get_eth_sign_msg([ByRef] string token_symbol);
     [Throws=ZkSignerError]
     PackedEthSignature  eth_signature(PrivateKeySigner eth_signer, [ByRef] string l2_source_token_symbol);
+    [Throws=ZkSignerError]
+    ZkLinkSignature submitter_signature(ZkLinkSigner signer);
 };
 
 interface ChangePubKey {
@@ -185,6 +189,8 @@ interface ChangePubKey {
     boolean is_onchain();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
+    [Throws=ZkSignerError]
+    ZkLinkSignature submitter_signature(ZkLinkSigner signer);
 };
 
 interface ForcedExit {
@@ -196,6 +202,8 @@ interface ForcedExit {
     boolean is_validate();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
+    [Throws=ZkSignerError]
+    ZkLinkSignature submitter_signature(ZkLinkSigner signer);
 };
 
 
@@ -216,9 +224,11 @@ interface Transfer {
     boolean is_validate();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
-    string get_ethereum_sign_message([ByRef] string token_symbol);
+    string get_eth_sign_msg([ByRef] string token_symbol);
     [Throws=ZkSignerError]
     TxEthSignature eth_signature(PrivateKeySigner eth_signer, [ByRef]string token_symbol);
+    [Throws=ZkSignerError]
+    ZkLinkSignature submitter_signature(ZkLinkSigner signer);
 };
 
 
@@ -242,7 +252,7 @@ interface Order {
     boolean is_validate();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
-    string get_ethereum_sign_message([ByRef] string quote_token, [ByRef] string based_token, u8 decimals);
+    string get_eth_sign_msg([ByRef] string quote_token, [ByRef] string based_token, u8 decimals);
 };
 
 interface OrderMatching {
@@ -319,13 +329,6 @@ interface ZkLinkSigner {
     ZkLinkSignature sign_musig([ByRef] sequence<u8> msg);
 };
 
-dictionary ZkLinkSignature {
-    PackedPublicKey pub_key;
-    PackedSignature signature;
-};
-
-
-
 
 // ============================  iterface ============================
 
@@ -339,6 +342,32 @@ enum SignError {
 [Custom]
 typedef string ZkLinkTx;
 
+dictionary TxSignature {
+    ZkLinkTx tx;
+    PackedEthSignature ?eth_signature;
+};
+
+interface Signer {
+    [Throws=SignError]
+    constructor([ByRef] string private_key);
+    [Throws=SignError]
+    TxSignature sign_change_pubkey_with_create2data_auth(ChangePubKey tx, Create2Data crate2data);
+    [Throws=SignError]
+    TxSignature sign_change_pubkey_with_onchain_auth_data(ChangePubKey tx);
+    [Throws=SignError]
+    TxSignature sign_change_pubkey_with_eth_ecdsa_auth(ChangePubKey tx, u32 l1_client_id, ZkLinkAddress main_contract_address);
+    [Throws=SignError]
+    TxSignature sign_transfer(Transfer tx, [ByRef]string token_sybmol);
+    [Throws=SignError]
+    TxSignature sign_withdraw(Withdraw tx, [ByRef]string l2_source_token_symbol);
+    [Throws=SignError]
+    TxSignature sign_forced_exit(ForcedExit tx);
+    [Throws=SignError]
+    TxSignature sign_order_matching(OrderMatching tx);
+    [Throws=SignError]
+    ZkLinkSignature submitter_signature([ByRef] ZkLinkTx zklink_tx);
+};
+
 // ============================  namespace ============================
 namespace zklink_sdk {
     [Throws=ZkSignerError]
@@ -346,7 +375,6 @@ namespace zklink_sdk {
     PubKeyHash get_public_key_hash(PackedPublicKey public_key);
 
 
-    string json_str_of_zklink_signature(ZkLinkSignature signature);
     // network
     string zklink_main_net_url();
     string zklink_test_net_url();
@@ -375,24 +403,5 @@ namespace zklink_sdk {
     ZkLinkTx zklink_tx_from_forced_exit(ForcedExit tx);
     ZkLinkTx zklink_tx_from_full_exit(FullExit tx);
     ZkLinkTx zklink_tx_from_order_matching(OrderMatching tx);
-
-    [Throws=SignError]
-    string build_change_pubkey_request_with_create2data([ByRef] string private_key, ChangePubKeyBuilder builder, Create2Data create2data);
-    [Throws=SignError]
-    string build_change_pubkey_request_with_onchain_auth_data([ByRef] string private_key, ChangePubKeyBuilder builder);
-    [Throws=SignError]
-    string build_change_pubkey_request_with_eth_ecdsa_auth_data([ByRef] string private_key, ChangePubKeyBuilder builder, u32 l1_client_id, ZkLinkAddress main_contract_address);
-    [Throws=SignError]
-    string build_transfer_request([ByRef] string private_key, TransferBuilder builder, [ByRef] string token_symbol);
-    [Throws=SignError]
-    string build_deposit_request(DepositBuilder builder);
-    [Throws=SignError]
-    string build_withdraw_request([ByRef] string private_key, WithdrawBuilder builder);
-    [Throws=SignError]
-    string build_forced_exit_request([ByRef] string private_key, ForcedExitBuilder builder);
-    [Throws=SignError]
-    string build_full_exit_request(FullExitBuilder builder);
-    [Throws=SignError]
-    string build_order_matching_request([ByRef] string private_key, OrderMatchingBuilder builder);
 };
 
