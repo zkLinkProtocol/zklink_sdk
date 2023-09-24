@@ -2,8 +2,8 @@ use super::packed_eth_signature::PackedEthSignature;
 use super::EthSignerError;
 
 use crate::eth_signer::{Address, H256};
-use ethers::types::transaction::eip2718::TypedTransaction;
 use ethers::signers::{LocalWallet, Signer};
+use ethers::types::transaction::eip2718::TypedTransaction;
 use ethers::types::TxHash;
 use ethers::utils::hash_message;
 use k256::ecdsa::SigningKey;
@@ -35,11 +35,16 @@ impl EthSigner {
     pub fn get_address(&self) -> Result<Address, EthSignerError> {
         let key = SigningKey::from_slice(self.private_key.as_bytes())
             .map_err(|_| EthSignerError::DefineAddress)?;
-        Ok(Address::from_slice(LocalWallet::from(key).address().as_bytes()))
+        Ok(Address::from_slice(
+            LocalWallet::from(key).address().as_bytes(),
+        ))
     }
 
     /// Signs and returns the RLP-encoded transaction.
-    pub fn sign_transaction(&self, tx: &TypedTransaction) -> Result<PackedEthSignature, EthSignerError> {
+    pub fn sign_transaction(
+        &self,
+        tx: &TypedTransaction,
+    ) -> Result<PackedEthSignature, EthSignerError> {
         let key = SigningKey::from_slice(self.private_key.as_bytes())
             .map_err(|_| EthSignerError::DefineAddress)?;
         let signed = LocalWallet::from(key)

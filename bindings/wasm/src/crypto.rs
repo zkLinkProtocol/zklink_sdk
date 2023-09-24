@@ -8,25 +8,24 @@ use zklink_signers::eth_signer::pk_signer::EthSigner;
 
 #[wasm_bindgen]
 pub struct EthPrivateKeySigner {
-    inner:EthSigner,
+    inner: EthSigner,
 }
 
 #[wasm_bindgen]
 impl EthPrivateKeySigner {
     #[wasm_bindgen]
-    pub fn new_from_hex_pk(private_key: &str) -> Result<EthPrivateKeySigner,JsValue> {
+    pub fn new_from_hex_pk(private_key: &str) -> Result<EthPrivateKeySigner, JsValue> {
         let signer = EthSigner::try_from(private_key)?;
-        Ok(Self {inner: signer})
+        Ok(Self { inner: signer })
     }
 
     #[wasm_bindgen]
-    pub fn get_address(&self) -> Result<String,JsValue> {
+    pub fn get_address(&self) -> Result<String, JsValue> {
         let address = self.inner.get_address()?;
-        Ok(format!("{:?}",address))
-
+        Ok(format!("{:?}", address))
     }
     #[wasm_bindgen]
-    pub fn sign_message(&self,msg: &[u8]) ->Result<String,JsValue> {
+    pub fn sign_message(&self, msg: &[u8]) -> Result<String, JsValue> {
         let signature = self.inner.sign_message(msg)?;
         Ok(signature.as_hex())
     }
@@ -34,25 +33,29 @@ impl EthPrivateKeySigner {
 
 #[wasm_bindgen]
 pub struct ZklinkSigner {
-    inner:Signer,
+    inner: Signer,
 }
 
 #[wasm_bindgen]
 impl ZklinkSigner {
     #[wasm_bindgen(js_name=NewRand)]
-    pub fn new_rand() -> Result<ZklinkSigner,JsValue> {
+    pub fn new_rand() -> Result<ZklinkSigner, JsValue> {
         let zklink_signer = Signer::new()?;
-        Ok(ZklinkSigner{ inner: zklink_signer})
+        Ok(ZklinkSigner {
+            inner: zklink_signer,
+        })
     }
 
     #[wasm_bindgen(js_name=NewFromEthSigner)]
-    pub fn new_from_hex_eth_signer(eth_hex_private_key: &str) -> Result<ZklinkSigner,JsValue> {
+    pub fn new_from_hex_eth_signer(eth_hex_private_key: &str) -> Result<ZklinkSigner, JsValue> {
         let zklink_signer = Signer::new_from_hex_eth_signer(eth_hex_private_key)?;
-        Ok(ZklinkSigner{ inner: zklink_signer})
+        Ok(ZklinkSigner {
+            inner: zklink_signer,
+        })
     }
 
     #[wasm_bindgen]
-    pub fn sign(&self,msg: &[u8]) -> Result<String,JsValue>{
+    pub fn sign(&self, msg: &[u8]) -> Result<String, JsValue> {
         let signature = self.inner.sign_musig(msg)?;
         Ok(signature.as_hex())
     }
@@ -66,12 +69,12 @@ pub struct ZklinkSignature {
 #[wasm_bindgen]
 impl ZklinkSignature {
     #[wasm_bindgen(js_name=NewFromHexStr)]
-    pub fn new_from_hex_str(signature_str: &str) -> Result<ZklinkSignature,JsValue> {
+    pub fn new_from_hex_str(signature_str: &str) -> Result<ZklinkSignature, JsValue> {
         let signature = Signature::from_hex(signature_str)?;
-        Ok(ZklinkSignature{ inner: signature})
+        Ok(ZklinkSignature { inner: signature })
     }
     #[wasm_bindgen]
-    pub fn verify(&self,msg: &[u8]) -> Result<bool,JsValue> {
+    pub fn verify(&self, msg: &[u8]) -> Result<bool, JsValue> {
         Ok(self.inner.verify_musig(msg)?)
     }
 }

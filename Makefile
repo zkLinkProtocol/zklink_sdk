@@ -73,6 +73,7 @@ test_go: build_binding_lib build_binding_files
 	CGO_LDFLAGS="-lzklink_sdk -L${LIB_DIR} -lm -ldl" \
 	CGO_ENABLED=1 \
 	go test  -v
+
 wasm:
 	cd ${ROOT_DIR}/bindings/wasm && \
 	wasm-pack build --release --target=web --out-name=zklink-sdk-web --out-dir=web-dist && \

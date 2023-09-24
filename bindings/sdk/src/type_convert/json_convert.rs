@@ -1,5 +1,5 @@
 use crate::UniffiCustomTypeConverter;
-use crate::{TxEthSignature, ZkLinkTx};
+use crate::{TxLayer1Signature, ZkLinkTx};
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 
 macro_rules! ffi_json_convert {
@@ -17,6 +17,6 @@ macro_rules! ffi_json_convert {
     };
 }
 
-ffi_json_convert!(TxEthSignature);
+ffi_json_convert!(TxLayer1Signature);
 ffi_json_convert!(ZkLinkTx);
 ffi_json_convert!(ZkLinkSignature);

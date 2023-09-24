@@ -5,12 +5,12 @@ use std::collections::HashMap;
 use zklink_sdk_utils::serde::BigUintSerdeWrapper;
 
 use super::response::*;
-use zklink_signers::eth_signer::eth_signature::TxEthSignature;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_types::basic_types::tx_hash::TxHash;
 use zklink_types::basic_types::{
     AccountId, BlockNumber, ChainId, SubAccountId, TokenId, ZkLinkAddress,
 };
+use zklink_types::l1_signature::TxLayer1Signature;
 use zklink_types::tx_type::zklink_tx::{ZkLinkTx, ZkLinkTxType};
 
 #[rpc(client)]
@@ -111,7 +111,7 @@ pub trait ZkLinkRpc {
     async fn tx_submit(
         &self,
         tx: ZkLinkTx,
-        eth_signature: Option<TxEthSignature>,
+        eth_signature: Option<TxLayer1Signature>,
         submitter_signature: Option<ZkLinkSignature>,
     ) -> RpcResult<TxHash>;
 

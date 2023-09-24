@@ -1,6 +1,6 @@
+pub mod eip1271_signature;
 pub mod eip712;
 pub mod error;
-pub mod eth_signature;
 pub mod packed_eth_signature;
 pub mod pk_signer;
 #[cfg(target_arch = "wasm32")]

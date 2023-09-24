@@ -40,7 +40,7 @@ typedef string ZkLinkAddress;
 [Custom]
 typedef string TxHash;
 [Custom]
-typedef string TxEthSignature;
+typedef string TxLayer1Signature;
 [Custom]
 typedef string ZkLinkSignature;
 
@@ -226,7 +226,7 @@ interface Transfer {
     boolean is_signature_valid();
     string get_eth_sign_msg([ByRef] string token_symbol);
     [Throws=ZkSignerError]
-    TxEthSignature eth_signature(EthSigner eth_signer, [ByRef]string token_symbol);
+    TxLayer1Signature eth_signature(EthSigner eth_signer, [ByRef]string token_symbol);
     [Throws=ZkSignerError]
     ZkLinkSignature submitter_signature(ZkLinkSigner signer);
 };

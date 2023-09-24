@@ -4,6 +4,7 @@ use crate::basic_types::{AccountId, Nonce, SubAccountId, TimeStamp, TokenId, ZkL
 use crate::tx_type::validator::*;
 use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait};
 
+use crate::l1_signature::TxLayer1Signature;
 use crate::tx_builder::TransferBuilder;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
@@ -11,7 +12,6 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-use zklink_signers::eth_signer::eth_signature::TxEthSignature;
 use zklink_signers::eth_signer::pk_signer::EthSigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
@@ -112,10 +112,10 @@ impl Transfer {
         &self,
         eth_signer: &EthSigner,
         token_symbol: &str,
-    ) -> Result<TxEthSignature, ZkSignerError> {
+    ) -> Result<TxLayer1Signature, ZkSignerError> {
         let message = self.get_eth_sign_msg(token_symbol).as_bytes().to_vec();
         let eth_signature = eth_signer.sign_message(&message)?;
-        let tx_eth_signature = TxEthSignature::EthereumSignature(eth_signature);
+        let tx_eth_signature = TxLayer1Signature::EthereumSignature(eth_signature);
         Ok(tx_eth_signature)
     }
 
@@ -124,10 +124,10 @@ impl Transfer {
         &self,
         eth_signer: Arc<EthSigner>,
         token_symbol: &str,
-    ) -> Result<TxEthSignature, ZkSignerError> {
+    ) -> Result<TxLayer1Signature, ZkSignerError> {
         let message = self.get_eth_sign_msg(token_symbol);
         let eth_signature = eth_signer.sign_message(message.as_bytes())?;
-        let tx_eth_signature = TxEthSignature::EthereumSignature(eth_signature);
+        let tx_eth_signature = TxLayer1Signature::EthereumSignature(eth_signature);
         Ok(tx_eth_signature)
     }
 }
@@ -228,10 +228,7 @@ mod test {
         //check l1 signature
         let l1_signature = PackedEthSignature::from_hex(eth_signature).unwrap();
         let token_symbol = "USDC";
-        let message = tx
-            .get_eth_sign_msg(token_symbol)
-            .as_bytes()
-            .to_vec();
+        let message = tx.get_eth_sign_msg(token_symbol).as_bytes().to_vec();
         let recover_address = l1_signature.signature_recover_signer(&message).unwrap();
         let private_key = EthSigner::try_from(private_key_str).unwrap();
         let address = private_key.get_address().unwrap();

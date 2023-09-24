@@ -1,8 +1,8 @@
 use crate::eth_signer::error::EthSignerError;
 use crate::eth_signer::Address;
+use ethers::types::Signature;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
-use ethers::types::Signature;
 /// Struct used for working with ethereum signatures created using eth_sign (using geth, ethers.js, etc)
 /// message is serialized as 65 bytes long `0x` prefixed string.
 ///
@@ -36,8 +36,10 @@ impl PackedEthSignature {
         let mut bytes_array = [0u8; 65];
         bytes_array.copy_from_slice(bytes);
 
-        Ok(PackedEthSignature(Signature::try_from(bytes_array.as_slice())
-            .map_err(|_err| EthSignerError::InvalidEthSigner)?))
+        Ok(PackedEthSignature(
+            Signature::try_from(bytes_array.as_slice())
+                .map_err(|_err| EthSignerError::InvalidEthSigner)?,
+        ))
     }
 
     pub fn from_hex(s: &str) -> Result<Self, EthSignerError> {
@@ -55,7 +57,9 @@ impl PackedEthSignature {
     /// message should be the same message that was passed to `eth.sign`(or similar) method
     /// as argument. No hashing and prefixes required.
     pub fn signature_recover_signer(&self, msg: &[u8]) -> Result<Address, EthSignerError> {
-        let address = self.0.recover(msg)
+        let address = self
+            .0
+            .recover(msg)
             .map_err(|err| EthSignerError::RecoverAddress(err.to_string()))?;
 
         Ok(Address::from_slice(address.as_bytes()))
@@ -85,25 +89,25 @@ impl<'de> Deserialize<'de> for PackedEthSignature {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::eth_signer::pk_signer::EthSigner;
     use crate::eth_signer::Address;
     use std::str::FromStr;
-    use crate::eth_signer::pk_signer::EthSigner;
 
     #[test]
     fn test_packed_eth_signature() {
         let private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
-        let msg = vec![1,2,3,4,5];
+        let msg = vec![1, 2, 3, 4, 5];
         let pk = EthSigner::try_from(private_key).unwrap();
         let signature = pk.sign_message(&msg).unwrap();
         let signature_str = "0xd226c38ff38e07f50d8455fa004168bdd3eb6d860d72ecb1549c0891db64a56e52d450091f0c1dbff67d2bb8394e01df9a4a7c13d47c9fa10897e0bbcab122de1b";
-        assert_eq!(signature.as_hex(),signature_str);
+        assert_eq!(signature.as_hex(), signature_str);
 
         let sig = PackedEthSignature::from_hex(&signature_str).unwrap();
         let address = sig.signature_recover_signer(&msg).unwrap();
         let pk_address = pk.get_address().unwrap();
-        assert_eq!(address,pk_address);
+        assert_eq!(address, pk_address);
 
         let sign_address = Address::from_str("0xdec58607c3f5a0f8bc51ca50cc2578ab282865fc").unwrap();
-        assert_eq!(address,sign_address);
+        assert_eq!(address, sign_address);
     }
 }

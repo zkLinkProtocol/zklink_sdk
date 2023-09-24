@@ -1,9 +1,3 @@
-[![Main Build Status][build-image]][build-link]
-[![Audit Status][audit-image]][audit-link]
-[![Apache 2.0 Licensed][license-image]][license-link]
-![Rust Stable][rustc-image]
-
-
 ZkLink SDK is an open-source cross-platform library that implements low-level cryptographic wallet functionality
 for ZkLink and Ethereum-based  blockchain networks.
 The codebase is primarily in Rust and provides cross-language bindings using multiple tools:
@@ -42,6 +36,12 @@ The default binding path is `./binding_tests/generated`, if you want to generate
 make build_binding_files BINDINGS_DIR=/path/to/the/bindings/directory
 ```
 
-To use the bindings and the library, see the detail in `make test_go` command.
+To use the bindings and the library, see the detail in `make test_go` and `make run_exampl_go`command.
+
+## Generate Wasm bindings
+
+```bash
+make wasm
+```
 
 

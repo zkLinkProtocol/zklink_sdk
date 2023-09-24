@@ -4,6 +4,7 @@ use crate::basic_types::params::{
     TOKEN_MAX_PRECISION,
 };
 use crate::basic_types::{AccountId, Nonce, SlotId, SubAccountId, TokenId};
+use crate::l1_signature::TxLayer1Signature;
 use crate::tx_builder::OrderMatchingBuilder;
 use crate::tx_type::validator::*;
 use crate::tx_type::{format_units, TxTrait, ZkSignatureTrait};
@@ -13,7 +14,6 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-use zklink_signers::eth_signer::eth_signature::TxEthSignature;
 use zklink_signers::eth_signer::pk_signer::EthSigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 #[cfg(feature = "ffi")]
@@ -254,10 +254,10 @@ impl OrderMatching {
     pub fn eth_signature(
         &self,
         eth_signer: Arc<EthSigner>,
-    ) -> Result<TxEthSignature, ZkSignerError> {
+    ) -> Result<TxLayer1Signature, ZkSignerError> {
         let msg = self.get_eth_sign_msg();
         let eth_signature = eth_signer.sign_message(msg.as_bytes())?;
-        let tx_eth_signature = TxEthSignature::EthereumSignature(eth_signature);
+        let tx_eth_signature = TxLayer1Signature::EthereumSignature(eth_signature);
         Ok(tx_eth_signature)
     }
 
@@ -265,10 +265,10 @@ impl OrderMatching {
     pub fn eth_signature(
         &self,
         eth_signer: &EthSigner,
-    ) -> Result<TxEthSignature, ZkSignerError> {
+    ) -> Result<TxLayer1Signature, ZkSignerError> {
         let msg = self.get_eth_sign_msg();
         let eth_signature = eth_signer.sign_message(msg.as_bytes())?;
-        let tx_eth_signature = TxEthSignature::EthereumSignature(eth_signature);
+        let tx_eth_signature = TxLayer1Signature::EthereumSignature(eth_signature);
         Ok(tx_eth_signature)
     }
 }

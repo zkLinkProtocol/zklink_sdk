@@ -27,8 +27,8 @@ pub struct Signer {
 impl Signer {
     pub fn new(private_key: &str) -> Result<Self, SignError> {
         let zklink_signer = ZkLinkSigner::new_from_hex_eth_signer(private_key)?;
-        let eth_signer = EthSigner::try_from(private_key)
-            .map_err(|_| EthSignerError::InvalidEthSigner)?;
+        let eth_signer =
+            EthSigner::try_from(private_key).map_err(|_| EthSignerError::InvalidEthSigner)?;
         Ok(Self {
             zklink_signer,
             eth_signer,

@@ -3,4 +3,5 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 pub mod eth_signer;
+pub mod starknet_signer;
 pub mod zklink_signer;

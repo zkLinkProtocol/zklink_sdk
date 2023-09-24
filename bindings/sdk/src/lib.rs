@@ -8,7 +8,6 @@ use crate::network::{zklink_main_net_url, zklink_test_net_url};
 use crate::zklink_tx::*;
 
 use zklink_signers::eth_signer::error::EthSignerError;
-use zklink_signers::eth_signer::eth_signature::TxEthSignature;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_signers::eth_signer::pk_signer::EthSigner;
 use zklink_signers::eth_signer::H256;
@@ -26,6 +25,7 @@ use zklink_types::basic_types::{
     AccountId, BigUint, BlockNumber, ChainId, EthBlockId, Nonce, PairId, PriorityOpId, SlotId,
     SubAccountId, TimeStamp, TokenId,
 };
+use zklink_types::l1_signature::TxLayer1Signature;
 use zklink_types::tx_builder::{
     ChangePubKeyBuilder, DepositBuilder, ForcedExitBuilder, FullExitBuilder, OrderMatchingBuilder,
     TransferBuilder, WithdrawBuilder,
