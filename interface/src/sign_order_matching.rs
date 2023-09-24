@@ -1,6 +1,6 @@
-use crate::TxSignature;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
+use zklink_sdk_types::prelude::TxSignature;
 use zklink_sdk_types::tx_type::order_matching::OrderMatching;
 use zklink_sdk_types::tx_type::TxTrait;
 use zklink_signers::zklink_signer::error::ZkSignerError;

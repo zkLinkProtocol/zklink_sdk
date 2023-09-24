@@ -1,3 +1,4 @@
+use crate::prelude::ZkLinkTx;
 use serde::{Deserialize, Serialize};
 use zklink_signers::eth_signer::eip1271_signature::EIP1271Signature;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
@@ -13,4 +14,10 @@ pub enum TxLayer1Signature {
     EthereumSignature(PackedEthSignature),
     EIP1271Signature(EIP1271Signature),
     StarkSignature(StarkECDSASignature),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TxSignature {
+    pub tx: ZkLinkTx,
+    pub eth_signature: Option<PackedEthSignature>,
 }

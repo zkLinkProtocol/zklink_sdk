@@ -4,7 +4,7 @@ use crate::basic_types::{AccountId, Nonce, SubAccountId, TimeStamp, TokenId, ZkL
 use crate::tx_type::validator::*;
 use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait};
 
-use crate::l1_signature::TxLayer1Signature;
+use crate::signatures::TxLayer1Signature;
 use crate::tx_builder::TransferBuilder;
 use num::BigUint;
 use serde::{Deserialize, Serialize};

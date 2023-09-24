@@ -1,11 +1,11 @@
 use crate::error::SignError;
 #[cfg(feature = "sync")]
 use crate::ChangePubKeyAuthRequest;
-#[cfg(not(feature = "ffi"))]
-use crate::TxSignature;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
 use zklink_sdk_types::basic_types::ZkLinkAddress;
+#[cfg(not(feature = "ffi"))]
+use zklink_sdk_types::prelude::TxSignature;
 #[cfg(feature = "ffi")]
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data;
 use zklink_sdk_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData};

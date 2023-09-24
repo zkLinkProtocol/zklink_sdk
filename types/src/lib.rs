@@ -1,6 +1,6 @@
 pub mod basic_types;
 pub mod error;
-pub mod l1_signature;
+pub mod signatures;
 pub mod tx_builder;
 pub mod tx_type;
 
@@ -11,10 +11,10 @@ pub mod prelude {
         SubAccountId, TimeStamp, TokenId,
     };
     pub use super::error::TypeError;
-    pub use super::l1_signature::TxLayer1Signature;
+    pub use super::signatures::{TxLayer1Signature, TxSignature};
     pub use super::tx_builder::*;
     pub use super::tx_type::{
-        change_pubkey::ChangePubKey,
+        change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data},
         deposit::Deposit,
         forced_exit::ForcedExit,
         full_exit::FullExit,

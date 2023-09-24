@@ -7,8 +7,8 @@ use zklink_sdk_types::basic_types::tx_hash::TxHash;
 use zklink_sdk_types::basic_types::{
     AccountId, BlockNumber, ChainId, SubAccountId, TokenId, ZkLinkAddress,
 };
-use zklink_sdk_types::l1_signature::TxLayer1Signature;
 use zklink_sdk_types::prelude::BigUintSerdeWrapper;
+use zklink_sdk_types::signatures::TxLayer1Signature;
 use zklink_sdk_types::tx_type::zklink_tx::{ZkLinkTx, ZkLinkTxType};
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 

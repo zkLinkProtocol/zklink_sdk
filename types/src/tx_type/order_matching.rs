@@ -4,7 +4,7 @@ use crate::basic_types::params::{
     TOKEN_MAX_PRECISION,
 };
 use crate::basic_types::{AccountId, Nonce, SlotId, SubAccountId, TokenId};
-use crate::l1_signature::TxLayer1Signature;
+use crate::signatures::TxLayer1Signature;
 use crate::tx_builder::OrderMatchingBuilder;
 use crate::tx_type::validator::*;
 use crate::tx_type::{format_units, TxTrait, ZkSignatureTrait};

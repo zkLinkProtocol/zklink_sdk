@@ -3,7 +3,7 @@ use crate::sign_forced_exit::sign_forced_exit;
 use crate::sign_order_matching::sign_order_matching;
 use crate::sign_transfer::sign_transfer;
 use crate::sign_withdraw::sign_withdraw;
-use crate::TxSignature;
+use zklink_sdk_types::prelude::TxSignature;
 
 use std::sync::Arc;
 use zklink_sdk_types::basic_types::ZkLinkAddress;
