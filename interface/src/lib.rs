@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
-use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
+use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 
 pub mod error;
 pub mod sign_change_pubkey;

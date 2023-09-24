@@ -2,16 +2,15 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee::proc_macros::rpc;
 use std::collections::HashMap;
 
-use zklink_sdk_utils::serde::BigUintSerdeWrapper;
-
 use super::response::*;
-use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
 use zklink_sdk_types::basic_types::{
     AccountId, BlockNumber, ChainId, SubAccountId, TokenId, ZkLinkAddress,
 };
 use zklink_sdk_types::l1_signature::TxLayer1Signature;
+use zklink_sdk_types::prelude::BigUintSerdeWrapper;
 use zklink_sdk_types::tx_type::zklink_tx::{ZkLinkTx, ZkLinkTxType};
+use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 
 #[rpc(client)]
 pub trait ZkLinkRpc {

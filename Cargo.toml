@@ -15,7 +15,7 @@ default-members = [
     "types",
     "provider",
 ]
-exclude = [ "examples/Rust/rust_sdk_example" ]
+exclude = ["examples/Rust/rust_sdk_example"]
 
 [profile.release]
 opt-level = "s"

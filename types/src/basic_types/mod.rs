@@ -12,12 +12,14 @@ pub use zklink_address::ZkLinkAddress;
 
 #[macro_use]
 mod macros;
+pub mod bigunit_wrapper;
 pub mod error;
 pub(crate) mod float_convert;
 pub(crate) mod pack;
 pub mod params;
 pub mod tx_hash;
 pub mod zklink_address;
+
 pub use num::BigUint;
 
 basic_type!(
@@ -84,3 +86,5 @@ basic_type!(
     SubAccountId,
     u8
 );
+
+pub use bigunit_wrapper::BigUintSerdeWrapper;
