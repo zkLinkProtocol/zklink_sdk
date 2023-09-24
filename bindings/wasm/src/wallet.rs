@@ -10,10 +10,10 @@ use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
-use zklink_types::basic_types::params::MAIN_SUB_ACCOUNT_ID;
-use zklink_types::basic_types::tx_hash::TxHash;
-use zklink_types::basic_types::{AccountId, ChainId, Nonce, SubAccountId, TokenId, ZkLinkAddress};
-use zklink_types::tx_type::order_matching::Order;
+use zklink_sdk_types::basic_types::params::MAIN_SUB_ACCOUNT_ID;
+use zklink_sdk_types::basic_types::tx_hash::TxHash;
+use zklink_sdk_types::basic_types::{AccountId, ChainId, Nonce, SubAccountId, TokenId, ZkLinkAddress};
+use zklink_sdk_types::tx_type::order_matching::Order;
 use std::collections::HashMap;
 use wasm_bindgen::JsValue;
 

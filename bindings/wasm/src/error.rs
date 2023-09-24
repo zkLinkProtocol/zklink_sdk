@@ -2,7 +2,7 @@ use thiserror::Error;
 use zklink_provider::RpcError;
 use zklink_signers::eth_signer::error::EthSignerError;
 use zklink_signers::zklink_signer::error::ZkSignerError;
-use zklink_types::basic_types::ChainId;
+use zklink_sdk_types::basic_types::ChainId;
 use wasm_bindgen::JsValue;
 
 #[derive(Debug, Error)]

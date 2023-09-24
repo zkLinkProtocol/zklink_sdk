@@ -6,12 +6,12 @@ use zklink_sdk_utils::serde::BigUintSerdeWrapper;
 
 use super::response::*;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
-use zklink_types::basic_types::tx_hash::TxHash;
-use zklink_types::basic_types::{
+use zklink_sdk_types::basic_types::tx_hash::TxHash;
+use zklink_sdk_types::basic_types::{
     AccountId, BlockNumber, ChainId, SubAccountId, TokenId, ZkLinkAddress,
 };
-use zklink_types::l1_signature::TxLayer1Signature;
-use zklink_types::tx_type::zklink_tx::{ZkLinkTx, ZkLinkTxType};
+use zklink_sdk_types::l1_signature::TxLayer1Signature;
+use zklink_sdk_types::tx_type::zklink_tx::{ZkLinkTx, ZkLinkTxType};
 
 #[rpc(client)]
 pub trait ZkLinkRpc {

@@ -9,7 +9,7 @@ jsonrpsee = { version = "0.15.1", features = ["server", "client", "macros"] }
 serde = { version = "1.0", features = ["derive"] }
 thiserror = "1.0"
 zklink_signers = { path = "../signer" }
-zklink_types = { path = "../types" }
+zklink_sdk_types = { path = "../types" }
 
 [features]
 default = ["sync"]

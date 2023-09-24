@@ -4,7 +4,7 @@ use zklink_provider::network::Network;
 use zklink_provider::response::TokenResp;
 use zklink_provider::rpc::ZkLinkRpcClient;
 use zklink_provider::ZkLinkRpcProvider;
-use zklink_types::basic_types::TokenId;
+use zklink_sdk_types::basic_types::TokenId;
 
 #[tokio::test]
 async fn test_get_tokens() {

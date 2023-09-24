@@ -1,12 +1,12 @@
 use std::sync::Arc;
-use zklink_types::tx_type::change_pubkey::ChangePubKey;
-use zklink_types::tx_type::deposit::Deposit;
-use zklink_types::tx_type::forced_exit::ForcedExit;
-use zklink_types::tx_type::full_exit::FullExit;
-use zklink_types::tx_type::order_matching::OrderMatching;
-use zklink_types::tx_type::transfer::Transfer;
-use zklink_types::tx_type::withdraw::Withdraw;
-use zklink_types::tx_type::zklink_tx::ZkLinkTx;
+use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey;
+use zklink_sdk_types::tx_type::deposit::Deposit;
+use zklink_sdk_types::tx_type::forced_exit::ForcedExit;
+use zklink_sdk_types::tx_type::full_exit::FullExit;
+use zklink_sdk_types::tx_type::order_matching::OrderMatching;
+use zklink_sdk_types::tx_type::transfer::Transfer;
+use zklink_sdk_types::tx_type::withdraw::Withdraw;
+use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 
 pub fn zklink_tx_from_change_pubkey(tx: Arc<ChangePubKey>) -> ZkLinkTx {
     (*tx).clone().into()

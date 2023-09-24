@@ -2,8 +2,8 @@
 use std::sync::Arc;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_types::tx_type::order_matching::Order;
-use zklink_types::tx_type::TxTrait;
+use zklink_sdk_types::tx_type::order_matching::Order;
+use zklink_sdk_types::tx_type::TxTrait;
 #[cfg(feature = "sync")]
 pub fn sign(order: &mut Order, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
     let bytes = order.get_bytes();

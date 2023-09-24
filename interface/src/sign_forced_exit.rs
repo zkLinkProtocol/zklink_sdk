@@ -3,8 +3,8 @@ use crate::TxSignature;
 use std::sync::Arc;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_types::tx_type::forced_exit::ForcedExit;
-use zklink_types::tx_type::TxTrait;
+use zklink_sdk_types::tx_type::forced_exit::ForcedExit;
+use zklink_sdk_types::tx_type::TxTrait;
 
 pub fn sign_forced_exit(
     zklink_signer: &ZkLinkSigner,

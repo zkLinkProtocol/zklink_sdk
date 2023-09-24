@@ -8,11 +8,11 @@ use chrono::serde::{ts_microseconds, ts_microseconds_option};
 use zklink_sdk_utils::serde::BigUintSerdeWrapper;
 use zklink_signers::eth_signer::H256;
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
-use zklink_types::basic_types::tx_hash::TxHash;
-use zklink_types::basic_types::{
+use zklink_sdk_types::basic_types::tx_hash::TxHash;
+use zklink_sdk_types::basic_types::{
     AccountId, BlockNumber, ChainId, Nonce, SlotId, SubAccountId, TokenId, ZkLinkAddress,
 };
-use zklink_types::tx_type::zklink_tx::ZkLinkTx;
+use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 
 pub type SubAccountNonces = HashMap<SubAccountId, Nonce>;
 pub type SubAccountBalances = HashMap<SubAccountId, HashMap<TokenId, BigUintSerdeWrapper>>;

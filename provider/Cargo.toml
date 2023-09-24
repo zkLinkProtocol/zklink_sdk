@@ -13,7 +13,7 @@ serde = "1.0.137"
 zklink_sdk_utils = { path = "../utils" }
 
 zklink_signers = { path = "../signer" }
-zklink_types = { path = "../types" }
+zklink_sdk_types = { path = "../types" }
 
 [dev-dependencies]
 serde_json = "1.0"

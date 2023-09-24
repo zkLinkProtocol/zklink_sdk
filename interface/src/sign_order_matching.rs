@@ -3,8 +3,8 @@ use crate::TxSignature;
 use std::sync::Arc;
 use zklink_signers::zklink_signer::error::ZkSignerError;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_types::tx_type::order_matching::OrderMatching;
-use zklink_types::tx_type::TxTrait;
+use zklink_sdk_types::tx_type::order_matching::OrderMatching;
+use zklink_sdk_types::tx_type::TxTrait;
 
 pub fn sign_order_matching(
     zklink_signer: &ZkLinkSigner,

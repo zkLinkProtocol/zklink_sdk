@@ -4,7 +4,7 @@ use crate::TxSignature;
 use std::sync::Arc;
 use zklink_signers::eth_signer::pk_signer::EthSigner;
 use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_types::tx_type::withdraw::Withdraw;
+use zklink_sdk_types::tx_type::withdraw::Withdraw;
 
 pub fn sign_withdraw(
     eth_signer: &EthSigner,
