@@ -1,4 +1,4 @@
-use crate::basic_types::error::TypeError as Error;
+use crate::error::TypeError as Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{convert::TryInto, str::FromStr};
 use zklink_sdk_utils::serde::{Prefix, ZeroxPrefix};

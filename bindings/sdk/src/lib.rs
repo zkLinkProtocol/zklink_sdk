@@ -18,13 +18,13 @@ use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_signers::zklink_signer::public_key::PackedPublicKey;
 use zklink_signers::zklink_signer::signature::{PackedSignature, ZkLinkSignature};
 
-use zklink_sdk_types::basic_types::error::TypeError;
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
 use zklink_sdk_types::basic_types::zklink_address::ZkLinkAddress;
 use zklink_sdk_types::basic_types::{
     AccountId, BigUint, BlockNumber, ChainId, EthBlockId, Nonce, PairId, PriorityOpId, SlotId,
     SubAccountId, TimeStamp, TokenId,
 };
+use zklink_sdk_types::error::TypeError;
 use zklink_sdk_types::l1_signature::TxLayer1Signature;
 use zklink_sdk_types::tx_builder::{
     ChangePubKeyBuilder, DepositBuilder, ForcedExitBuilder, FullExitBuilder, OrderMatchingBuilder,
