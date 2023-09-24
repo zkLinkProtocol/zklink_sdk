@@ -2,6 +2,7 @@ use crate::basic_types::error::TypeError as Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{convert::TryInto, str::FromStr};
 use zklink_sdk_utils::serde::{Prefix, ZeroxPrefix};
+use zklink_signers::eth_signer::H256;
 
 const TX_HASH_LEN: usize = 32;
 
@@ -36,6 +37,10 @@ impl TxHash {
 
     pub fn as_hex(&self) -> String {
         self.to_string()
+    }
+
+    pub fn as_h256(&self) -> H256 {
+        H256::from_slice(&self.data)
     }
 }
 

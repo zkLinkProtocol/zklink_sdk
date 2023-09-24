@@ -85,9 +85,9 @@ impl ChangePubKeyAuthData {
             ChangePubKeyAuthData::EthECDSA { eth_signature } => {
                 let mut bytes = Vec::new();
                 bytes.push(0x00);
-                bytes.extend_from_slice(&eth_signature.0[..64]);
+                bytes.extend_from_slice(&eth_signature.0.to_vec()[..64]);
                 // add 27 to v
-                let mut v = eth_signature.0[64];
+                let mut v = eth_signature.0.to_vec()[64];
                 if v == 0 || v == 1 {
                     v += 27;
                 }

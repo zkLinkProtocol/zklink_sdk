@@ -229,7 +229,7 @@ mod test {
         let l1_signature = PackedEthSignature::from_hex(eth_signature).unwrap();
         let token_symbol = "USDC";
         let message = tx
-            .get_ethereum_sign_message(token_symbol)
+            .get_eth_sign_msg(token_symbol)
             .as_bytes()
             .to_vec();
         let recover_address = l1_signature.signature_recover_signer(&message).unwrap();

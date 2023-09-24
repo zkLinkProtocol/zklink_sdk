@@ -8,6 +8,7 @@ use franklin_crypto::bellman::pairing::bn256::Bn256 as Engine;
 use franklin_crypto::bellman::pairing::ff::{PrimeField, PrimeFieldRepr};
 use franklin_crypto::jubjub::JubjubEngine;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+// use wasm_bindgen::prelude::wasm_bindgen;
 
 #[derive(Clone)]
 pub struct PackedSignature(pub(crate) EddsaSignature<Engine>);

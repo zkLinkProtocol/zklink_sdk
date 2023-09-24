@@ -1,12 +1,8 @@
 use crate::eth_signer::error::EthSignerError;
-use crate::eth_signer::{Address, H256};
-use parity_crypto::{
-    publickey::{public_to_address, recover, Signature as ETHSignature},
-    Keccak256,
-};
+use crate::eth_signer::Address;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
-
+use ethers::types::Signature;
 /// Struct used for working with ethereum signatures created using eth_sign (using geth, ethers.js, etc)
 /// message is serialized as 65 bytes long `0x` prefixed string.
 ///
@@ -24,13 +20,12 @@ use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
 /// This way when we have methods that consumes &self we can be sure that ETHSignature::recover_signer works
 /// And we can be sure that we are compatible with Ethereum clients.
 ///
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct PackedEthSignature(pub ETHSignature);
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PackedEthSignature(pub Signature);
 
 impl PackedEthSignature {
     pub fn serialize_packed(&self) -> [u8; 65] {
-        // adds 27 to v
-        self.0.clone().into_electrum()
+        self.0.clone().into()
     }
 
     pub fn deserialize_packed(bytes: &[u8]) -> Result<Self, EthSignerError> {
@@ -41,11 +36,8 @@ impl PackedEthSignature {
         let mut bytes_array = [0u8; 65];
         bytes_array.copy_from_slice(bytes);
 
-        if bytes_array[64] >= 27 {
-            bytes_array[64] -= 27;
-        }
-
-        Ok(PackedEthSignature(ETHSignature::from(bytes_array)))
+        Ok(PackedEthSignature(Signature::try_from(bytes_array.as_slice())
+            .map_err(|_err| EthSignerError::InvalidEthSigner)?))
     }
 
     pub fn from_hex(s: &str) -> Result<Self, EthSignerError> {
@@ -59,23 +51,14 @@ impl PackedEthSignature {
         format!("0x{}", hex::encode(raw))
     }
 
-    pub fn message_to_signed_bytes(msg: &[u8]) -> H256 {
-        let prefix = format!("\x19Ethereum Signed Message:\n{}", msg.len());
-        let mut bytes = Vec::with_capacity(prefix.len() + msg.len());
-        bytes.extend_from_slice(prefix.as_bytes());
-        bytes.extend_from_slice(msg);
-        bytes.keccak256().into()
-    }
-
     /// Checks signature and returns ethereum address of the signer.
     /// message should be the same message that was passed to `eth.sign`(or similar) method
     /// as argument. No hashing and prefixes required.
     pub fn signature_recover_signer(&self, msg: &[u8]) -> Result<Address, EthSignerError> {
-        let signed_bytes = Self::message_to_signed_bytes(msg);
-        let public_key = recover(&self.0, &signed_bytes)
+        let address = self.0.recover(msg)
             .map_err(|err| EthSignerError::RecoverAddress(err.to_string()))?;
 
-        Ok(public_to_address(&public_key))
+        Ok(Address::from_slice(address.as_bytes()))
     }
 }
 
@@ -102,13 +85,25 @@ impl<'de> Deserialize<'de> for PackedEthSignature {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::eth_signer::Address;
+    use std::str::FromStr;
+    use crate::eth_signer::pk_signer::EthSigner;
 
     #[test]
     fn test_packed_eth_signature() {
-        let h = PackedEthSignature::default();
-        let s = h.as_hex();
-        let h2 = PackedEthSignature::from_hex(&s).unwrap();
-        println!("{s}");
-        println!("{h2:?}");
+        let private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
+        let msg = vec![1,2,3,4,5];
+        let pk = EthSigner::try_from(private_key).unwrap();
+        let signature = pk.sign_message(&msg).unwrap();
+        let signature_str = "0xd226c38ff38e07f50d8455fa004168bdd3eb6d860d72ecb1549c0891db64a56e52d450091f0c1dbff67d2bb8394e01df9a4a7c13d47c9fa10897e0bbcab122de1b";
+        assert_eq!(signature.as_hex(),signature_str);
+
+        let sig = PackedEthSignature::from_hex(&signature_str).unwrap();
+        let address = sig.signature_recover_signer(&msg).unwrap();
+        let pk_address = pk.get_address().unwrap();
+        assert_eq!(address,pk_address);
+
+        let sign_address = Address::from_str("0xdec58607c3f5a0f8bc51ca50cc2578ab282865fc").unwrap();
+        assert_eq!(address,sign_address);
     }
 }

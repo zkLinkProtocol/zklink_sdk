@@ -4,7 +4,7 @@ use ethers_primitives::{Address, U256};
 use serde::{Deserialize, Serialize};
 pub use serde_eip712::*;
 use std::collections::HashMap;
-use web3::signing::keccak256;
+use ethers::utils::keccak256;
 
 ///
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

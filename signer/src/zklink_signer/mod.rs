@@ -4,6 +4,8 @@ pub mod pubkey_hash;
 pub mod public_key;
 pub mod signature;
 pub mod utils;
+#[cfg(target_arch = "wasm32")]
+pub mod wasm_binding;
 
 pub use franklin_crypto::bellman::pairing::bn256::{Bn256 as Engine, Fr};
 use franklin_crypto::rescue::bn256::Bn256RescueParams;
