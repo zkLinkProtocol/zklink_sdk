@@ -6,9 +6,3 @@ impl From<EthSignerError> for JsValue {
         JsValue::from_str(&format!("error: {error}"))
     }
 }
-
-impl From<TxLayer1Signature> for JsValue {
-    fn from(signature: TxLayer1Signature) -> Self {
-        JsValue::from_str(&format!("{:?}", signature))
-    }
-}

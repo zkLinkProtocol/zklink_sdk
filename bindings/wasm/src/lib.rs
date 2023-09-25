@@ -4,3 +4,5 @@ pub mod crypto;
 // pub mod wallet;
 // #[cfg(not(target_arch = "wasm32"))]
 // pub mod error;
+
+extern crate getrandom;
