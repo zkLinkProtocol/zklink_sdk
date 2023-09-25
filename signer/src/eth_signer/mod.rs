@@ -7,7 +7,7 @@ pub mod pk_signer;
 pub mod wasm_binding;
 
 use error::EthSignerError;
-pub use primitive_types::{H160, H256};
+pub use primitive_types::{H160, H256, U256};
 pub type Address = H160;
 pub use ethers_primitives::Address as EIP712Address;
 

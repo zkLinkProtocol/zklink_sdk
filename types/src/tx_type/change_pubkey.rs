@@ -198,7 +198,7 @@ impl ChangePubKey {
             nonce: builder.nonce,
             signature: ZkLinkSignature::default(),
             eth_auth_data,
-            ts: builder.ts,
+            ts: builder.timestamp,
         }
     }
 
@@ -299,7 +299,7 @@ mod test {
             fee: BigUint::from(100u32),
             nonce: Nonce(1),
             eth_signature: None,
-            ts: ts.into(),
+            timestamp: ts.into(),
         };
         let change_pubkey = ChangePubKey::new(builder);
         let bytes = change_pubkey.get_bytes();

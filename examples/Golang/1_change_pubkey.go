@@ -30,7 +30,7 @@ type RPCTransaction2 struct {
 func LowLevelChangePubkey() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
     // create eth signer
-    ethSigner, err := sdk.NewPrivateKeySigner(privateKey)
+    ethSigner, err := sdk.NewEthSigner(privateKey)
     if err != nil {
         return
     }

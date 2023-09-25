@@ -90,7 +90,7 @@ impl Transfer {
         ethereum_sign_message_part(
             "Transfer",
             token_symbol,
-            TOKEN_MAX_PRECISION as u8,
+            TOKEN_MAX_PRECISION,
             &self.amount,
             &self.fee,
             &self.to,

@@ -98,7 +98,7 @@ where
         })
     }
     pub fn sign_hash(&self) -> Result<H256, EthSignerError> {
-        Ok(keccak256(&self.encode()?).into())
+        Ok(keccak256(self.encode()?).into())
     }
 
     pub fn encode(&self) -> Result<[u8; 66], EthSignerError> {

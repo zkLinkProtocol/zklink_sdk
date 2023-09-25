@@ -54,7 +54,7 @@ dictionary ChangePubKeyBuilder {
     BigUint fee;
     Nonce nonce;
     PackedEthSignature ?eth_signature;
-    TimeStamp ts;
+    TimeStamp timestamp;
 };
 
 dictionary TransferBuilder {

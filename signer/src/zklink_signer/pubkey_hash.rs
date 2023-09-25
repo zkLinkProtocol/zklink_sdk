@@ -71,10 +71,6 @@ impl PubKeyHash {
             .map_err(|_| Error::InvalidPubkeyHash("size mismatch".into()))?;
         Ok(PubKeyHash { data })
     }
-
-    // pub fn from_pubkey(pubkey: &PackedPublicKey) -> Self {
-    //     pubkey.public_key_hash()
-    // }
 }
 
 impl Serialize for PubKeyHash {

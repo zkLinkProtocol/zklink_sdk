@@ -25,7 +25,7 @@ pub struct PackedEthSignature(pub Signature);
 
 impl PackedEthSignature {
     pub fn serialize_packed(&self) -> [u8; 65] {
-        self.0.clone().into()
+        self.0.into()
     }
 
     pub fn deserialize_packed(bytes: &[u8]) -> Result<Self, EthSignerError> {
@@ -102,7 +102,7 @@ mod tests {
         let signature_str = "0xd226c38ff38e07f50d8455fa004168bdd3eb6d860d72ecb1549c0891db64a56e52d450091f0c1dbff67d2bb8394e01df9a4a7c13d47c9fa10897e0bbcab122de1b";
         assert_eq!(signature.as_hex(), signature_str);
 
-        let sig = PackedEthSignature::from_hex(&signature_str).unwrap();
+        let sig = PackedEthSignature::from_hex(signature_str).unwrap();
         let address = sig.signature_recover_signer(&msg).unwrap();
         let pk_address = pk.get_address().unwrap();
         assert_eq!(address, pk_address);

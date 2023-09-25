@@ -19,7 +19,7 @@ pub struct ChangePubKeyBuilder {
     pub fee: BigUint,
     pub nonce: Nonce,
     pub eth_signature: Option<PackedEthSignature>,
-    pub ts: TimeStamp,
+    pub timestamp: TimeStamp,
 }
 
 pub struct TransferBuilder {

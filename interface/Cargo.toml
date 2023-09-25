@@ -5,8 +5,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-jsonrpsee = { version = "0.15.1", features = ["server", "client", "macros"] }
-serde = { version = "1.0", features = ["derive"] }
 thiserror = "1.0"
 zklink_sdk_types = { path = "../types" }
 zklink_signers = { path = "../signer" }

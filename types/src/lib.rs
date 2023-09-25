@@ -23,4 +23,8 @@ pub mod prelude {
         withdraw::Withdraw,
         zklink_tx::{ZkLinkTx, ZkLinkTxType},
     };
+    pub use zklink_signers::eth_signer::{H160, H256, U256};
+    pub use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
+    pub use zklink_signers::zklink_signer::public_key::PackedPublicKey;
+    pub use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 }
