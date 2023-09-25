@@ -7,8 +7,6 @@ use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_signers::eth_signer::pk_signer::EthSigner;
 use zklink_signers::zklink_signer::error::ZkSignerError;
-use zklink_signers::zklink_signer::pk_signer::sha256_bytes;
-use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_signers::zklink_signer::signature::ZkLinkSignature;
 
 use crate::basic_types::pack::pack_fee_amount;
@@ -17,8 +15,8 @@ use crate::basic_types::{
     AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
 use crate::tx_builder::WithdrawBuilder;
-use crate::tx_type::ethereum_sign_message_part;
 use crate::tx_type::validator::*;
+use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait};
 use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
 
 /// `Withdraw` transaction performs a withdrawal of funds from zklink account to L1 account.
@@ -93,74 +91,6 @@ impl Withdraw {
         }
     }
 
-    /// Encodes the transaction data as the byte sequence according to the zkLink protocol.
-    pub fn get_bytes(&self) -> Vec<u8> {
-        let mut out = Vec::new();
-        out.extend_from_slice(&[Self::TX_TYPE]);
-        out.extend_from_slice(&self.to_chain_id.to_be_bytes());
-        out.extend_from_slice(&self.account_id.to_be_bytes());
-        out.extend_from_slice(&self.sub_account_id.to_be_bytes());
-        out.extend_from_slice(&self.to.to_fixed_bytes());
-        out.extend_from_slice(&(*self.l2_source_token as u16).to_be_bytes());
-        out.extend_from_slice(&(*self.l1_target_token as u16).to_be_bytes());
-        out.extend_from_slice(&self.amount.to_u128().unwrap().to_be_bytes());
-        out.extend_from_slice(&pack_fee_amount(&self.fee));
-        out.extend_from_slice(&self.nonce.to_be_bytes());
-        out.extend_from_slice(&self.fast_withdraw.to_be_bytes());
-        out.extend_from_slice(&self.withdraw_fee_ratio.to_be_bytes());
-        out.extend_from_slice(&self.ts.to_be_bytes());
-        out
-    }
-
-    pub fn tx_hash(&self) -> Vec<u8> {
-        let bytes = self.get_bytes();
-        sha256_bytes(&bytes)
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn json_str(&self) -> String {
-        serde_json::to_string(&self).unwrap()
-    }
-
-    pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
-        let bytes = self.get_bytes();
-        self.signature = signer.sign_musig(&bytes)?;
-        Ok(())
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn signature(&self) -> ZkLinkSignature {
-        self.signature.clone()
-    }
-
-    #[cfg(feature = "ffi")]
-    pub fn submitter_signature(
-        &self,
-        signer: Arc<ZkLinkSigner>,
-    ) -> Result<ZkLinkSignature, ZkSignerError> {
-        let bytes = self.tx_hash();
-        let signature = signer.sign_musig(&bytes)?;
-        Ok(signature)
-    }
-
-    #[cfg(not(feature = "ffi"))]
-    pub fn submitter_signature(
-        &self,
-        signer: &ZkLinkSigner,
-    ) -> Result<ZkLinkSignature, ZkSignerError> {
-        let bytes = self.tx_hash();
-        let signature = signer.sign_musig(&bytes)?;
-        Ok(signature)
-    }
-
-    pub fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
-        self.signature.verify_musig(&self.get_bytes())
-    }
-
-    pub fn is_validate(&self) -> bool {
-        self.validate().is_ok()
-    }
-
     /// Restores the `PubKeyHash` from the transaction signature.
     pub fn verify_signature(&self) -> Option<PubKeyHash> {
         match self.signature.verify_musig(&self.get_bytes()) {
@@ -213,6 +143,42 @@ impl Withdraw {
         let message = self.get_eth_sign_msg(l2_source_token_symbol);
         let eth_signature = eth_signer.sign_message(message.as_bytes())?;
         Ok(eth_signature)
+    }
+}
+
+impl TxTrait for Withdraw {
+    fn get_bytes(&self) -> Vec<u8> {
+        let mut out = Vec::new();
+        out.extend_from_slice(&[Self::TX_TYPE]);
+        out.extend_from_slice(&self.to_chain_id.to_be_bytes());
+        out.extend_from_slice(&self.account_id.to_be_bytes());
+        out.extend_from_slice(&self.sub_account_id.to_be_bytes());
+        out.extend_from_slice(&self.to.to_fixed_bytes());
+        out.extend_from_slice(&(*self.l2_source_token as u16).to_be_bytes());
+        out.extend_from_slice(&(*self.l1_target_token as u16).to_be_bytes());
+        out.extend_from_slice(&self.amount.to_u128().unwrap().to_be_bytes());
+        out.extend_from_slice(&pack_fee_amount(&self.fee));
+        out.extend_from_slice(&self.nonce.to_be_bytes());
+        out.extend_from_slice(&self.fast_withdraw.to_be_bytes());
+        out.extend_from_slice(&self.withdraw_fee_ratio.to_be_bytes());
+        out.extend_from_slice(&self.ts.to_be_bytes());
+        out
+    }
+}
+
+impl ZkSignatureTrait for Withdraw {
+    fn set_signature(&mut self, signature: ZkLinkSignature) {
+        self.signature = signature;
+    }
+
+    #[cfg(feature = "ffi")]
+    fn signature(&self) -> ZkLinkSignature {
+        self.signature.clone()
+    }
+
+    fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+        let bytes = self.get_bytes();
+        self.signature.verify_musig(&bytes)
     }
 }
 

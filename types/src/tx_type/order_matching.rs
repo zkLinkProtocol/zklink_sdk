@@ -294,9 +294,9 @@ impl TxTrait for OrderMatching {
         out
     }
 
-    fn is_validate(&self) -> bool {
+    fn is_valid(&self) -> bool {
         let order_valid = match self.validate() {
-            Ok(_) => self.maker.is_validate() && self.taker.is_validate(),
+            Ok(_) => self.maker.is_valid() && self.taker.is_valid(),
             Err(_) => false,
         };
         order_valid && self.validate().is_ok()

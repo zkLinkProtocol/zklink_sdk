@@ -126,7 +126,7 @@ pub trait TxTrait: Validate + Serialize {
         serde_json::to_string(&self).unwrap()
     }
 
-    fn is_validate(&self) -> bool {
+    fn is_valid(&self) -> bool {
         self.validate().is_ok()
     }
 }

@@ -169,7 +169,7 @@ interface Withdraw {
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
     string json_str();
-    boolean is_validate();
+    boolean is_valid();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
     string get_eth_sign_msg([ByRef] string token_symbol);
@@ -185,7 +185,7 @@ interface ChangePubKey {
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
     string json_str();
-    boolean is_validate();
+    boolean is_valid();
     boolean is_onchain();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
@@ -199,7 +199,7 @@ interface ForcedExit {
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
     string json_str();
-    boolean is_validate();
+    boolean is_valid();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
     [Throws=ZkSignerError]
@@ -212,7 +212,7 @@ interface FullExit {
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
     string json_str();
-    boolean is_validate();
+    boolean is_valid();
 };
 
 interface Transfer {
@@ -221,7 +221,7 @@ interface Transfer {
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
     string json_str();
-    boolean is_validate();
+    boolean is_valid();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
     string get_eth_sign_msg([ByRef] string token_symbol);
@@ -249,7 +249,7 @@ interface Order {
     ZkLinkSignature signature();
     sequence<u8> get_bytes();
     string json_str();
-    boolean is_validate();
+    boolean is_valid();
     [Throws=ZkSignerError]
     boolean is_signature_valid();
     string get_eth_sign_msg([ByRef] string quote_token, [ByRef] string based_token, u8 decimals);
@@ -261,7 +261,7 @@ interface OrderMatching {
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
     string json_str();
-    boolean is_validate();
+    boolean is_valid();
         [Throws=ZkSignerError]
         boolean is_signature_valid();
 };

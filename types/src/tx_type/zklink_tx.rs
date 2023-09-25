@@ -162,15 +162,15 @@ impl ZkLinkTx {
     }
 
     /// Check tx correct
-    pub fn is_validate(&self) -> bool {
+    pub fn is_valid(&self) -> bool {
         match self {
-            ZkLinkTx::Transfer(tx) => tx.is_validate(),
-            ZkLinkTx::Withdraw(tx) => tx.is_validate(),
-            ZkLinkTx::ChangePubKey(tx) => tx.is_validate(),
-            ZkLinkTx::ForcedExit(tx) => tx.is_validate(),
-            ZkLinkTx::OrderMatching(tx) => tx.is_validate(),
-            ZkLinkTx::FullExit(tx) => tx.is_validate(),
-            ZkLinkTx::Deposit(tx) => tx.is_validate(),
+            ZkLinkTx::Transfer(tx) => tx.is_valid(),
+            ZkLinkTx::Withdraw(tx) => tx.is_valid(),
+            ZkLinkTx::ChangePubKey(tx) => tx.is_valid(),
+            ZkLinkTx::ForcedExit(tx) => tx.is_valid(),
+            ZkLinkTx::OrderMatching(tx) => tx.is_valid(),
+            ZkLinkTx::FullExit(tx) => tx.is_valid(),
+            ZkLinkTx::Deposit(tx) => tx.is_valid(),
         }
     }
 }
