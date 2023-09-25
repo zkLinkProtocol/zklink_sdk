@@ -4,10 +4,10 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
-use zklink_signers::eth_signer::pk_signer::EthSigner;
-use zklink_signers::zklink_signer::error::ZkSignerError;
-use zklink_signers::zklink_signer::signature::ZkLinkSignature;
+use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
+use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
+use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 
 use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::params::TOKEN_MAX_PRECISION;
@@ -17,7 +17,7 @@ use crate::basic_types::{
 use crate::tx_builder::WithdrawBuilder;
 use crate::tx_type::validator::*;
 use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait};
-use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
+use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 
 /// `Withdraw` transaction performs a withdrawal of funds from zklink account to L1 account.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]

@@ -12,9 +12,9 @@ use serde::Serialize;
 use std::collections::VecDeque;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
-use zklink_signers::zklink_signer::error::ZkSignerError;
-use zklink_signers::zklink_signer::pk_signer::{sha256_bytes, ZkLinkSigner};
-use zklink_signers::zklink_signer::signature::ZkLinkSignature;
+use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
+use zklink_sdk_signers::zklink_signer::pk_signer::{sha256_bytes, ZkLinkSigner};
+use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 
 pub(crate) mod validator;
 

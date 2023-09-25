@@ -1,10 +1,10 @@
 use wasm_bindgen::prelude::*;
-use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner as Signer;
-// use zklink_signers::zklink_signer::error::ZkSignerError;
-use zklink_signers::zklink_signer::signature::ZkLinkSignature as Signature;
-// use zklink_signers::eth_signer::eth_signature::TxEthSignature;
+use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner as Signer;
+// use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
+use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature as Signature;
+// use zklink_sdk_signers::eth_signer::eth_signature::TxEthSignature;
 // use wasm_bindgen_futures::{JsFuture, future_to_promise};
-use zklink_signers::eth_signer::pk_signer::EthSigner;
+use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 
 #[wasm_bindgen]
 pub struct EthPrivateKeySigner {

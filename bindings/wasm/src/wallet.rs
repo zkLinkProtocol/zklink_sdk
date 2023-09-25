@@ -5,11 +5,11 @@ use num::BigUint;
 use zklink_interface::{ChangePubKeyAuthRequest, TxSignature};
 use zklink_provider::response::{AccountQuery, ChainResp, TokenResp, AccountInfoResp};
 use zklink_provider::rpc::ZkLinkRpcClient;
-use zklink_signers::eth_signer::eth_signature::TxEthSignature;
-use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_sdk_signers::eth_signer::eth_signature::TxEthSignature;
+use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 
-use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
-use zklink_signers::zklink_signer::signature::ZkLinkSignature;
+use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
+use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_types::basic_types::params::MAIN_SUB_ACCOUNT_ID;
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
 use zklink_sdk_types::basic_types::{AccountId, ChainId, Nonce, SubAccountId, TokenId, ZkLinkAddress};

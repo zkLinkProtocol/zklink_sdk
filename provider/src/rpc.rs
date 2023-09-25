@@ -10,7 +10,7 @@ use zklink_sdk_types::basic_types::{
 use zklink_sdk_types::prelude::BigUintSerdeWrapper;
 use zklink_sdk_types::signatures::TxLayer1Signature;
 use zklink_sdk_types::tx_type::zklink_tx::{ZkLinkTx, ZkLinkTxType};
-use zklink_signers::zklink_signer::signature::ZkLinkSignature;
+use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 
 #[rpc(client)]
 pub trait ZkLinkRpc {

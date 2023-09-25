@@ -10,16 +10,16 @@ use parity_crypto::Keccak256;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-use zklink_signers::eth_signer::eip712::eip712::{EIP712Domain, TypedData};
-use zklink_signers::eth_signer::eip712::{BytesM, Uint};
-use zklink_signers::eth_signer::error::EthSignerError;
-use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
-use zklink_signers::eth_signer::EthTypedData;
-use zklink_signers::eth_signer::H256;
-use zklink_signers::zklink_signer::error::ZkSignerError;
-use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
-use zklink_signers::zklink_signer::signature::ZkLinkSignature;
+use zklink_sdk_signers::eth_signer::eip712::eip712::{EIP712Domain, TypedData};
+use zklink_sdk_signers::eth_signer::eip712::{BytesM, Uint};
+use zklink_sdk_signers::eth_signer::error::EthSignerError;
+use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
+use zklink_sdk_signers::eth_signer::EthTypedData;
+use zklink_sdk_signers::eth_signer::H256;
+use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
+use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
+use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -281,7 +281,7 @@ impl From<&ChangePubKey> for EIP712ChangePubKey {
 #[cfg(test)]
 mod test {
     use super::*;
-    use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
+    use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 
     #[test]
     fn test_get_bytes_onchain() {

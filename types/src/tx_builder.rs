@@ -6,9 +6,9 @@ use crate::tx_type::order_matching::Order;
 use num::BigUint;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
-use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
-use zklink_signers::eth_signer::H256;
-use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
+use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
+use zklink_sdk_signers::eth_signer::H256;
+use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 
 pub struct ChangePubKeyBuilder {
     pub chain_id: ChainId,

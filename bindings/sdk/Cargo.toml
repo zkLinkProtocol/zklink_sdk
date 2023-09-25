@@ -13,7 +13,7 @@ chrono = "0.4"
 hex = "0.4"
 serde_json = "1.0"
 uniffi = "0.23"
-zklink_signers = { path = "../../signer", default_features = false,features = ["ffi"] }
+zklink_sdk_signers = { path = "../../signer", default_features = false,features = ["ffi"] }
 zklink_sdk_types = { path = "../../types", default_features = false, features = ["ffi"] }
 zklink_interface = { path = "../../interface", default_features = false, features = ["ffi"] }
 zklink_provider = { path = "../../provider", default_features = false, features = ["ffi"]}

@@ -1,6 +1,6 @@
 use thiserror::Error;
-use zklink_signers::eth_signer::error::EthSignerError;
-use zklink_signers::zklink_signer::error::ZkSignerError;
+use zklink_sdk_signers::eth_signer::error::EthSignerError;
+use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 
 #[derive(Debug, Error)]
 pub enum SignError {

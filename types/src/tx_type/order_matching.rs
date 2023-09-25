@@ -8,18 +8,18 @@ use crate::signatures::TxLayer1Signature;
 use crate::tx_builder::OrderMatchingBuilder;
 use crate::tx_type::validator::*;
 use crate::tx_type::{format_units, TxTrait, ZkSignatureTrait};
-use num::{BigUint, ToPrimitive, Zero};
+use num::{BigUint, One, ToPrimitive, Zero};
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-use zklink_signers::eth_signer::pk_signer::EthSigner;
-use zklink_signers::zklink_signer::error::ZkSignerError;
+use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 #[cfg(feature = "ffi")]
-use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_signers::zklink_signer::signature::ZkLinkSignature;
-use zklink_signers::zklink_signer::utils::rescue_hash_orders;
+use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
+use zklink_sdk_signers::zklink_signer::utils::rescue_hash_orders;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
@@ -270,6 +270,35 @@ impl OrderMatching {
         let eth_signature = eth_signer.sign_message(msg.as_bytes())?;
         let tx_eth_signature = TxLayer1Signature::EthereumSignature(eth_signature);
         Ok(tx_eth_signature)
+    }
+
+    /// Returns the expectant exchange amount of maker.
+    pub fn maker_expect_amount(&self) -> &BigUint {
+        if self.maker.is_sell.is_one() {
+            &self.expect_base_amount
+        } else {
+            &self.expect_quote_amount
+        }
+    }
+
+    /// Returns the expectant exchange amount of taker.
+    pub fn taker_expect_amount(&self) -> &BigUint {
+        if self.taker.is_sell.is_one() {
+            &self.expect_base_amount
+        } else {
+            &self.expect_quote_amount
+        }
+    }
+
+    /// Returns the expectant exchange amounts of maker and taker.
+    pub fn expectant_amounts(&self) -> (&BigUint, &BigUint) {
+        (self.maker_expect_amount(), self.taker_expect_amount())
+    }
+
+    /// The expect_mode is to trade according to expect_base_amount and expect_quote_amount
+    /// Not expect_mode, will trade according to the maximum value of the two orders that can be filled.
+    pub fn is_expect_mode(&self) -> bool {
+        !self.expect_base_amount.is_zero() && !self.expect_quote_amount.is_zero()
     }
 }
 

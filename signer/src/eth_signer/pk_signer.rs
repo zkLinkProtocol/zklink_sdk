@@ -34,7 +34,7 @@ impl EthSigner {
     /// Get Ethereum address that matches the private key.
     pub fn get_address(&self) -> Result<Address, EthSignerError> {
         let key = SigningKey::from_slice(self.private_key.as_bytes())
-            .map_err(|_| EthSignerError::DefineAddress)?;
+            .map_err(|_| EthSignerError::InvalidEthSigner)?;
         Ok(Address::from_slice(
             LocalWallet::from(key).address().as_bytes(),
         ))
@@ -46,7 +46,7 @@ impl EthSigner {
         tx: &TypedTransaction,
     ) -> Result<PackedEthSignature, EthSignerError> {
         let key = SigningKey::from_slice(self.private_key.as_bytes())
-            .map_err(|_| EthSignerError::DefineAddress)?;
+            .map_err(|_| EthSignerError::InvalidEthSigner)?;
         let signed = LocalWallet::from(key)
             .with_chain_id(tx.chain_id().unwrap_or_default().as_u64())
             .sign_transaction_sync(tx)
@@ -66,7 +66,7 @@ impl EthSigner {
     pub fn sign_hash(&self, hash: &[u8]) -> Result<PackedEthSignature, EthSignerError> {
         let tx_hash = TxHash::from_slice(hash);
         let key = SigningKey::from_slice(self.private_key.as_bytes())
-            .map_err(|_| EthSignerError::DefineAddress)?;
+            .map_err(|_| EthSignerError::InvalidEthSigner)?;
         let signature = LocalWallet::from(key)
             .sign_hash(tx_hash)
             .map_err(|err| EthSignerError::SigningFailed(err.to_string()))?;

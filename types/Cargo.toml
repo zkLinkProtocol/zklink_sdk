@@ -16,7 +16,7 @@ thiserror = "1.0"
 
 validator = { version = "0.15", features = ["derive"] }
 zklink_sdk_utils = { path = "../utils" }
-zklink_signers = { path = "../signer" }
+zklink_sdk_signers = { path = "../signer" }
 
 [dev-dependencies]
 

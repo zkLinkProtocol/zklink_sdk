@@ -4,8 +4,8 @@ use std::sync::Arc;
 use zklink_sdk_types::prelude::TxSignature;
 use zklink_sdk_types::tx_type::transfer::Transfer;
 use zklink_sdk_types::tx_type::TxTrait;
-use zklink_signers::eth_signer::pk_signer::EthSigner;
-use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 
 pub fn sign_transfer(
     eth_signer: &EthSigner,

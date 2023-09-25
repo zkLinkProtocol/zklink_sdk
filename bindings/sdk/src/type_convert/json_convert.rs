@@ -1,6 +1,6 @@
 use crate::UniffiCustomTypeConverter;
 use crate::{TxLayer1Signature, ZkLinkTx};
-use zklink_signers::zklink_signer::signature::ZkLinkSignature;
+use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 
 macro_rules! ffi_json_convert {
     ($(#[$attr:meta])* $name:ident) => {

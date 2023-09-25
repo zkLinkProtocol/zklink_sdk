@@ -105,6 +105,20 @@ impl ZkLinkTx {
             ZkLinkTx::FullExit(tx) => tx.validate(),
         }
     }
+
+    /// Check tx correct
+    pub fn is_valid(&self) -> bool {
+        match self {
+            ZkLinkTx::Transfer(tx) => tx.is_valid(),
+            ZkLinkTx::Withdraw(tx) => tx.is_valid(),
+            ZkLinkTx::ChangePubKey(tx) => tx.is_valid(),
+            ZkLinkTx::ForcedExit(tx) => tx.is_valid(),
+            ZkLinkTx::OrderMatching(tx) => tx.is_valid(),
+            ZkLinkTx::FullExit(tx) => tx.is_valid(),
+            ZkLinkTx::Deposit(tx) => tx.is_valid(),
+        }
+    }
+
     /// Returns the hash of the transaction.
     pub fn tx_hash(&self) -> TxHash {
         let tx_hash = match self {
@@ -161,18 +175,6 @@ impl ZkLinkTx {
         }
     }
 
-    /// Check tx correct
-    pub fn is_valid(&self) -> bool {
-        match self {
-            ZkLinkTx::Transfer(tx) => tx.is_valid(),
-            ZkLinkTx::Withdraw(tx) => tx.is_valid(),
-            ZkLinkTx::ChangePubKey(tx) => tx.is_valid(),
-            ZkLinkTx::ForcedExit(tx) => tx.is_valid(),
-            ZkLinkTx::OrderMatching(tx) => tx.is_valid(),
-            ZkLinkTx::FullExit(tx) => tx.is_valid(),
-            ZkLinkTx::Deposit(tx) => tx.is_valid(),
-        }
-    }
 }
 
 #[cfg(test)]

@@ -11,9 +11,9 @@ use zklink_sdk_types::tx_type::change_pubkey::Create2Data;
 use zklink_sdk_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData};
 use zklink_sdk_types::tx_type::TxTrait;
 #[cfg(feature = "ffi")]
-use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
-use zklink_signers::eth_signer::pk_signer::EthSigner;
-use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
+use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 
 #[cfg(feature = "sync")]
 pub fn sign_change_pubkey(

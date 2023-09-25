@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use zklink_signers::eth_signer::eip712::eip712::{EIP712Domain, TypedData};
-use zklink_signers::eth_signer::pk_signer::EthSigner;
-use zklink_signers::eth_signer::EIP712Address;
+use zklink_sdk_signers::eth_signer::eip712::eip712::{EIP712Domain, TypedData};
+use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+use zklink_sdk_signers::eth_signer::EIP712Address;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 struct Person {

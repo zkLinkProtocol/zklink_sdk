@@ -2,7 +2,7 @@ use crate::error::TypeError as Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{convert::TryInto, str::FromStr};
 use zklink_sdk_utils::serde::{Prefix, ZeroxPrefix};
-use zklink_signers::eth_signer::H256;
+use zklink_sdk_signers::eth_signer::H256;
 
 const TX_HASH_LEN: usize = 32;
 

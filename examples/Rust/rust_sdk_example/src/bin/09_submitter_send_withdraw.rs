@@ -5,11 +5,11 @@ use std::time::Duration;
 use zklink_provider::network::Network;
 use zklink_provider::rpc::ZkLinkRpcClient;
 use zklink_provider::ZkLinkRpcProvider;
-use zklink_signers::eth_signer::eth_signature::TxEthSignature;
-use zklink_signers::eth_signer::pk_signer::EthSigner;
-use zklink_signers::eth_signer::H256;
-use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_signers::zklink_signer::signature::ZkLinkSignature;
+use zklink_sdk_signers::eth_signer::eth_signature::TxEthSignature;
+use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+use zklink_sdk_signers::eth_signer::H256;
+use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_wallet::basic_types::{
     AccountId, BigUint, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };

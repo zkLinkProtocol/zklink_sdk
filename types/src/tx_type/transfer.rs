@@ -12,10 +12,10 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-use zklink_signers::eth_signer::pk_signer::EthSigner;
-use zklink_signers::zklink_signer::error::ZkSignerError;
-use zklink_signers::zklink_signer::pubkey_hash::PubKeyHash;
-use zklink_signers::zklink_signer::signature::ZkLinkSignature;
+use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
+use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
+use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 
 /// `Transfer` transaction performs a move of funds from one zklink account to another.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
@@ -168,9 +168,9 @@ impl ZkSignatureTrait for Transfer {
 mod test {
     use super::*;
     use std::str::FromStr;
-    use zklink_signers::eth_signer::packed_eth_signature::PackedEthSignature;
-    use zklink_signers::eth_signer::pk_signer::EthSigner;
-    use zklink_signers::zklink_signer::public_key::PackedPublicKey;
+    use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
+    use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+    use zklink_sdk_signers::zklink_signer::public_key::PackedPublicKey;
 
     #[test]
     fn test_get_bytes() {

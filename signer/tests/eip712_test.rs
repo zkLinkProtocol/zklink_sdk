@@ -2,7 +2,7 @@ use ethers_primitives::Address;
 use serde::{Deserialize, Serialize};
 use serde_eip712::{eip712_encode_type, eip712_hash_struct, eip712_type_definitions};
 use serde_json::json;
-use zklink_signers::eth_signer::eip712::eip712::{EIP712Domain, TypedData};
+use zklink_sdk_signers::eth_signer::eip712::eip712::{EIP712Domain, TypedData};
 
 #[test]
 fn test_mail() {

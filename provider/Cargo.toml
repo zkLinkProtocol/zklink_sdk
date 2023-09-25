@@ -10,7 +10,7 @@ chrono = { version = "0.4", features = ["serde", "rustc-serialize"] }
 jsonrpsee = { version = "0.15.1", features = ["server", "client", "macros"] }
 serde = "1.0.137"
 zklink_sdk_types = { path = "../types" }
-zklink_signers = { path = "../signer" }
+zklink_sdk_signers = { path = "../signer" }
 
 [dev-dependencies]
 serde_json = "1.0"

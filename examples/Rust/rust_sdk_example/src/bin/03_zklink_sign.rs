@@ -1,5 +1,5 @@
 use serde_json::json;
-use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 
 fn main() {
     let eth_private_key = "0xb32593e347bf09436b058fbeabc17ebd2c7c1fa42e542f5f78fc3580faef83b7";

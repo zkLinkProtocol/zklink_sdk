@@ -9,8 +9,8 @@ use crate::tx_builder::ForcedExitBuilder;
 use crate::tx_type::validator::*;
 use crate::tx_type::{TxTrait, ZkSignatureTrait};
 use serde::{Deserialize, Serialize};
-use zklink_signers::zklink_signer::error::ZkSignerError;
-use zklink_signers::zklink_signer::signature::ZkLinkSignature;
+use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
+use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 
 /// `ForcedExit` transaction is used to withdraw funds from an unowned
 /// account to its corresponding L1 address.

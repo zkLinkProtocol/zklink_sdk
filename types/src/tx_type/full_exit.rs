@@ -4,7 +4,7 @@ use crate::tx_builder::FullExitBuilder;
 use crate::tx_type::TxTrait;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
-use zklink_signers::eth_signer::H256;
+use zklink_sdk_signers::eth_signer::H256;
 
 /// `Mapping` transaction performs a move of funds from one zklink account to another.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]

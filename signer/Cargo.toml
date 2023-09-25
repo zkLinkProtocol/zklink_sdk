@@ -1,5 +1,5 @@
 [package]
-name = "zklink_signers"
+name = "zklink_sdk_signers"
 version = "1.0.0"
 edition = "2021"
 publish = false

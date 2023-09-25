@@ -14,10 +14,10 @@ use zklink_sdk_types::tx_type::transfer::Transfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
-use zklink_signers::eth_signer::error::EthSignerError;
-use zklink_signers::eth_signer::pk_signer::EthSigner;
-use zklink_signers::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_signers::zklink_signer::signature::ZkLinkSignature;
+use zklink_sdk_signers::eth_signer::error::EthSignerError;
+use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 
 pub struct Signer {
     zklink_signer: ZkLinkSigner,
