@@ -6,8 +6,8 @@ edition = "2021"
 
 [dependencies]
 thiserror = "1.0"
-zklink_sdk_types = { path = "../types" }
 zklink_sdk_signers = { path = "../signer" }
+zklink_sdk_types = { path = "../types" }
 
 [features]
 default = ["sync"]
