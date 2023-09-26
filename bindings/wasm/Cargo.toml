@@ -8,7 +8,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-zklink_sdk_signers = { path = "../../signer" }
+zklink_sdk_signers = { path = "../../signers" }
 zklink_sdk_types = { path = "../../types" }
 wasm-bindgen = { version = "0.2.87",features = ["serde-serialize"] }
 getrandom = { version = "0.2.10", features = ["js"] }

@@ -1,15 +1,4 @@
-pub use jsonrpc_core::types::response::Failure as RpcFailure;
 use thiserror::Error;
-
-#[derive(Debug, Error, PartialEq)]
-pub enum EthRpcSignerError {
-    #[error("Unable to decode server response")]
-    MalformedResponse(String),
-    #[error("RPC error: {0:?}")]
-    RpcError(RpcFailure),
-    #[error("Network error: {0}")]
-    NetworkError(String),
-}
 
 #[derive(Debug, Error, PartialEq)]
 pub enum EthSignerError {

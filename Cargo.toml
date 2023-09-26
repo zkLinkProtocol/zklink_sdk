@@ -5,12 +5,12 @@ members = [
     "bindings/wasm",
     "interface",
     "provider",
-    "signer",
+    "signers",
     "types",
     "utils",
 ]
 default-members = [
-    "signer",
+    "signers",
     "utils",
     "types",
     "provider",
