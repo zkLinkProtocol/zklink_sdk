@@ -18,6 +18,13 @@ use crate::eth_signer::pk_signer::EthSigner;
 
 pub struct ZkLinkSigner(EddsaPrivKey<Engine>);
 
+impl Clone for ZkLinkSigner {
+    fn clone(&self) -> Self {
+        let pk = EddsaPrivKey(self.0 .0);
+        Self(pk)
+    }
+}
+
 impl AsRef<EddsaPrivKey<Engine>> for ZkLinkSigner {
     fn as_ref(&self) -> &EddsaPrivKey<Engine> {
         &self.0
