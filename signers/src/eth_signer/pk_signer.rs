@@ -15,7 +15,7 @@ pub struct EthSigner {
 
 impl std::fmt::Debug for EthSigner {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "PrivateKeySigner")
+        write!(f, "**EthSigner**")
     }
 }
 
@@ -105,6 +105,7 @@ mod test {
         let private_key = H256::from([5; 32]);
         let private_key = hex::encode(private_key.as_bytes());
         let signer = EthSigner::try_from(private_key.as_str()).unwrap();
+        println!("{signer:?}");
         let msg = b"hello world";
         let signature = signer.sign_message(msg).unwrap();
         println!("msg signature {:?}", signature.as_hex());

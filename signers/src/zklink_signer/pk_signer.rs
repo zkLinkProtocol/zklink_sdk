@@ -37,9 +37,9 @@ impl From<EddsaPrivKey<Engine>> for ZkLinkSigner {
     }
 }
 
-impl fmt::Display for ZkLinkSigner {
+impl fmt::Debug for ZkLinkSigner {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ZkLinkSigner")
+        write!(f, "**ZkLinkSigner**")
     }
 }
 
@@ -163,7 +163,7 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_sign() {
+    fn test_zklink_signer() {
         let eth_private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
         let zk_signer = ZkLinkSigner::new_from_hex_eth_signer(eth_private_key).unwrap();
         let pub_key = zk_signer.public_key().as_hex();
@@ -176,5 +176,8 @@ mod test {
             pub_key_hash.as_hex(),
             "0xd8d5fb6a6caef06aa3dc2abdcdc240987e5330fe"
         );
+        let zk_signer2 = zk_signer.clone();
+        let pub_key_hash2 = zk_signer2.public_key().public_key_hash();
+        assert_eq!(pub_key_hash.as_hex(), pub_key_hash2.as_hex());
     }
 }
