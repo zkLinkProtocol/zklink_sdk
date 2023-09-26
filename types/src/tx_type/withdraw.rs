@@ -94,7 +94,7 @@ impl Withdraw {
     /// Restores the `PubKeyHash` from the transaction signature.
     pub fn verify_signature(&self) -> Option<PubKeyHash> {
         match self.signature.verify_musig(&self.get_bytes()) {
-            Ok(ret) if ret => Some(self.signature.pub_key.public_key_hash()),
+            ret if ret => Some(self.signature.pub_key.public_key_hash()),
             _ => None,
         }
     }
@@ -176,7 +176,7 @@ impl ZkSignatureTrait for Withdraw {
         self.signature.clone()
     }
 
-    fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+    fn is_signature_valid(&self) -> bool {
         let bytes = self.get_bytes();
         self.signature.verify_musig(&bytes)
     }

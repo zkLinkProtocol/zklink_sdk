@@ -24,6 +24,6 @@ func TestZkLinkSigner(t *testing.T) {
 	signature, err := signer.SignMusig(msg)
 	assert.Nil(t, err)
 	assert.NotNil(t, signature)
-	is_ok, _ := sdk.VerifyMusig(signature, msg)
+	is_ok := sdk.VerifyMusig(signature, msg)
 	assert.Equal(t, is_ok, true)
 }

@@ -108,7 +108,7 @@ dictionary ForcedExitBuilder {
     TokenId l1_target_token;
     Nonce initiator_nonce;
     BigUint exit_amount;
-    TimeStamp ts;
+    TimeStamp timestamp;
 };
 
 dictionary FullExitBuilder {
@@ -144,14 +144,14 @@ dictionary Create2Data {
 
 [Enum]
 interface ChangePubKeyAuthRequest {
-    OnChain();
+    Onchain();
     EthECDSA();
     EthCreate2(Create2Data data);
 };
 
 [Enum]
 interface ChangePubKeyAuthData {
-    OnChain();
+    Onchain();
     EthECDSA(PackedEthSignature eth_signature);
     EthCreate2(Create2Data data);
 };
@@ -170,7 +170,6 @@ interface Withdraw {
     sequence<u8> tx_hash();
     string json_str();
     boolean is_valid();
-    [Throws=ZkSignerError]
     boolean is_signature_valid();
     string get_eth_sign_msg([ByRef] string token_symbol);
     [Throws=ZkSignerError]
@@ -187,7 +186,6 @@ interface ChangePubKey {
     string json_str();
     boolean is_valid();
     boolean is_onchain();
-    [Throws=ZkSignerError]
     boolean is_signature_valid();
     [Throws=ZkSignerError]
     ZkLinkSignature submitter_signature(ZkLinkSigner signer);
@@ -200,7 +198,6 @@ interface ForcedExit {
     sequence<u8> tx_hash();
     string json_str();
     boolean is_valid();
-    [Throws=ZkSignerError]
     boolean is_signature_valid();
     [Throws=ZkSignerError]
     ZkLinkSignature submitter_signature(ZkLinkSigner signer);
@@ -222,7 +219,6 @@ interface Transfer {
     sequence<u8> tx_hash();
     string json_str();
     boolean is_valid();
-    [Throws=ZkSignerError]
     boolean is_signature_valid();
     string get_eth_sign_msg([ByRef] string token_symbol);
     [Throws=ZkSignerError]
@@ -250,7 +246,6 @@ interface Order {
     sequence<u8> get_bytes();
     string json_str();
     boolean is_valid();
-    [Throws=ZkSignerError]
     boolean is_signature_valid();
     string get_eth_sign_msg([ByRef] string quote_token, [ByRef] string based_token, u8 decimals);
 };
@@ -262,8 +257,7 @@ interface OrderMatching {
     sequence<u8> tx_hash();
     string json_str();
     boolean is_valid();
-        [Throws=ZkSignerError]
-        boolean is_signature_valid();
+    boolean is_signature_valid();
 };
 
 
@@ -370,7 +364,6 @@ interface Signer {
 
 // ============================  namespace ============================
 namespace zklink_sdk {
-    [Throws=ZkSignerError]
     boolean verify_musig(ZkLinkSignature signature, [ByRef] sequence<u8> msg);
     PubKeyHash get_public_key_hash(PackedPublicKey public_key);
 

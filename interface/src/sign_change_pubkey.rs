@@ -26,7 +26,7 @@ pub fn sign_change_pubkey(
     auth_request: ChangePubKeyAuthRequest,
 ) -> Result<TxSignature, SignError> {
     let eth_auth_data: Result<ChangePubKeyAuthData, _> = match auth_request {
-        ChangePubKeyAuthRequest::OnChain => Ok(ChangePubKeyAuthData::OnChain),
+        ChangePubKeyAuthRequest::Onchain => Ok(ChangePubKeyAuthData::Onchain),
         ChangePubKeyAuthRequest::EthECDSA => {
             let typed_data = tx.to_eip712_request_payload(l1_client_id, &main_contract)?;
             let eth_signature = eth_signer.sign_hash(&typed_data.data_hash)?;

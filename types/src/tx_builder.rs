@@ -71,7 +71,7 @@ pub struct ForcedExitBuilder {
     pub l1_target_token: TokenId,
     pub initiator_nonce: Nonce,
     pub exit_amount: BigUint,
-    pub ts: TimeStamp,
+    pub timestamp: TimeStamp,
 }
 
 pub struct FullExitBuilder {

@@ -1,6 +1,7 @@
 use crate::eth_signer::error::EthSignerError;
 use crate::eth_signer::Address;
 use ethers::types::Signature;
+use ethers::utils::keccak256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
 /// Struct used for working with ethereum signatures created using eth_sign (using geth, ethers.js, etc)
@@ -64,6 +65,15 @@ impl PackedEthSignature {
 
         Ok(Address::from_slice(address.as_bytes()))
     }
+
+    pub fn eip712_signature_recover_signer(&self, msg: &[u8]) -> Result<Address, EthSignerError> {
+        let msg_hash = keccak256(msg);
+        let address = self
+            .0
+            .recover(msg_hash)
+            .map_err(|err| EthSignerError::RecoverAddress(err.to_string()))?;
+        Ok(address)
+    }
 }
 
 impl Serialize for PackedEthSignature {
@@ -104,7 +114,7 @@ mod tests {
 
         let sig = PackedEthSignature::from_hex(signature_str).unwrap();
         let address = sig.signature_recover_signer(&msg).unwrap();
-        let pk_address = pk.get_address().unwrap();
+        let pk_address = pk.get_address();
         assert_eq!(address, pk_address);
 
         let sign_address = Address::from_str("0xdec58607c3f5a0f8bc51ca50cc2578ab282865fc").unwrap();

@@ -91,9 +91,8 @@ func LowLevelChangePubkey() {
         return
     }
     // check if the signature is valid
-    valid, err := tx.IsSignatureValid();
-    if err != nil || !valid {
-        fmt.Println("sign tx failed")
+    valid := tx.IsSignatureValid();
+    if !valid {
         return
     }
     zklinkTx := sdk.ZklinkTxFromChangePubkey(tx)

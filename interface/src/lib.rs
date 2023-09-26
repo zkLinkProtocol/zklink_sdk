@@ -10,7 +10,7 @@ pub mod sign_withdraw;
 pub mod signer;
 
 pub enum ChangePubKeyAuthRequest {
-    OnChain,
+    Onchain,
     EthECDSA,
     EthCreate2 { data: Create2Data },
 }

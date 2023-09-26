@@ -78,7 +78,7 @@ impl Transfer {
     /// Restores the `PubKeyHash` from the transaction signature.
     pub fn verify_signature(&self) -> Option<PubKeyHash> {
         match self.signature.verify_musig(&self.get_bytes()) {
-            Ok(ret) if ret => Some(self.signature.pub_key.public_key_hash()),
+            ret if ret => Some(self.signature.pub_key.public_key_hash()),
             _ => None,
         }
     }
@@ -159,7 +159,7 @@ impl ZkSignatureTrait for Transfer {
         self.signature.clone()
     }
 
-    fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+    fn is_signature_valid(&self) -> bool {
         self.signature.verify_musig(&self.get_bytes())
     }
 }
@@ -231,7 +231,7 @@ mod test {
         let message = tx.get_eth_sign_msg(token_symbol).as_bytes().to_vec();
         let recover_address = l1_signature.signature_recover_signer(&message).unwrap();
         let private_key = EthSigner::try_from(private_key_str).unwrap();
-        let address = private_key.get_address().unwrap();
+        let address = private_key.get_address();
         assert_eq!(pubkey_hash, recover_pubkey_hash);
         assert_eq!(address, recover_address);
     }

@@ -6,7 +6,7 @@ lint:
 	bash -c "cd ./types && cargo sort"
 	bash -c "cd ./utils && cargo sort"
 	bash -c "cd ./provider && cargo sort"
-	bash -c "cd ./signer && cargo sort"
+	bash -c "cd ./signers && cargo sort"
 	cargo machete
 
 lint-check:

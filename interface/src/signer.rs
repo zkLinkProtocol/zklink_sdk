@@ -35,6 +35,7 @@ impl Signer {
         })
     }
 
+    #[cfg(feature = "ffi")]
     pub fn sign_change_pubkey_with_create2data_auth(
         &self,
         tx: Arc<ChangePubKey>,
@@ -42,7 +43,7 @@ impl Signer {
     ) -> Result<TxSignature, SignError> {
         let mut tx = (*tx).clone();
         tx.sign(&self.zklink_signer)?;
-        let should_valid = tx.is_signature_valid()?;
+        let should_valid = tx.is_signature_valid();
         assert!(should_valid);
 
         // create onchain auth data
@@ -53,22 +54,24 @@ impl Signer {
         })
     }
 
+    #[cfg(feature = "ffi")]
     pub fn sign_change_pubkey_with_onchain_auth_data(
         &self,
         tx: Arc<ChangePubKey>,
     ) -> Result<TxSignature, SignError> {
         let mut tx = (*tx).clone();
         tx.sign(&self.zklink_signer)?;
-        let should_valid = tx.is_signature_valid()?;
+        let should_valid = tx.is_signature_valid();
         assert!(should_valid);
         // create onchain auth data
-        tx.eth_auth_data = ChangePubKeyAuthData::OnChain;
+        tx.eth_auth_data = ChangePubKeyAuthData::Onchain;
         Ok(TxSignature {
             tx: tx.into(),
             eth_signature: None,
         })
     }
 
+    #[cfg(feature = "ffi")]
     pub fn sign_change_pubkey_with_eth_ecdsa_auth(
         &self,
         tx: Arc<ChangePubKey>,
@@ -77,7 +80,7 @@ impl Signer {
     ) -> Result<TxSignature, SignError> {
         let mut tx = (*tx).clone();
         tx.sign(&self.zklink_signer)?;
-        let should_valid = tx.is_signature_valid()?;
+        let should_valid = tx.is_signature_valid();
         assert!(should_valid);
 
         // create auth data
@@ -91,6 +94,7 @@ impl Signer {
         })
     }
 
+    #[cfg(feature = "ffi")]
     pub fn sign_transfer(
         &self,
         tx: Arc<Transfer>,
@@ -100,6 +104,7 @@ impl Signer {
         sign_transfer(&self.eth_signer, &self.zklink_signer, tx, token_symbol)
     }
 
+    #[cfg(feature = "ffi")]
     pub fn sign_withdraw(
         &self,
         tx: Arc<Withdraw>,
@@ -114,12 +119,14 @@ impl Signer {
         )
     }
 
+    #[cfg(feature = "ffi")]
     pub fn sign_forced_exit(&self, tx: Arc<ForcedExit>) -> Result<TxSignature, SignError> {
         let tx = (*tx).clone();
         let signature = sign_forced_exit(&self.zklink_signer, tx)?;
         Ok(signature)
     }
 
+    #[cfg(feature = "ffi")]
     pub fn sign_order_matching(&self, tx: Arc<OrderMatching>) -> Result<TxSignature, SignError> {
         let tx = (*tx).clone();
         let signature = sign_order_matching(&self.zklink_signer, tx)?;

@@ -137,7 +137,7 @@ pub trait ZkSignatureTrait: TxTrait {
     #[cfg(feature = "ffi")]
     fn signature(&self) -> ZkLinkSignature;
 
-    fn is_signature_valid(&self) -> Result<bool, ZkSignerError>;
+    fn is_signature_valid(&self) -> bool;
 
     fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
         let bytes = self.get_bytes();

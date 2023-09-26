@@ -43,7 +43,7 @@ func TestSignChangePubkey(t *testing.T) {
     // sign tx
     tx, err = sdk.CreateSignedChangePubkey(zklink_signer, tx, eth_auth_data)
     assert.Nil(t, err)
-    valid, err := tx.IsSignatureValid();
+    valid := tx.IsSignatureValid();
     assert.Equal(t, valid, true)
     fmt.Printf("%v\n", tx.JsonStr())
     // create ZkLinkTx
@@ -81,8 +81,7 @@ func TestSignForcedExit(t *testing.T) {
         tx,
     )
     assert.Nil(t, err)
-    should_be_valid, err := signed_tx.IsSignatureValid();
-    assert.Nil(t, err)
+    should_be_valid := signed_tx.IsSignatureValid();
     assert.Equal(t, should_be_valid, true)
     fmt.Printf("signed forced exit:%v\n", signed_tx.JsonStr())
     zklink_tx := sdk.ZklinkTxFromForcedExit(tx)
@@ -116,8 +115,7 @@ func TestSignTransfer(t *testing.T) {
         tx,
     )
     assert.Nil(t, err)
-    should_be_valid, err := signed_tx.IsSignatureValid();
-    assert.Nil(t, err)
+    should_be_valid := signed_tx.IsSignatureValid();
     assert.Equal(t, should_be_valid, true)
     fmt.Printf("%v\n", signed_tx.JsonStr())
     // get eth signature
@@ -192,8 +190,7 @@ func TestSignOrderMatching(t *testing.T) {
         tx,
     )
     assert.Nil(t, err)
-    should_be_valid, err := signed_tx.IsSignatureValid();
-    assert.Nil(t, err)
+    should_be_valid := signed_tx.IsSignatureValid();
     assert.Equal(t, should_be_valid, true)
     fmt.Printf("order matching: %v\n", signed_tx.JsonStr())
     zklinkTx := sdk.ZklinkTxFromOrderMatching(tx)
@@ -249,8 +246,7 @@ func TestSignWithdraw(t *testing.T) {
         tx,
     )
     assert.Nil(t, err)
-    should_be_valid, err := signedTx.IsSignatureValid();
-    assert.Nil(t, err)
+    should_be_valid := signedTx.IsSignatureValid();
     assert.Equal(t, should_be_valid, true)
     fmt.Printf("signed withraw tx: %v\n", signedTx.JsonStr())
 

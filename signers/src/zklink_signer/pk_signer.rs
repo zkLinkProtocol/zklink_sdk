@@ -91,8 +91,7 @@ impl ZkLinkSigner {
         Self::new_from_seed(&seed)
     }
 
-    pub fn new_from_eth_signer(eth_private_key: &H256) -> Result<Self, Error> {
-        let eth_signer = EthSigner::from(eth_private_key);
+    pub fn new_from_eth_signer(eth_signer: &EthSigner) -> Result<Self, Error> {
         let signature = eth_signer.sign_message(Self::SIGN_MESSAGE.as_bytes())?;
         let seed = signature.serialize_packed();
         Self::new_from_seed(&seed)

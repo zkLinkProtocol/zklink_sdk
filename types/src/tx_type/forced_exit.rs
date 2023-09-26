@@ -9,7 +9,6 @@ use crate::tx_builder::ForcedExitBuilder;
 use crate::tx_type::validator::*;
 use crate::tx_type::{TxTrait, ZkSignatureTrait};
 use serde::{Deserialize, Serialize};
-use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 
 /// `ForcedExit` transaction is used to withdraw funds from an unowned
@@ -78,7 +77,7 @@ impl ForcedExit {
             l1_target_token: builder.l1_target_token,
             initiator_nonce: builder.initiator_nonce,
             signature: ZkLinkSignature::default(),
-            ts: builder.ts,
+            ts: builder.timestamp,
             exit_amount: builder.exit_amount,
         }
     }
@@ -120,7 +119,7 @@ impl ZkSignatureTrait for ForcedExit {
         self.signature.clone()
     }
 
-    fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+    fn is_signature_valid(&self) -> bool {
         let bytes = self.get_bytes();
         self.signature.verify_musig(&bytes)
     }
@@ -146,7 +145,7 @@ mod test {
             l1_target_token: TokenId(18),
             initiator_nonce: Nonce(1),
             exit_amount: BigUint::from(10000u32),
-            ts: ts.into(),
+            timestamp: ts.into(),
         };
         let forced_exit = ForcedExit::new(builder);
         let bytes = forced_exit.get_bytes();

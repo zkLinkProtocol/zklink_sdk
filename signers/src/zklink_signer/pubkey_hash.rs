@@ -1,5 +1,7 @@
 use super::error::ZkSignerError as Error;
 use crate::zklink_signer::NEW_PUBKEY_HASH_BYTES_LEN;
+use ethers::utils::keccak256;
+use primitive_types::H256;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::convert::TryInto;
 
@@ -70,6 +72,12 @@ impl PubKeyHash {
             .try_into()
             .map_err(|_| Error::InvalidPubkeyHash("size mismatch".into()))?;
         Ok(PubKeyHash { data })
+    }
+
+    /// Get the keccak hash of PubKeyHash, used in check auth facts of contract
+    pub fn keccak256(&self) -> H256 {
+        let hash = keccak256(self.data);
+        hash.into()
     }
 }
 

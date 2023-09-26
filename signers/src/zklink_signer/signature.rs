@@ -155,21 +155,19 @@ impl ZkLinkSignature {
         format!("0x{}", hex::encode(bytes))
     }
 
-    pub fn verify_musig(&self, msg: &[u8]) -> Result<bool, Error> {
-        let msg = utils::rescue_hash_tx_msg(msg);
-        let value = JUBJUB_PARAMS.with(|jubjub_params| {
+    pub fn verify_musig(&self, msg: &[u8]) -> bool {
+        let hashed_msg = utils::rescue_hash_tx_msg(msg);
+        JUBJUB_PARAMS.with(|jubjub_params| {
             RESCUE_PARAMS.with(|rescue_params| {
                 self.pub_key.as_ref().verify_musig_rescue(
-                    &msg,
+                    &hashed_msg,
                     self.signature.as_ref(),
                     FixedGenerators::SpendingKeyGenerator,
                     rescue_params,
                     jubjub_params,
                 )
             })
-        });
-
-        Ok(value)
+        })
     }
 }
 
@@ -183,7 +181,7 @@ mod test {
         let zk_signer = ZkLinkSigner::new_from_hex_eth_signer(eth_private_key).unwrap();
         let msg = b"hello world";
         let signature = zk_signer.sign_musig(msg).unwrap();
-        let verify = signature.verify_musig(msg).unwrap();
+        let verify = signature.verify_musig(msg);
         assert!(verify);
     }
 }

@@ -50,7 +50,7 @@ impl Create2Data {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ChangePubKeyAuthData {
-    OnChain,
+    Onchain,
     EthECDSA {
         #[serde(rename = "ethSignature")]
         eth_signature: PackedEthSignature,
@@ -62,7 +62,7 @@ pub enum ChangePubKeyAuthData {
 
 impl Default for ChangePubKeyAuthData {
     fn default() -> Self {
-        Self::OnChain
+        Self::Onchain
     }
 }
 
@@ -72,7 +72,7 @@ impl ChangePubKeyAuthData {
     }
 
     pub fn is_onchain(&self) -> bool {
-        matches!(self, ChangePubKeyAuthData::OnChain)
+        matches!(self, ChangePubKeyAuthData::Onchain)
     }
 
     pub fn is_create2(&self) -> bool {
@@ -81,7 +81,7 @@ impl ChangePubKeyAuthData {
 
     pub fn get_eth_witness(&self) -> Option<Vec<u8>> {
         match self {
-            ChangePubKeyAuthData::OnChain => None,
+            ChangePubKeyAuthData::Onchain => None,
             ChangePubKeyAuthData::EthECDSA { eth_signature } => {
                 let mut bytes = Vec::new();
                 bytes.push(0x00);
@@ -171,7 +171,7 @@ impl ZkSignatureTrait for ChangePubKey {
         self.signature.clone()
     }
 
-    fn is_signature_valid(&self) -> Result<bool, ZkSignerError> {
+    fn is_signature_valid(&self) -> bool {
         let bytes = self.get_bytes();
         self.signature.verify_musig(&bytes)
     }
@@ -186,7 +186,7 @@ impl ChangePubKey {
         let eth_auth_data = builder
             .eth_signature
             .map(|eth_signature| ChangePubKeyAuthData::EthECDSA { eth_signature })
-            .unwrap_or(ChangePubKeyAuthData::OnChain);
+            .unwrap_or(ChangePubKeyAuthData::Onchain);
 
         Self {
             chain_id: builder.chain_id,
