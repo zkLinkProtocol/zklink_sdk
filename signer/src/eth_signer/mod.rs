@@ -6,10 +6,13 @@ pub mod pk_signer;
 #[cfg(target_arch = "wasm32")]
 pub mod wasm_binding;
 
-use error::EthSignerError;
 pub use primitive_types::{H160, H256, U256};
 pub type Address = H160;
+pub use eip1271_signature::EIP1271Signature;
+pub use error::EthSignerError;
 pub use ethers_primitives::Address as EIP712Address;
+pub use packed_eth_signature::PackedEthSignature;
+pub use pk_signer::EthSigner;
 
 #[derive(Debug, Clone)]
 pub struct EthTypedData {

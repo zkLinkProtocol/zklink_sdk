@@ -23,5 +23,9 @@ const NEW_PUBKEY_HASH_WIDTH: usize = NEW_PUBKEY_HASH_BYTES_LEN * 8;
 thread_local! {
     pub(crate) static JUBJUB_PARAMS: AltJubjubBn256 = AltJubjubBn256::new();
     pub(crate) static RESCUE_PARAMS: Bn256RescueParams = Bn256RescueParams::new_checked_2_into_1();
-
 }
+
+pub use error::ZkSignerError;
+pub use pk_signer::ZkLinkSigner;
+pub use pubkey_hash::PubKeyHash;
+pub use signature::{PackedSignature, ZkLinkSignature};

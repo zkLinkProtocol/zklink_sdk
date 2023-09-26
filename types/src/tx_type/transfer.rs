@@ -11,11 +11,11 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
 use validator::Validate;
-use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
+use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 /// `Transfer` transaction performs a move of funds from one zklink account to another.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]

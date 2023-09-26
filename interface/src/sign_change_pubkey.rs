@@ -3,6 +3,10 @@ use crate::error::SignError;
 use crate::ChangePubKeyAuthRequest;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
+#[cfg(feature = "ffi")]
+use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
+use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_types::basic_types::ZkLinkAddress;
 #[cfg(not(feature = "ffi"))]
 use zklink_sdk_types::prelude::TxSignature;
@@ -10,10 +14,6 @@ use zklink_sdk_types::prelude::TxSignature;
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data;
 use zklink_sdk_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData};
 use zklink_sdk_types::tx_type::TxTrait;
-#[cfg(feature = "ffi")]
-use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
-use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
-use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 
 #[cfg(feature = "sync")]
 pub fn sign_change_pubkey(

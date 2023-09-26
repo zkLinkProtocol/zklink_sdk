@@ -174,7 +174,6 @@ impl ZkLinkTx {
             ZkLinkTx::Deposit(tx) => Nonce((tx.serial_id & 0xffffffff) as u32),
         }
     }
-
 }
 
 #[cfg(test)]

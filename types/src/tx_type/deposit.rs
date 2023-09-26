@@ -5,8 +5,8 @@ use crate::tx_type::TxTrait;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
-use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_sdk_signers::eth_signer::H256;
+use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 /// `Mapping` transaction performs a move of funds from one zklink account to another.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]

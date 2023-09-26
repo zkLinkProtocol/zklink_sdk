@@ -13,13 +13,13 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
 use validator::Validate;
-use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 #[cfg(feature = "ffi")]
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_signers::zklink_signer::utils::rescue_hash_orders;
+use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
