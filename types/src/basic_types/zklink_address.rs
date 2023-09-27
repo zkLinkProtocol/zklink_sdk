@@ -23,6 +23,13 @@ impl ZkLinkAddress {
         }
     }
 
+    /// Get address from hex string
+    pub fn from_hex(hex_str: &str) -> Result<Self, Error> {
+        let s = hex_str.strip_prefix("0x").unwrap_or(hex_str);
+        let slice = hex::decode(s).map_err(|_| Error::InvalidAddress)?;
+        Self::from_slice(&slice)
+    }
+
     /// Get bytes by consuming self
     pub fn into_bytes(self) -> Vec<u8> {
         self.0

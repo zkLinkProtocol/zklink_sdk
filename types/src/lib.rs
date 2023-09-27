@@ -27,4 +27,5 @@ pub mod prelude {
     pub use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
     pub use zklink_sdk_signers::zklink_signer::public_key::PackedPublicKey;
     pub use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
+    pub use zklink_sdk_signers::zklink_signer::{NEW_PUBKEY_HASH_BYTES_LEN, NEW_PUBKEY_HASH_WIDTH};
 }

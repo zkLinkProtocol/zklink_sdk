@@ -22,6 +22,12 @@ impl std::fmt::Debug for PubKeyHash {
     }
 }
 
+impl AsRef<[u8]> for PubKeyHash {
+    fn as_ref(&self) -> &[u8] {
+        self.data.as_slice()
+    }
+}
+
 impl PubKeyHash {
     /// Creates an uninitialized `PubkeyHash` object.
     /// This value is used for new accounts to signalize that `PubKeyHash` was not yet

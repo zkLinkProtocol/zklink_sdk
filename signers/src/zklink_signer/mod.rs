@@ -17,8 +17,8 @@ pub(crate) use franklin_crypto::{
 const PACKED_POINT_SIZE: usize = 32;
 const SIGNATURE_SIZE: usize = 96;
 
-const NEW_PUBKEY_HASH_BYTES_LEN: usize = 20;
-const NEW_PUBKEY_HASH_WIDTH: usize = NEW_PUBKEY_HASH_BYTES_LEN * 8;
+pub const NEW_PUBKEY_HASH_BYTES_LEN: usize = 20;
+pub const NEW_PUBKEY_HASH_WIDTH: usize = NEW_PUBKEY_HASH_BYTES_LEN * 8;
 
 thread_local! {
     pub(crate) static JUBJUB_PARAMS: AltJubjubBn256 = AltJubjubBn256::new();
