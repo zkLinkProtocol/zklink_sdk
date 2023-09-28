@@ -1,6 +1,6 @@
 //! Common primitives for the layer1 blockchain network interaction.
 use crate::error::TypeError as Error;
-use parity_crypto::publickey::Address;
+use ethers::types::Address;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt::{Debug, Formatter};
 use std::str::FromStr;

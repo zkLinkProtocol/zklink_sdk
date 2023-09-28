@@ -5,8 +5,8 @@ use crate::basic_types::{
 use crate::tx_builder::ChangePubKeyBuilder;
 use crate::tx_type::validator::*;
 use crate::tx_type::{format_units, TxTrait, ZkSignatureTrait};
+use ethers::utils::keccak256;
 use num::{BigUint, Zero};
-use parity_crypto::Keccak256;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_sdk_signers::eth_signer::eip712::eip712::{EIP712Domain, TypedData};
@@ -34,7 +34,7 @@ impl Create2Data {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(self.salt_arg.as_bytes());
         bytes.extend_from_slice(pubkey_hash);
-        bytes.keccak256()
+        keccak256(bytes)
     }
     pub fn get_address(&self, pubkey_hash: &[u8]) -> ZkLinkAddress {
         let salt = self.salt(pubkey_hash);
@@ -43,7 +43,7 @@ impl Create2Data {
         bytes.extend_from_slice(self.creator_address.as_bytes());
         bytes.extend_from_slice(&salt);
         bytes.extend_from_slice(self.code_hash.as_bytes());
-        ZkLinkAddress::from_slice(&bytes.keccak256()[12..]).unwrap_or_default()
+        ZkLinkAddress::from_slice(&keccak256(bytes)[12..]).unwrap_or_default()
     }
 }
 
@@ -289,6 +289,7 @@ mod test {
         let zk_signer = ZkLinkSigner::new_from_hex_eth_signer(eth_private_key).unwrap();
         let pub_key = zk_signer.public_key();
         let pub_key_hash = pub_key.public_key_hash();
+        println!("pubkey hash: {:?}", pub_key_hash);
         let ts = 1693472232u32;
         let builder = ChangePubKeyBuilder {
             chain_id: ChainId(1),
@@ -303,11 +304,11 @@ mod test {
         };
         let change_pubkey = ChangePubKey::new(builder);
         let bytes = change_pubkey.get_bytes();
-        let excepted_bytes = [
-            0, 0, 0, 0, 0, 0, 125, 1, 227, 95, 58, 57, 213, 66, 246, 210, 118, 194, 242, 3, 232,
-            253, 100, 252, 184, 191, 93, 176, 98, 183, 28, 202, 207, 69, 213, 236, 217, 212, 86,
-            243,
+        let expected_bytes = [
+            6, 1, 0, 0, 0, 1, 1, 216, 213, 251, 106, 108, 174, 240, 106, 163, 220, 42, 189, 205,
+            194, 64, 152, 126, 83, 48, 254, 0, 18, 12, 128, 0, 0, 0, 1, 100, 240, 85, 232,
         ];
-        assert_eq!(bytes, excepted_bytes);
+
+        assert_eq!(bytes, expected_bytes);
     }
 }
