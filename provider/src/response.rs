@@ -11,7 +11,7 @@ use zklink_sdk_types::basic_types::tx_hash::TxHash;
 use zklink_sdk_types::basic_types::{
     AccountId, BlockNumber, ChainId, Nonce, SlotId, SubAccountId, TokenId, ZkLinkAddress,
 };
-use zklink_sdk_types::prelude::BigUintSerdeWrapper;
+use zklink_sdk_types::prelude::{BigUintSerdeWrapper, U256};
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 
 pub type SubAccountNonces = HashMap<SubAccountId, Nonce>;
@@ -23,7 +23,7 @@ pub type SubAccountOrders = HashMap<SubAccountId, HashMap<SlotId, ResponseTidyOr
 pub struct ChainResp {
     pub chain_id: ChainId,
     pub chain_type: u8,
-    pub layer_one_chain_id: u32,
+    pub layer_one_chain_id: U256,
     pub main_contract: ZkLinkAddress,
     pub layer_zero_contract: ZkLinkAddress,
     pub web3_url: String,
