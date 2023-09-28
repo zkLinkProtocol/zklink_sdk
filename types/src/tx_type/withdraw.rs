@@ -10,7 +10,7 @@ use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 use crate::basic_types::pack::pack_fee_amount;
-use crate::basic_types::params::TOKEN_MAX_PRECISION;
+use crate::basic_types::params::{SIGNED_WITHDRAW_BIT_WIDTH, TOKEN_MAX_PRECISION, TX_TYPE_BIT_WIDTH};
 use crate::basic_types::{
     AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
@@ -162,6 +162,7 @@ impl TxTrait for Withdraw {
         out.extend_from_slice(&self.fast_withdraw.to_be_bytes());
         out.extend_from_slice(&self.withdraw_fee_ratio.to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
+        assert_eq!(out.len()*TX_TYPE_BIT_WIDTH, SIGNED_WITHDRAW_BIT_WIDTH);
         out
     }
 }

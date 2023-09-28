@@ -15,7 +15,7 @@ mod macros;
 pub mod bigunit_wrapper;
 pub(crate) mod float_convert;
 pub(crate) mod pack;
-pub mod params;
+pub(crate) mod params;
 pub mod tx_hash;
 pub mod zklink_address;
 

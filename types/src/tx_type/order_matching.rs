@@ -1,8 +1,5 @@
 use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
-use crate::basic_types::params::{
-    ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH,
-    TOKEN_MAX_PRECISION,
-};
+use crate::basic_types::params::{ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH, TOKEN_MAX_PRECISION, TX_TYPE_BIT_WIDTH};
 use crate::basic_types::{AccountId, Nonce, SlotId, SubAccountId, TokenId};
 use crate::signatures::TxLayer1Signature;
 use crate::tx_builder::OrderMatchingBuilder;
@@ -125,6 +122,7 @@ impl TxTrait for Order {
         out.extend_from_slice(&self.fee_ratio1.to_be_bytes());
         out.extend_from_slice(&self.fee_ratio2.to_be_bytes());
         out.extend_from_slice(&pack_token_amount(&self.amount));
+        assert_eq!(out.len() * TX_TYPE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH);
         out
     }
 }
@@ -304,14 +302,13 @@ impl OrderMatching {
 
 impl TxTrait for OrderMatching {
     fn get_bytes(&self) -> Vec<u8> {
-        let maker_order_bytes = self.maker.get_bytes();
-        let mut orders_bytes = Vec::with_capacity(maker_order_bytes.len() * 2);
-        orders_bytes.extend(maker_order_bytes);
+        let mut orders_bytes = Vec::with_capacity(SIGNED_ORDER_BIT_WIDTH / TX_TYPE_BIT_WIDTH * 2);
+        orders_bytes.extend(self.maker.get_bytes());
         orders_bytes.extend(self.taker.get_bytes());
-        // todo do not resize, sdk should be update
+        // Todo: do not resize, sdk should be update
         orders_bytes.resize(ORDERS_BYTES, 0);
 
-        let mut out = Vec::with_capacity(SIGNED_ORDER_MATCHING_BIT_WIDTH / 8);
+        let mut out = Vec::with_capacity(SIGNED_ORDER_MATCHING_BIT_WIDTH / TX_TYPE_BIT_WIDTH);
         out.push(Self::TX_TYPE);
         out.extend_from_slice(&self.account_id.to_be_bytes());
         out.extend_from_slice(&self.sub_account_id.to_be_bytes());
@@ -320,6 +317,7 @@ impl TxTrait for OrderMatching {
         out.extend_from_slice(&pack_fee_amount(&self.fee));
         out.extend_from_slice(&self.expect_base_amount.to_u128().unwrap().to_be_bytes());
         out.extend_from_slice(&self.expect_quote_amount.to_u128().unwrap().to_be_bytes());
+        assert_eq!(out.len() * TX_TYPE_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH);
         out
     }
 

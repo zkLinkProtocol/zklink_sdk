@@ -1,5 +1,5 @@
 use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
-use crate::basic_types::params::TOKEN_MAX_PRECISION;
+use crate::basic_types::params::{SIGNED_TRANSFER_BIT_WIDTH, TOKEN_MAX_PRECISION, TX_TYPE_BIT_WIDTH};
 use crate::basic_types::{AccountId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress};
 use crate::tx_type::validator::*;
 use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait};
@@ -145,6 +145,7 @@ impl TxTrait for Transfer {
         out.extend_from_slice(&pack_fee_amount(&self.fee));
         out.extend_from_slice(&self.nonce.to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
+        assert_eq!(out.len()*TX_TYPE_BIT_WIDTH, SIGNED_TRANSFER_BIT_WIDTH);
         out
     }
 }

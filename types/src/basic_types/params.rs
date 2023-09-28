@@ -1,12 +1,7 @@
 use crate::basic_types::{AccountId, ChainId, Nonce, SlotId, SubAccountId, TokenId};
-use num::BigUint;
 
 /// Maximum precision of token amount
 pub const TOKEN_MAX_PRECISION: u8 = 18;
-/// Order price decimals will be improved accuracy by 10^18
-pub fn precision_magnified() -> BigUint {
-    BigUint::from(10u8).pow(TOKEN_MAX_PRECISION as u32)
-}
 
 /// Maximum number of chains allowed => The width of every token chain partition.(global asset tree)
 pub const MAX_CHAIN_ID: ChainId = ChainId(u8::pow(2, CHAIN_SUB_TREE_DEPTH as u32) - 1);
@@ -14,8 +9,6 @@ pub const MAX_SUB_ACCOUNT_ID: SubAccountId =
     SubAccountId(u8::pow(2, SUB_ACCOUNT_TREE_DEPTH as u32) - 1);
 
 /// Depth of the account tree.
-pub const ACCOUNT_TREE_DEPTH: usize = 32;
-/// Depth of sub-account tree allowed (be used for multiple different partition dex).
 pub const SUB_ACCOUNT_TREE_DEPTH: usize = 5;
 /// Depth of the balance subtree for each account.
 pub const BALANCE_SUB_TREE_DEPTH: usize = 16;
@@ -40,27 +33,6 @@ pub const MAX_SLOT_ID: SlotId = SlotId(TOTAL_SLOT_NUMBER as u32 - 1);
 pub const SLOT_BIT_WIDTH: usize = 16;
 /// Order nonce bit width
 pub const ORDER_NONCE_BIT_WIDTH: usize = 24;
-pub const ORDER_NONCE_BYTES: usize = ORDER_NONCE_BIT_WIDTH / 8;
-
-/// order tree depth.
-pub fn order_tree_depth() -> usize {
-    ORDER_SUB_TREE_DEPTH
-}
-/// balance tree depth.
-pub fn balance_tree_depth() -> usize {
-    BALANCE_SUB_TREE_DEPTH
-}
-/// account tree depth.
-pub fn account_tree_depth() -> usize {
-    ACCOUNT_TREE_DEPTH
-}
-
-/// Depth of the left subtree of the account tree that can be used in the current version of the circuit.
-pub fn used_account_subtree_depth() -> usize {
-    // total accounts = 2.pow(num) ~ 16mil
-    assert!(USED_ACCOUNT_SUBTREE_DEPTH <= account_tree_depth());
-    USED_ACCOUNT_SUBTREE_DEPTH
-}
 
 pub const CHAIN_ID_BIT_WIDTH: usize = 8;
 pub const ACCOUNT_ID_BIT_WIDTH: usize = 32;
@@ -73,27 +45,13 @@ pub const MIN_PRICE: u128 = 1;
 /// 2 ** 120 - 1 / 10 ^18 = 1329227995784915872
 pub const MAX_PRICE: u128 = 1329227995784915872000000000000000000;
 
-pub const INPUT_DATA_ETH_ADDRESS_BYTES_WIDTH: usize = 32;
-pub const INPUT_DATA_ETH_UINT_BYTES_WIDTH: usize = 32;
-pub const INPUT_DATA_BLOCK_NUMBER_BYTES_WIDTH: usize = 32;
-pub const INPUT_DATA_FEE_ACC_BYTES_WIDTH_WITH_EMPTY_OFFSET: usize = 32;
-pub const INPUT_DATA_FEE_ACC_BYTES_WIDTH: usize = 3;
-pub const INPUT_DATA_ROOT_BYTES_WIDTH: usize = 32;
-pub const INPUT_DATA_EMPTY_BYTES_WIDTH: usize = 64;
-pub const INPUT_DATA_ROOT_HASH_BYTES_WIDTH: usize = 32;
-
 pub const TOKEN_BIT_WIDTH: usize = 16;
 pub const TX_TYPE_BIT_WIDTH: usize = 8;
-
-/// Account subtree hash width
-pub const SUBTREE_HASH_WIDTH: usize = 254; //seems to be equal to Bn256::NUM_BITS could be replaced
-pub const SUBTREE_HASH_WIDTH_PADDED: usize = 256;
 
 /// balance bit width
 pub const BALANCE_BIT_WIDTH: usize = 128;
 
 /// The maximum bit width allowed by multiplication and division
-pub const MAX_CALCULATION_BIT_WIDTH: usize = 126;
 
 pub const NEW_PUBKEY_HASH_BYTES_LEN: usize = 20;
 pub const NEW_PUBKEY_HASH_WIDTH: usize = NEW_PUBKEY_HASH_BYTES_LEN * 8;
@@ -102,16 +60,7 @@ pub const NEW_PUBKEY_HASH_WIDTH: usize = NEW_PUBKEY_HASH_BYTES_LEN * 8;
 pub const NONCE_BIT_WIDTH: usize = 32;
 pub const MAX_NONCE: Nonce = Nonce(u32::MAX);
 
-pub const CHUNK_BIT_WIDTH: usize = CHUNK_BYTES * 8;
-pub const CHUNK_BYTES: usize = 23;
-
-pub const MAX_CIRCUIT_MSG_HASH_BITS: usize = 736;
-
-pub const ETH_ADDRESS_BIT_WIDTH: usize = 160;
 pub const LAYER1_ADDR_BIT_WIDTH: usize = 256;
-pub const LAYER1_ADDR_BYTES: usize = LAYER1_ADDR_BIT_WIDTH / 8;
-/// Block number bit width
-pub const BLOCK_NUMBER_BIT_WIDTH: usize = 32;
 
 /// Amount bit widths
 pub const AMOUNT_BIT_WIDTH: usize = AMOUNT_EXPONENT_BIT_WIDTH + AMOUNT_MANTISSA_BIT_WIDTH;
@@ -119,30 +68,16 @@ pub const AMOUNT_EXPONENT_BIT_WIDTH: usize = 5;
 pub const AMOUNT_MANTISSA_BIT_WIDTH: usize = 35;
 
 /// Fee bit widths
-pub const FEE_BIT_WIDTH: usize = FEE_EXPONENT_BIT_WIDTH + FEE_MANTISSA_BIT_WIDTH;
 pub const FEE_EXPONENT_BIT_WIDTH: usize = 5;
 pub const FEE_MANTISSA_BIT_WIDTH: usize = 11;
 
 /// Timestamp bit width
-pub const TIMESTAMP_BIT_WIDTH: usize = 8 * 8;
 pub const SIMP_TIMESTAMP_BIT_WIDTH: usize = 4 * 8;
 
-// Signature data
-pub const SIGNATURE_S_BIT_WIDTH: usize = 254;
-pub const SIGNATURE_S_BIT_WIDTH_PADDED: usize = 256;
-pub const SIGNATURE_R_X_BIT_WIDTH: usize = 254;
-pub const SIGNATURE_R_Y_BIT_WIDTH: usize = 254;
-pub const SIGNATURE_R_BIT_WIDTH_PADDED: usize = 256;
 
 // Fr element encoding
 pub const FR_BIT_WIDTH: usize = 254;
-pub const FR_BIT_WIDTH_PADDED: usize = 256;
-pub const BN256_MASK: u8 = 0x1f;
 
-pub const LEAF_DATA_BIT_WIDTH: usize =
-    NONCE_BIT_WIDTH + NEW_PUBKEY_HASH_WIDTH + LAYER1_ADDR_BIT_WIDTH;
-
-pub const PAD_MSG_BEFORE_HASH_BITS_LEN: usize = 736;
 
 /// Size of the data that is signed for withdraw tx
 pub const SIGNED_WITHDRAW_BIT_WIDTH: usize = TX_TYPE_BIT_WIDTH
@@ -219,48 +154,13 @@ pub const SIGNED_ORDER_BIT_WIDTH: usize = TX_TYPE_BIT_WIDTH
 pub const ORDERS_BIT_WIDTH: usize = 1424;
 pub const ORDERS_BYTES: usize = ORDERS_BIT_WIDTH / 8;
 
-/// Number of inputs in the basic circuit that is aggregated by recursive circuit
-pub const RECURSIVE_CIRCUIT_NUM_INPUTS: usize = 1;
-/// Depth of the tree which contains different verification keys for basic circuit
-pub const RECURSIVE_CIRCUIT_VK_TREE_DEPTH: usize = 4;
-
-/// The number of all ops: NoopOp(0x00)-OrderMatchingOp(0x08)
-pub const ALL_DIFFERENT_TRANSACTIONS_TYPE_NUMBER: usize = 9;
-/// The number of ops compositions of circuits containing all op's.
-pub const EXEC_ALL_OPS_COMPOSITION_NUMBER: usize =
-    2usize.pow(ALL_DIFFERENT_TRANSACTIONS_TYPE_NUMBER as u32) - 1;
-
-/// The gas token contract address of multi chains that interacts with zklink protocol.
-pub const GAS_TOKEN_CONTRACT_ADDRESS: &str = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
-
 /// 0 can not be used as token id
 pub const TOKEN_ID_ZERO: u32 = 0;
 pub const USD_TOKEN_ID: u32 = 1;
-pub const USD_TOKEN_BIT: usize = 5;
-pub const USD_SYMBOL: &str = "USD";
 pub const USDX_TOKEN_ID_LOWER_BOUND: u32 = USD_TOKEN_ID + 1;
 pub const USDX_TOKEN_ID_UPPER_BOUND: u32 = 16;
-pub const USDX_TOKEN_ID_RANGE: u32 = USDX_TOKEN_ID_UPPER_BOUND - USDX_TOKEN_ID_LOWER_BOUND + 1;
-pub const MAX_USD_TOKEN_ID: u32 = USDX_TOKEN_ID_UPPER_BOUND + USDX_TOKEN_ID_RANGE;
 
-/// jump tokens related USD(1-31) and zkl(32)
-pub fn calc_gas_token_by_chain_id(chain_id: ChainId) -> TokenId {
-    TokenId(MAX_USD_TOKEN_ID + 1 + *chain_id as u32)
-}
 
-/// Test usd token[17-31]
-pub fn is_usd_token(token_id: &TokenId) -> bool {
-    token_id.0 > USDX_TOKEN_ID_UPPER_BOUND && token_id.0 <= MAX_USD_TOKEN_ID
-}
-
-/// USD_X = X - 15
-pub fn get_usd_mapping_token(token_id: &TokenId) -> TokenId {
-    TokenId(token_id.0 - USDX_TOKEN_ID_RANGE)
-}
-
-/// Special account id
-/// The account that is used to charge fees
-pub const FEE_ACCOUNT_ID: AccountId = AccountId(0);
 /// The account used to store the remaining assets of the tokens for contracts of layer1.
 /// The token balances of this account are used in withdraw to layer one or create exit proof.
 ///
@@ -302,15 +202,6 @@ pub const FEE_ACCOUNT_ID: AccountId = AccountId(0);
 /// * Can bob withdraw 30 USD to USDT in BSC? yes
 /// * Can alice withdraw 100 USDC in ETH? yes, because Global account's USDC balance of ETH is 100.
 pub const GLOBAL_ASSET_ACCOUNT_ID: AccountId = AccountId(1);
-/// As the black hole address of the global asset account, no one can control.
-pub const GLOBAL_ASSET_ACCOUNT_ADDR: &str =
-    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-
-/// Special sub_account id
-/// The subaccount is used to collect the fees to which subaccount of the fee_account.
-pub const MAIN_SUB_ACCOUNT_ID: SubAccountId = SubAccountId(0);
 
 /// All fee related values
 pub const FEE_RATIO_BIT_WIDTH: usize = 8;
-pub const FEE_DENOMINATOR: usize = 10usize.pow(FEE_PRECISION as u32);
-pub const FEE_PRECISION: u64 = 4;

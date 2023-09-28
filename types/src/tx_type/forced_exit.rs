@@ -10,6 +10,7 @@ use crate::tx_type::validator::*;
 use crate::tx_type::{TxTrait, ZkSignatureTrait};
 use serde::{Deserialize, Serialize};
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
+use crate::basic_types::params::{SIGNED_FORCED_EXIT_BIT_WIDTH, TX_TYPE_BIT_WIDTH};
 
 /// `ForcedExit` transaction is used to withdraw funds from an unowned
 /// account to its corresponding L1 address.
@@ -105,6 +106,7 @@ impl TxTrait for ForcedExit {
         out.extend_from_slice(&self.initiator_nonce.to_be_bytes());
         out.extend_from_slice(&self.exit_amount.to_u128().unwrap().to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
+        assert_eq!(out.len() * TX_TYPE_BIT_WIDTH, SIGNED_FORCED_EXIT_BIT_WIDTH);
         out
     }
 }
