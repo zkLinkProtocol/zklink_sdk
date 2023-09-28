@@ -16,7 +16,7 @@ use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pk_signer::{sha256_bytes, ZkLinkSigner};
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 
-pub(crate) mod validator;
+pub mod validator;
 
 pub mod change_pubkey;
 pub mod deposit;

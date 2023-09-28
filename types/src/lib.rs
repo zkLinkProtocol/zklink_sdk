@@ -20,6 +20,7 @@ pub mod prelude {
         full_exit::FullExit,
         order_matching::{Order, OrderMatching},
         transfer::Transfer,
+        validator,
         withdraw::Withdraw,
         zklink_tx::{ZkLinkTx, ZkLinkTxType},
     };
