@@ -167,40 +167,6 @@ pub const USDX_TOKEN_ID_UPPER_BOUND: u32 = 16;
 /// There are two kind of accounts:
 /// * Normal account(id = \[0, 2-MAX_ACCOUNT_ID\])
 /// * Global asset account(id = 1)
-///
-/// Tokens stored in normal account are: USD(1), USD stable coins(\[17,31\]), other coins(\[32,..\]).
-/// Tokens stored in global account are: USD_X(\[2,16\]), USD stable coins(\[17,31\]), other coins(\[32,..\]).
-///
-/// **NOTE** the differenc of tokens stored in these two kind of accounts
-///
-/// The sub account id is used to represent chain id of zklink in GLOBAL_ASSET_ACCOUNT.
-///
-/// **NOTE** MAX_CHAIN_ID <= MAX_SUB_ACCOUNT_ID
-///
-/// For example
-///
-/// Alice deposit 100 USDC in Ethereum(which chain id is 1) with no mapping, account tree is:
-/// account_id, sub_account_id, token_id, balance
-/// Alice,0,USDC,100
-/// Global,1,USDC,100
-///
-/// And then bob deposit 50 USDT in BSC(which chain id is 2) with mapping, account tree update to:
-/// account_id, sub_account_id, token_id, balance
-/// Alice,0,USDC,100
-/// Global,1,USDC,100
-/// Bob,0,USD,50
-/// Global,2,USD_USDT,50
-///
-/// **NOTE** if bob select to receive USD(use token mapping), and Global's USD_X token will be update
-///
-/// When withdraw USD to a special mapping token to a layer one chain, we can not exceed the amount stored in Global account
-/// of the mapping token of that chain.
-///
-/// Continue to use the above example:
-/// * Can bob withdraw 50 USD to USDC in ETH? no, because Global account's USD_USDC balance of ETH is 0.
-/// * Can bob withdraw 60 USD to USDT in BSC? no, because Global account's USD_USDT balance of BSC is 50.
-/// * Can bob withdraw 30 USD to USDT in BSC? yes
-/// * Can alice withdraw 100 USDC in ETH? yes, because Global account's USDC balance of ETH is 100.
 pub const GLOBAL_ASSET_ACCOUNT_ID: AccountId = AccountId(1);
 
 /// All fee related values
