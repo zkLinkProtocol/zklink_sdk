@@ -5,6 +5,7 @@ use crate::sign_transfer::sign_transfer;
 use crate::sign_withdraw::sign_withdraw;
 use zklink_sdk_types::prelude::TxSignature;
 
+#[cfg(feature = "ffi")]
 use std::sync::Arc;
 use zklink_sdk_signers::eth_signer::error::EthSignerError;
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
@@ -35,13 +36,11 @@ impl Signer {
         })
     }
 
-    #[cfg(feature = "ffi")]
-    pub fn sign_change_pubkey_with_create2data_auth(
+    pub fn do_sign_change_pubkey_with_create2data_auth(
         &self,
-        tx: Arc<ChangePubKey>,
+        mut tx: ChangePubKey,
         create2data: Create2Data,
     ) -> Result<TxSignature, SignError> {
-        let mut tx = (*tx).clone();
         tx.sign(&self.zklink_signer)?;
         let should_valid = tx.is_signature_valid();
         assert!(should_valid);
@@ -52,6 +51,27 @@ impl Signer {
             tx: tx.into(),
             eth_signature: None,
         })
+    }
+
+    #[cfg(feature = "ffi")]
+    #[inline]
+    pub fn sign_change_pubkey_with_create2data_auth(
+        &self,
+        tx: Arc<ChangePubKey>,
+        create2data: Create2Data,
+    ) -> Result<TxSignature, SignError> {
+        let tx = (*tx).clone();
+        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data)
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    #[inline]
+    pub fn sign_change_pubkey_with_create2data_auth(
+        &self,
+        tx: ChangePubKey,
+        create2data: Create2Data,
+    ) -> Result<TxSignature, SignError> {
+        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data)
     }
 
     #[cfg(feature = "ffi")]
@@ -71,14 +91,28 @@ impl Signer {
         })
     }
 
-    #[cfg(feature = "ffi")]
-    pub fn sign_change_pubkey_with_eth_ecdsa_auth(
+    #[cfg(not(feature = "ffi"))]
+    pub fn sign_change_pubkey_with_onchain_auth_data(
         &self,
-        tx: Arc<ChangePubKey>,
+        mut tx: ChangePubKey,
+    ) -> Result<TxSignature, SignError> {
+        tx.sign(&self.zklink_signer)?;
+        let should_valid = tx.is_signature_valid();
+        assert!(should_valid);
+        // create onchain auth data
+        tx.eth_auth_data = ChangePubKeyAuthData::Onchain;
+        Ok(TxSignature {
+            tx: tx.into(),
+            eth_signature: None,
+        })
+    }
+
+    pub fn do_sign_change_pubkey_with_eth_ecdsa_auth(
+        &self,
+        mut tx: ChangePubKey,
         l1_client_id: u32,
         main_contract_address: ZkLinkAddress,
     ) -> Result<TxSignature, SignError> {
-        let mut tx = (*tx).clone();
         tx.sign(&self.zklink_signer)?;
         let should_valid = tx.is_signature_valid();
         assert!(should_valid);
@@ -93,6 +127,27 @@ impl Signer {
             eth_signature: None,
         })
     }
+    #[cfg(feature = "ffi")]
+    #[inline]
+    pub fn sign_change_pubkey_with_eth_ecdsa_auth(
+        &self,
+        tx: Arc<ChangePubKey>,
+        l1_client_id: u32,
+        main_contract_address: ZkLinkAddress,
+    ) -> Result<TxSignature, SignError> {
+        let tx = (*tx).clone();
+        self.do_sign_change_pubkey_with_eth_ecdsa_auth(tx, l1_client_id, main_contract_address)
+    }
+    #[cfg(not(feature = "ffi"))]
+    #[inline]
+    pub fn sign_change_pubkey_with_eth_ecdsa_auth(
+        &self,
+        tx: ChangePubKey,
+        l1_client_id: u32,
+        main_contract_address: ZkLinkAddress,
+    ) -> Result<TxSignature, SignError> {
+        self.do_sign_change_pubkey_with_eth_ecdsa_auth(tx, l1_client_id, main_contract_address)
+    }
 
     #[cfg(feature = "ffi")]
     pub fn sign_transfer(
@@ -101,6 +156,15 @@ impl Signer {
         token_symbol: &str,
     ) -> Result<TxSignature, SignError> {
         let tx = (*tx).clone();
+        sign_transfer(&self.eth_signer, &self.zklink_signer, tx, token_symbol)
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn sign_transfer(
+        &self,
+        tx: Transfer,
+        token_symbol: &str,
+    ) -> Result<TxSignature, SignError> {
         sign_transfer(&self.eth_signer, &self.zklink_signer, tx, token_symbol)
     }
 
@@ -119,6 +183,20 @@ impl Signer {
         )
     }
 
+    #[cfg(not(feature = "ffi"))]
+    pub fn sign_withdraw(
+        &self,
+        tx: Withdraw,
+        l2_source_token_symbol: &str,
+    ) -> Result<TxSignature, SignError> {
+        sign_withdraw(
+            &self.eth_signer,
+            &self.zklink_signer,
+            tx,
+            l2_source_token_symbol,
+        )
+    }
+
     #[cfg(feature = "ffi")]
     pub fn sign_forced_exit(&self, tx: Arc<ForcedExit>) -> Result<TxSignature, SignError> {
         let tx = (*tx).clone();
@@ -126,9 +204,21 @@ impl Signer {
         Ok(signature)
     }
 
+    #[cfg(not(feature = "ffi"))]
+    pub fn sign_forced_exit(&self, tx: ForcedExit) -> Result<TxSignature, SignError> {
+        let signature = sign_forced_exit(&self.zklink_signer, tx)?;
+        Ok(signature)
+    }
+
     #[cfg(feature = "ffi")]
     pub fn sign_order_matching(&self, tx: Arc<OrderMatching>) -> Result<TxSignature, SignError> {
         let tx = (*tx).clone();
+        let signature = sign_order_matching(&self.zklink_signer, tx)?;
+        Ok(signature)
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn sign_order_matching(&self, tx: OrderMatching) -> Result<TxSignature, SignError> {
         let signature = sign_order_matching(&self.zklink_signer, tx)?;
         Ok(signature)
     }

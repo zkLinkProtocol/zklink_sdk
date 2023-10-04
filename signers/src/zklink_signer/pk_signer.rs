@@ -10,7 +10,6 @@ use franklin_crypto::alt_babyjubjub::fs::{Fs, FsRepr};
 use franklin_crypto::alt_babyjubjub::FixedGenerators;
 use franklin_crypto::bellman::{PrimeField, PrimeFieldRepr};
 use franklin_crypto::eddsa::{PrivateKey as FLPrivateKey, PrivateKey, PublicKey, Seed};
-use once_cell::sync::OnceCell;
 use sha2::{Digest, Sha256};
 use std::fmt;
 
@@ -54,7 +53,7 @@ impl ZkLinkSigner {
         "Sign this message to create a key to interact with zkLink's layer2 services.\nNOTE: This application is powered by zkLink protocol.\n\nOnly sign this message for a trusted client!";
     pub fn new() -> Result<Self, Error> {
         let eth_pk = H256::random();
-        let eth_signer = EthSigner::from(&eth_pk);
+        let eth_signer = EthSigner::from(eth_pk);
         let signature = eth_signer.sign_message(Self::SIGN_MESSAGE.as_bytes())?;
         let seed = signature.serialize_packed();
         Self::new_from_seed(&seed)
@@ -140,20 +139,16 @@ impl ZkLinkSigner {
     }
 
     pub fn public_key(&self) -> PackedPublicKey {
-        static INSTANCE: OnceCell<PackedPublicKey> = OnceCell::new();
-        let pubkey = INSTANCE.get_or_init(|| {
-            let pubkey: PackedPublicKey = JUBJUB_PARAMS
-                .with(|params| {
-                    PublicKey::from_private(
-                        self.as_ref(),
-                        FixedGenerators::SpendingKeyGenerator,
-                        params,
-                    )
-                })
-                .into();
-            pubkey
-        });
-        pubkey.clone()
+        let pubkey: PackedPublicKey = JUBJUB_PARAMS
+            .with(|params| {
+                PublicKey::from_private(
+                    self.as_ref(),
+                    FixedGenerators::SpendingKeyGenerator,
+                    params,
+                )
+            })
+            .into();
+        pubkey
     }
 }
 
@@ -178,5 +173,27 @@ mod test {
         let zk_signer2 = zk_signer.clone();
         let pub_key_hash2 = zk_signer2.public_key().public_key_hash();
         assert_eq!(pub_key_hash.as_hex(), pub_key_hash2.as_hex());
+
+        let a = "0xb32593e347bf09436b058fbeabc17ebd2c7c1fa42e542f5f78fc3580faef83b7";
+        let zklink_signer = ZkLinkSigner::new_from_hex_eth_signer(a).unwrap();
+        let pub_key2 = zklink_signer.public_key().as_hex();
+        assert_eq!(
+            "0x8e3eb3abb0cbf96605956a5313ab239ff685a64562332ac52ef51b9eb8d0d72c",
+            pub_key2
+        );
+
+        let message = b"hello world";
+        let signature = zklink_signer.sign_musig(message).unwrap();
+        let passed = signature.verify_musig(message);
+
+        assert!(passed);
+
+        let expect_signature = serde_json::json!(
+            {
+                "pubKey": "0x8e3eb3abb0cbf96605956a5313ab239ff685a64562332ac52ef51b9eb8d0d72c",
+                "signature": "e396adddbd484e896d0eea6b248a339a0497f65d482112981d947fd71010c4022a40cc5a72b334e89a1601f71518dcaa05c56737e1647828fa822e94b1ff7501"
+            }
+        );
+        assert_eq!(serde_json::to_value(signature).unwrap(), expect_signature);
     }
 }

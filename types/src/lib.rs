@@ -31,6 +31,6 @@ pub mod prelude {
 }
 
 pub mod params {
-    pub use zklink_sdk_signers::zklink_signer::{NEW_PUBKEY_HASH_BYTES_LEN, NEW_PUBKEY_HASH_WIDTH};
     pub use crate::basic_types::params::*;
+    pub use zklink_sdk_signers::zklink_signer::{NEW_PUBKEY_HASH_BYTES_LEN, NEW_PUBKEY_HASH_WIDTH};
 }

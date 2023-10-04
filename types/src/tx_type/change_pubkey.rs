@@ -1,4 +1,5 @@
 use crate::basic_types::pack::pack_fee_amount;
+use crate::basic_types::params::{SIGNED_CHANGE_PUBKEY_BIT_WIDTH, TX_TYPE_BIT_WIDTH};
 use crate::basic_types::{
     AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
@@ -20,7 +21,6 @@ use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-use crate::basic_types::params::{SIGNED_CHANGE_PUBKEY_BIT_WIDTH, TX_TYPE_BIT_WIDTH};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -158,7 +158,10 @@ impl TxTrait for ChangePubKey {
         out.extend_from_slice(&pack_fee_amount(&self.fee));
         out.extend_from_slice(&self.nonce.to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
-        assert_eq!(out.len() * TX_TYPE_BIT_WIDTH, SIGNED_CHANGE_PUBKEY_BIT_WIDTH);
+        assert_eq!(
+            out.len() * TX_TYPE_BIT_WIDTH,
+            SIGNED_CHANGE_PUBKEY_BIT_WIDTH
+        );
         out
     }
 }

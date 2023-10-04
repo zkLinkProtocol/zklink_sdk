@@ -1,5 +1,5 @@
 use crate::error::SignError;
-#[cfg(feature = "sync")]
+#[cfg(not(feature = "ffi"))]
 use crate::ChangePubKeyAuthRequest;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
@@ -15,7 +15,7 @@ use zklink_sdk_types::tx_type::change_pubkey::Create2Data;
 use zklink_sdk_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData};
 use zklink_sdk_types::tx_type::TxTrait;
 
-#[cfg(feature = "sync")]
+#[cfg(not(feature = "ffi"))]
 pub fn sign_change_pubkey(
     eth_signer: &EthSigner,
     zklink_singer: &ZkLinkSigner,
@@ -29,13 +29,13 @@ pub fn sign_change_pubkey(
         ChangePubKeyAuthRequest::Onchain => Ok(ChangePubKeyAuthData::Onchain),
         ChangePubKeyAuthRequest::EthECDSA => {
             let typed_data = tx.to_eip712_request_payload(l1_client_id, &main_contract)?;
-            let eth_signature = eth_signer.sign_hash(&typed_data.data_hash)?;
+            let eth_signature = eth_signer.sign_hash(typed_data.data_hash.as_ref())?;
             Ok(ChangePubKeyAuthData::EthECDSA { eth_signature })
         }
         ChangePubKeyAuthRequest::EthCreate2 { data } => {
             // check create2 data
             let pubkey_hash = zklink_singer.public_key().public_key_hash();
-            let from_address = data.get_address(pubkey_hash.data.to_vec());
+            let from_address = data.get_address(pubkey_hash.data.as_ref());
             if from_address.as_bytes() != account_address.as_bytes() {
                 Err(SignError::IncorrectTx)
             } else {

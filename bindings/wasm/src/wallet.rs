@@ -2,9 +2,9 @@ use crate::error::ClientError;
 use crate::signer::Signer;
 use crate::{AccountType, Wallet};
 use num::BigUint;
-use zklink_interface::{ChangePubKeyAuthRequest, TxSignature};
-use zklink_provider::response::{AccountQuery, ChainResp, TokenResp, AccountInfoResp};
-use zklink_provider::rpc::ZkLinkRpcClient;
+use zklink_sdk_interface::{ChangePubKeyAuthRequest, TxSignature};
+use zklink_sdk_provider::response::{AccountQuery, ChainResp, TokenResp, AccountInfoResp};
+use zklink_sdk_provider::rpc::ZkLinkRpcClient;
 use zklink_sdk_signers::eth_signer::eth_signature::TxEthSignature;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 

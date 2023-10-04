@@ -24,6 +24,13 @@ use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PackedEthSignature(pub Signature);
 
+impl Default for PackedEthSignature {
+    fn default() -> Self {
+        let bytes: [u8; 65] = [0; 65];
+        Self::deserialize_packed(&bytes).unwrap()
+    }
+}
+
 impl PackedEthSignature {
     pub fn serialize_packed(&self) -> [u8; 65] {
         self.0.into()

@@ -1,5 +1,5 @@
 use thiserror::Error;
-use zklink_provider::RpcError;
+use zklink_sdk_provider::RpcError;
 use zklink_sdk_signers::eth_signer::error::EthSignerError;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_types::basic_types::ChainId;

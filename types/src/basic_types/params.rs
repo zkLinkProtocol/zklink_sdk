@@ -74,10 +74,8 @@ pub const FEE_MANTISSA_BIT_WIDTH: usize = 11;
 /// Timestamp bit width
 pub const SIMP_TIMESTAMP_BIT_WIDTH: usize = 4 * 8;
 
-
 // Fr element encoding
 pub const FR_BIT_WIDTH: usize = 254;
-
 
 /// Size of the data that is signed for withdraw tx
 pub const SIGNED_WITHDRAW_BIT_WIDTH: usize = TX_TYPE_BIT_WIDTH
@@ -159,7 +157,6 @@ pub const TOKEN_ID_ZERO: u32 = 0;
 pub const USD_TOKEN_ID: u32 = 1;
 pub const USDX_TOKEN_ID_LOWER_BOUND: u32 = USD_TOKEN_ID + 1;
 pub const USDX_TOKEN_ID_UPPER_BOUND: u32 = 16;
-
 
 /// The account used to store the remaining assets of the tokens for contracts of layer1.
 /// The token balances of this account are used in withdraw to layer one or create exit proof.

@@ -1,5 +1,8 @@
 use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
-use crate::basic_types::params::{ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH, TOKEN_MAX_PRECISION, TX_TYPE_BIT_WIDTH};
+use crate::basic_types::params::{
+    ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH,
+    TOKEN_MAX_PRECISION, TX_TYPE_BIT_WIDTH,
+};
 use crate::basic_types::{AccountId, Nonce, SlotId, SubAccountId, TokenId};
 use crate::signatures::TxLayer1Signature;
 use crate::tx_builder::OrderMatchingBuilder;
@@ -317,7 +320,10 @@ impl TxTrait for OrderMatching {
         out.extend_from_slice(&pack_fee_amount(&self.fee));
         out.extend_from_slice(&self.expect_base_amount.to_u128().unwrap().to_be_bytes());
         out.extend_from_slice(&self.expect_quote_amount.to_u128().unwrap().to_be_bytes());
-        assert_eq!(out.len() * TX_TYPE_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH);
+        assert_eq!(
+            out.len() * TX_TYPE_BIT_WIDTH,
+            SIGNED_ORDER_MATCHING_BIT_WIDTH
+        );
         out
     }
 

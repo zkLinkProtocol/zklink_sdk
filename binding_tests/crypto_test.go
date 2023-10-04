@@ -10,6 +10,19 @@ import (
 	"testing"
 )
 
+func TestEthSigner(t *testing.T) {
+    s := "0xb32593e347bf09436b058fbeabc17ebd2c7c1fa42e542f5f78fc3580faef83b7"
+    signer, err := sdk.NewEthSigner(s)
+    assert.Nil(t, err)
+    msg := []byte("hello world")
+    signature, err := signer.SignMessage(msg)
+    assert.Nil(t, err)
+
+    assert.Equal(t, signature, "0xa9aa0710adb18f84d4bed8057382fc433c3dcff1bddf3b2b1c2cb11386ef3be4172b5d0688143759d4e744acc434ae4f96575c7fa9096971fd02fb3d2aaa77121c")
+    address := signer.GetAddress()
+    assert.Equal(t, address, "0x9e372368c25056d44045e445d72d7b91ce3ee3b1")
+}
+
 func TestZkLinkSigner(t *testing.T) {
     signer, err := sdk.NewZkLinkSigner()
 	assert.Nil(t, err)

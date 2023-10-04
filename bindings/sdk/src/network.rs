@@ -1,4 +1,4 @@
-use zklink_provider::network::Network;
+use zklink_sdk_provider::network::Network;
 
 pub fn zklink_main_net_url() -> String {
     let network = Network::MainNet;

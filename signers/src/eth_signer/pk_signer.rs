@@ -83,20 +83,19 @@ impl TryFrom<&str> for EthSigner {
     }
 }
 
-impl From<&H256> for EthSigner {
-    fn from(private_key: &H256) -> Self {
-        Self {
-            private_key: *private_key,
-        }
+impl From<H256> for EthSigner {
+    fn from(private_key: H256) -> Self {
+        Self { private_key }
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::str::FromStr;
 
-    #[tokio::test]
-    async fn test_eth_signer() {
+    #[test]
+    fn test_eth_signer() {
         let private_key = H256::from([5; 32]);
         let private_key = hex::encode(private_key.as_bytes());
         let signer = EthSigner::try_from(private_key.as_str()).unwrap();
@@ -109,5 +108,74 @@ mod test {
         let signature = signer.sign_hash(&hash).unwrap();
         println!("hash signature: {:?}", signature.as_hex());
         assert_eq!(signature.as_hex(), "0xe57f551f38c5ffd4f78fcd4eccdb6f8ea322dc6d6f639f49d0daf24684094eca629a2faaecdced17898068511142658c58325b7f9e648bec971b92a9820e08521c");
+
+        let private_key = "0xb32593e347bf09436b058fbeabc17ebd2c7c1fa42e542f5f78fc3580faef83b7";
+        let pk_signer = EthSigner::try_from(private_key).unwrap();
+        let address = pk_signer.get_address();
+        assert_eq!(
+            address,
+            Address::from_str("0x9e372368c25056D44045e445d72d7B91cE3eE3B1").unwrap()
+        );
+        let message = b"hello world";
+        let signature = pk_signer.sign_message(message).unwrap();
+        assert_eq!(signature.as_hex(), "0xa9aa0710adb18f84d4bed8057382fc433c3dcff1bddf3b2b1c2cb11386ef3be4172b5d0688143759d4e744acc434ae4f96575c7fa9096971fd02fb3d2aaa77121c");
+        let recover_addr = signature.signature_recover_signer(message).unwrap();
+        assert_eq!(recover_addr, address);
+    }
+
+    #[test]
+    fn test_eth_eip712() {
+        use crate::eth_signer::eip712::eip712::EIP712Domain;
+        use crate::eth_signer::eip712::eip712::TypedData;
+        use crate::eth_signer::EIP712Address;
+        use serde::{Deserialize, Serialize};
+        use serde_json::json;
+
+        #[derive(Debug, Serialize, Deserialize, PartialEq)]
+        struct Person {
+            pub name: String,
+            pub wallet: EIP712Address,
+        }
+
+        #[derive(Debug, Serialize, Deserialize, PartialEq)]
+        struct Mail {
+            pub from: Person,
+            pub to: Person,
+            pub contents: String,
+        }
+
+        let private_key = "0xb32593e347bf09436b058fbeabc17ebd2c7c1fa42e542f5f78fc3580faef83b7";
+        let pk_signer = EthSigner::try_from(private_key).unwrap();
+
+        let message = json!(
+          {
+            "from": {
+              "name": "Cow",
+              "wallet": "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"
+            },
+            "to": {
+              "name": "Bob",
+              "wallet": "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"
+            },
+            "contents": "Hello, Bob!"
+          }
+        );
+
+        let message: Mail = serde_json::from_value(message).expect("parse domain");
+        let domain = EIP712Domain::new(
+            "Ether Mail".into(),
+            "1".into(),
+            1,
+            "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC".into(),
+        )
+        .unwrap();
+
+        let typed_data = TypedData::new(domain, message).unwrap();
+
+        let signature = pk_signer
+            .sign_hash(typed_data.sign_hash().unwrap().as_ref())
+            .unwrap();
+
+        assert_eq!(signature.as_hex(), "0xbf24877c59766e95717686e71a0402ba12f5db4a8aa93ac6c30b5742925ebfc26c91d6b6bb949a2b0578c397e296830dde9cc3531adbb259c4b4b06441b1a9c51b");
     }
 }

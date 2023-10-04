@@ -34,6 +34,8 @@ typedef u8 SubAccountId;
 [Custom]
 typedef string H256;
 [Custom]
+typedef string Address;
+[Custom]
 typedef string BigUint;
 [Custom]
 typedef string ZkLinkAddress;
@@ -288,6 +290,7 @@ interface EthSigner {
     constructor([ByRef] string private_key);
     [Throws=EthSignerError]
     PackedEthSignature sign_message([ByRef] sequence<u8> message);
+    Address get_address();
 };
 
 // ============================ zklink crypto  ============================

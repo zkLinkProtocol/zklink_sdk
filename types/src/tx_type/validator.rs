@@ -317,8 +317,10 @@ mod validators_tests {
         }
         /// should success
         let v1: Vec<u8> = vec![1; 32];
+        /// zklink address is 0
         let v2: Vec<u8> = vec![0; 32];
-        let v3: Vec<u8> = vec![0xff; 20];
+        /// zklink address is global account address
+        let v3: Vec<u8> = vec![0xff; 32];
         let mock = Mock::new(ZkLinkAddress::from(v1));
         assert!(mock.validate().is_ok());
         /// out of range
