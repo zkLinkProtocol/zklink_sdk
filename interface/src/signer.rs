@@ -36,7 +36,7 @@ impl Signer {
         })
     }
 
-    pub fn do_sign_change_pubkey_with_create2data_auth(
+    fn do_sign_change_pubkey_with_create2data_auth(
         &self,
         mut tx: ChangePubKey,
         create2data: Create2Data,
@@ -107,7 +107,7 @@ impl Signer {
         })
     }
 
-    pub fn do_sign_change_pubkey_with_eth_ecdsa_auth(
+    fn do_sign_change_pubkey_with_eth_ecdsa_auth(
         &self,
         mut tx: ChangePubKey,
         l1_client_id: u32,
