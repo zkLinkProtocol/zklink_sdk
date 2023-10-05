@@ -7,7 +7,7 @@ publish = false
 [dependencies]
 ethers = "2.0.10"
 ethers_primitives =  "0.2.2"
-franklin_crypto = { package = "franklin-crypto", git = "https://github.com/matter-labs/franklin-crypto.git", branch = "beta" }
+franklin_crypto = { package = "franklin-crypto", version = "0.0.5", git = "https://github.com/zkLinkProtocol/franklin-crypto.git", branch = "beta" }
 hex = "0.4"
 k256 = { version = "0.13.1", features = ["ecdsa","sha256"] }
 primitive-types = { version = "0.12", features = ["serde"] }
