@@ -1,10 +1,8 @@
-use jsonrpsee::core::error::Error as jsonrpseeError;
 use thiserror::Error;
+use jsonrpsee::core::error::Error as jsonrpseeError;
 
 #[derive(Debug, Error)]
 pub enum RpcError {
-    #[error("Invalid network")]
-    InvalidNetwork,
     #[error("Parse params error: {0}")]
     ParseParamsError(jsonrpseeError),
     #[error("HTTP request error: {0}")]
