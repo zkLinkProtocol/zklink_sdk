@@ -19,14 +19,6 @@ impl Network {
             Network::TestNet => "https://aws-gw-v2.zk.link",
         }
     }
-
-    pub fn from_str(str: &str) -> Self {
-        match str {
-            "mainet" => Network::MainNet,
-            "testnet" => Network::TestNet,
-            _ => Network::TestNet,
-        }
-    }
 }
 
 impl FromStr for Network {

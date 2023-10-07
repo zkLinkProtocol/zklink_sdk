@@ -61,7 +61,7 @@ impl PackedPublicKey {
     /// converts public key to a hex string with the 0x prefix
     pub fn as_hex(&self) -> String {
         let bytes = self.as_bytes();
-        format!("{}", hex::encode(bytes))
+        format!("0x{}", hex::encode(bytes))
     }
 
     pub fn from_hex(s: &str) -> Result<Self, Error> {
