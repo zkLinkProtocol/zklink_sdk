@@ -13,9 +13,9 @@ pub use error::EthSignerError;
 pub use ethers_primitives::Address as EIP712Address;
 pub use packed_eth_signature::PackedEthSignature;
 pub use pk_signer::EthSigner;
-use serde::{Serialize,Deserialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone,Serialize,Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EthTypedData {
     pub raw_data: String,
     pub data_hash: H256,

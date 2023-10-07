@@ -1,3 +1,4 @@
+pub mod error;
 pub mod network;
 pub mod response;
 #[cfg(not(feature = "ffi"))]
@@ -5,7 +6,6 @@ pub mod response;
 pub mod rpc;
 #[cfg(target_arch = "wasm32")]
 pub mod rpc_wasm;
-pub mod error;
 
 #[cfg(not(feature = "ffi"))]
 #[cfg(not(target_arch = "wasm32"))]
