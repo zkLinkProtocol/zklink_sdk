@@ -3,7 +3,7 @@ use std::fmt;
 use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct EIP1271Signature(pub(crate) Vec<u8>);
+pub struct EIP1271Signature(pub Vec<u8>);
 
 impl fmt::Display for EIP1271Signature {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
