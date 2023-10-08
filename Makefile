@@ -73,7 +73,7 @@ test_go: build_binding_lib build_binding_files
 	CGO_ENABLED=1 \
 	go test  -v
 
-wasm:
+build_wasm: prepare_wasm
 	cd ${ROOT_DIR}/bindings/wasm && \
 	wasm-pack build --release --target=web --out-name=zklink-sdk-web --out-dir=web-dist && \
     wasm-pack build --release --target=nodejs --out-name=zklink-sdk-node --out-dir=node-dist

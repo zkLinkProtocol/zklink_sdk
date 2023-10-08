@@ -41,7 +41,7 @@ To use the bindings and the library, see the detail in `make test_go` and `make 
 ## Generate Wasm bindings
 
 ```bash
-make wasm
+make build_wasm
 ```
 
 
