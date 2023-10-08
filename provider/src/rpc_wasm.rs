@@ -1,5 +1,10 @@
 use crate::error::RpcError;
-use crate::response::{AccountQuery, AccountSnapshotResp, TokenResp};
+use crate::response::{
+    AccountInfoResp, AccountQuery, AccountSnapshotResp, BlockNumberResp, BlockOnChainResp,
+    BlockResp, ChainResp, FastWithdrawTxResp, ForwardTxResp, Page, SubAccountBalances,
+    SubAccountOrders, TokenResp, TxHashOrDetailResp, TxResp, ZkLinkTxHistory,
+};
+use getrandom::getrandom;
 use jsonrpsee::core::params::ArrayParams;
 use jsonrpsee::core::traits::ToRpcParams;
 use jsonrpsee::types::request::Request;
@@ -7,10 +12,13 @@ use jsonrpsee::types::Id;
 use std::collections::HashMap;
 use wasm_bindgen::JsValue;
 use zklink_sdk_signers::zklink_signer::ZkLinkSignature;
-use zklink_sdk_types::basic_types::{BlockNumber, SubAccountId, TokenId};
+use zklink_sdk_types::basic_types::bigunit_wrapper::BigUintSerdeWrapper;
+use zklink_sdk_types::basic_types::{
+    AccountId, BlockNumber, ChainId, SubAccountId, TokenId, ZkLinkAddress,
+};
 use zklink_sdk_types::prelude::TxHash;
 use zklink_sdk_types::signatures::TxLayer1Signature;
-use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
+use zklink_sdk_types::tx_type::zklink_tx::{ZkLinkTx, ZkLinkTxType};
 
 impl From<RpcError> for JsValue {
     fn from(error: RpcError) -> Self {
@@ -18,19 +26,18 @@ impl From<RpcError> for JsValue {
     }
 }
 
-pub struct WasmRpcClient {
-    pub server_url: String,
-}
-
-impl WasmRpcClient {
-    pub fn new(server_url: String) -> Self {
-        Self { server_url }
-    }
-
-    pub async fn tokens(&self) -> Result<HashMap<TokenId, TokenResp>, RpcError> {
-        let request = Request::new("getSupportTokens".into(), None, Id::Number(1));
+macro_rules! make_rpc_request {
+    ($method:expr,$builder:expr, $server_url:expr, $resp_type: ty) => {{
+        let params = $builder
+            .to_rpc_params()
+            .map_err(RpcError::ParseParamsError)?;
+        let request = Request::new(
+            $method.into(),
+            params.as_ref().map(|p| p.as_ref()),
+            Id::Str(uuid_str().into()),
+        );
         let res = reqwest::Client::new()
-            .post(&self.server_url)
+            .post($server_url)
             .json(&request)
             .send()
             .await
@@ -45,6 +52,33 @@ impl WasmRpcClient {
         } else {
             Err(RpcError::ParseJsonError)
         }
+    }};
+}
+
+pub fn uuid_str() -> String {
+    let mut bytes = [0; 16];
+    getrandom(&mut bytes).expect("RNG failure!");
+
+    let uuid = uuid::Builder::from_bytes(bytes)
+        .set_variant(uuid::Variant::RFC4122)
+        .set_version(uuid::Version::Random)
+        .build();
+
+    uuid.to_string()
+}
+
+pub struct WasmRpcClient {
+    pub server_url: String,
+}
+
+impl WasmRpcClient {
+    pub fn new(server_url: String) -> Self {
+        Self { server_url }
+    }
+
+    pub async fn tokens(&self) -> Result<HashMap<TokenId, TokenResp>, RpcError> {
+        let builder = ArrayParams::new();
+        make_rpc_request!("getSupportTokens",builder,&self.server_url,HashMap<TokenId, TokenResp>)
     }
 
     pub async fn account_query(
@@ -57,30 +91,12 @@ impl WasmRpcClient {
         let _ = builder.insert(account_query);
         let _ = builder.insert(sub_account_id);
         let _ = builder.insert(block_number);
-        let params = builder
-            .to_rpc_params()
-            .map_err(RpcError::ParseParamsError)?;
-        let request = Request::new(
-            "getAccountSnapshot".into(),
-            params.as_ref().map(|p| p.as_ref()),
-            Id::Number(1),
-        );
-        let res = reqwest::Client::new()
-            .post(&self.server_url)
-            .json(&request)
-            .send()
-            .await
-            .map_err(RpcError::RequestError)?
-            .json::<HashMap<String, serde_json::Value>>()
-            .await
-            .map_err(RpcError::ResponseError)?;
-        if let Some(&ref result) = res.get("result") {
-            let resp: AccountSnapshotResp =
-                serde_json::from_value(result.clone()).map_err(|_e| RpcError::ParseJsonError)?;
-            Ok(resp)
-        } else {
-            Err(RpcError::ParseJsonError)
-        }
+        make_rpc_request!(
+            "getAccountSnapshot",
+            builder,
+            &self.server_url,
+            AccountSnapshotResp
+        )
     }
 
     pub async fn send_transaction(
@@ -93,30 +109,198 @@ impl WasmRpcClient {
         let _ = builder.insert(tx);
         let _ = builder.insert(eth_signature);
         let _ = builder.insert(submitter_signature);
-        let params = builder
-            .to_rpc_params()
-            .map_err(RpcError::ParseParamsError)?;
-        let request = Request::new(
-            "sendTransaction".into(),
-            params.as_ref().map(|p| p.as_ref()),
-            Id::Number(0),
-        );
-        let res = reqwest::Client::new()
-            .post(&self.server_url)
-            .json(&request)
-            .send()
-            .await
-            .map_err(RpcError::RequestError)?
-            .json::<HashMap<String, serde_json::Value>>()
-            .await
-            .map_err(RpcError::ResponseError)?;
-        if let Some(&ref result) = res.get("result") {
-            let resp: TxHash =
-                serde_json::from_value(result.clone()).map_err(|_e| RpcError::ParseJsonError)?;
-            Ok(resp)
-        } else {
-            Err(RpcError::ParseJsonError)
-        }
+        make_rpc_request!("sendTransaction", builder, &self.server_url, TxHash)
+    }
+
+    pub async fn get_support_chains(&self) -> Result<Vec<ChainResp>, RpcError> {
+        let builder = ArrayParams::new();
+        make_rpc_request!(
+            "getSupportChains",
+            builder,
+            &self.server_url,
+            Vec<ChainResp>
+        )
+    }
+
+    pub async fn block_info(&self) -> Result<BlockNumberResp, RpcError> {
+        let builder = ArrayParams::new();
+        make_rpc_request!(
+            "getLatestBlockNumber",
+            builder,
+            &self.server_url,
+            BlockNumberResp
+        )
+    }
+
+    pub async fn block_detail(
+        &self,
+        block_number: Option<BlockNumber>,
+        include_tx: bool,
+        include_update: bool,
+    ) -> Result<BlockResp, RpcError> {
+        let mut builder = ArrayParams::new();
+        let _ = builder.insert(block_number);
+        let _ = builder.insert(include_tx);
+        let _ = builder.insert(include_update);
+        make_rpc_request!("getBlockByNumber", builder, &self.server_url, BlockResp)
+    }
+
+    pub async fn pending_block_detail(
+        &self,
+        last_tx_timestamp_micro: u64,
+        include_tx: bool,
+        include_update: bool,
+        limit: Option<usize>,
+    ) -> Result<Vec<TxHashOrDetailResp>, RpcError> {
+        let mut builder = ArrayParams::new();
+        let _ = builder.insert(last_tx_timestamp_micro);
+        let _ = builder.insert(include_tx);
+        let _ = builder.insert(include_update);
+        let _ = builder.insert(limit);
+        make_rpc_request!(
+            "getPendingBlock",
+            builder,
+            &self.server_url,
+            Vec<TxHashOrDetailResp>
+        )
+    }
+
+    pub async fn block_onchain_detail(
+        &self,
+        block_number: BlockNumber,
+    ) -> Result<BlockOnChainResp, RpcError> {
+        let mut builder = ArrayParams::new();
+        let _ = builder.insert(block_number);
+        make_rpc_request!(
+            "getBlockOnChainByNumber",
+            builder,
+            &self.server_url,
+            BlockOnChainResp
+        )
+    }
+
+    pub async fn account_info(
+        &self,
+        account_query: AccountQuery,
+    ) -> Result<AccountInfoResp, RpcError> {
+        let mut builder = ArrayParams::new();
+        let _ = builder.insert(account_query);
+        make_rpc_request!("getAccount", builder, &self.server_url, AccountInfoResp)
+    }
+
+    pub async fn account_balances(
+        &self,
+        account_id: AccountId,
+        sub_account_id: Option<SubAccountId>,
+    ) -> Result<SubAccountBalances, RpcError> {
+        let mut builder = ArrayParams::new();
+        let _ = builder.insert(account_id);
+        let _ = builder.insert(sub_account_id);
+        make_rpc_request!(
+            "getAccountBalances",
+            builder,
+            &self.server_url,
+            SubAccountBalances
+        )
+    }
+
+    pub async fn account_order_slots(
+        &self,
+        account_id: AccountId,
+        sub_account_id: Option<SubAccountId>,
+    ) -> Result<SubAccountOrders, RpcError> {
+        let mut builder = ArrayParams::new();
+        let _ = builder.insert(account_id);
+        let _ = builder.insert(sub_account_id);
+        make_rpc_request!(
+            "getAccountOrderSlots",
+            builder,
+            &self.server_url,
+            SubAccountOrders
+        )
+    }
+
+    pub async fn token_remain(
+        &self,
+        token_id: TokenId,
+        mapping: bool,
+    ) -> Result<HashMap<ChainId, BigUintSerdeWrapper>, RpcError> {
+        let mut builder = ArrayParams::new();
+        let _ = builder.insert(token_id);
+        let _ = builder.insert(mapping);
+        make_rpc_request!("getTokenReserve",builder,&self.server_url,HashMap<ChainId, BigUintSerdeWrapper>)
+    }
+
+    pub async fn tx_info(&self, hash: TxHash, include_update: bool) -> Result<TxResp, RpcError> {
+        let mut builder = ArrayParams::new();
+        let _ = builder.insert(hash);
+        let _ = builder.insert(include_update);
+        make_rpc_request!("getTransactionByHash", builder, &self.server_url, TxResp)
+    }
+
+    pub async fn tx_history(
+        &self,
+        tx_type: ZkLinkTxType,
+        address: ZkLinkAddress,
+        page_index: u64,
+        page_size: u32,
+    ) -> Result<Page<ZkLinkTxHistory>, RpcError> {
+        let mut builder = ArrayParams::new();
+        let _ = builder.insert(tx_type);
+        let _ = builder.insert(address);
+        let _ = builder.insert(page_index);
+        let _ = builder.insert(page_size);
+        make_rpc_request!(
+            "getAccountTransactionHistory",
+            builder,
+            &self.server_url,
+            Page<ZkLinkTxHistory>
+        )
+    }
+
+    pub async fn tx_fast_withdraw(
+        &self,
+        last_tx_timestamp: u64,
+        max_txs: u32,
+    ) -> Result<Vec<FastWithdrawTxResp>, RpcError> {
+        let mut builder = ArrayParams::new();
+        let _ = builder.insert(last_tx_timestamp);
+        let _ = builder.insert(max_txs);
+        make_rpc_request!(
+            "getFastWithdrawTxs",
+            builder,
+            &self.server_url,
+            Vec<FastWithdrawTxResp>
+        )
+    }
+
+    pub async fn pull_forward_txs(
+        &self,
+        sub_account_id: SubAccountId,
+        offset_id: i64,
+        limit: i64,
+    ) -> Result<Vec<ForwardTxResp>, RpcError> {
+        let mut builder = ArrayParams::new();
+        let _ = builder.insert(sub_account_id);
+        let _ = builder.insert(offset_id);
+        let _ = builder.insert(limit);
+        make_rpc_request!(
+            "pullForwardTxs",
+            builder,
+            &self.server_url,
+            Vec<ForwardTxResp>
+        )
+    }
+
+    pub async fn confirm_full_exit(
+        &self,
+        tx_hash: TxHash,
+        submitter_signature: ZkLinkSignature,
+    ) -> Result<bool, RpcError> {
+        let mut builder = ArrayParams::new();
+        let _ = builder.insert(tx_hash);
+        let _ = builder.insert(submitter_signature);
+        make_rpc_request!("confirmFullExit", builder, &self.server_url, bool)
     }
 }
 
@@ -124,6 +308,7 @@ impl WasmRpcClient {
 mod test {
     use super::WasmRpcClient;
     use crate::network::Network;
+    use crate::response::ZkLinkTxHistory;
     use crate::rpc::ZkLinkRpcClient;
     use crate::ZkLinkRpcProvider;
     use std::str::FromStr;
@@ -135,6 +320,7 @@ mod test {
     use zklink_sdk_types::basic_types::{
         AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
     };
+    use zklink_sdk_types::prelude::ZkLinkTxType;
     use zklink_sdk_types::signatures::TxLayer1Signature;
     use zklink_sdk_types::tx_builder::{ChangePubKeyBuilder, TransferBuilder};
     use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey;
@@ -146,6 +332,21 @@ mod test {
     async fn test_tokens() {
         let client = WasmRpcClient::new("https://api-v1.zk.link".to_owned());
         let ret = client.tokens().await.unwrap();
+        println!("{:?}", ret);
+    }
+
+    #[tokio::test]
+    async fn test_tx_history() {
+        let client = WasmRpcClient::new("https://api-v1.zk.link".to_owned());
+        let ret = client
+            .tx_history(
+                ZkLinkTxType::Deposit,
+                ZkLinkAddress::from_hex("0x12aFF993702B5d623977A9044686Fa1A2B0c2147").unwrap(),
+                0,
+                1,
+            )
+            .await
+            .unwrap();
         println!("{:?}", ret);
     }
 

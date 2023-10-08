@@ -5,6 +5,8 @@ use thiserror::Error;
 pub enum RpcError {
     #[error("Invalid network")]
     InvalidNetwork,
+    #[error("Invalid input parameter")]
+    InvalidInputParameter,
     #[error("Parse params error: {0}")]
     ParseParamsError(jsonrpseeError),
     #[error("HTTP request error: {0}")]
