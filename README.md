@@ -2,8 +2,8 @@ ZkLink SDK is an open-source cross-platform library that implements low-level cr
 for ZkLink and Ethereum-based  blockchain networks.
 The codebase is primarily in Rust and provides cross-language bindings using multiple tools:
 
-- [uniffi-bindgen-go](https://github.com/NordSecurity/uniffi-bindgen-go/tree/main) is used to generate bindings for Golang.
-- [wasm-bindgen] is used to generate bindings for JavaScript and TypeScript to facilitate interactions with the Wasm modules (for web browser extensions or other web-related apps).
+- [uniffi-bindgen-go](https://github.com/NordSecurity/uniffi-bindgen-go) is used to generate bindings for Golang.
+- [wasm-bindgen](https://github.com/rustwasm/wasm-bindgen) is used to generate bindings for JavaScript and TypeScript to facilitate interactions with the Wasm modules (for web browser extensions or other web-related apps).
 
 ## Pre-requisites
 Naturally, you will need the [Rust toolchain] installed.
