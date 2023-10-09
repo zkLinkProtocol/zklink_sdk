@@ -191,6 +191,8 @@ interface ChangePubKey {
     boolean is_signature_valid();
     [Throws=ZkSignerError]
     ZkLinkSignature submitter_signature(ZkLinkSigner signer);
+    [Throws=ZkSignerError]
+    TxLayer1Signature eth_signature(EthSigner eth_signer);
 };
 
 interface ForcedExit {

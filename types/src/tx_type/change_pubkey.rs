@@ -1,3 +1,6 @@
+use std::ops::Deref;
+#[cfg(feature = "ffi")]
+use std::sync::Arc;
 use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::params::{SIGNED_CHANGE_PUBKEY_BIT_WIDTH, TX_TYPE_BIT_WIDTH};
 use crate::basic_types::{
@@ -5,22 +8,23 @@ use crate::basic_types::{
 };
 use crate::tx_builder::ChangePubKeyBuilder;
 use crate::tx_type::validator::*;
-use crate::tx_type::{format_units, TxTrait, ZkSignatureTrait};
+use crate::tx_type::{TxTrait, ZkSignatureTrait};
 use ethers::utils::keccak256;
-use num::{BigUint, Zero};
+use num::BigUint;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_sdk_signers::eth_signer::eip712::eip712::{EIP712Domain, TypedData};
 use zklink_sdk_signers::eth_signer::eip712::{BytesM, Uint};
 use zklink_sdk_signers::eth_signer::error::EthSignerError;
 use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
-use zklink_sdk_signers::eth_signer::EthTypedData;
+use zklink_sdk_signers::eth_signer::{EthSigner, EthTypedData};
 use zklink_sdk_signers::eth_signer::H256;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
+use crate::signatures::TxLayer1Signature;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -220,26 +224,41 @@ impl ChangePubKey {
     /// Get part of the message that should be signed with Ethereum account key for the batch of transactions.
     /// The message for single `ChangePubKey` transaction is defined differently. The pattern is:
     ///
-    /// Set signing key: {pubKeyHash}
-    /// [Fee: {fee} {token}]
+    /// "ChangePubKey\nPubKeyHash: {PubKeyHash}\nNonce: {Nonce}\nAccountId: {AccountId}"
     ///
-    /// Note that the second line is optional.
-    pub fn get_eth_sign_msg_part(&self, token_symbol: &str, decimals: u8) -> String {
-        let mut message = format!(
-            "Set signing key: {}",
-            hex::encode(self.new_pk_hash.data).to_ascii_lowercase()
-        );
-        if !self.fee.is_zero() {
-            message.push_str(
-                format!(
-                    "\nFee: {fee} {token}",
-                    fee = format_units(&self.fee, decimals),
-                    token = token_symbol,
-                )
-                .as_str(),
-            );
-        }
-        message
+    /// for example:
+    /// ChangePubKey
+    /// PubKeyHash: 0x823b747710c5bc9b8a47243f2c3d1805f1aa00c5
+    /// Nonce: 3
+    /// AccountId: 2
+    ///
+    #[inline]
+    pub fn get_eth_sign_msg(&self) -> String {
+        format!("ChangePubKey\nPubKeyHash: {}\nNonce: {:?}\nAccountId: {:?}", self.new_pk_hash.as_hex(), self.nonce.deref(), self.account_id.deref())
+    }
+
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn eth_signature(
+        &self,
+        eth_signer: &EthSigner,
+    ) -> Result<TxLayer1Signature, ZkSignerError> {
+        let message = self.get_eth_sign_msg();
+        println!("{message}");
+        let eth_signature = eth_signer.sign_message(message.as_bytes())?;
+        let tx_eth_signature = TxLayer1Signature::EthereumSignature(eth_signature);
+        Ok(tx_eth_signature)
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn eth_signature(
+        &self,
+        eth_signer: Arc<EthSigner>,
+    ) -> Result<TxLayer1Signature, ZkSignerError> {
+        let message = self.get_eth_sign_msg();
+        let eth_signature = eth_signer.sign_message(message.as_bytes())?;
+        let tx_eth_signature = TxLayer1Signature::EthereumSignature(eth_signature);
+        Ok(tx_eth_signature)
     }
 
     pub fn to_eip712_request_payload(
@@ -313,7 +332,28 @@ mod test {
             6, 1, 0, 0, 0, 1, 1, 216, 213, 251, 106, 108, 174, 240, 106, 163, 220, 42, 189, 205,
             194, 64, 152, 126, 83, 48, 254, 0, 18, 12, 128, 0, 0, 0, 1, 100, 240, 85, 232,
         ];
-
         assert_eq!(bytes, expected_bytes);
+    }
+
+    #[test]
+    fn test_change_pubkey_eth_sign() {
+        let builder = ChangePubKeyBuilder {
+            chain_id: 1.into(),
+            account_id: 2.into(),
+            sub_account_id: 1.into(),
+            new_pubkey_hash: PubKeyHash::from_hex("0xdbd9c8235e4fc9d5b9b7bb201f1133e8a28c0edd").unwrap(),
+            fee_token: TokenId(1),
+            fee: BigUint::from(1u32),
+            nonce: Nonce(0),
+            eth_signature: None,
+            timestamp: Default::default(),
+        };
+        let tx = ChangePubKey::new(builder);
+        let key: H256 = [5; 32].into();
+        let signer = EthSigner::from(key);
+        let eth_signature = tx.eth_signature(&signer).unwrap();
+        if let TxLayer1Signature::EthereumSignature(s) = eth_signature {
+            assert_eq!(s.as_hex(), "0xefd0d9c6beb00310535bb51ee58745adb547e7d875d5823892365a6450caf6c559a6a4bfd83bf336ac59cf83e97948dbf607bf2aecd24f6829c3deac20ecdb601b");
+        }
     }
 }
