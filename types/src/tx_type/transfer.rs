@@ -115,8 +115,8 @@ impl Transfer {
         eth_signer: &EthSigner,
         token_symbol: &str,
     ) -> Result<TxLayer1Signature, ZkSignerError> {
-        let message = self.get_eth_sign_msg(token_symbol).as_bytes().to_vec();
-        let eth_signature = eth_signer.sign_message(&message)?;
+        let message = self.get_eth_sign_msg(token_symbol);
+        let eth_signature = eth_signer.sign_message(message.as_bytes())?;
         let tx_eth_signature = TxLayer1Signature::EthereumSignature(eth_signature);
         Ok(tx_eth_signature)
     }
