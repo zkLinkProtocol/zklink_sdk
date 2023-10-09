@@ -1,5 +1,6 @@
 use jsonrpsee::core::error::Error as jsonrpseeError;
 use thiserror::Error;
+use wasm_bindgen::JsValue;
 
 #[derive(Debug, Error)]
 pub enum RpcError {
@@ -15,4 +16,11 @@ pub enum RpcError {
     ResponseError(reqwest::Error),
     #[error("Parse json value error")]
     ParseJsonError,
+}
+
+
+impl From<RpcError> for JsValue {
+    fn from(error: RpcError) -> Self {
+        JsValue::from_str(&format!("error: {error}"))
+    }
 }

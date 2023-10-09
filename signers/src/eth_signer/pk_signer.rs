@@ -7,7 +7,9 @@ use ethers::types::transaction::eip2718::TypedTransaction;
 use ethers::types::TxHash;
 use ethers::utils::hash_message;
 use k256::ecdsa::SigningKey;
+use wasm_bindgen::prelude::wasm_bindgen;
 
+#[wasm_bindgen]
 #[derive(Clone)]
 pub struct EthSigner {
     private_key: H256,

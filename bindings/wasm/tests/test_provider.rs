@@ -12,8 +12,8 @@ use zklink_sdk_types::tx_builder::ChangePubKeyBuilder;
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
-use zklink_sdk_wasm::provider::Provider;
-use zklink_sdk_wasm::rpc::{AccountQueryParam, AccountQueryType, SignedTransaction};
+use zklink_sdk_wasm::rpc_client::{Provider, RpcClient};
+use zklink_sdk_wasm::rpc_type_converter::{AccountQueryParam, AccountQueryType, SignedTransaction};
 
 wasm_bindgen_test_configure!(run_in_worker);
 #[wasm_bindgen_test]
@@ -44,7 +44,7 @@ async fn test_account_query() {
 #[wasm_bindgen_test]
 async fn test_send_change_pubkey() {
     web_sys::console::log_1(&JsValue::from_str("123"));
-    let provider = Provider::new("testnet");
+    let client = RpcClient::new("testnet");
     let private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
     let eth_signer = EthSigner::try_from(private_key).unwrap();
     let zklink_signer = ZkLinkSigner::new_from_hex_eth_signer(private_key).unwrap();
@@ -89,7 +89,7 @@ async fn test_send_change_pubkey() {
     tx.sign(&zklink_signer).unwrap();
     let submitter_signature = tx.signature.as_hex();
     //send to zklink
-    let ret = provider
+    let ret = client
         .send_transaction(
             SignedTransaction::new(
                 ChangePubKey::TX_TYPE,

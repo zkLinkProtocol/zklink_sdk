@@ -9,7 +9,7 @@ use zklink_sdk_types::prelude::ZkLinkAddress;
 use zklink_sdk_types::signatures::TxLayer1Signature;
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey;
 use zklink_sdk_types::tx_type::transfer::Transfer;
-use zklink_sdk_types::tx_type::zklink_tx::{ZkLinkTx, ZkLinkTxType};
+use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
@@ -42,17 +42,6 @@ pub struct TxL1Signature {
 pub struct SignedTransaction {
     tx_type: u8,
     tx: JsValue,
-}
-
-#[wasm_bindgen]
-pub enum L2TxType {
-    Deposit,
-    FullExit,
-    ChangePubKey,
-    Transfer,
-    Withdraw,
-    ForcedExit,
-    OrderMatching,
 }
 
 #[wasm_bindgen]
@@ -128,20 +117,6 @@ impl From<SignedTransaction> for ZkLinkTx {
             _ => {
                 panic!("Not support tx type!")
             }
-        }
-    }
-}
-
-impl From<L2TxType> for ZkLinkTxType {
-    fn from(tx_type: L2TxType) -> ZkLinkTxType {
-        match tx_type {
-            L2TxType::Deposit => ZkLinkTxType::Deposit,
-            L2TxType::Transfer => ZkLinkTxType::Transfer,
-            L2TxType::ChangePubKey => ZkLinkTxType::ChangePubKey,
-            L2TxType::OrderMatching => ZkLinkTxType::OrderMatching,
-            L2TxType::FullExit => ZkLinkTxType::FullExit,
-            L2TxType::ForcedExit => ZkLinkTxType::ForcedExit,
-            L2TxType::Withdraw => ZkLinkTxType::Withdraw,
         }
     }
 }

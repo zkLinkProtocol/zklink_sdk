@@ -4,8 +4,6 @@ pub mod response;
 #[cfg(not(feature = "ffi"))]
 #[cfg(not(target_arch = "wasm32"))]
 pub mod rpc;
-#[cfg(target_arch = "wasm32")]
-pub mod rpc_wasm;
 
 #[cfg(not(feature = "ffi"))]
 #[cfg(not(target_arch = "wasm32"))]
