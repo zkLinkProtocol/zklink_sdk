@@ -73,6 +73,7 @@ func TestSignForcedExit(t *testing.T) {
         sdk.TokenId(18),
         sdk.Nonce(1),
         *big.NewInt(100000),
+        true,
         sdk.TimeStamp(1693472232),
     }
     tx := sdk.NewForcedExit(builder)
@@ -238,6 +239,7 @@ func TestSignWithdraw(t *testing.T) {
         sdk.Nonce(1),
         false,
         50,
+        true,
         sdk.TimeStamp(1693472232),
     }
     tx := sdk.NewWithdraw(builder)
