@@ -40,7 +40,7 @@ BINDINGS_DIR_EXAMPLE:=${ROOT_DIR}/examples/Golang/generated
 LD_LIBRARY_PATH := ${LD_LIBRARY_PATH}:${LIB_DIR}
 BINDINGS_DIR?="${ROOT_DIR}/binding_tests/generated"
 UNIFFI_VERSION=0.23.0
-UNIFFI_BINDGEN_GO_VERSION=v0.1.3+v${UNIFFI_VERSION}
+UNIFFI_BINDGEN_GO_VERSION=v0.1.5+v${UNIFFI_VERSION}
 
 prepare_ffi:
 	@if [[ `uniffi-bindgen-go -V | grep 'v.${UNIFFI_VERSION}'` ]]; then \
@@ -59,14 +59,14 @@ prepare_wasm:
 	fi
 
 build_binding_files: prepare_ffi
-	rm -rf ${BINDINGS_DIR}
+	rm -rf ${BINDINGS_DIR} ${BINDINGS_DIR_EXAMPLE}
 	uniffi-bindgen-go ${ROOT_DIR}/bindings/sdk/src/ffi.udl --out-dir ${BINDINGS_DIR} --config=${ROOT_DIR}/bindings/sdk/ffi_golang.toml
 	uniffi-bindgen-go ${ROOT_DIR}/bindings/sdk/src/ffi.udl --out-dir ${BINDINGS_DIR_EXAMPLE} --config=${ROOT_DIR}/bindings/sdk/ffi_golang.toml
 
 build_binding_lib:
 	cargo build --package bindings_sdk --release
 
-test_go: build_binding_lib build_binding_files
+test_go: build_binding_files build_binding_lib
 	cd ${ROOT_DIR}/binding_tests && \
 	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} \
 	CGO_LDFLAGS="-lzklink_sdk -L${LIB_DIR} -lm -ldl" \

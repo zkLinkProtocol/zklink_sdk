@@ -1,0 +1,107 @@
+name: ci
+
+on:
+  pull_request:
+    branches:
+      - main
+      - v*
+  push:
+    branches:
+      - main
+      - v*
+
+jobs:
+  fmt:
+    name: cargo fmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          components: rustfmt
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+
+  # sort the dependencies in Cargo.toml
+  cargo_sort:
+    name: cargo sort
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: baptiste0928/cargo-install@v2
+        with:
+          crate: cargo-sort
+          version: latest
+      - run: cargo sort -c
+
+  # check cargo.toml format
+  taplo_fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: baptiste0928/cargo-install@v2
+        with:
+          crate: taplo-cli
+          version: latest
+      - run: taplo check
+
+  # check unused dependency
+  cargo_machete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: baptiste0928/cargo-install@v2
+        with:
+          crate: cargo-machete
+          version: latest
+      - run: cargo-machete
+
+  clippy_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: rustup component add clippy
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all --all-features -- -D warnings
+
+  build:
+    name: cargo build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+
+  go_binding:
+    name: go binding build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: baptiste0928/cargo-install@v2
+        with:
+          crate: uniffi-bindgen-go
+          git: https://github.com/NordSecurity/uniffi-bindgen-go
+          tag: "v0.1.5+v0.23.0"
+          cache-key: "uniffi-bindgen-go@v0.1.5+v0.23.0"
+      - uses: actions/setup-go@v4
+        with:
+          go-version: 1.21
+      - run: make test_go
+
+  test:
+    name: cargo test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all
