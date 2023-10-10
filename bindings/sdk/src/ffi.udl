@@ -95,6 +95,7 @@ dictionary WithdrawBuilder {
     Nonce nonce;
     boolean fast_withdraw;
     u16 withdraw_fee_ratio;
+    boolean withdraw_to_l1;
     TimeStamp timestamp;
 };
 
@@ -108,6 +109,7 @@ dictionary ForcedExitBuilder {
     TokenId l1_target_token;
     Nonce initiator_nonce;
     BigUint exit_amount;
+    boolean withdraw_to_l1;
     TimeStamp timestamp;
 };
 
