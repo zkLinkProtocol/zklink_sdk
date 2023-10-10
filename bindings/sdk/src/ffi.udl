@@ -43,8 +43,6 @@ typedef string ZkLinkAddress;
 typedef string TxHash;
 [Custom]
 typedef string TxLayer1Signature;
-[Custom]
-typedef string ZkLinkSignature;
 
 // ============================ tx builder  ============================
 dictionary ChangePubKeyBuilder {
@@ -311,6 +309,12 @@ typedef string PackedPublicKey;
 typedef string PackedSignature;
 [Custom]
 typedef string PubKeyHash;
+
+dictionary ZkLinkSignature {
+    PackedPublicKey pub_key;
+    PackedSignature signature;
+};
+
 
 interface ZkLinkSigner {
     [Throws=ZkSignerError]
