@@ -54,6 +54,9 @@ pub struct ForcedExit {
     #[serde(with = "BigUintSerdeAsRadix10Str")]
     #[validate(custom = "amount_unpackable")]
     pub exit_amount: BigUint,
+    /// whether withdraw to layer1.
+    #[validate(custom = "boolean_validator")]
+    pub withdraw_to_l1: u8,
     /// Transaction zkLink signature.
     #[serde(default)]
     pub signature: ZkLinkSignature,
@@ -80,6 +83,7 @@ impl ForcedExit {
             signature: ZkLinkSignature::default(),
             ts: builder.timestamp,
             exit_amount: builder.exit_amount,
+            withdraw_to_l1: u8::from(builder.withdraw_to_l1),
         }
     }
 
@@ -105,6 +109,7 @@ impl TxTrait for ForcedExit {
         out.extend_from_slice(&(*self.l1_target_token as u16).to_be_bytes());
         out.extend_from_slice(&self.initiator_nonce.to_be_bytes());
         out.extend_from_slice(&self.exit_amount.to_u128().unwrap().to_be_bytes());
+        out.push(self.withdraw_to_l1);
         out.extend_from_slice(&self.ts.to_be_bytes());
         assert_eq!(out.len() * TX_TYPE_BIT_WIDTH, SIGNED_FORCED_EXIT_BIT_WIDTH);
         out
@@ -147,15 +152,15 @@ mod test {
             l1_target_token: TokenId(18),
             initiator_nonce: Nonce(1),
             exit_amount: BigUint::from(10000u32),
+            withdraw_to_l1: false,
             timestamp: ts.into(),
         };
         let forced_exit = ForcedExit::new(builder);
         let bytes = forced_exit.get_bytes();
-        println!("{:?}", bytes);
         let excepted_bytes = [
             7, 1, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4,
             37, 215, 146, 67, 45, 158, 205, 28, 62, 38, 239, 44, 66, 233, 1, 0, 18, 0, 18, 0, 0, 0,
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 39, 16, 100, 240, 85, 232,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 39, 16, 0, 100, 240, 85, 232,
         ];
 
         assert_eq!(bytes, excepted_bytes);

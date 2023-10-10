@@ -49,6 +49,7 @@ mod tests {
             l1_target_token: TokenId(17),
             initiator_nonce: Nonce(85),
             exit_amount: BigUint::from_str("4100000000000000").unwrap(),
+            withdraw_to_l1: false,
             timestamp: TimeStamp(1649749979),
         };
         let tx = ForcedExit::new(builder);
@@ -57,7 +58,7 @@ mod tests {
         assert!(signature.eth_signature.is_none());
 
         if let ZkLinkTx::ForcedExit(zk_sign) = signature.tx {
-            assert_eq!(zk_sign.signature.signature.as_hex(), "0xda738109b1864b162eba33a3e8a1a9c142dcadfd5d11c0fda37f6a4b0e12cea70f15e605b5f90c655b5a5b0e4e367f62d30d3d70157047db21dd2c70d482d302");
+            assert_eq!(zk_sign.signature.signature.as_hex(), "0xff9ee61170cc7ebb16b1061f7434cf82e74cc37d809a16cfc6b7dd6554e5ef8538e76e847b434c10cbd21e09522f642735edc8f76c009901aca1b1672cd0ce03");
         } else {
             panic!("must be forcedExit")
         }

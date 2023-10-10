@@ -57,6 +57,7 @@ mod tests {
             fee: BigUint::from_str("4100000000000000").unwrap(),
             nonce: Nonce(85),
             fast_withdraw: true,
+            withdraw_to_l1: false,
             withdraw_fee_ratio: 50,
             timestamp: TimeStamp(1649749979),
         };
@@ -71,7 +72,7 @@ mod tests {
         assert_eq!(eth_sign.as_hex(), "0x2499120b362bd835b456f2a8e3e6c4ccef6d0ebbe76fd64d452d5bba600ad574713d6b6af043a8f070c532d1ba879c712235bf8e9af6291aa8bdfb1cbaaa4dc21b");
 
         if let ZkLinkTx::Withdraw(zk_sign) = signature.tx {
-            assert_eq!(zk_sign.signature.signature.as_hex(), "0x6d782453d4cda0eacda13b53fa5471942ad75ea5010e086df845886ba5407bac82f3c7c04ba58045f7115df52d091a232701c8613d5a8fe31fdbee1846d87f00");
+            assert_eq!(zk_sign.signature.signature.as_hex(), "0x33e8a0e869305f7897593a65a4078e422e3b781b0f36157840e9c2c390891800512963f239ada0a13cf217da130d822f73af7149c9c132c07e3c5ba1af1d0406");
         } else {
             panic!("signature type must be withdraw")
         }
