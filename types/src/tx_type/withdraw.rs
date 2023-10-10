@@ -61,9 +61,6 @@ pub struct Withdraw {
     /// Fast withdraw or normal withdraw
     #[validate(custom = "boolean_validator")]
     pub fast_withdraw: u8,
-    /// whether withdraw to layer1.
-    #[validate(custom = "boolean_validator")]
-    pub withdraw_to_l1: u8,
     /// Amount of funds to withdraw.
     #[validate(custom = "withdraw_fee_ratio_validator")]
     pub withdraw_fee_ratio: u16,
@@ -78,7 +75,6 @@ impl Withdraw {
     /// in some cases (e.g. when restoring the network state from the L1 contract data).
     pub fn new(builder: WithdrawBuilder) -> Self {
         let fast_withdraw = u8::from(builder.fast_withdraw);
-        let withdraw_to_l1 = u8::from(builder.withdraw_to_l1);
 
         Self {
             to_chain_id: builder.to_chain_id,
@@ -92,7 +88,6 @@ impl Withdraw {
             nonce: builder.nonce,
             signature: ZkLinkSignature::default(),
             fast_withdraw,
-            withdraw_to_l1,
             withdraw_fee_ratio: builder.withdraw_fee_ratio,
             ts: builder.timestamp,
         }
@@ -166,8 +161,7 @@ impl TxTrait for Withdraw {
         out.extend_from_slice(&self.amount.to_u128().unwrap().to_be_bytes());
         out.extend_from_slice(&pack_fee_amount(&self.fee));
         out.extend_from_slice(&self.nonce.to_be_bytes());
-        out.push(self.fast_withdraw);
-        out.push(self.withdraw_to_l1);
+        out.extend_from_slice(&self.fast_withdraw.to_be_bytes());
         out.extend_from_slice(&self.withdraw_fee_ratio.to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
         assert_eq!(out.len() * TX_TYPE_BIT_WIDTH, SIGNED_WITHDRAW_BIT_WIDTH);
@@ -212,7 +206,6 @@ mod test {
             fee: BigUint::from(3u32),
             nonce: Nonce(1),
             fast_withdraw: false,
-            withdraw_to_l1: false,
             withdraw_fee_ratio: 0,
             timestamp: ts.into(),
         };
@@ -221,7 +214,7 @@ mod test {
         let excepted_bytes = [
             3, 1, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4,
             37, 215, 146, 67, 45, 158, 205, 28, 62, 38, 239, 44, 66, 233, 0, 18, 0, 18, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 39, 16, 0, 96, 0, 0, 0, 1, 0, 0, 0, 0, 100, 240, 85, 232,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 39, 16, 0, 96, 0, 0, 0, 1, 0, 0, 0, 100, 240, 85, 232,
         ];
 
         assert_eq!(bytes, excepted_bytes);

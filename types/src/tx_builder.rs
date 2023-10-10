@@ -57,7 +57,6 @@ pub struct WithdrawBuilder {
     pub fee: BigUint,
     pub nonce: Nonce,
     pub fast_withdraw: bool,
-    pub withdraw_to_l1: bool,
     pub withdraw_fee_ratio: u16,
     pub timestamp: TimeStamp,
 }
@@ -72,7 +71,6 @@ pub struct ForcedExitBuilder {
     pub l1_target_token: TokenId,
     pub initiator_nonce: Nonce,
     pub exit_amount: BigUint,
-    pub withdraw_to_l1: bool,
     pub timestamp: TimeStamp,
 }
 
