@@ -89,6 +89,7 @@ pub const SIGNED_WITHDRAW_BIT_WIDTH: usize = TX_TYPE_BIT_WIDTH
     + 2 * FEE_MANTISSA_BIT_WIDTH
     + NONCE_BIT_WIDTH
     + 8 // fast withdraw
+    + 8 // withdraw to l1
     + SIMP_TIMESTAMP_BIT_WIDTH;
 
 /// Size of the data that is signed for transfer tx
@@ -113,6 +114,7 @@ pub const SIGNED_FORCED_EXIT_BIT_WIDTH: usize = TX_TYPE_BIT_WIDTH
     + 2 * TOKEN_BIT_WIDTH
     + NONCE_BIT_WIDTH
     + BALANCE_BIT_WIDTH
+    + 8 // withdraw to l1
     + SIMP_TIMESTAMP_BIT_WIDTH;
 
 /// Size of the data that is signed for change pubkey tx
