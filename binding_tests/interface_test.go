@@ -144,6 +144,7 @@ func TestSignOrderMatching(t *testing.T) {
         true,
         2,
         5,
+        nil,
     )
     taker, err = sdk.CreateSignedOrder(
         zklink_signer,
@@ -165,6 +166,7 @@ func TestSignOrderMatching(t *testing.T) {
          false,
          2,
          5,
+         nil,
     )
     maker, err = sdk.CreateSignedOrder(
         zklink_signer,

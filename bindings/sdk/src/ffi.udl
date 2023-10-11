@@ -240,7 +240,8 @@ interface Order {
         BigUint price,
         boolean is_sell,
         u8 fee_ratio1,
-        u8 fee_ratio2
+        u8 fee_ratio2,
+        ZkLinkSignature ?signature
     );
     ZkLinkSignature signature();
     sequence<u8> get_bytes();
