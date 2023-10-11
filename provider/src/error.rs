@@ -18,7 +18,6 @@ pub enum RpcError {
     ParseJsonError,
 }
 
-
 impl From<RpcError> for JsValue {
     fn from(error: RpcError) -> Self {
         JsValue::from_str(&format!("error: {error}"))

@@ -1,10 +1,9 @@
-use crate::crypto::ZklinkSigner;
 use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::{AccountId, BigUint, TokenId, ZkLinkAddress};
 use zklink_sdk_types::prelude::{Nonce, SubAccountId, TimeStamp, ZkLinkSignature};
-use zklink_sdk_types::tx_builder::TransferBuilder;
+use zklink_sdk_types::tx_builder::TransferBuilder as TxTransferBuilder;
 use zklink_sdk_types::tx_type::transfer::Transfer as TransferTx;
 use zklink_sdk_types::tx_type::TxTrait;
 
@@ -15,6 +14,18 @@ pub struct Transfer {
 
 #[wasm_bindgen]
 impl Transfer {
+    pub fn get_inner_tx(&self) -> Result<JsValue, JsValue> {
+        Ok(serde_wasm_bindgen::to_value(&self.inner)?)
+    }
+}
+
+#[wasm_bindgen]
+pub struct TransferBuilder {
+    inner: TxTransferBuilder,
+}
+
+#[wasm_bindgen]
+impl TransferBuilder {
     #[wasm_bindgen(constructor)]
     pub fn new(
         account_id: u32,
@@ -26,53 +37,30 @@ impl Transfer {
         amount: String,
         nonce: u32,
         ts: u32,
-    ) -> Result<Transfer, JsValue> {
-        let transfer_builder = TransferBuilder {
-            account_id: AccountId(account_id),
-            to_address: ZkLinkAddress::from_str(&to_address).unwrap(),
-            from_sub_account_id: SubAccountId(from_sub_account_id),
-            to_sub_account_id: SubAccountId(to_sub_account_id),
-            token: TokenId(token),
+    ) -> Result<TransferBuilder, JsValue> {
+        let inner = TxTransferBuilder {
+            account_id: account_id.into(),
+            to_address: ZkLinkAddress::from_hex(&to_address)?,
+            from_sub_account_id: from_sub_account_id.into(),
+            to_sub_account_id: to_sub_account_id.into(),
+            token: token.into(),
             fee: BigUint::from_str(&fee).unwrap(),
-            nonce: Nonce(nonce),
-            timestamp: TimeStamp(ts),
+            nonce: nonce.into(),
+            timestamp: ts.into(),
             amount: BigUint::from_str(&amount).unwrap(),
         };
-        Ok(Transfer {
-            inner: TransferTx::new(transfer_builder),
-        })
+        Ok(TransferBuilder { inner })
     }
 
     #[wasm_bindgen]
-    pub fn sign(&mut self, signer: &mut ZklinkSigner) -> Result<String, JsValue> {
-        let msg = self.inner.get_bytes();
-        Ok(signer.sign(&msg)?)
+    pub fn build_transfer(self) -> Transfer {
+        Transfer {
+            inner: TransferTx::new(self.inner),
+        }
     }
+}
 
-    #[wasm_bindgen(js_name = getEthSignMessage)]
-    pub fn get_eth_sign_message(&self, token_symbol: String) -> String {
-        self.inner.get_eth_sign_msg(&token_symbol)
-    }
-
-    #[wasm_bindgen(js_name=getTxType)]
-    pub fn get_tx_type(&self) -> u8 {
-        TransferTx::TX_TYPE
-    }
-
-    #[wasm_bindgen(js_name=getTx)]
-    pub fn get_tx(&mut self) -> JsValue {
-        serde_wasm_bindgen::to_value(&self.inner).unwrap()
-    }
-
-    #[wasm_bindgen(js_name = setL2Signature)]
-    pub fn set_zklink_signature(&mut self, signature: String) -> Result<(), JsValue> {
-        self.inner.signature = ZkLinkSignature::from_hex(&signature)?;
-        Ok(())
-    }
-
-    #[wasm_bindgen(js_name = submitterSign)]
-    pub fn submitter_sign(&mut self, signer: &mut ZklinkSigner) -> Result<String, JsValue> {
-        let tx_hash = self.inner.tx_hash();
-        Ok(signer.sign(&tx_hash)?)
-    }
+#[wasm_bindgen(js_name=newTransfer)]
+pub fn new_transfer(builder: TransferBuilder) -> Transfer {
+    builder.build_transfer()
 }
