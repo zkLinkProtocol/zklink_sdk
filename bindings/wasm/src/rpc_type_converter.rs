@@ -1,15 +1,15 @@
 use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
-use zklink_sdk_provider::response::AccountQuery;
+use zklink_sdk_provider::response::AccountQuery as RpcAccountQuery;
 use zklink_sdk_signers::eth_signer::{EIP1271Signature, PackedEthSignature};
 use zklink_sdk_signers::starknet_signer::StarkECDSASignature;
 use zklink_sdk_types::basic_types::AccountId;
 use zklink_sdk_types::prelude::ZkLinkAddress;
-use zklink_sdk_types::signatures::TxLayer1Signature;
+use zklink_sdk_types::signatures::TxLayer1Signature as TypesTxLayer1Signature;
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey;
 use zklink_sdk_types::tx_type::transfer::Transfer;
-use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
+use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx as TypesZkLinkTx;
 
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
@@ -27,68 +27,68 @@ pub enum L1SignatureType {
 }
 
 #[wasm_bindgen]
-pub struct AccountQueryParam {
+pub struct AccountQuery {
     query_type: AccountQueryType,
     query_param: String,
 }
 
 #[wasm_bindgen]
-pub struct TxL1Signature {
+pub struct TxLayer1Signature {
     sign_type: L1SignatureType,
     signature: String,
 }
 
 #[wasm_bindgen]
-pub struct SignedTransaction {
+pub struct ZkLinkTx {
     tx_type: u8,
     tx: JsValue,
 }
 
 #[wasm_bindgen]
-impl AccountQueryParam {
+impl AccountQuery {
     #[wasm_bindgen(constructor)]
-    pub fn new(query_type: AccountQueryType, query_param: String) -> AccountQueryParam {
-        AccountQueryParam {
+    pub fn new(query_type: AccountQueryType, query_param: String) -> AccountQuery {
+        AccountQuery {
             query_type,
             query_param,
         }
     }
 }
 
-impl From<AccountQueryParam> for AccountQuery {
-    fn from(query: AccountQueryParam) -> AccountQuery {
+impl From<AccountQuery> for RpcAccountQuery {
+    fn from(query: AccountQuery) -> RpcAccountQuery {
         match query.query_type {
             AccountQueryType::AccountId => {
-                AccountQuery::Id(AccountId(query.query_param.parse::<u32>().unwrap()))
+                RpcAccountQuery::Id(AccountId(query.query_param.parse::<u32>().unwrap()))
             }
             AccountQueryType::Address => {
-                AccountQuery::Address(ZkLinkAddress::from_str(&query.query_param).unwrap())
+                RpcAccountQuery::Address(ZkLinkAddress::from_str(&query.query_param).unwrap())
             }
         }
     }
 }
 
 #[wasm_bindgen]
-impl TxL1Signature {
+impl TxLayer1Signature {
     #[wasm_bindgen]
-    pub fn new(sign_type: L1SignatureType, signature: String) -> TxL1Signature {
-        TxL1Signature {
+    pub fn new(sign_type: L1SignatureType, signature: String) -> TxLayer1Signature {
+        TxLayer1Signature {
             sign_type,
             signature,
         }
     }
 }
 
-impl From<TxL1Signature> for TxLayer1Signature {
-    fn from(signature: TxL1Signature) -> TxLayer1Signature {
+impl From<TxLayer1Signature> for TypesTxLayer1Signature {
+    fn from(signature: TxLayer1Signature) -> TypesTxLayer1Signature {
         match signature.sign_type {
-            L1SignatureType::Eth => TxLayer1Signature::EthereumSignature(
+            L1SignatureType::Eth => TypesTxLayer1Signature::EthereumSignature(
                 PackedEthSignature::from_hex(&signature.signature).unwrap(),
             ),
-            L1SignatureType::Eip1271 => TxLayer1Signature::EIP1271Signature(EIP1271Signature(
+            L1SignatureType::Eip1271 => TypesTxLayer1Signature::EIP1271Signature(EIP1271Signature(
                 hex::decode(signature.signature).unwrap(),
             )),
-            L1SignatureType::Stark => TxLayer1Signature::StarkSignature(StarkECDSASignature(
+            L1SignatureType::Stark => TypesTxLayer1Signature::StarkSignature(StarkECDSASignature(
                 hex::decode(signature.signature).unwrap(),
             )),
         }
@@ -96,23 +96,23 @@ impl From<TxL1Signature> for TxLayer1Signature {
 }
 
 #[wasm_bindgen]
-impl SignedTransaction {
+impl ZkLinkTx {
     #[wasm_bindgen(constructor)]
-    pub fn new(tx_type: u8, tx: JsValue) -> SignedTransaction {
-        SignedTransaction { tx_type, tx }
+    pub fn new(tx_type: u8, tx: JsValue) -> ZkLinkTx {
+        ZkLinkTx { tx_type, tx }
     }
 }
 
-impl From<SignedTransaction> for ZkLinkTx {
-    fn from(tx: SignedTransaction) -> ZkLinkTx {
+impl From<ZkLinkTx> for TypesZkLinkTx {
+    fn from(tx: ZkLinkTx) -> TypesZkLinkTx {
         match tx.tx_type {
             ChangePubKey::TX_TYPE => {
                 let change_pubkey: ChangePubKey = serde_wasm_bindgen::from_value(tx.tx).unwrap();
-                ZkLinkTx::ChangePubKey(Box::new(change_pubkey))
+                TypesZkLinkTx::ChangePubKey(Box::new(change_pubkey))
             }
             Transfer::TX_TYPE => {
                 let transfer: Transfer = serde_wasm_bindgen::from_value(tx.tx).unwrap();
-                ZkLinkTx::Transfer(Box::new(transfer))
+                TypesZkLinkTx::Transfer(Box::new(transfer))
             }
             _ => {
                 panic!("Not support tx type!")

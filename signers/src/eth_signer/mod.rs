@@ -3,8 +3,6 @@ pub mod eip712;
 pub mod error;
 pub mod packed_eth_signature;
 pub mod pk_signer;
-#[cfg(target_arch = "wasm32")]
-pub mod wasm_binding;
 
 pub use primitive_types::{H160, H256, U256};
 pub type Address = H160;

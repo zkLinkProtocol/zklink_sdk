@@ -3,14 +3,13 @@ use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
-use zklink_sdk_types::basic_types::{AccountId, BigUint, TokenId, ZkLinkAddress};
+use zklink_sdk_types::basic_types::{BigUint, ZkLinkAddress};
 use zklink_sdk_types::error::TypeError;
-use zklink_sdk_types::prelude::{ChainId, Nonce, SubAccountId, TimeStamp, ZkLinkSignature, H256};
+use zklink_sdk_types::prelude::H256;
 use zklink_sdk_types::tx_builder::ChangePubKeyBuilder as TxChangePubKeyBuilder;
 use zklink_sdk_types::tx_type::change_pubkey::{
     ChangePubKey as ChangePubkeyTx, Create2Data as ChangePubKeyCreate2Data,
 };
-use zklink_sdk_types::tx_type::TxTrait;
 
 #[wasm_bindgen]
 pub enum EthAuthType {
@@ -43,6 +42,12 @@ impl Create2Data {
         Ok(Create2Data {
             inner: create2_data,
         })
+    }
+
+    #[wasm_bindgen]
+    pub fn salt(&self, pubkey_hash: &str) -> String {
+        let salt_bytes = self.inner.salt(pubkey_hash.as_bytes());
+        hex::encode(salt_bytes)
     }
 
     pub fn get_inner_data(&self) -> Result<JsValue, JsValue> {
@@ -108,7 +113,7 @@ impl ChangePubKeyBuilder {
     }
 
     #[wasm_bindgen]
-    pub fn build_change_pubkey(self) -> ChangePubKey {
+    pub fn build(self) -> ChangePubKey {
         ChangePubKey {
             inner: ChangePubkeyTx::new(self.inner),
         }
@@ -117,5 +122,5 @@ impl ChangePubKeyBuilder {
 
 #[wasm_bindgen(js_name=newChangePubkey)]
 pub fn new_change_pubkey(builder: ChangePubKeyBuilder) -> ChangePubKey {
-    builder.build_change_pubkey()
+    builder.build()
 }

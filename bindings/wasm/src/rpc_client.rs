@@ -1,4 +1,4 @@
-use crate::rpc_type_converter::{AccountQueryParam, SignedTransaction, TxL1Signature};
+use crate::rpc_type_converter::{AccountQuery, TxLayer1Signature};
 use getrandom::getrandom;
 use jsonrpsee::core::params::ArrayParams;
 use jsonrpsee::core::traits::ToRpcParams;
@@ -11,16 +11,16 @@ use wasm_bindgen::JsValue;
 use zklink_sdk_provider::error::RpcError;
 use zklink_sdk_provider::network::Network;
 use zklink_sdk_provider::response::{
-    AccountInfoResp, AccountQuery, AccountSnapshotResp, BlockNumberResp, BlockOnChainResp,
-    BlockResp, ChainResp, FastWithdrawTxResp, ForwardTxResp, Page, SubAccountBalances,
-    SubAccountOrders, TokenResp, TxHashOrDetailResp, TxResp, ZkLinkTxHistory,
+    AccountInfoResp, AccountQuery as RpcAccountQuery, AccountSnapshotResp, BlockNumberResp,
+    BlockOnChainResp, BlockResp, ChainResp, FastWithdrawTxResp, ForwardTxResp, Page,
+    SubAccountBalances, SubAccountOrders, TokenResp, TxHashOrDetailResp, TxResp, ZkLinkTxHistory,
 };
 use zklink_sdk_signers::zklink_signer::ZkLinkSignature;
 use zklink_sdk_types::basic_types::bigunit_wrapper::BigUintSerdeWrapper;
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
 use zklink_sdk_types::basic_types::{AccountId, BlockNumber, ChainId, SubAccountId, TokenId};
 use zklink_sdk_types::prelude::ZkLinkAddress;
-use zklink_sdk_types::signatures::TxLayer1Signature;
+use zklink_sdk_types::signatures::TxLayer1Signature as TypesTxLayer1Signature;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTxType;
 
@@ -90,12 +90,12 @@ impl RpcClient {
     #[wasm_bindgen(js_name=getAccountSnapshot)]
     pub async fn account_query(
         &self,
-        account_query: AccountQueryParam,
+        account_query: AccountQuery,
         sub_account_id: Option<u8>,
         block_number: Option<u32>,
     ) -> Result<JsValue, JsValue> {
         let mut builder = ArrayParams::new();
-        let _ = builder.insert(AccountQuery::from(account_query));
+        let _ = builder.insert(RpcAccountQuery::from(account_query));
         let _ = builder.insert(sub_account_id.map(|id| SubAccountId(id)));
         let _ = builder.insert(block_number.map(|number| BlockNumber(number)));
         rpc_request!(
@@ -110,13 +110,13 @@ impl RpcClient {
     pub async fn send_transaction(
         &self,
         tx: JsValue,
-        l1_signature: Option<TxL1Signature>,
+        l1_signature: Option<TxLayer1Signature>,
         l2_signature: Option<String>,
     ) -> Result<JsValue, JsValue> {
         let mut builder = ArrayParams::new();
         let zklink_tx: ZkLinkTx = serde_wasm_bindgen::from_value(tx)?;
         let _ = builder.insert(zklink_tx);
-        let _ = builder.insert(l1_signature.map(|t| TxLayer1Signature::from(t)));
+        let _ = builder.insert(l1_signature.map(|t| TypesTxLayer1Signature::from(t)));
         let _ = builder.insert(l2_signature.map(|s| ZkLinkSignature::from_hex(&s).unwrap()));
         rpc_request!("sendTransaction", builder, &self.server_url, TxHash)
     }
@@ -191,9 +191,9 @@ impl RpcClient {
     }
 
     #[wasm_bindgen(js_name=getAccount)]
-    pub async fn account_info(&self, account_query: AccountQueryParam) -> Result<JsValue, JsValue> {
+    pub async fn account_info(&self, account_query: AccountQuery) -> Result<JsValue, JsValue> {
         let mut builder = ArrayParams::new();
-        let _ = builder.insert(AccountQuery::from(account_query));
+        let _ = builder.insert(RpcAccountQuery::from(account_query));
         rpc_request!("getAccount", builder, &self.server_url, AccountInfoResp)
     }
 

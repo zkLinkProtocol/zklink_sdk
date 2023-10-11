@@ -5,6 +5,7 @@ use crate::sign_transfer::sign_transfer;
 use crate::sign_withdraw::sign_withdraw;
 use zklink_sdk_types::prelude::TxSignature;
 
+use crate::sign_change_pubkey::check_create2data;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
 use zklink_sdk_signers::eth_signer::error::EthSignerError;
@@ -40,7 +41,9 @@ impl Signer {
         &self,
         mut tx: ChangePubKey,
         create2data: Create2Data,
+        from_account: ZkLinkAddress,
     ) -> Result<TxSignature, SignError> {
+        check_create2data(&self.zklink_signer, create2data.clone(), from_account)?;
         tx.sign(&self.zklink_signer)?;
         let should_valid = tx.is_signature_valid();
         assert!(should_valid);
@@ -59,9 +62,10 @@ impl Signer {
         &self,
         tx: Arc<ChangePubKey>,
         create2data: Create2Data,
+        from_account: ZkLinkAddress,
     ) -> Result<TxSignature, SignError> {
         let tx = (*tx).clone();
-        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data)
+        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data, from_account)
     }
 
     #[cfg(not(feature = "ffi"))]
@@ -70,8 +74,9 @@ impl Signer {
         &self,
         tx: ChangePubKey,
         create2data: Create2Data,
+        from_account: ZkLinkAddress,
     ) -> Result<TxSignature, SignError> {
-        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data)
+        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data, from_account)
     }
 
     #[cfg(feature = "ffi")]

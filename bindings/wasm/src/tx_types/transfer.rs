@@ -1,11 +1,9 @@
 use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
-use zklink_sdk_types::basic_types::{AccountId, BigUint, TokenId, ZkLinkAddress};
-use zklink_sdk_types::prelude::{Nonce, SubAccountId, TimeStamp, ZkLinkSignature};
+use zklink_sdk_types::basic_types::{BigUint, ZkLinkAddress};
 use zklink_sdk_types::tx_builder::TransferBuilder as TxTransferBuilder;
 use zklink_sdk_types::tx_type::transfer::Transfer as TransferTx;
-use zklink_sdk_types::tx_type::TxTrait;
 
 #[wasm_bindgen]
 pub struct Transfer {
@@ -53,7 +51,7 @@ impl TransferBuilder {
     }
 
     #[wasm_bindgen]
-    pub fn build_transfer(self) -> Transfer {
+    pub fn build(self) -> Transfer {
         Transfer {
             inner: TransferTx::new(self.inner),
         }
@@ -62,5 +60,5 @@ impl TransferBuilder {
 
 #[wasm_bindgen(js_name=newTransfer)]
 pub fn new_transfer(builder: TransferBuilder) -> Transfer {
-    builder.build_transfer()
+    builder.build()
 }

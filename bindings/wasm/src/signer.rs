@@ -1,11 +1,8 @@
 use crate::tx_types::change_pubkey::{ChangePubKey, Create2Data};
 use crate::tx_types::transfer::Transfer;
-use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_interface::signer::Signer as InterfaceSigner;
-use zklink_sdk_signers::eth_signer::EthSigner;
-use zklink_sdk_signers::zklink_signer::ZkLinkSigner;
 use zklink_sdk_types::basic_types::ZkLinkAddress;
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey as TxChangePubKey;
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data as ChangePubKeyCreate2Data;
@@ -48,14 +45,17 @@ impl Signer {
         &self,
         tx: ChangePubKey,
         create2_data: Create2Data,
+        from_account: String,
     ) -> Result<JsValue, JsValue> {
         let inner_tx = tx.get_inner_tx()?;
         let change_pubkey: TxChangePubKey = serde_wasm_bindgen::from_value(inner_tx)?;
         let inner_data = create2_data.get_inner_data()?;
         let create2_data: ChangePubKeyCreate2Data = serde_wasm_bindgen::from_value(inner_data)?;
-        let signature = self
-            .inner
-            .sign_change_pubkey_with_create2data_auth(change_pubkey, create2_data)?;
+        let signature = self.inner.sign_change_pubkey_with_create2data_auth(
+            change_pubkey,
+            create2_data,
+            ZkLinkAddress::from_hex(&from_account)?,
+        )?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
     }
 
