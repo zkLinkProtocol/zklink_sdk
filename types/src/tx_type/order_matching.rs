@@ -71,6 +71,7 @@ impl Order {
         is_sell: bool,
         fee_ratio1: u8,
         fee_ratio2: u8,
+        signature: Option<ZkLinkSignature>,
     ) -> Self {
         Self {
             account_id,
@@ -84,7 +85,7 @@ impl Order {
             is_sell: u8::from(is_sell),
             fee_ratio1,
             fee_ratio2,
-            signature: ZkLinkSignature::default(),
+            signature: signature.unwrap_or_default(),
         }
     }
 
