@@ -36,6 +36,7 @@ func HighLevelOrderMatching() {
         true,
         2,
         5,
+        nil,
     )
     taker, err = sdk.CreateSignedOrder(
         zklinkSigner,
@@ -54,6 +55,7 @@ func HighLevelOrderMatching() {
          false,
          2,
          5,
+         nil,
     )
     maker, err = sdk.CreateSignedOrder(
         zklinkSigner,
