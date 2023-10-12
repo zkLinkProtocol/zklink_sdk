@@ -91,6 +91,7 @@ mod test {
             true,
             5,
             3,
+            None,
         );
         let mut maker = maker_order.clone();
         maker.signature = zklink_signer.sign_musig(&maker_order.get_bytes()).unwrap();
@@ -106,6 +107,7 @@ mod test {
             false,
             5,
             3,
+            None,
         );
         let mut taker = taker_order.clone();
         taker.signature = zklink_signer.sign_musig(&taker_order.get_bytes()).unwrap();
