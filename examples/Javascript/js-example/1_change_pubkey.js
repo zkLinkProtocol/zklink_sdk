@@ -20,7 +20,7 @@ async function testEcdsaAuth() {
         let submitter_signature = signer.submitterSignature(tx_signature.tx);
         console.log(submitter_signature);
         //send to zklink
-        let rpc_client = new wasm.RpcClient("devnet");
+        let rpc_client = new wasm.RpcClient("testnet");
         let tx_hash = await rpc_client.sendTransaction(tx_signature.tx,null,submitter_signature);
         console.log(tx_hash);
 
@@ -65,4 +65,4 @@ async function testCreate2() {
 }
 
 await testEcdsaAuth();
-await testCreate2();
+// await testCreate2();

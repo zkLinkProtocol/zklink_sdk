@@ -14,8 +14,10 @@ pub enum RpcError {
     RequestError(reqwest::Error),
     #[error("Parse response error: {0}")]
     ResponseError(reqwest::Error),
-    #[error("Parse json value error")]
-    ParseJsonError,
+    #[error("Parse json value error: {0}")]
+    ParseJsonError(String),
+    #[error("Get error result: {0}")]
+    GetErrorResult(String),
 }
 
 impl From<RpcError> for JsValue {

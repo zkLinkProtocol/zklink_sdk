@@ -2,7 +2,7 @@ import init, *  as wasm  from "./web-dist/zklink-sdk-web.js";
 async function main() {
     await init();
     try {
-        let client = new wasm.RpcClient("mainet");
+        let client = new wasm.RpcClient("testnet");
         // 1.getSupportTokens
         let tokens = await client.getSupportTokens();
         console.log(tokens);

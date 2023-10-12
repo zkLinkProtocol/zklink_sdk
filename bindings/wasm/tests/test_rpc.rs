@@ -12,36 +12,35 @@ use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx as TypesZkLinkTx;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
 use zklink_sdk_wasm::rpc_client::RpcClient;
-use zklink_sdk_wasm::rpc_type_converter::{AccountQuery, AccountQueryType, ZkLinkTx};
+use zklink_sdk_wasm::rpc_type_converter::{AccountQuery, AccountQueryType};
 
 wasm_bindgen_test_configure!(run_in_worker);
-// #[wasm_bindgen_test]
-// async fn test_get_tokens() {
-//     let client = RpcClient::new("testnet");
-//     let ret = client.tokens().await;
-//     if let Err(e) = ret {
-//         web_sys::console::log_1(&JsValue::from_str(&format!("{:?}", e)));
-//     } else {
-//         web_sys::console::log_1(&JsValue::from_str(&format!("{:?}", ret.unwrap())));
-//     }
-//     // assert!(ret.is_err());
-// }
-//
-// #[wasm_bindgen_test]
-// async fn test_account_query() {
-//     let client = RpcClient::new("testnet");
-//     let account_id = AccountQuery::new(AccountQueryType::AccountId, "5".to_string());
-//     let account_resp = client.account_query(account_id.into(), None, None).await;
-//     if let Err(e) = account_resp {
-//         web_sys::console::log_1(&JsValue::from_str(&format!("{:?}", e)));
-//     } else {
-//         web_sys::console::log_1(&JsValue::from_str(&format!("{:?}", account_resp.unwrap())));
-//     }
-// }
+#[wasm_bindgen_test]
+async fn test_get_tokens() {
+    let client = RpcClient::new("testnet");
+    let ret = client.tokens().await;
+    if let Err(e) = ret {
+        web_sys::console::log_1(&JsValue::from_str(&format!("{:?}", e)));
+    } else {
+        web_sys::console::log_1(&JsValue::from_str(&format!("{:?}", ret.unwrap())));
+    }
+    // assert!(ret.is_err());
+}
+
+#[wasm_bindgen_test]
+async fn test_account_query() {
+    let client = RpcClient::new("testnet");
+    let account_id = AccountQuery::new(AccountQueryType::AccountId, "5".to_string());
+    let account_resp = client.account_query(account_id.into(), None, None).await;
+    if let Err(e) = account_resp {
+        web_sys::console::log_1(&JsValue::from_str(&format!("{:?}", e)));
+    } else {
+        web_sys::console::log_1(&JsValue::from_str(&format!("{:?}", account_resp.unwrap())));
+    }
+}
 
 #[wasm_bindgen_test]
 async fn test_send_change_pubkey() {
-    web_sys::console::log_1(&JsValue::from_str("123"));
     let client = RpcClient::new("devnet");
     let private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
     let eth_signer = EthSigner::try_from(private_key).unwrap();
@@ -62,7 +61,7 @@ async fn test_send_change_pubkey() {
         eth_signature: None,
         timestamp: TimeStamp(ts),
     };
-    let mut change_pubkey = ChangePubKey::new(builder);
+    let change_pubkey = ChangePubKey::new(builder);
     let message = change_pubkey
         .to_eip712_request_payload(
             l1_client_id,

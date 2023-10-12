@@ -78,6 +78,9 @@ wasm:
 	wasm-pack build --release --target=web --out-name=zklink-sdk-web --out-dir=web-dist && \
     wasm-pack build --release --target=nodejs --out-name=zklink-sdk-node --out-dir=node-dist
 	#wasm-pack build --release --target=bundler --out-name=zklink-bundler-node --out-dir=dist
+test_wasm:
+	cd ${ROOT_DIR}/bindings/wasm && \
+	wasm-pack test --firefox --headless -- --test test_rpc
 
 
 run_example_go_%: ${ROOT_DIR}/examples/Golang/%.go

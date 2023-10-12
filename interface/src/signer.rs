@@ -1,5 +1,6 @@
 use crate::error::SignError;
 use crate::sign_forced_exit::sign_forced_exit;
+use crate::sign_order::sign_order;
 use crate::sign_order_matching::sign_order_matching;
 use crate::sign_transfer::sign_transfer;
 use crate::sign_withdraw::sign_withdraw;
@@ -15,7 +16,7 @@ use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_types::basic_types::ZkLinkAddress;
 use zklink_sdk_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
 use zklink_sdk_types::tx_type::forced_exit::ForcedExit;
-use zklink_sdk_types::tx_type::order_matching::OrderMatching;
+use zklink_sdk_types::tx_type::order_matching::{Order, OrderMatching};
 use zklink_sdk_types::tx_type::transfer::Transfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
@@ -213,6 +214,12 @@ impl Signer {
     pub fn sign_forced_exit(&self, tx: ForcedExit) -> Result<TxSignature, SignError> {
         let signature = sign_forced_exit(&self.zklink_signer, tx)?;
         Ok(signature)
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn sign_order(&self, order: &Order) -> Result<Order, SignError> {
+        let signed_order = sign_order(order, &self.zklink_signer)?;
+        Ok(signed_order)
     }
 
     #[cfg(feature = "ffi")]

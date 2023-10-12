@@ -6,10 +6,10 @@ async function main() {
     const to_address = "0x5505a8cD4594Dbf79d8C59C0Df1414AB871CA896";
     const ts  = Math.floor(Date.now() / 1000);
     try {
-        let tx_builder = new wasm.TransferBuilder(10, to_address, 1, 1, 18, "100000000000000", "10000000000000000", 1,ts);
-        let transfer = wasm.newTransfer(tx_builder);
+        let tx_builder = new wasm.WithdrawBuilder(10, 1, 1, to_address,18, "100000000000000", false,10,18,"10000000000000000", 1,ts);
+        let withdraw = wasm.newWithdraw(tx_builder);
         let signer = new wasm.Signer(private_key);
-        let signature = signer.signTransfer(transfer,"USDC")
+        let signature = signer.signWithdraw(withdraw,"USDC")
         console.log(signature);
 
         let submitter_signature = signer.submitterSignature(signature.tx);

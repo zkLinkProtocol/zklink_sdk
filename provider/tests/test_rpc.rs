@@ -9,10 +9,11 @@ mod test {
     use zklink_sdk_types::basic_types::{
         AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
     };
-    use zklink_sdk_types::tx_builder::ChangePubKeyBuilder;
+    use zklink_sdk_types::tx_builder::{ChangePubKeyBuilder, OrderMatchingBuilder};
     use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey;
+    use zklink_sdk_types::tx_type::order_matching::{Order, OrderMatching};
     use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
-    use zklink_sdk_types::tx_type::ZkSignatureTrait;
+    use zklink_sdk_types::tx_type::{TxTrait, ZkSignatureTrait};
 
     #[tokio::test]
     async fn test_send_change_pubkey() {
@@ -70,8 +71,70 @@ mod test {
                 None,
                 Some(submitter_signature),
             )
-            .await
+            .await;
+        println!("{:?}", ret)
+    }
+
+    #[tokio::test]
+    async fn test_send_order_matching() {
+        let private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
+        let zklink_signer = ZkLinkSigner::new_from_hex_eth_signer(private_key).unwrap();
+        let maker_order = Order::new(
+            5.into(),
+            1.into(),
+            1.into(),
+            1.into(),
+            18.into(),
+            17.into(),
+            BigUint::from_str("10000000000000").unwrap(),
+            BigUint::from_str("10000000000").unwrap(),
+            true,
+            5,
+            3,
+        );
+        let mut maker = maker_order.clone();
+        maker.signature = zklink_signer.sign_musig(&maker_order.get_bytes()).unwrap();
+        let taker_order = Order::new(
+            5.into(),
+            1.into(),
+            1.into(),
+            1.into(),
+            18.into(),
+            17.into(),
+            BigUint::from_str("10000000000000").unwrap(),
+            BigUint::from_str("10000000000").unwrap(),
+            false,
+            5,
+            3,
+        );
+        let mut taker = taker_order.clone();
+        taker.signature = zklink_signer.sign_musig(&taker_order.get_bytes()).unwrap();
+        //auth type 'ECDSA'
+        let builder = OrderMatchingBuilder {
+            account_id: AccountId(10),
+            sub_account_id: SubAccountId(1),
+            taker,
+            fee_token: TokenId(18),
+            expect_base_amount: BigUint::from(10000000000000000u64),
+            fee: BigUint::from(100000000000000u64),
+            maker,
+            expect_quote_amount: BigUint::from(100000000000000u64),
+        };
+        let mut order_matching = OrderMatching::new(builder);
+        order_matching.sign(&zklink_signer).unwrap();
+        let submitter_signature = order_matching.submitter_signature(&zklink_signer).unwrap();
+
+        //use jsonrpsee
+        let client = HttpClientBuilder::default()
+            .build("https://aws-gw-v2.zk.link")
             .unwrap();
+        let ret = client
+            .tx_submit(
+                ZkLinkTx::OrderMatching(Box::new(order_matching.clone())),
+                None,
+                Some(submitter_signature),
+            )
+            .await;
         println!("{:?}", ret)
     }
 }

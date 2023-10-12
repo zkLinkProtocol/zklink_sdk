@@ -4,6 +4,7 @@ use jsonrpsee::core::params::ArrayParams;
 use jsonrpsee::core::traits::ToRpcParams;
 use jsonrpsee::types::request::Request;
 use jsonrpsee::types::Id;
+use serde::Deserialize;
 use std::collections::HashMap;
 use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -23,6 +24,13 @@ use zklink_sdk_types::prelude::ZkLinkAddress;
 use zklink_sdk_types::signatures::TxLayer1Signature as TypesTxLayer1Signature;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTxType;
+
+#[derive(Deserialize, Clone)]
+pub struct ErrMsg {
+    #[allow(dead_code)]
+    code: i32,
+    message: String,
+}
 
 macro_rules! rpc_request {
     ($method:expr,$builder:expr, $server_url:expr, $resp_type: ty) => {{
@@ -47,10 +55,16 @@ macro_rules! rpc_request {
             let resp = serde_json::from_value::<$resp_type>(result.clone());
             match resp {
                 Ok(resp) => Ok(serde_wasm_bindgen::to_value(&resp)?),
-                Err(_e) => Err(RpcError::ParseJsonError.into()),
+                Err(e) => Err(RpcError::ParseJsonError(e.to_string()).into()),
+            }
+        } else if let Some(&ref error) = res.get("error") {
+            let err_msg = serde_json::from_value::<ErrMsg>(error.clone());
+            match err_msg {
+                Ok(msg) => Err(RpcError::GetErrorResult(msg.message).into()),
+                Err(_) => Err(RpcError::GetErrorResult("Other error response".to_string()).into()),
             }
         } else {
-            Err(RpcError::ParseJsonError.into())
+            Err(RpcError::GetErrorResult("Other error response".to_string()).into())
         }
     }};
 }
