@@ -1,6 +1,6 @@
 lint:
 	cargo fmt
-	cargo clippy --all-targets
+	cargo clippy --all --all-features -- -D warnings
 	cargo sort
 	bash -c "cd ./interface && cargo sort"
 	bash -c "cd ./types && cargo sort"
@@ -8,6 +8,8 @@ lint:
 	bash -c "cd ./provider && cargo sort"
 	bash -c "cd ./signers && cargo sort"
 	cargo machete
+	cargo test --all
+	make test_go
 
 lint-check:
 	cargo fmt -- --check
