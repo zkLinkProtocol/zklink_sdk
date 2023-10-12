@@ -1,10 +1,12 @@
 use crate::error::SignError;
 use crate::sign_forced_exit::sign_forced_exit;
+use crate::sign_order::sign_order;
 use crate::sign_order_matching::sign_order_matching;
 use crate::sign_transfer::sign_transfer;
 use crate::sign_withdraw::sign_withdraw;
 use zklink_sdk_types::prelude::TxSignature;
 
+use crate::sign_change_pubkey::check_create2data;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
 use zklink_sdk_signers::eth_signer::error::EthSignerError;
@@ -14,7 +16,7 @@ use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_types::basic_types::ZkLinkAddress;
 use zklink_sdk_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
 use zklink_sdk_types::tx_type::forced_exit::ForcedExit;
-use zklink_sdk_types::tx_type::order_matching::OrderMatching;
+use zklink_sdk_types::tx_type::order_matching::{Order, OrderMatching};
 use zklink_sdk_types::tx_type::transfer::Transfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
@@ -40,7 +42,9 @@ impl Signer {
         &self,
         mut tx: ChangePubKey,
         create2data: Create2Data,
+        from_account: ZkLinkAddress,
     ) -> Result<TxSignature, SignError> {
+        check_create2data(&self.zklink_signer, create2data.clone(), from_account)?;
         tx.sign(&self.zklink_signer)?;
         let should_valid = tx.is_signature_valid();
         assert!(should_valid);
@@ -59,9 +63,10 @@ impl Signer {
         &self,
         tx: Arc<ChangePubKey>,
         create2data: Create2Data,
+        from_account: ZkLinkAddress,
     ) -> Result<TxSignature, SignError> {
         let tx = (*tx).clone();
-        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data)
+        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data, from_account)
     }
 
     #[cfg(not(feature = "ffi"))]
@@ -70,8 +75,9 @@ impl Signer {
         &self,
         tx: ChangePubKey,
         create2data: Create2Data,
+        from_account: ZkLinkAddress,
     ) -> Result<TxSignature, SignError> {
-        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data)
+        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data, from_account)
     }
 
     #[cfg(feature = "ffi")]
@@ -208,6 +214,12 @@ impl Signer {
     pub fn sign_forced_exit(&self, tx: ForcedExit) -> Result<TxSignature, SignError> {
         let signature = sign_forced_exit(&self.zklink_signer, tx)?;
         Ok(signature)
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn sign_order(&self, order: &Order) -> Result<Order, SignError> {
+        let signed_order = sign_order(order, &self.zklink_signer)?;
+        Ok(signed_order)
     }
 
     #[cfg(feature = "ffi")]

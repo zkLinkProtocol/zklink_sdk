@@ -1,4 +1,6 @@
 use thiserror::Error;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::JsValue;
 
 #[derive(Debug, Error, PartialEq)]
 pub enum EthSignerError {
@@ -30,4 +32,11 @@ pub enum EthSignerError {
     InvalidSignatureStr,
     #[error("{0}")]
     CustomError(String),
+}
+
+#[cfg(target_arch = "wasm32")]
+impl From<EthSignerError> for JsValue {
+    fn from(error: EthSignerError) -> Self {
+        JsValue::from_str(&format!("error: {error}"))
+    }
 }

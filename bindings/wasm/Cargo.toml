@@ -5,22 +5,33 @@ edition = "2021"
 publish = false
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib","rlib"]
 
 [dependencies]
 zklink_sdk_signers = { path = "../../signers" }
 zklink_sdk_types = { path = "../../types" }
+zklink_sdk_provider = { path = "../../provider" }
+zklink_sdk_interface = { path = "../../interface" }
+serde_json = "1.0"
 wasm-bindgen = { version = "0.2.87",features = ["serde-serialize"] }
+serde-wasm-bindgen = "0.5"
 getrandom = { version = "0.2.10", features = ["js"] }
+web-sys = "0.3"
+hex = "0.4.3"
+serde = "1.0.137"
+reqwest = { version = "0.11", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen-futures = "0.4"
+jsonrpsee = { version = "0.20.1", features = ["macros","jsonrpsee-types","client-core"] }
+uuid = "0.8"
+
 [features]
 default = []
 ffi = []
 
 [dev-dependencies]
-actix-rt = "2.7"
-actix-web = "4.2"
-futures = "0.3"
-tokio = { version = "1", features = ["full"] }
+wasm-bindgen-test = "0.3"
 
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = false
