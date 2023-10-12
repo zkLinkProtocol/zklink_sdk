@@ -5,9 +5,9 @@ use crate::basic_types::{
 };
 use crate::tx_builder::ChangePubKeyBuilder;
 use crate::tx_type::validator::*;
-use crate::tx_type::{format_units, TxTrait, ZkSignatureTrait};
+use crate::tx_type::{TxTrait, ZkSignatureTrait};
 use ethers::utils::keccak256;
-use num::{BigUint, Zero};
+use num::BigUint;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_sdk_signers::eth_signer::eip712::eip712::{EIP712Domain, TypedData};
@@ -220,26 +220,26 @@ impl ChangePubKey {
     /// Get part of the message that should be signed with Ethereum account key for the batch of transactions.
     /// The message for single `ChangePubKey` transaction is defined differently. The pattern is:
     ///
-    /// Set signing key: {pubKeyHash}
-    /// [Fee: {fee} {token}]
+    /// "ChangePubKey\nPubKeyHash: {PubKeyHash}\nNonce: {Nonce}\nAccountId: {AccountId}"
     ///
-    /// Note that the second line is optional.
-    pub fn get_eth_sign_msg_part(&self, token_symbol: &str, decimals: u8) -> String {
-        let mut message = format!(
-            "Set signing key: {}",
-            hex::encode(self.new_pk_hash.data).to_ascii_lowercase()
-        );
-        if !self.fee.is_zero() {
-            message.push_str(
-                format!(
-                    "\nFee: {fee} {token}",
-                    fee = format_units(&self.fee, decimals),
-                    token = token_symbol,
-                )
-                .as_str(),
-            );
-        }
-        message
+    /// for example:
+    /// ChangePubKey
+    /// PubKeyHash: 0x823b747710c5bc9b8a47243f2c3d1805f1aa00c5
+    /// Nonce: 3
+    /// AccountId: 2
+    ///
+    #[inline]
+    pub fn get_eth_sign_msg(
+        pubkey_hash: &PubKeyHash,
+        nonce: Nonce,
+        account_id: AccountId,
+    ) -> String {
+        format!(
+            "ChangePubKey\nPubKeyHash: {}\nNonce: {}\nAccountId: {}",
+            pubkey_hash.as_hex(),
+            nonce,
+            account_id
+        )
     }
 
     pub fn to_eip712_request_payload(
@@ -286,6 +286,7 @@ impl From<&ChangePubKey> for EIP712ChangePubKey {
 #[cfg(test)]
 mod test {
     use super::*;
+    use zklink_sdk_signers::eth_signer::EthSigner;
     use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 
     #[test]
@@ -313,7 +314,19 @@ mod test {
             6, 1, 0, 0, 0, 1, 1, 216, 213, 251, 106, 108, 174, 240, 106, 163, 220, 42, 189, 205,
             194, 64, 152, 126, 83, 48, 254, 0, 18, 12, 128, 0, 0, 0, 1, 100, 240, 85, 232,
         ];
-
         assert_eq!(bytes, expected_bytes);
+    }
+
+    #[test]
+    fn test_change_pubkey_eth_sign_msg() {
+        let pubkey_hash =
+            PubKeyHash::from_hex("0xdbd9c8235e4fc9d5b9b7bb201f1133e8a28c0edd").unwrap();
+        let nonce = Nonce(0);
+        let account_id = 2.into();
+        let key: H256 = [5; 32].into();
+        let signer = EthSigner::from(key);
+        let eth_sign_msg = ChangePubKey::get_eth_sign_msg(&pubkey_hash, nonce, account_id);
+        let eth_signature = signer.sign_message(eth_sign_msg.as_bytes()).unwrap();
+        assert_eq!(eth_signature.as_hex(), "0xefd0d9c6beb00310535bb51ee58745adb547e7d875d5823892365a6450caf6c559a6a4bfd83bf336ac59cf83e97948dbf607bf2aecd24f6829c3deac20ecdb601b");
     }
 }
