@@ -27,7 +27,7 @@ make build_binding_lib
 The dynamic and static system library `zklink_sdk` will be in `./target/release/lib`. Next, you need to generate the bindings:
 
 ```bash
-make build_bindging_files 
+make build_binding_files 
 ```
 
 The default binding path is `./binding_tests/generated`, if you want to generate bindings to another directory, just set the  `BINDINGS_DIR` when run the `make` command:
