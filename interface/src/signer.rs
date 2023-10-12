@@ -1,11 +1,13 @@
 use crate::error::SignError;
 use crate::sign_forced_exit::sign_forced_exit;
+#[cfg(not(feature = "ffi"))]
 use crate::sign_order::sign_order;
 use crate::sign_order_matching::sign_order_matching;
 use crate::sign_transfer::sign_transfer;
 use crate::sign_withdraw::sign_withdraw;
 use zklink_sdk_types::prelude::TxSignature;
 
+#[cfg(not(feature = "ffi"))]
 use crate::sign_change_pubkey::check_create2data;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
@@ -16,7 +18,9 @@ use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_types::basic_types::ZkLinkAddress;
 use zklink_sdk_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
 use zklink_sdk_types::tx_type::forced_exit::ForcedExit;
-use zklink_sdk_types::tx_type::order_matching::{Order, OrderMatching};
+#[cfg(not(feature = "ffi"))]
+use zklink_sdk_types::tx_type::order_matching::Order;
+use zklink_sdk_types::tx_type::order_matching::OrderMatching;
 use zklink_sdk_types::tx_type::transfer::Transfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
@@ -42,9 +46,7 @@ impl Signer {
         &self,
         mut tx: ChangePubKey,
         create2data: Create2Data,
-        from_account: ZkLinkAddress,
     ) -> Result<TxSignature, SignError> {
-        check_create2data(&self.zklink_signer, create2data.clone(), from_account)?;
         tx.sign(&self.zklink_signer)?;
         let should_valid = tx.is_signature_valid();
         assert!(should_valid);
@@ -63,10 +65,9 @@ impl Signer {
         &self,
         tx: Arc<ChangePubKey>,
         create2data: Create2Data,
-        from_account: ZkLinkAddress,
     ) -> Result<TxSignature, SignError> {
         let tx = (*tx).clone();
-        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data, from_account)
+        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data)
     }
 
     #[cfg(not(feature = "ffi"))]
@@ -77,7 +78,8 @@ impl Signer {
         create2data: Create2Data,
         from_account: ZkLinkAddress,
     ) -> Result<TxSignature, SignError> {
-        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data, from_account)
+        check_create2data(&self.zklink_signer, create2data.clone(), from_account)?;
+        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data)
     }
 
     #[cfg(feature = "ffi")]

@@ -85,7 +85,6 @@ pub fn check_create2data(
 ) -> Result<(), SignError> {
     let pubkey_hash = zklink_singer.public_key().public_key_hash();
     let from_address = data.get_address(&pubkey_hash.data);
-    println!("{:?} {:?}", from_address, account_address);
     if from_address.as_bytes() != account_address.as_bytes() {
         Err(SignError::IncorrectTx)
     } else {
