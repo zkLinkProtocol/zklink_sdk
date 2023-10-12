@@ -104,6 +104,7 @@ pub fn create_signed_change_pubkey(
     Ok(Arc::new(tx))
 }
 
+#[cfg(not(feature = "ffi"))]
 #[cfg(test)]
 mod test {
     use super::*;

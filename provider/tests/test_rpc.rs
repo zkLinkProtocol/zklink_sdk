@@ -1,3 +1,4 @@
+#[cfg(not(feature = "ffi"))]
 #[cfg(test)]
 mod test {
     use jsonrpsee::http_client::HttpClientBuilder;
