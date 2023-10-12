@@ -10,7 +10,6 @@ use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_types::basic_types::ZkLinkAddress;
 #[cfg(not(feature = "ffi"))]
 use zklink_sdk_types::prelude::TxSignature;
-#[cfg(feature = "ffi")]
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data;
 use zklink_sdk_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData};
 use zklink_sdk_types::tx_type::TxTrait;
@@ -78,6 +77,22 @@ pub fn check_create2data(
     }
 }
 
+#[cfg(not(feature = "ffi"))]
+pub fn check_create2data(
+    zklink_singer: &ZkLinkSigner,
+    data: Create2Data,
+    account_address: ZkLinkAddress,
+) -> Result<(), SignError> {
+    let pubkey_hash = zklink_singer.public_key().public_key_hash();
+    let from_address = data.get_address(&pubkey_hash.data);
+    println!("{:?} {:?}", from_address, account_address);
+    if from_address.as_bytes() != account_address.as_bytes() {
+        Err(SignError::IncorrectTx)
+    } else {
+        Ok(())
+    }
+}
+
 #[cfg(feature = "ffi")]
 pub fn create_signed_change_pubkey(
     zklink_singer: Arc<ZkLinkSigner>,
@@ -88,4 +103,36 @@ pub fn create_signed_change_pubkey(
     tx.eth_auth_data = eth_auth_data;
     tx.signature = zklink_singer.sign_musig(&tx.get_bytes())?;
     Ok(Arc::new(tx))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::str::FromStr;
+    use zklink_sdk_types::prelude::H256;
+
+    #[test]
+    fn test_check_create2() {
+        let creator_address =
+            ZkLinkAddress::from_hex("0x6E253C951A40fAf4032faFbEc19262Cd1531A5F5").unwrap();
+        let salt_arg =
+            H256::from_str("0x0000000000000000000000000000000000000000000000000000000000000000")
+                .unwrap();
+        let code_hash =
+            H256::from_str("0x4f063cd4b2e3a885f61fefb0988cc12487182c4f09ff5de374103f5812f33fe7")
+                .unwrap();
+        let create2_data = Create2Data {
+            creator_address,
+            code_hash,
+            salt_arg,
+        };
+        let from_account =
+            ZkLinkAddress::from_hex("0x4504d5BE8634e3896d42784A5aB89fc41C3d4511").unwrap();
+        let eth_private_key = "43be0b8bdeccb5a13741c8fd076bf2619bfc9f6dcc43ad6cf965ab489e156ced";
+        let zk_signer = ZkLinkSigner::new_from_hex_eth_signer(eth_private_key).unwrap();
+
+        if let Err(e) = check_create2data(&zk_signer, create2_data, from_account) {
+            println!("{:?}", e)
+        }
+    }
 }
