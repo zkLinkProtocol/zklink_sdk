@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 lint:
 	cargo fmt
 	cargo clippy --all --all-features -- -D warnings

@@ -14,7 +14,7 @@ pub use zklink_address::ZkLinkAddress;
 mod macros;
 pub mod bigunit_wrapper;
 pub(crate) mod float_convert;
-pub(crate) mod pack;
+pub mod pack;
 pub(crate) mod params;
 pub mod tx_hash;
 pub mod zklink_address;
