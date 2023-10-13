@@ -97,6 +97,9 @@ pub trait ZkLinkRpc {
     #[method(name = "getChangePubkeyChainId")]
     async fn get_change_pubkey_chain_id(&self) -> RpcResult<ChainId>;
 
+    #[method(name = "getEthProperty")]
+    async fn get_eth_property(&self) -> RpcResult<EthPropertyResp>;
+
     #[method(name = "pullForwardTxs")]
     async fn pull_forward_txs(
         &self,
