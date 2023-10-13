@@ -16,6 +16,8 @@ pub enum TypeError {
     DecodeFromHexErr(String),
     #[error("Integer is too big")]
     TooBigInteger,
+    #[error("{0}")]
+    InvalidBigIntStr(String),
 }
 
 #[cfg(target_arch = "wasm32")]

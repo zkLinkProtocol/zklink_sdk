@@ -5,6 +5,7 @@ use wasm_bindgen_test::wasm_bindgen_test;
 use wasm_bindgen_test::wasm_bindgen_test_configure;
 use zklink_sdk_signers::eth_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::{PubKeyHash, ZkLinkSigner};
+use zklink_sdk_types::basic_types::pack::{is_fee_amount_packable, is_token_amount_packable};
 use zklink_sdk_types::basic_types::{AccountId, BigUint, ChainId, Nonce, TokenId, ZkLinkAddress};
 use zklink_sdk_types::prelude::{SubAccountId, TimeStamp};
 use zklink_sdk_types::tx_builder::ChangePubKeyBuilder;
@@ -13,6 +14,9 @@ use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx as TypesZkLinkTx;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
 use zklink_sdk_wasm::rpc_client::RpcClient;
 use zklink_sdk_wasm::rpc_type_converter::{AccountQuery, AccountQueryType};
+use zklink_sdk_wasm::utils::{
+    closest_packable_transaction_amount, closest_packable_transaction_fee,
+};
 
 wasm_bindgen_test_configure!(run_in_worker);
 #[wasm_bindgen_test]
@@ -36,6 +40,34 @@ async fn test_account_query() {
         web_sys::console::log_1(&JsValue::from_str(&format!("{:?}", e)));
     } else {
         web_sys::console::log_1(&JsValue::from_str(&format!("{:?}", account_resp.unwrap())));
+    }
+}
+
+#[wasm_bindgen_test]
+fn test_closest_packable_amount() {
+    match closest_packable_transaction_amount("10000000012345678") {
+        Ok(amount) => {
+            web_sys::console::log_1(&JsValue::from_str(&amount));
+            let amount = BigUint::from_str(&amount).unwrap();
+            assert_eq!(is_token_amount_packable(&amount), true);
+        }
+        Err(e) => {
+            web_sys::console::log_1(&JsValue::from_str(&format!("{:?}", e)));
+        }
+    }
+}
+
+#[wasm_bindgen_test]
+fn test_closest_packable_fee() {
+    match closest_packable_transaction_fee("1234567876543") {
+        Ok(amount) => {
+            web_sys::console::log_1(&JsValue::from_str(&amount));
+            let amount = BigUint::from_str(&amount).unwrap();
+            assert_eq!(is_fee_amount_packable(&amount), true);
+        }
+        Err(e) => {
+            web_sys::console::log_1(&JsValue::from_str(&format!("{:?}", e)));
+        }
     }
 }
 

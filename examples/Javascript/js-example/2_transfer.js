@@ -6,7 +6,9 @@ async function main() {
     const to_address = "0x5505a8cD4594Dbf79d8C59C0Df1414AB871CA896";
     const ts  = Math.floor(Date.now() / 1000);
     try {
-        let tx_builder = new wasm.TransferBuilder(10, to_address, 1, 1, 18, "100000000000000", "10000000000000000", 1,ts);
+        let amount = wasm.closestPackableTransactionAmount("1234567899808787");
+        let fee = wasm.closestPackableTransactionFee("10000567777")
+        let tx_builder = new wasm.TransferBuilder(10, to_address, 1, 1, 18, fee, amount, 1,ts);
         let transfer = wasm.newTransfer(tx_builder);
         let signer = new wasm.Signer(private_key);
         let signature = signer.signTransfer(transfer,"USDC")
