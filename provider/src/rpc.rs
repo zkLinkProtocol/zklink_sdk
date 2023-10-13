@@ -94,6 +94,9 @@ pub trait ZkLinkRpc {
         max_txs: u32,
     ) -> RpcResult<Vec<FastWithdrawTxResp>>;
 
+    #[method(name = "getChangePubkeyChainId")]
+    async fn get_change_pubkey_chain_id(&self) -> RpcResult<ChainId>;
+
     #[method(name = "pullForwardTxs")]
     async fn pull_forward_txs(
         &self,
