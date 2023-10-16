@@ -285,24 +285,24 @@ pub struct ZkLinkTxHistory {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct EthPropertyResp {
-    gateways: Vec<GateWayInfo>,
+    pub gateways: Vec<GateWayInfo>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct GateWayInfo {
-    chain_id: ChainId,
-    l1_gateway_contract: ZkLinkAddress,
-    l2_gateway_contract: ZkLinkAddress,
-    tokens: Vec<TokenInfo>,
+    pub chain_id: ChainId,
+    pub l1_gateway_contract: ZkLinkAddress,
+    pub l2_gateway_contract: ZkLinkAddress,
+    pub tokens: Vec<TokenInfo>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TokenInfo {
-    token_id: TokenId,
-    token_address: ZkLinkAddress,
-    decimal: u8,
+    pub token_id: TokenId,
+    pub token_address: ZkLinkAddress,
+    pub decimal: u8,
 }
 
 #[cfg(test)]
