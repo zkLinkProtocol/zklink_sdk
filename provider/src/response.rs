@@ -281,3 +281,77 @@ pub struct ZkLinkTxHistory {
     pub tx_receipt: TxReceiptResp,
     pub created_at: DateTime<Utc>,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EthPropertyResp {
+    gateways: Vec<GateWayInfo>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct GateWayInfo {
+    chain_id: ChainId,
+    l1_gateway_contract: ZkLinkAddress,
+    l2_gateway_contract: ZkLinkAddress,
+    tokens: Vec<TokenInfo>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TokenInfo {
+    token_id: TokenId,
+    token_address: ZkLinkAddress,
+    decimal: u8,
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_rpc_response() {
+        let s = r#" {
+	"gateways": [
+		{
+			"chainId": 5,
+			"l1GatewayContract": "0xffffffffffffffffffffffffffffffffffffffff",
+			"l2GatewayContract": "0xffffffffffffffffffffffffffffffffffffffff",
+			"tokens": [
+				{
+					"tokenId": 1,
+					"tokenAddress":"0xffffffffffffffffffffffffffffffffffffffff",
+					"decimal": 6
+				},
+				{
+					"tokenId": 3,
+					"tokenAddress":"0xffffffffffffffffffffffffffffffffffffffff",
+					"decimal": 7
+				}
+			]
+		},
+		{
+			"chainId": 7,
+			"l1GatewayContract": "0xffffffffffffffffffffffffffffffffffffffff",
+			"l2GatewayContract": "0xffffffffffffffffffffffffffffffffffffffff",
+			"tokens": [
+				{
+					"tokenId": 1,
+					"tokenAddress":"0xffffffffffffffffffffffffffffffffffffffff",
+					"decimal": 6
+				},
+				{
+					"tokenId": 3,
+					"tokenAddress":"0xffffffffffffffffffffffffffffffffffffffff",
+					"decimal": 6
+				}
+			]
+		}
+	]
+}
+        "#;
+        let resp: Result<EthPropertyResp, _> = serde_json::from_str(s);
+        println!("{:?}", resp);
+        assert!(resp.is_ok());
+    }
+}
