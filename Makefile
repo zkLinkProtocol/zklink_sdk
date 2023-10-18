@@ -4,6 +4,7 @@ lint:
 	cargo fmt
 	cargo clippy --features ffi -- -D warnings
 	cargo clippy --features web -- -D warnings
+	cargo clippy -- -D warnings
 	cargo sort
 	bash -c "cd ./interface && cargo sort"
 	bash -c "cd ./types && cargo sort"
