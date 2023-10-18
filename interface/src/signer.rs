@@ -191,7 +191,7 @@ impl Signer {
         )
     }
 
-    #[cfg(not(feature = "ffi"))]
+    #[cfg(not(any(feature = "ffi")))]
     pub fn sign_withdraw(
         &self,
         tx: Withdraw,

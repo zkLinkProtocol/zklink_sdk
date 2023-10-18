@@ -35,8 +35,13 @@ impl ForcedExitBuilder {
         l1_target_token: u32,
         exit_amount: String,
         initiator_nonce: u32,
-        ts: u32,
+        ts: Option<u32>,
     ) -> Result<ForcedExitBuilder, JsValue> {
+        let ts = if let Some(time_stamp) = ts {
+            time_stamp
+        } else {
+            std::time::UNIX_EPOCH.elapsed().unwrap().as_millis() as u32
+        };
         let inner = TxForcedExitBuilder {
             to_chain_id: to_chain_id.into(),
             initiator_account_id: initiator_account_id.into(),

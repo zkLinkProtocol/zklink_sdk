@@ -2,10 +2,10 @@ import init, *  as wasm  from "./web-dist/zklink-sdk-web.js";
 
 async function main() {
     await init();
-    const private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
     try {
 
-        let signer = new wasm.Signer(private_key);
+        let signer = new wasm.JsonRpcSigner();
+        await signer.initZklinkSigner();
         //maker = taker = submitter
         let maker_order = new wasm.Order(5,1,1,1,18,17,"10000000000000","10000000000",true,5,3);
         let maker = signer.createSignedOrder(maker_order);

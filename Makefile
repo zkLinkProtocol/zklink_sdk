@@ -2,7 +2,8 @@ SHELL := /bin/bash
 
 lint:
 	cargo fmt
-	cargo clippy --all --all-features -- -D warnings
+	cargo clippy --features ffi -- -D warnings
+	cargo clippy --features web -- -D warnings
 	cargo sort
 	bash -c "cd ./interface && cargo sort"
 	bash -c "cd ./types && cargo sort"
@@ -79,7 +80,7 @@ test_go: build_binding_files build_binding_lib
 
 build_wasm: prepare_wasm
 	cd ${ROOT_DIR}/bindings/wasm && \
-	wasm-pack build --release --target=web --out-name=zklink-sdk-web --out-dir=web-dist && \
+	wasm-pack build --release --target=web --out-name=zklink-sdk-web --out-dir=web-dist -- --features web && \
     wasm-pack build --release --target=nodejs --out-name=zklink-sdk-node --out-dir=node-dist
 	#wasm-pack build --release --target=bundler --out-name=zklink-bundler-node --out-dir=dist
 test_wasm:

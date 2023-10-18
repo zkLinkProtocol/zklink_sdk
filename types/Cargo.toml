@@ -22,3 +22,4 @@ zklink_sdk_utils = { path = "../utils" }
 default = []
 #ffi = ["uniffi", "uniffi_macros"]
 ffi = []
+web = []

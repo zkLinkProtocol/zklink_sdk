@@ -4,7 +4,7 @@ use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_types::tx_type::order_matching::Order;
 use zklink_sdk_types::tx_type::TxTrait;
-#[cfg(not(feature = "ffi"))]
+
 pub fn sign_order(order: &Order, zklink_signer: &ZkLinkSigner) -> Result<Order, ZkSignerError> {
     let mut order = order.clone();
     order.signature = zklink_signer.sign_musig(&order.get_bytes())?;

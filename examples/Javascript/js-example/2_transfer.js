@@ -2,16 +2,17 @@ import init, *  as wasm  from "./web-dist/zklink-sdk-web.js";
 
 async function main() {
     await init();
-    const private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
     const to_address = "0x5505a8cD4594Dbf79d8C59C0Df1414AB871CA896";
     const ts  = Math.floor(Date.now() / 1000);
     try {
         let amount = wasm.closestPackableTransactionAmount("1234567899808787");
         let fee = wasm.closestPackableTransactionFee("10000567777")
-        let tx_builder = new wasm.TransferBuilder(10, to_address, 1, 1, 18, fee, amount, 1,ts);
+        let tx_builder = new wasm.TransferBuilder(10, to_address, 1,
+            1, 18, fee, amount, 1,ts);
         let transfer = wasm.newTransfer(tx_builder);
-        let signer = new wasm.Signer(private_key);
-        let signature = signer.signTransfer(transfer,"USDC")
+        let signer = new wasm.JsonRpcSigner();
+        await signer.initZklinkSigner();
+        let signature = await signer.signTransfer(transfer,"USDC")
         console.log(signature);
 
         let submitter_signature = signer.submitterSignature(signature.tx);
