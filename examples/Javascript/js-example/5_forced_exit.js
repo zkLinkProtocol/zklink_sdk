@@ -8,7 +8,8 @@ async function main() {
     try {
         let tx_builder = new wasm.ForcedExitBuilder(1,10, 1, 1, to_address,18, 18,"100000000000000",  1,ts);
         let forced_exit = wasm.newForcedExit(tx_builder);
-        let signer = new wasm.Signer(private_key);
+        let signer = new wasm.JsonRpcSigner();
+        await signer.initZklinkSigner();
         let signature = signer.signForcedExit(forced_exit)
         console.log(signature);
 

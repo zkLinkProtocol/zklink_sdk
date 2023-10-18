@@ -5,3 +5,6 @@
 pub mod eth_signer;
 pub mod starknet_signer;
 pub mod zklink_signer;
+
+extern crate js_sys;
+extern crate wasm_bindgen_futures;

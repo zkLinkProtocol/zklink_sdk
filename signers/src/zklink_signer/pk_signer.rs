@@ -13,6 +13,8 @@ use franklin_crypto::eddsa::{PrivateKey as FLPrivateKey, PrivateKey, PublicKey, 
 use sha2::{Digest, Sha256};
 use std::fmt;
 
+#[cfg(feature = "web")]
+use crate::eth_signer::json_rpc_signer::JsonRpcSigner;
 use crate::eth_signer::pk_signer::EthSigner;
 
 pub struct ZkLinkSigner(EddsaPrivKey<Engine>);
@@ -92,6 +94,15 @@ impl ZkLinkSigner {
 
     pub fn new_from_eth_signer(eth_signer: &EthSigner) -> Result<Self, Error> {
         let signature = eth_signer.sign_message(Self::SIGN_MESSAGE.as_bytes())?;
+        let seed = signature.serialize_packed();
+        Self::new_from_seed(&seed)
+    }
+
+    #[cfg(feature = "web")]
+    pub async fn new_from_eth_json_rpc_signer(eth_signer: &JsonRpcSigner) -> Result<Self, Error> {
+        let signature = eth_signer
+            .sign_message(Self::SIGN_MESSAGE.as_bytes())
+            .await?;
         let seed = signature.serialize_packed();
         Self::new_from_seed(&seed)
     }

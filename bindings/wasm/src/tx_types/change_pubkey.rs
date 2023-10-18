@@ -91,8 +91,13 @@ impl ChangePubKeyBuilder {
         fee: String,
         nonce: u32,
         eth_signature: Option<String>,
-        timestamp: u32,
+        ts: Option<u32>,
     ) -> Result<ChangePubKeyBuilder, JsValue> {
+        let ts = if let Some(time_stamp) = ts {
+            time_stamp
+        } else {
+            std::time::UNIX_EPOCH.elapsed().unwrap().as_millis() as u32
+        };
         let eth_signature = if let Some(s) = eth_signature {
             Some(PackedEthSignature::from_hex(&s)?)
         } else {
@@ -107,7 +112,7 @@ impl ChangePubKeyBuilder {
             fee: BigUint::from_str(&fee).unwrap(),
             nonce: nonce.into(),
             eth_signature,
-            timestamp: timestamp.into(),
+            timestamp: ts.into(),
         };
         Ok(ChangePubKeyBuilder { inner })
     }

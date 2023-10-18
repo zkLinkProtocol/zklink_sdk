@@ -2,14 +2,15 @@ import init, *  as wasm  from "./web-dist/zklink-sdk-web.js";
 
 async function main() {
     await init();
-    const private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
     const to_address = "0x5505a8cD4594Dbf79d8C59C0Df1414AB871CA896";
     const ts  = Math.floor(Date.now() / 1000);
     try {
+
         let tx_builder = new wasm.WithdrawBuilder(10, 1, 1, to_address,18, "100000000000000", false,10,18,"10000000000000000", 1,ts);
         let withdraw = wasm.newWithdraw(tx_builder);
-        let signer = new wasm.Signer(private_key);
-        let signature = signer.signWithdraw(withdraw,"USDC")
+        let signer = new wasm.JsonRpcSigner();
+        await signer.initZklinkSigner();
+        let signature = await signer.signWithdraw(withdraw,"USDC")
         console.log(signature);
 
         let submitter_signature = signer.submitterSignature(signature.tx);

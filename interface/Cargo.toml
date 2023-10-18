@@ -13,3 +13,4 @@ zklink_sdk_types = { path = "../types" }
 [features]
 default = []
 ffi = []
+web = []

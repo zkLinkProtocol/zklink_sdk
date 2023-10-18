@@ -37,8 +37,13 @@ impl WithdrawBuilder {
         l1_target_token: u32,
         amount: String,
         nonce: u32,
-        ts: u32,
+        ts: Option<u32>,
     ) -> Result<WithdrawBuilder, JsValue> {
+        let ts = if let Some(time_stamp) = ts {
+            time_stamp
+        } else {
+            std::time::UNIX_EPOCH.elapsed().unwrap().as_millis() as u32
+        };
         let inner = TxWithdrawBuilder {
             account_id: account_id.into(),
             sub_account_id: sub_account_id.into(),

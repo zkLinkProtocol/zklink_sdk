@@ -3,8 +3,11 @@ use crate::error::SignError;
 use crate::ChangePubKeyAuthRequest;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
+#[cfg(feature = "web")]
+use zklink_sdk_signers::eth_signer::json_rpc_signer::JsonRpcSigner;
 #[cfg(feature = "ffi")]
 use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
+#[cfg(not(feature = "web"))]
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_types::basic_types::ZkLinkAddress;
@@ -14,7 +17,7 @@ use zklink_sdk_types::tx_type::change_pubkey::Create2Data;
 use zklink_sdk_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData};
 use zklink_sdk_types::tx_type::TxTrait;
 
-#[cfg(not(feature = "ffi"))]
+#[cfg(not(any(feature = "ffi", feature = "web")))]
 pub fn sign_change_pubkey(
     eth_signer: &EthSigner,
     zklink_singer: &ZkLinkSigner,
@@ -29,6 +32,44 @@ pub fn sign_change_pubkey(
         ChangePubKeyAuthRequest::EthECDSA => {
             let typed_data = tx.to_eip712_request_payload(l1_client_id, &main_contract)?;
             let eth_signature = eth_signer.sign_hash(typed_data.data_hash.as_ref())?;
+            Ok(ChangePubKeyAuthData::EthECDSA { eth_signature })
+        }
+        ChangePubKeyAuthRequest::EthCreate2 { data } => {
+            // check create2 data
+            let pubkey_hash = zklink_singer.public_key().public_key_hash();
+            let from_address = data.get_address(pubkey_hash.data.as_ref());
+            if from_address.as_bytes() != account_address.as_bytes() {
+                Err(SignError::IncorrectTx)
+            } else {
+                Ok(ChangePubKeyAuthData::EthCreate2 { data })
+            }
+        }
+    };
+    tx.eth_auth_data = eth_auth_data?;
+    tx.signature = zklink_singer.sign_musig(&tx.get_bytes())?;
+    Ok(TxSignature {
+        tx: tx.into(),
+        eth_signature: None,
+    })
+}
+
+#[cfg(feature = "web")]
+pub async fn sign_change_pubkey(
+    eth_signer: &JsonRpcSigner,
+    zklink_singer: &ZkLinkSigner,
+    mut tx: ChangePubKey,
+    main_contract: ZkLinkAddress,
+    l1_client_id: u32,
+    account_address: ZkLinkAddress,
+    auth_request: ChangePubKeyAuthRequest,
+) -> Result<TxSignature, SignError> {
+    let eth_auth_data: Result<ChangePubKeyAuthData, _> = match auth_request {
+        ChangePubKeyAuthRequest::Onchain => Ok(ChangePubKeyAuthData::Onchain),
+        ChangePubKeyAuthRequest::EthECDSA => {
+            let typed_data = tx.to_eip712_request_payload(l1_client_id, &main_contract)?;
+            let eth_signature = eth_signer
+                .sign_message_eip712(typed_data.raw_data.as_bytes())
+                .await?;
             Ok(ChangePubKeyAuthData::EthECDSA { eth_signature })
         }
         ChangePubKeyAuthRequest::EthCreate2 { data } => {
