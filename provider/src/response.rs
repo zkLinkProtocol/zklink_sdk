@@ -26,9 +26,7 @@ pub struct ChainResp {
     pub layer_one_chain_id: U256,
     pub main_contract: ZkLinkAddress,
     pub layer_zero_contract: ZkLinkAddress,
-    pub web3_url: String,
     pub gas_token_id: TokenId,
-    pub validator: ZkLinkAddress,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
