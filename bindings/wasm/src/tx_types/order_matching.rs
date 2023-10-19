@@ -49,14 +49,14 @@ impl Order {
         }
     }
 
-    pub fn get_inner_order(&self) -> Result<JsValue, JsValue> {
+    pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }
 }
 
 #[wasm_bindgen]
 impl OrderMatching {
-    pub fn get_inner_tx(&self) -> Result<JsValue, JsValue> {
+    pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }
 }

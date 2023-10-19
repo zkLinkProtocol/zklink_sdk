@@ -50,14 +50,14 @@ impl Create2Data {
         hex::encode(salt_bytes)
     }
 
-    pub fn get_inner_data(&self) -> Result<JsValue, JsValue> {
+    pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }
 }
 
 #[wasm_bindgen]
 impl ChangePubKey {
-    pub fn get_inner_tx(&self) -> Result<JsValue, JsValue> {
+    pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }
 

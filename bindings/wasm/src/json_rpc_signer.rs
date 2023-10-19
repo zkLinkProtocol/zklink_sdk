@@ -41,7 +41,7 @@ impl JsonRpcSigner {
         tx: Transfer,
         token_symbol: &str,
     ) -> Result<JsValue, JsValue> {
-        let inner_tx = tx.get_inner_tx()?;
+        let inner_tx = tx.json_value()?;
         let transfer: TxTransfer = serde_wasm_bindgen::from_value(inner_tx)?;
         let signature = self.inner.sign_transfer(transfer, token_symbol).await?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
@@ -54,7 +54,7 @@ impl JsonRpcSigner {
         l1_client_id: u32,
         main_contract: &str,
     ) -> Result<JsValue, JsValue> {
-        let inner_tx = tx.get_inner_tx()?;
+        let inner_tx = tx.json_value()?;
         let change_pubkey: TxChangePubKey = serde_wasm_bindgen::from_value(inner_tx)?;
         let contract_address = ZkLinkAddress::from_hex(main_contract)?;
         let signature = self
@@ -69,31 +69,28 @@ impl JsonRpcSigner {
         &self,
         tx: ChangePubKey,
         create2_data: Create2Data,
-        from_account: String,
     ) -> Result<JsValue, JsValue> {
-        let inner_tx = tx.get_inner_tx()?;
+        let inner_tx = tx.json_value()?;
         let change_pubkey: TxChangePubKey = serde_wasm_bindgen::from_value(inner_tx)?;
-        let inner_data = create2_data.get_inner_data()?;
+        let inner_data = create2_data.json_value()?;
         let create2_data: ChangePubKeyCreate2Data = serde_wasm_bindgen::from_value(inner_data)?;
-        let signature = self.inner.sign_change_pubkey_with_create2data_auth(
-            change_pubkey,
-            create2_data,
-            ZkLinkAddress::from_hex(&from_account)?,
-        )?;
+        let signature = self
+            .inner
+            .sign_change_pubkey_with_create2data_auth(change_pubkey, create2_data)?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
     }
 
     #[wasm_bindgen(js_name=createSignedOrder)]
     pub fn create_signed_order(&self, order: Order) -> Result<JsValue, JsValue> {
-        let inner_order = order.get_inner_order()?;
+        let inner_order = order.json_value()?;
         let mut order: TxOrder = serde_wasm_bindgen::from_value(inner_order)?;
-        let signed_order = self.inner.sign_order(&mut order)?;
+        let signed_order = self.inner.create_signed_order(&mut order)?;
         Ok(serde_wasm_bindgen::to_value(&signed_order)?)
     }
 
     #[wasm_bindgen(js_name=signOrderMatching)]
     pub fn sign_order_matching(&self, tx: OrderMatching) -> Result<JsValue, JsValue> {
-        let inner_tx = tx.get_inner_tx()?;
+        let inner_tx = tx.json_value()?;
         let order_matching: TxOrderMatching = serde_wasm_bindgen::from_value(inner_tx)?;
         let signature = self.inner.sign_order_matching(order_matching)?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
@@ -105,7 +102,7 @@ impl JsonRpcSigner {
         tx: Withdraw,
         token_symbol: &str,
     ) -> Result<JsValue, JsValue> {
-        let inner_tx = tx.get_inner_tx()?;
+        let inner_tx = tx.json_value()?;
         let withdraw: TxWithdraw = serde_wasm_bindgen::from_value(inner_tx)?;
         let signature = self.inner.sign_withdraw(withdraw, token_symbol).await?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
@@ -113,7 +110,7 @@ impl JsonRpcSigner {
 
     #[wasm_bindgen(js_name=signForcedExit)]
     pub fn sign_forced_exit(&self, tx: ForcedExit) -> Result<JsValue, JsValue> {
-        let inner_tx = tx.get_inner_tx()?;
+        let inner_tx = tx.json_value()?;
         let forced_exit: TxForcedExit = serde_wasm_bindgen::from_value(inner_tx)?;
         let signature = self.inner.sign_forced_exit(forced_exit)?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)

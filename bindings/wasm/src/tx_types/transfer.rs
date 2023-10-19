@@ -12,7 +12,7 @@ pub struct Transfer {
 
 #[wasm_bindgen]
 impl Transfer {
-    pub fn get_inner_tx(&self) -> Result<JsValue, JsValue> {
+    pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }
 }

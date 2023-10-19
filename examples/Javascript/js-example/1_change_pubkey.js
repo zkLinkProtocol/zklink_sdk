@@ -48,7 +48,7 @@ async function testCreate2() {
         const code_hash = "0x4f063cd4b2e3a885f61fefb0988cc12487182c4f09ff5de374103f5812f33fe7";
         let create2_data = new wasm.Create2Data(creator_address,salt,code_hash);
         let from_account = "0x4504d5BE8634e3896d42784A5aB89fc41C3d4511";
-        let tx_signature = signer.signChangePubkeyWithCreate2DataAuth(tx,create2_data,from_account);
+        let tx_signature = signer.signChangePubkeyWithCreate2DataAuth(tx,create2_data);
         console.log(tx_signature);
 
         let submitter_signature = signer.submitterSignature(tx_signature.tx);

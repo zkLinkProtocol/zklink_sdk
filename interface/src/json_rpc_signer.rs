@@ -1,7 +1,8 @@
+use crate::do_submitter_signature;
 use crate::error::SignError;
-use crate::sign_change_pubkey::check_create2data;
+use crate::sign_change_pubkey::do_sign_change_pubkey_with_create2data_auth;
 use crate::sign_forced_exit::sign_forced_exit;
-use crate::sign_order::sign_order;
+use crate::sign_order::create_signed_order;
 use crate::sign_order_matching::sign_order_matching;
 use crate::sign_transfer::sign_transfer;
 use crate::sign_withdraw::sign_withdraw;
@@ -33,7 +34,7 @@ impl JsonRpcSigner {
     }
 
     pub async fn init_zklink_signer(&mut self) -> Result<(), SignError> {
-        let zklink_signer = ZkLinkSigner::new_from_eth_json_rpc_signer(&self.eth_signer).await?;
+        let zklink_signer = ZkLinkSigner::new_from_eth_rpc_signer(&self.eth_signer).await?;
         self.zklink_signer = zklink_signer;
         Ok(())
     }
@@ -46,49 +47,17 @@ impl JsonRpcSigner {
         sign_transfer(&self.eth_signer, &self.zklink_signer, tx, token_symbol).await
     }
 
-    fn do_sign_change_pubkey_with_create2data_auth(
-        &self,
-        mut tx: ChangePubKey,
-        create2data: Create2Data,
-    ) -> Result<TxSignature, SignError> {
-        tx.sign(&self.zklink_signer)?;
-        let should_valid = tx.is_signature_valid();
-        assert!(should_valid);
-
-        // create onchain auth data
-        tx.eth_auth_data = ChangePubKeyAuthData::EthCreate2 { data: create2data };
-        Ok(TxSignature {
-            tx: tx.into(),
-            eth_signature: None,
-        })
-    }
-
+    #[inline]
     pub fn sign_change_pubkey_with_create2data_auth(
         &self,
         tx: ChangePubKey,
         create2data: Create2Data,
-        from_account: ZkLinkAddress,
     ) -> Result<TxSignature, SignError> {
-        check_create2data(&self.zklink_signer, create2data.clone(), from_account)?;
-        self.do_sign_change_pubkey_with_create2data_auth(tx, create2data)
+        do_sign_change_pubkey_with_create2data_auth(tx, create2data, &self.zklink_signer)
     }
 
-    pub fn sign_change_pubkey_with_onchain_auth_data(
-        &self,
-        mut tx: ChangePubKey,
-    ) -> Result<TxSignature, SignError> {
-        tx.sign(&self.zklink_signer)?;
-        let should_valid = tx.is_signature_valid();
-        assert!(should_valid);
-        // create onchain auth data
-        tx.eth_auth_data = ChangePubKeyAuthData::Onchain;
-        Ok(TxSignature {
-            tx: tx.into(),
-            eth_signature: None,
-        })
-    }
-
-    pub async fn do_sign_change_pubkey_with_eth_ecdsa_auth(
+    #[inline]
+    pub async fn sign_change_pubkey_with_eth_ecdsa_auth(
         &self,
         mut tx: ChangePubKey,
         l1_client_id: u32,
@@ -113,16 +82,6 @@ impl JsonRpcSigner {
         })
     }
 
-    pub async fn sign_change_pubkey_with_eth_ecdsa_auth(
-        &self,
-        tx: ChangePubKey,
-        l1_client_id: u32,
-        main_contract_address: ZkLinkAddress,
-    ) -> Result<TxSignature, SignError> {
-        self.do_sign_change_pubkey_with_eth_ecdsa_auth(tx, l1_client_id, main_contract_address)
-            .await
-    }
-
     pub async fn sign_withdraw(
         &self,
         tx: Withdraw,
@@ -137,24 +96,26 @@ impl JsonRpcSigner {
         .await
     }
 
+    #[inline]
     pub fn sign_forced_exit(&self, tx: ForcedExit) -> Result<TxSignature, SignError> {
         let signature = sign_forced_exit(&self.zklink_signer, tx)?;
         Ok(signature)
     }
 
-    pub fn sign_order(&self, order: &Order) -> Result<Order, SignError> {
-        let signed_order = sign_order(order, &self.zklink_signer)?;
+    #[inline]
+    pub fn create_signed_order(&self, order: &Order) -> Result<Order, SignError> {
+        let signed_order = create_signed_order(&self.zklink_signer, order)?;
         Ok(signed_order)
     }
 
+    #[inline]
     pub fn sign_order_matching(&self, tx: OrderMatching) -> Result<TxSignature, SignError> {
         let signature = sign_order_matching(&self.zklink_signer, tx)?;
         Ok(signature)
     }
 
+    #[inline]
     pub fn submitter_signature(&self, zklink_tx: &ZkLinkTx) -> Result<ZkLinkSignature, SignError> {
-        let tx_hash = zklink_tx.tx_hash();
-        let signature = self.zklink_signer.sign_musig(tx_hash.as_ref())?;
-        Ok(signature)
+        do_submitter_signature(&self.zklink_signer, zklink_tx)
     }
 }

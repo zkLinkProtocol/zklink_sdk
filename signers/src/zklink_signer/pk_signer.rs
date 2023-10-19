@@ -99,7 +99,7 @@ impl ZkLinkSigner {
     }
 
     #[cfg(feature = "web")]
-    pub async fn new_from_eth_json_rpc_signer(eth_signer: &JsonRpcSigner) -> Result<Self, Error> {
+    pub async fn new_from_eth_rpc_signer(eth_signer: &JsonRpcSigner) -> Result<Self, Error> {
         let signature = eth_signer
             .sign_message(Self::SIGN_MESSAGE.as_bytes())
             .await?;

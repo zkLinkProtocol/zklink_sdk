@@ -10,10 +10,10 @@ pub use pk_signer::EthSigner;
 pub mod eip1271_signature;
 pub mod eip712;
 pub mod error;
+#[cfg(feature = "web")]
+pub mod json_rpc_signer;
 pub mod packed_eth_signature;
 pub mod pk_signer;
-// #[cfg(feature = "web")]
-pub mod json_rpc_signer;
 
 pub type Address = H160;
 
