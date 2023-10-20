@@ -155,4 +155,11 @@ pub trait ZkSignatureTrait: TxTrait {
         let signature = signer.sign_musig(&bytes)?;
         Ok(signature)
     }
+
+    #[cfg(not(feature = "ffi"))]
+    fn submitter_signature(&self, signer: &ZkLinkSigner) -> Result<ZkLinkSignature, ZkSignerError> {
+        let bytes = self.tx_hash();
+        let signature = signer.sign_musig(&bytes)?;
+        Ok(signature)
+    }
 }

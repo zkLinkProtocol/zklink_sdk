@@ -1,6 +1,9 @@
 use crate::error::SignError;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
+#[cfg(feature = "web")]
+use zklink_sdk_signers::eth_signer::json_rpc_signer::JsonRpcSigner;
+#[cfg(not(feature = "web"))]
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_types::prelude::TxSignature;
@@ -9,6 +12,7 @@ use zklink_sdk_types::tx_type::withdraw::Withdraw;
 use zklink_sdk_types::tx_type::TxTrait;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
 
+#[cfg(not(feature = "web"))]
 pub fn sign_withdraw(
     eth_signer: &EthSigner,
     zklink_singer: &ZkLinkSigner,
@@ -18,6 +22,23 @@ pub fn sign_withdraw(
     tx.sign(zklink_singer)?;
     let message = tx.get_eth_sign_msg(l2_source_token_symbol);
     let eth_signature = eth_signer.sign_message(message.as_bytes())?;
+
+    Ok(TxSignature {
+        tx: tx.into(),
+        eth_signature: Some(eth_signature),
+    })
+}
+
+#[cfg(feature = "web")]
+pub async fn sign_withdraw(
+    eth_signer: &JsonRpcSigner,
+    zklink_singer: &ZkLinkSigner,
+    mut tx: Withdraw,
+    l2_source_token_symbol: &str,
+) -> Result<TxSignature, SignError> {
+    tx.sign(zklink_singer)?;
+    let message = tx.get_eth_sign_msg(l2_source_token_symbol);
+    let eth_signature = eth_signer.sign_message(message.as_bytes()).await?;
 
     Ok(TxSignature {
         tx: tx.into(),

@@ -1,4 +1,6 @@
+use crate::error::RpcError;
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 /// Network to be used for a zklink client.
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
@@ -8,6 +10,8 @@ pub enum Network {
     MainNet,
     /// Test network for testkit purposes
     TestNet,
+    /// Develop network
+    DevNet,
 }
 
 impl Network {
@@ -15,6 +19,20 @@ impl Network {
         match self {
             Network::MainNet => "https://api-v1.zk.link",
             Network::TestNet => "https://aws-gw-v2.zk.link",
+            Network::DevNet => "https://dev-gw-v1.zk.link",
+        }
+    }
+}
+
+impl FromStr for Network {
+    type Err = RpcError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "mainet" => Ok(Network::MainNet),
+            "testnet" => Ok(Network::TestNet),
+            "devnet" => Ok(Network::DevNet),
+            _ => Err(RpcError::InvalidNetwork),
         }
     }
 }

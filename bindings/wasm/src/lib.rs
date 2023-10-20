@@ -1,8 +1,11 @@
-#[cfg(target_arch = "wasm32")]
-pub mod crypto;
-// #[cfg(not(target_arch = "wasm32"))]
-// pub mod wallet;
-// #[cfg(not(target_arch = "wasm32"))]
-// pub mod error;
+#![cfg(target_arch = "wasm32")]
+#[cfg(feature = "web")]
+pub mod json_rpc_signer;
+pub mod rpc_client;
+pub mod rpc_type_converter;
+#[cfg(not(feature = "web"))]
+pub mod signer;
+pub mod tx_types;
+pub mod utils;
 
 extern crate getrandom;
