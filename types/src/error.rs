@@ -1,4 +1,6 @@
 use thiserror::Error;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::JsValue;
 
 #[derive(Debug, Error, PartialEq)]
 pub enum TypeError {
@@ -14,4 +16,13 @@ pub enum TypeError {
     DecodeFromHexErr(String),
     #[error("Integer is too big")]
     TooBigInteger,
+    #[error("{0}")]
+    InvalidBigIntStr(String),
+}
+
+#[cfg(target_arch = "wasm32")]
+impl From<TypeError> for JsValue {
+    fn from(error: TypeError) -> Self {
+        JsValue::from_str(&format!("error: {error}"))
+    }
 }

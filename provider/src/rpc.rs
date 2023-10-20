@@ -1,4 +1,3 @@
-use jsonrpsee::core::RpcResult;
 use jsonrpsee::proc_macros::rpc;
 use std::collections::HashMap;
 

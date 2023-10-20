@@ -277,6 +277,7 @@ pub struct ZkLinkTxHistory {
     pub tx: ZkLinkTx,
     pub tx_hash: TxHash,
     pub tx_receipt: TxReceiptResp,
+    #[serde(with = "ts_microseconds")]
     pub created_at: DateTime<Utc>,
 }
 

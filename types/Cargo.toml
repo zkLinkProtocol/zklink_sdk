@@ -12,6 +12,7 @@ serde = "1.0"
 serde_json = "1.0"
 thiserror = "1.0"
 validator = { version = "0.15", features = ["derive"] }
+wasm-bindgen = { version = "0.2.87", features = ["serde-serialize"] }
 zklink_sdk_signers = { path = "../signers" }
 zklink_sdk_utils = { path = "../utils" }
 
@@ -21,3 +22,4 @@ zklink_sdk_utils = { path = "../utils" }
 default = []
 #ffi = ["uniffi", "uniffi_macros"]
 ffi = []
+web = []

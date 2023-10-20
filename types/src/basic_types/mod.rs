@@ -15,7 +15,7 @@ mod macros;
 pub mod bigunit_wrapper;
 pub mod bit_convert;
 pub mod float_convert;
-pub(crate) mod pack;
+pub mod pack;
 pub(crate) mod pad;
 pub(crate) mod params;
 pub mod tx_hash;
