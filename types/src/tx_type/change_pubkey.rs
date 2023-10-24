@@ -57,6 +57,7 @@ pub enum ChangePubKeyAuthData {
         eth_signature: PackedEthSignature,
     },
     EthCreate2 {
+        #[serde(flatten)]
         data: Create2Data,
     },
 }
@@ -328,5 +329,35 @@ mod test {
         let eth_sign_msg = ChangePubKey::get_eth_sign_msg(&pubkey_hash, nonce, account_id);
         let eth_signature = signer.sign_message(eth_sign_msg.as_bytes()).unwrap();
         assert_eq!(eth_signature.as_hex(), "0xefd0d9c6beb00310535bb51ee58745adb547e7d875d5823892365a6450caf6c559a6a4bfd83bf336ac59cf83e97948dbf607bf2aecd24f6829c3deac20ecdb601b");
+    }
+
+    #[test]
+    fn test_change_pubkey_create2() {
+        let s = r#"
+        {
+   "ethAuthType":"EthCreate2",
+   "chainId":2,
+   "account":"0x4504d5BE8634e3896d42784A5aB89fc41C3d4511",
+   "accountId":22,
+   "subAccountId":0,
+   "fee":"0",
+   "nonce":0,
+   "ts":1698128102,
+   "type":"ChangePubKey",
+   "newPkHash":"0x179d3888ad53fb3ce5e01f548c2e7c50dea076a6",
+   "feeToken":17,
+   "ethAuthData":{
+      "type":"EthCreate2",
+      "creatorAddress":"0x6E253C951A40fAf4032faFbEc19262Cd1531A5F5",
+      "saltArg":"0x0000000000000000000000000000000000000000000000000000000000000000",
+      "codeHash":"0x4f063cd4b2e3a885f61fefb0988cc12487182c4f09ff5de374103f5812f33fe7"
+   },
+   "signature":{
+      "pubKey":"0b3e7d5328193b9cda3d5372cece28be209b4c7c136e734c6261c4fda965e710",
+      "signature":"2f28abf960060dab8d829af5e243b35e2d41545c3354eef4f897a44bca73c629b60d997e343c4a0dd95e68f879c1e09c17fccb93906d458b1a75b7910d89a303"
+   }
+}"#;
+        let tx: Result<ChangePubKey, _> = serde_json::from_str(s);
+        assert!(tx.is_ok())
     }
 }
