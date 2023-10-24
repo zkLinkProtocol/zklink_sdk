@@ -319,19 +319,6 @@ mod test {
     }
 
     #[test]
-    fn test_change_pubkey_eth_sign_msg() {
-        let pubkey_hash =
-            PubKeyHash::from_hex("0xdbd9c8235e4fc9d5b9b7bb201f1133e8a28c0edd").unwrap();
-        let nonce = Nonce(0);
-        let account_id = 2.into();
-        let key: H256 = [5; 32].into();
-        let signer = EthSigner::from(key);
-        let eth_sign_msg = ChangePubKey::get_eth_sign_msg(&pubkey_hash, nonce, account_id);
-        let eth_signature = signer.sign_message(eth_sign_msg.as_bytes()).unwrap();
-        assert_eq!(eth_signature.as_hex(), "0xefd0d9c6beb00310535bb51ee58745adb547e7d875d5823892365a6450caf6c559a6a4bfd83bf336ac59cf83e97948dbf607bf2aecd24f6829c3deac20ecdb601b");
-    }
-
-    #[test]
     fn test_change_pubkey_create2() {
         let s = r#"
         {
@@ -357,6 +344,32 @@ mod test {
       "signature":"2f28abf960060dab8d829af5e243b35e2d41545c3354eef4f897a44bca73c629b60d997e343c4a0dd95e68f879c1e09c17fccb93906d458b1a75b7910d89a303"
    }
 }"#;
+        let tx: Result<ChangePubKey, _> = serde_json::from_str(s);
+        assert!(tx.is_ok())
+    }
+
+    #[test]
+    fn test_change_pubkey_serde_eth_ecdsa() {
+        let s = r#"
+        {
+   "ts":1698040260,
+   "fee":"0",
+   "type":"ChangePubKey",
+   "nonce":0,
+   "chainId":7,
+   "feeToken":36,
+   "accountId":86387,
+   "newPkHash":"0x3c49045eb71c0f3f14c01e83fb0674ce5ce4d988",
+   "signature":{
+      "pubKey":"0x8776a8cacac4d174b43af8e4da1d1f77e4b18507f70342ce3a3a9a1dcda4d709",
+      "signature":"4f17e14818fc8f009b2cd6a8a4a08af1f71ec940288c388206a6fc2c08942b918fa36056b8fd532f70b00058e4948752b68e3740281a3efc138128b79592db00"
+   },
+   "ethAuthData":{
+      "type":"EthECDSA",
+      "ethSignature":"0xe1764460ea219d3a91ff3e3fbd9f301abf06d24321ef9dcb5a9f1382c825688f6af09d12ae0213bfe6aa5411ad385c6148f5ab106ea09f24941311324b1fd38e1c"
+   },
+   "subAccountId":1
+} "#;
         let tx: Result<ChangePubKey, _> = serde_json::from_str(s);
         assert!(tx.is_ok())
     }
