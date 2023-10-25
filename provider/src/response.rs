@@ -314,6 +314,7 @@ mod test {
 	"gateways": [
 		{
 			"chainId": 5,
+			"l1GatewayChainId": 43113,
 			"l1GatewayContract": "0xffffffffffffffffffffffffffffffffffffffff",
 			"l2GatewayContract": "0xffffffffffffffffffffffffffffffffffffffff",
 			"tokens": [
@@ -331,6 +332,7 @@ mod test {
 		},
 		{
 			"chainId": 7,
+			"l1GatewayChainId": 1,
 			"l1GatewayContract": "0xffffffffffffffffffffffffffffffffffffffff",
 			"l2GatewayContract": "0xffffffffffffffffffffffffffffffffffffffff",
 			"tokens": [
