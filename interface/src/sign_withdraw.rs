@@ -3,10 +3,10 @@ use crate::error::SignError;
 use std::sync::Arc;
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
+#[cfg(feature = "ffi")]
+use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::prelude::TxSignature;
 use zklink_sdk_types::tx_type::withdraw::Withdraw;
-#[cfg(feature = "ffi")]
-use zklink_sdk_types::tx_type::TxTrait;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
 
 pub fn sign_withdraw(
@@ -61,7 +61,7 @@ mod tests {
             withdraw_fee_ratio: 50,
             timestamp: TimeStamp(1649749979),
         };
-        let tx = Withdraw::new(builder);
+        let tx = builder.build();
         let eth_signer = eth_pk.into();
         let zk_signer = ZkLinkSigner::new_from_eth_signer(&eth_signer).unwrap();
         let signature = sign_withdraw(&eth_signer, &zk_signer, tx, "USD").unwrap();

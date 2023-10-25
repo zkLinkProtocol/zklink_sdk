@@ -20,6 +20,7 @@ use zklink_sdk_signers::zklink_signer::signature::{PackedSignature, ZkLinkSignat
 
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
 use zklink_sdk_types::basic_types::zklink_address::ZkLinkAddress;
+use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::basic_types::{
     AccountId, BigUint, BlockNumber, ChainId, EthBlockId, Nonce, PairId, PriorityOpId, SlotId,
     SubAccountId, TimeStamp, TokenId,

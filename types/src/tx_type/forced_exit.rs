@@ -2,11 +2,12 @@ use num::{BigUint, ToPrimitive};
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
-use crate::basic_types::params::{SIGNED_FORCED_EXIT_BIT_WIDTH, TX_TYPE_BIT_WIDTH};
 use crate::basic_types::{
-    AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
+    AccountId, ChainId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
-use crate::tx_builder::ForcedExitBuilder;
+use crate::params::{SIGNED_FORCED_EXIT_BIT_WIDTH, TX_TYPE_BIT_WIDTH};
+#[cfg(feature = "ffi")]
+use crate::prelude::ForcedExitBuilder;
 use crate::tx_type::validator::*;
 use crate::tx_type::{TxTrait, ZkSignatureTrait};
 use serde::{Deserialize, Serialize};
@@ -66,39 +67,16 @@ pub struct ForcedExit {
 }
 
 impl ForcedExit {
-    /// Creates transaction from all the required fields.
-    ///
-    /// While `signature` field is mandatory for new transactions, it may be `None`
-    /// in some cases (e.g. when restoring the network state from the L1 contract data).
+    #[cfg(feature = "ffi")]
     pub fn new(builder: ForcedExitBuilder) -> Self {
-        Self {
-            to_chain_id: builder.to_chain_id,
-            initiator_account_id: builder.initiator_account_id,
-            initiator_sub_account_id: builder.initiator_sub_account_id,
-            target_sub_account_id: builder.target_sub_account_id,
-            target: builder.target,
-            l2_source_token: builder.l2_source_token,
-            l1_target_token: builder.l1_target_token,
-            initiator_nonce: builder.initiator_nonce,
-            signature: ZkLinkSignature::default(),
-            ts: builder.timestamp,
-            exit_amount: builder.exit_amount,
-            withdraw_to_l1: u8::from(builder.withdraw_to_l1),
-        }
-    }
-
-    pub fn get_eth_sign_msg_part(&self) -> String {
-        todo!("get eth sign message part")
-    }
-
-    pub fn get_eth_sign_msg(&self) -> String {
-        todo!("get eth sign msg")
+        builder.build()
     }
 }
 
-impl TxTrait for ForcedExit {
+impl GetBytes for ForcedExit {
     fn get_bytes(&self) -> Vec<u8> {
-        let mut out = Vec::new();
+        let bytes_len = self.bytes_len();
+        let mut out = Vec::with_capacity(bytes_len);
         out.extend_from_slice(&[Self::TX_TYPE]);
         out.extend_from_slice(&self.to_chain_id.to_be_bytes());
         out.extend_from_slice(&self.initiator_account_id.to_be_bytes());
@@ -111,11 +89,16 @@ impl TxTrait for ForcedExit {
         out.extend_from_slice(&self.exit_amount.to_u128().unwrap().to_be_bytes());
         out.push(self.withdraw_to_l1);
         out.extend_from_slice(&self.ts.to_be_bytes());
-        assert_eq!(out.len() * TX_TYPE_BIT_WIDTH, SIGNED_FORCED_EXIT_BIT_WIDTH);
+        assert_eq!(out.len(), bytes_len);
         out
+    }
+
+    fn bytes_len(&self) -> usize {
+        SIGNED_FORCED_EXIT_BIT_WIDTH / TX_TYPE_BIT_WIDTH
     }
 }
 
+impl TxTrait for ForcedExit {}
 impl ZkSignatureTrait for ForcedExit {
     fn set_signature(&mut self, signature: ZkLinkSignature) {
         self.signature = signature;
@@ -135,6 +118,7 @@ impl ZkSignatureTrait for ForcedExit {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::prelude::ForcedExitBuilder;
     use std::str::FromStr;
 
     #[test]
@@ -155,7 +139,7 @@ mod test {
             withdraw_to_l1: false,
             timestamp: ts.into(),
         };
-        let forced_exit = ForcedExit::new(builder);
+        let forced_exit = builder.build();
         let bytes = forced_exit.get_bytes();
         let excepted_bytes = [
             7, 1, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4,

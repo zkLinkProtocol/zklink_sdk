@@ -3,9 +3,9 @@ use crate::error::SignError;
 use std::sync::Arc;
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::prelude::TxSignature;
 use zklink_sdk_types::tx_type::transfer::Transfer;
-use zklink_sdk_types::tx_type::TxTrait;
 
 pub fn sign_transfer(
     eth_signer: &EthSigner,
@@ -57,7 +57,7 @@ mod tests {
             nonce: Nonce(1),
             timestamp: TimeStamp(1646101085),
         };
-        let tx = Transfer::new(builder);
+        let tx = builder.build();
 
         let signature = sign_transfer(&eth_signer, &zk_signer, tx, "USD").unwrap();
         let eth_sign = signature

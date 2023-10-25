@@ -13,13 +13,17 @@ pub use zklink_address::ZkLinkAddress;
 #[macro_use]
 mod macros;
 pub mod bigunit_wrapper;
-pub(crate) mod float_convert;
+pub mod bit_convert;
+pub mod float_convert;
 pub(crate) mod pack;
+pub(crate) mod pad;
 pub(crate) mod params;
 pub mod tx_hash;
 pub mod zklink_address;
 
+use crate::params::{ACCOUNT_ID_BIT_WIDTH, TOKEN_BIT_WIDTH};
 pub use num::BigUint;
+use zklink_sdk_signers::zklink_signer::utils::rescue_hash_orders;
 
 basic_type!(
     /// Unique identifier of the slot in the zklink network.
@@ -85,3 +89,56 @@ basic_type!(
     SubAccountId,
     u8
 );
+
+basic_type!(
+    /// Unique identifier of the margin in the network
+    MarginId,
+    u8
+);
+
+pub trait GetBytes {
+    /// the length of encoded bytes
+    fn bytes_len(&self) -> usize;
+
+    /// Encodes the data as the byte sequence.
+    fn get_bytes(&self) -> Vec<u8>;
+
+    /// calculate the hash of encoded bytes
+    fn rescue_hash(&self) -> Vec<u8> {
+        let mut hash_input = self.get_bytes();
+        hash_input.resize(self.bytes_len(), 0);
+        rescue_hash_orders(&hash_input)
+    }
+}
+
+impl GetBytes for AccountId {
+    fn get_bytes(&self) -> Vec<u8> {
+        self.0.to_be_bytes().to_vec()
+    }
+
+    fn bytes_len(&self) -> usize {
+        ACCOUNT_ID_BIT_WIDTH / 8
+    }
+}
+
+impl GetBytes for TokenId {
+    fn get_bytes(&self) -> Vec<u8> {
+        (self.0 as u16).to_be_bytes().to_vec()
+    }
+    fn bytes_len(&self) -> usize {
+        TOKEN_BIT_WIDTH / 8
+    }
+}
+
+impl<T: GetBytes> GetBytes for Vec<T> {
+    fn get_bytes(&self) -> Vec<u8> {
+        let bytes_len = self.bytes_len();
+        let mut contracts_encode = Vec::with_capacity(bytes_len);
+        self.iter()
+            .for_each(|info| contracts_encode.extend(info.get_bytes()));
+        contracts_encode
+    }
+    fn bytes_len(&self) -> usize {
+        self.iter().map(|v| v.bytes_len()).sum()
+    }
+}

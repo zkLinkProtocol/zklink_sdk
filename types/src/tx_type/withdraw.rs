@@ -10,13 +10,12 @@ use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 use crate::basic_types::pack::pack_fee_amount;
-use crate::basic_types::params::{
-    SIGNED_WITHDRAW_BIT_WIDTH, TOKEN_MAX_PRECISION, TX_TYPE_BIT_WIDTH,
-};
 use crate::basic_types::{
-    AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
+    AccountId, ChainId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
-use crate::tx_builder::WithdrawBuilder;
+use crate::params::TOKEN_PRICE_MAX_PRECISION;
+#[cfg(feature = "ffi")]
+use crate::prelude::WithdrawBuilder;
 use crate::tx_type::validator::*;
 use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait};
 use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
@@ -65,37 +64,16 @@ pub struct Withdraw {
     #[validate(custom = "boolean_validator")]
     pub withdraw_to_l1: u8,
     /// Amount of funds to withdraw.
-    #[validate(custom = "withdraw_fee_ratio_validator")]
+    #[validate(custom = "rate_validator")]
     pub withdraw_fee_ratio: u16,
     /// Used as request id
     pub ts: TimeStamp,
 }
 
 impl Withdraw {
-    /// Creates transaction from all the required fields.
-    ///
-    /// While `signature` field is mandatory for new transactions, it may be `None`
-    /// in some cases (e.g. when restoring the network state from the L1 contract data).
+    #[cfg(feature = "ffi")]
     pub fn new(builder: WithdrawBuilder) -> Self {
-        let fast_withdraw = u8::from(builder.fast_withdraw);
-        let withdraw_to_l1 = u8::from(builder.withdraw_to_l1);
-
-        Self {
-            to_chain_id: builder.to_chain_id,
-            account_id: builder.account_id,
-            sub_account_id: builder.sub_account_id,
-            to: builder.to_address,
-            l2_source_token: builder.l2_source_token,
-            l1_target_token: builder.l1_target_token,
-            amount: builder.amount,
-            fee: builder.fee,
-            nonce: builder.nonce,
-            signature: ZkLinkSignature::default(),
-            fast_withdraw,
-            withdraw_to_l1,
-            withdraw_fee_ratio: builder.withdraw_fee_ratio,
-            ts: builder.timestamp,
-        }
+        builder.build()
     }
 
     /// Restores the `PubKeyHash` from the transaction signature.
@@ -113,7 +91,7 @@ impl Withdraw {
         ethereum_sign_message_part(
             "Withdraw",
             token_symbol,
-            TOKEN_MAX_PRECISION,
+            TOKEN_PRICE_MAX_PRECISION as u8,
             &self.amount,
             &self.fee,
             &self.to,
@@ -153,9 +131,10 @@ impl Withdraw {
     }
 }
 
-impl TxTrait for Withdraw {
+impl GetBytes for Withdraw {
     fn get_bytes(&self) -> Vec<u8> {
-        let mut out = Vec::new();
+        let bytes_len = self.bytes_len();
+        let mut out = Vec::with_capacity(bytes_len);
         out.extend_from_slice(&[Self::TX_TYPE]);
         out.extend_from_slice(&self.to_chain_id.to_be_bytes());
         out.extend_from_slice(&self.account_id.to_be_bytes());
@@ -170,10 +149,16 @@ impl TxTrait for Withdraw {
         out.push(self.withdraw_to_l1);
         out.extend_from_slice(&self.withdraw_fee_ratio.to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
-        assert_eq!(out.len() * TX_TYPE_BIT_WIDTH, SIGNED_WITHDRAW_BIT_WIDTH);
+        assert_eq!(out.len(), bytes_len);
         out
     }
+
+    fn bytes_len(&self) -> usize {
+        73
+    }
 }
+
+impl TxTrait for Withdraw {}
 
 impl ZkSignatureTrait for Withdraw {
     fn set_signature(&mut self, signature: ZkLinkSignature) {
@@ -194,6 +179,7 @@ impl ZkSignatureTrait for Withdraw {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::prelude::WithdrawBuilder;
     use std::str::FromStr;
 
     #[test]
@@ -216,7 +202,7 @@ mod test {
             withdraw_fee_ratio: 0,
             timestamp: ts.into(),
         };
-        let withdraw = Withdraw::new(builder);
+        let withdraw = builder.build();
         let bytes = withdraw.get_bytes();
         let excepted_bytes = [
             3, 1, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4,

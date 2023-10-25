@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 use validator::{Validate, ValidationErrors};
 
-use crate::basic_types::{tx_hash::TxHash, Nonce, SubAccountId};
+use crate::basic_types::{tx_hash::TxHash, GetBytes, Nonce, SubAccountId};
+use crate::prelude::{AutoDeleveraging, ContractMatching, Funding, Liquidation, UpdateGlobalVar};
 use crate::tx_type::change_pubkey::ChangePubKey;
 use crate::tx_type::deposit::Deposit;
 use crate::tx_type::forced_exit::ForcedExit;
@@ -48,6 +49,11 @@ pub enum ZkLinkTx {
     ChangePubKey(Box<ChangePubKey>),
     ForcedExit(Box<ForcedExit>),
     OrderMatching(Box<OrderMatching>),
+    ContractMatching(Box<ContractMatching>),
+    Liquidation(Box<Liquidation>),
+    AutoDeleveraging(Box<AutoDeleveraging>),
+    UpdateGlobalVar(Box<UpdateGlobalVar>),
+    Funding(Box<Funding>),
 }
 
 impl From<FullExit> for ZkLinkTx {
@@ -92,6 +98,36 @@ impl From<OrderMatching> for ZkLinkTx {
     }
 }
 
+impl From<ContractMatching> for ZkLinkTx {
+    fn from(tx: ContractMatching) -> Self {
+        Self::ContractMatching(Box::new(tx))
+    }
+}
+
+impl From<Liquidation> for ZkLinkTx {
+    fn from(tx: Liquidation) -> Self {
+        Self::Liquidation(Box::new(tx))
+    }
+}
+
+impl From<AutoDeleveraging> for ZkLinkTx {
+    fn from(tx: AutoDeleveraging) -> Self {
+        Self::AutoDeleveraging(Box::new(tx))
+    }
+}
+
+impl From<UpdateGlobalVar> for ZkLinkTx {
+    fn from(tx: UpdateGlobalVar) -> Self {
+        Self::UpdateGlobalVar(Box::new(tx))
+    }
+}
+
+impl From<Funding> for ZkLinkTx {
+    fn from(tx: Funding) -> Self {
+        Self::Funding(Box::new(tx))
+    }
+}
+
 impl ZkLinkTx {
     /// Check tx format
     pub fn validate(&self) -> Result<(), ValidationErrors> {
@@ -103,6 +139,11 @@ impl ZkLinkTx {
             ZkLinkTx::OrderMatching(tx) => tx.validate(),
             ZkLinkTx::Deposit(tx) => tx.validate(),
             ZkLinkTx::FullExit(tx) => tx.validate(),
+            ZkLinkTx::ContractMatching(tx) => tx.validate(),
+            ZkLinkTx::Liquidation(tx) => tx.validate(),
+            ZkLinkTx::AutoDeleveraging(tx) => tx.validate(),
+            ZkLinkTx::UpdateGlobalVar(tx) => tx.validate(),
+            ZkLinkTx::Funding(tx) => tx.validate(),
         }
     }
 
@@ -114,8 +155,13 @@ impl ZkLinkTx {
             ZkLinkTx::ChangePubKey(tx) => tx.is_valid(),
             ZkLinkTx::ForcedExit(tx) => tx.is_valid(),
             ZkLinkTx::OrderMatching(tx) => tx.is_valid(),
-            ZkLinkTx::FullExit(tx) => tx.is_valid(),
             ZkLinkTx::Deposit(tx) => tx.is_valid(),
+            ZkLinkTx::FullExit(tx) => tx.is_valid(),
+            ZkLinkTx::ContractMatching(tx) => tx.is_valid(),
+            ZkLinkTx::Liquidation(tx) => tx.is_valid(),
+            ZkLinkTx::AutoDeleveraging(tx) => tx.is_valid(),
+            ZkLinkTx::UpdateGlobalVar(tx) => tx.is_valid(),
+            ZkLinkTx::Funding(tx) => tx.is_valid(),
         }
     }
 
@@ -129,6 +175,11 @@ impl ZkLinkTx {
             ZkLinkTx::Deposit(tx) => tx.tx_hash(),
             ZkLinkTx::FullExit(tx) => tx.tx_hash(),
             ZkLinkTx::OrderMatching(tx) => tx.tx_hash(),
+            ZkLinkTx::ContractMatching(tx) => tx.get_bytes(),
+            ZkLinkTx::Liquidation(tx) => tx.get_bytes(),
+            ZkLinkTx::AutoDeleveraging(tx) => tx.get_bytes(),
+            ZkLinkTx::UpdateGlobalVar(tx) => tx.get_bytes(),
+            ZkLinkTx::Funding(tx) => tx.get_bytes(),
         };
 
         let mut out = [0u8; 32];
@@ -158,6 +209,10 @@ impl ZkLinkTx {
             // account pay fee
             // sub account ids of order are same as tx.sub_account_id
             ZkLinkTx::OrderMatching(tx) => vec![tx.sub_account_id],
+            ZkLinkTx::Liquidation(tx) => vec![tx.sub_account_id],
+            ZkLinkTx::ContractMatching(tx) => vec![tx.sub_account_id],
+            ZkLinkTx::AutoDeleveraging(tx) => vec![tx.sub_account_id],
+            ZkLinkTx::Funding(tx) => vec![tx.sub_account_id],
             _ => vec![],
         }
     }
@@ -169,9 +224,13 @@ impl ZkLinkTx {
             ZkLinkTx::Withdraw(tx) => tx.nonce,
             ZkLinkTx::ChangePubKey(tx) => tx.nonce,
             ZkLinkTx::ForcedExit(tx) => tx.initiator_nonce,
-            ZkLinkTx::OrderMatching(_tx) => Nonce(u32::MAX),
             ZkLinkTx::FullExit(tx) => Nonce((tx.serial_id & 0xffffffff) as u32),
             ZkLinkTx::Deposit(tx) => Nonce((tx.serial_id & 0xffffffff) as u32),
+            ZkLinkTx::Liquidation(tx) => tx.sub_account_nonce,
+            ZkLinkTx::AutoDeleveraging(tx) => tx.sub_account_nonce,
+            ZkLinkTx::UpdateGlobalVar(tx) => Nonce((tx.serial_id & 0xffffffff) as u32),
+            ZkLinkTx::Funding(tx) => tx.sub_account_nonce,
+            _ => Nonce(u32::MAX),
         }
     }
 }

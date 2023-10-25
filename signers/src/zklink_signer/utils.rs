@@ -74,7 +74,7 @@ pub(crate) fn rescue_hash_elements(input: &[Fr]) -> Fr {
     })
 }
 
-pub(crate) fn rescue_hash_tx_msg(msg: &[u8]) -> Vec<u8> {
+pub fn rescue_hash_tx_msg(msg: &[u8]) -> Vec<u8> {
     let mut msg_bits = bytes_into_be_bits(msg);
     assert!(msg_bits.len() <= PAD_MSG_BEFORE_HASH_BITS_LEN);
     msg_bits.resize(PAD_MSG_BEFORE_HASH_BITS_LEN, false);
@@ -100,9 +100,40 @@ fn get_bits_le_fixed(fr: &Fr, size: usize) -> Vec<bool> {
 }
 
 pub fn rescue_hash_orders(msg: &[u8]) -> Vec<u8> {
-    assert_eq!(msg.len(), 178);
     let msg_bits = bytes_into_be_bits(msg);
     let hash_fr = rescue_hash_fr(msg_bits);
     let hash_bits = get_bits_le_fixed(&hash_fr, 248);
     pack_bits_into_bytes_le(&hash_bits)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_rescue_hash_tx_msg() {
+        let msg = [1u8, 2u8, 3u8, 4u8];
+        let hash = rescue_hash_tx_msg(&msg);
+
+        assert_eq!(
+            hash,
+            vec![
+                249, 154, 208, 123, 96, 89, 132, 235, 231, 63, 56, 200, 153, 131, 27, 183, 128, 71,
+                26, 245, 208, 120, 49, 246, 233, 72, 230, 84, 66, 150, 170, 27
+            ]
+        );
+    }
+
+    #[test]
+    fn test_rescue_hash_orders() {
+        let msg = [1u8, 2, 3, 4, 5];
+        let hash = rescue_hash_orders(&msg);
+        assert_eq!(
+            hash,
+            vec![
+                88, 229, 220, 95, 31, 216, 185, 113, 100, 149, 78, 174, 140, 96, 206, 176, 152, 81,
+                237, 23, 246, 77, 252, 113, 151, 247, 40, 110, 136, 240, 36
+            ]
+        );
+    }
 }

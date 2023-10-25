@@ -2,9 +2,9 @@
 use std::sync::Arc;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::prelude::TxSignature;
 use zklink_sdk_types::tx_type::forced_exit::ForcedExit;
-use zklink_sdk_types::tx_type::TxTrait;
 
 pub fn sign_forced_exit(
     zklink_signer: &ZkLinkSigner,
@@ -52,7 +52,7 @@ mod tests {
             withdraw_to_l1: false,
             timestamp: TimeStamp(1649749979),
         };
-        let tx = ForcedExit::new(builder);
+        let tx = builder.build();
 
         let signature = sign_forced_exit(&zk_signer, tx).unwrap();
         assert!(signature.eth_signature.is_none());

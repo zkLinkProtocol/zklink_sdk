@@ -1,6 +1,7 @@
 use super::validator::*;
-use crate::basic_types::{AccountId, ChainId, SubAccountId, TokenId, ZkLinkAddress};
-use crate::tx_builder::FullExitBuilder;
+use crate::basic_types::{AccountId, ChainId, GetBytes, SubAccountId, TokenId, ZkLinkAddress};
+#[cfg(feature = "ffi")]
+use crate::prelude::FullExitBuilder;
 use crate::tx_type::TxTrait;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
@@ -28,41 +29,36 @@ pub struct FullExit {
 }
 
 impl FullExit {
-    /// Creates transaction from all the required fields.
-    ///
-    /// While `signature` field is mandatory for new transactions, it may be `None`
-    /// in some cases (e.g. when restoring the network state from the L1 contract data).
-    #[allow(clippy::too_many_arguments)]
+    #[cfg(feature = "ffi")]
     pub fn new(builder: FullExitBuilder) -> Self {
-        Self {
-            to_chain_id: builder.to_chain_id,
-            account_id: builder.account_id,
-            sub_account_id: builder.sub_account_id,
-            exit_address: builder.exit_address,
-            l2_source_token: builder.l2_source_token,
-            l1_target_token: builder.l1_target_token,
-            serial_id: builder.serial_id,
-            eth_hash: builder.eth_hash,
-        }
+        builder.build()
     }
 }
 
-impl TxTrait for FullExit {
+impl GetBytes for FullExit {
     fn get_bytes(&self) -> Vec<u8> {
-        let mut out = Vec::new();
+        let bytes_len = self.bytes_len();
+        let mut out = Vec::with_capacity(bytes_len);
         out.extend_from_slice(&self.serial_id.to_be_bytes());
         out.extend_from_slice(self.eth_hash.as_bytes());
+        assert_eq!(out.len(), bytes_len);
         out
     }
+    fn bytes_len(&self) -> usize {
+        40
+    }
 }
+
+impl TxTrait for FullExit {}
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::prelude::FullExitBuilder;
     use std::str::FromStr;
 
     #[test]
-    fn test_get_bytes() {
+    fn test_force_exit_get_bytes() {
         let address =
             ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
         let eth_hash =
@@ -78,7 +74,7 @@ mod test {
             serial_id: 100,
             eth_hash,
         };
-        let full_exit = FullExit::new(builder);
+        let full_exit = builder.build();
         let bytes = full_exit.get_bytes();
         let excepted_bytes = [
             0, 0, 0, 0, 0, 0, 0, 100, 227, 95, 58, 57, 213, 66, 246, 210, 118, 194, 242, 3, 232,
