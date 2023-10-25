@@ -290,6 +290,7 @@ pub struct EthPropertyResp {
 #[serde(rename_all = "camelCase")]
 pub struct GateWayInfo {
     pub chain_id: ChainId,
+    pub l1_gateway_chain_id: u64,
     pub l1_gateway_contract: ZkLinkAddress,
     pub l2_gateway_contract: ZkLinkAddress,
     pub tokens: Vec<TokenInfo>,
