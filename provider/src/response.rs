@@ -290,7 +290,7 @@ pub struct EthPropertyResp {
 #[serde(rename_all = "camelCase")]
 pub struct GateWayInfo {
     pub chain_id: ChainId,
-    pub l1_gateway_chain_id: u64,
+    pub l1_gateway_chain_id: U256,
     pub l1_gateway_contract: ZkLinkAddress,
     pub l2_gateway_contract: ZkLinkAddress,
     pub tokens: Vec<TokenInfo>,
@@ -302,6 +302,7 @@ pub struct TokenInfo {
     pub token_id: TokenId,
     pub token_address: ZkLinkAddress,
     pub decimal: u8,
+    pub fast_withdraw: bool,
 }
 
 #[cfg(test)]
@@ -314,37 +315,41 @@ mod test {
 	"gateways": [
 		{
 			"chainId": 5,
-			"l1GatewayChainId": 43113,
+			"l1GatewayChainId": "0xa869",
 			"l1GatewayContract": "0xffffffffffffffffffffffffffffffffffffffff",
 			"l2GatewayContract": "0xffffffffffffffffffffffffffffffffffffffff",
 			"tokens": [
 				{
 					"tokenId": 1,
 					"tokenAddress":"0xffffffffffffffffffffffffffffffffffffffff",
-					"decimal": 6
+					"decimal": 6,
+					"fastWithdraw": true
 				},
 				{
 					"tokenId": 3,
 					"tokenAddress":"0xffffffffffffffffffffffffffffffffffffffff",
-					"decimal": 7
+					"decimal": 7,
+					"fastWithdraw": false
 				}
 			]
 		},
 		{
 			"chainId": 7,
-			"l1GatewayChainId": 1,
+			"l1GatewayChainId": "0x1",
 			"l1GatewayContract": "0xffffffffffffffffffffffffffffffffffffffff",
 			"l2GatewayContract": "0xffffffffffffffffffffffffffffffffffffffff",
 			"tokens": [
 				{
 					"tokenId": 1,
 					"tokenAddress":"0xffffffffffffffffffffffffffffffffffffffff",
-					"decimal": 6
+					"decimal": 6,
+					"fastWithdraw": true
 				},
 				{
 					"tokenId": 3,
 					"tokenAddress":"0xffffffffffffffffffffffffffffffffffffffff",
-					"decimal": 6
+					"decimal": 6,
+					"fastWithdraw": false
 				}
 			]
 		}
