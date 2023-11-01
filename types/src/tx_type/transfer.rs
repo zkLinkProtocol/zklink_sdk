@@ -5,7 +5,7 @@ use crate::basic_types::{
 use crate::tx_type::validator::*;
 use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait};
 
-use crate::params::TOKEN_PRICE_MAX_PRECISION;
+use crate::params::TOKEN_MAX_PRECISION;
 #[cfg(feature = "ffi")]
 use crate::prelude::TransferBuilder;
 use crate::signatures::TxLayer1Signature;
@@ -79,7 +79,7 @@ impl Transfer {
         ethereum_sign_message_part(
             "Transfer",
             token_symbol,
-            TOKEN_PRICE_MAX_PRECISION as u8,
+            TOKEN_MAX_PRECISION,
             &self.amount,
             &self.fee,
             &self.to,

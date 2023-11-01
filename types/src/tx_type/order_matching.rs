@@ -4,7 +4,7 @@ use crate::basic_types::params::{
     ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH, TX_TYPE_BIT_WIDTH,
 };
 use crate::basic_types::{AccountId, GetBytes, Nonce, SlotId, SubAccountId, TokenId};
-use crate::params::{SIGNED_ORDER_BIT_WIDTH, TOKEN_PRICE_MAX_PRECISION};
+use crate::params::{SIGNED_ORDER_BIT_WIDTH, TOKEN_MAX_PRECISION};
 #[cfg(feature = "ffi")]
 use crate::prelude::OrderMatchingBuilder;
 use crate::signatures::TxLayer1Signature;
@@ -231,7 +231,7 @@ impl OrderMatching {
     pub fn get_eth_sign_msg(&self) -> String {
         format!(
             "OrderMatching fee: {} {}\n",
-            format_units(&self.fee, TOKEN_PRICE_MAX_PRECISION as u8),
+            format_units(&self.fee, TOKEN_MAX_PRECISION),
             self.fee_token
         )
     }

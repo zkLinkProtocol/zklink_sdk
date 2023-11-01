@@ -13,7 +13,7 @@ use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::{
     AccountId, ChainId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
-use crate::params::TOKEN_PRICE_MAX_PRECISION;
+use crate::params::TOKEN_MAX_PRECISION;
 #[cfg(feature = "ffi")]
 use crate::prelude::WithdrawBuilder;
 use crate::tx_type::validator::*;
@@ -91,7 +91,7 @@ impl Withdraw {
         ethereum_sign_message_part(
             "Withdraw",
             token_symbol,
-            TOKEN_PRICE_MAX_PRECISION as u8,
+            TOKEN_MAX_PRECISION,
             &self.amount,
             &self.fee,
             &self.to,
