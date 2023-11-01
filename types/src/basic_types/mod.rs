@@ -133,10 +133,10 @@ impl GetBytes for TokenId {
 impl<T: GetBytes> GetBytes for Vec<T> {
     fn get_bytes(&self) -> Vec<u8> {
         let bytes_len = self.bytes_len();
-        let mut contracts_encode = Vec::with_capacity(bytes_len);
+        let mut bytes = Vec::with_capacity(bytes_len);
         self.iter()
-            .for_each(|info| contracts_encode.extend(info.get_bytes()));
-        contracts_encode
+            .for_each(|info| bytes.extend(info.get_bytes()));
+        bytes
     }
     fn bytes_len(&self) -> usize {
         self.iter().map(|v| v.bytes_len()).sum()

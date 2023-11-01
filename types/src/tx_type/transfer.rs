@@ -5,7 +5,7 @@ use crate::basic_types::{
 use crate::tx_type::validator::*;
 use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait};
 
-use crate::params::TOKEN_MAX_PRECISION;
+use crate::params::{SIGNED_TRANSFER_BIT_WIDTH, TOKEN_MAX_PRECISION, TX_TYPE_BIT_WIDTH};
 #[cfg(feature = "ffi")]
 use crate::prelude::TransferBuilder;
 use crate::signatures::TxLayer1Signature;
@@ -139,7 +139,7 @@ impl GetBytes for Transfer {
         out
     }
     fn bytes_len(&self) -> usize {
-        56
+        SIGNED_TRANSFER_BIT_WIDTH / TX_TYPE_BIT_WIDTH
     }
 }
 
