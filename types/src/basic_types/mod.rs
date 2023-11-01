@@ -134,8 +134,7 @@ impl<T: GetBytes> GetBytes for Vec<T> {
     fn get_bytes(&self) -> Vec<u8> {
         let bytes_len = self.bytes_len();
         let mut bytes = Vec::with_capacity(bytes_len);
-        self.iter()
-            .for_each(|info| bytes.extend(info.get_bytes()));
+        self.iter().for_each(|info| bytes.extend(info.get_bytes()));
         bytes
     }
     fn bytes_len(&self) -> usize {
