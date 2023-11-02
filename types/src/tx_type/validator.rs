@@ -131,7 +131,7 @@ pub fn boolean_validator(boolean: u8) -> Result<(), ValidationError> {
 
 /// Check direction flag value validation
 ///
-/// - boolean should be 0 or 1
+/// - direction should <= 3
 pub fn direction_validator(direction: u8) -> Result<(), ValidationError> {
     if direction > 3u8 {
         return Err(ValidationError::new(
@@ -153,7 +153,7 @@ pub fn rate_validator(ratio: u16) -> Result<(), ValidationError> {
 
 /// Check margin currency ratio value validation
 ///
-/// - fee_ratio should <= 10000
+/// - margin_ratio should <= 100
 pub fn margin_rate_validator(margin_ratio: u8) -> Result<(), ValidationError> {
     if margin_ratio > 100u8 {
         return Err(ValidationError::new("margin ratio out of range"));
@@ -204,8 +204,8 @@ pub fn margin_prices_validator(margin_prices: &[SpotPriceInfo]) -> Result<(), Va
 
 /// Check order matching price value validation
 ///
-/// - price should > MIN_PRICE(1)
-/// - price should < MAX_PRICE(\[(2 ** 15 - 1)/10 ^18\] * 10^18 = 1329227995784915872000000000000000000)
+/// - price should > MIN_PRICE
+/// - price should < MAX_PRICE
 pub fn price_validator(price: &BigUint) -> Result<(), ValidationError> {
     if *price <= BigUint::from(MIN_PRICE) || *price >= BigUint::from(MAX_PRICE) {
         return Err(ValidationError::new("price value out of range"));
@@ -215,7 +215,7 @@ pub fn price_validator(price: &BigUint) -> Result<(), ValidationError> {
 
 /// Check contract matching price value validation
 ///
-/// - price should < MAX_PRICE(\[(2 ** 15 - 1)/10 ^18\] * 10^18 = 1329227995784915872000000000000000000)
+/// - price should < MAX_PRICE
 pub fn external_price_validator(price: &BigUint) -> Result<(), ValidationError> {
     if *price >= BigUint::from(MAX_PRICE) {
         return Err(ValidationError::new("price value out of range"));

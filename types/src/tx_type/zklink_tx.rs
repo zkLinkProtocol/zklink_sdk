@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use validator::{Validate, ValidationErrors};
 
-use crate::basic_types::{tx_hash::TxHash, GetBytes, Nonce, SubAccountId};
+use crate::basic_types::{tx_hash::TxHash, Nonce, SubAccountId};
 use crate::prelude::{AutoDeleveraging, ContractMatching, Funding, Liquidation, UpdateGlobalVar};
 use crate::tx_type::change_pubkey::ChangePubKey;
 use crate::tx_type::deposit::Deposit;
@@ -22,6 +22,11 @@ pub enum ZkLinkTxType {
     Withdraw,
     ForcedExit,
     OrderMatching,
+    ContractMatching,
+    Liquidation,
+    AutoDeleveraging,
+    UpdateGlobalVar,
+    Funding,
 }
 
 impl ZkLinkTxType {
@@ -34,6 +39,11 @@ impl ZkLinkTxType {
             ZkLinkTxType::ChangePubKey => vec![ChangePubKey::TX_TYPE],
             ZkLinkTxType::ForcedExit => vec![ForcedExit::TX_TYPE],
             ZkLinkTxType::OrderMatching => vec![OrderMatching::TX_TYPE],
+            ZkLinkTxType::ContractMatching => vec![ContractMatching::TX_TYPE],
+            ZkLinkTxType::Liquidation => vec![Liquidation::TX_TYPE],
+            ZkLinkTxType::AutoDeleveraging => vec![AutoDeleveraging::TX_TYPE],
+            ZkLinkTxType::UpdateGlobalVar => vec![UpdateGlobalVar::TX_TYPE],
+            ZkLinkTxType::Funding => vec![Funding::TX_TYPE],
         }
     }
 }
@@ -175,11 +185,11 @@ impl ZkLinkTx {
             ZkLinkTx::Deposit(tx) => tx.tx_hash(),
             ZkLinkTx::FullExit(tx) => tx.tx_hash(),
             ZkLinkTx::OrderMatching(tx) => tx.tx_hash(),
-            ZkLinkTx::ContractMatching(tx) => tx.get_bytes(),
-            ZkLinkTx::Liquidation(tx) => tx.get_bytes(),
-            ZkLinkTx::AutoDeleveraging(tx) => tx.get_bytes(),
-            ZkLinkTx::UpdateGlobalVar(tx) => tx.get_bytes(),
-            ZkLinkTx::Funding(tx) => tx.get_bytes(),
+            ZkLinkTx::ContractMatching(tx) => tx.tx_hash(),
+            ZkLinkTx::Liquidation(tx) => tx.tx_hash(),
+            ZkLinkTx::AutoDeleveraging(tx) => tx.tx_hash(),
+            ZkLinkTx::UpdateGlobalVar(tx) => tx.tx_hash(),
+            ZkLinkTx::Funding(tx) => tx.tx_hash(),
         };
 
         let mut out = [0u8; 32];
