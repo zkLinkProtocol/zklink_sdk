@@ -7,7 +7,7 @@ use crate::contract::prices::{ContractPrice, SpotPriceInfo};
 use crate::prelude::{
     AutoDeleveraging, ChangePubKey, ChangePubKeyAuthData, Contract, ContractMatching, Deposit,
     ForcedExit, FullExit, Funding, Liquidation, OraclePrices, OrderMatching, PairId, Parameter,
-    Transfer, UpdateGlobalVar, Withdraw,
+    SlotId, Transfer, UpdateGlobalVar, Withdraw,
 };
 use crate::tx_type::exit_info::ExitInfo;
 use num::BigUint;
@@ -347,6 +347,37 @@ impl ContractMatchingBuilder {
             sub_account_id: self.sub_account_id,
             fee: self.fee,
             fee_token: self.fee_token,
+            signature: Default::default(),
+        }
+    }
+}
+
+pub struct ContractBuilder {
+    pub account_id: AccountId,
+    pub sub_account_id: SubAccountId,
+    pub slot_id: SlotId,
+    pub nonce: Nonce,
+    pub pair_id: PairId,
+    pub size: BigUint,
+    pub price: BigUint,
+    pub direction: bool,
+    pub fee_rates: [u8; 2],
+    pub has_subsidy: bool,
+}
+
+impl ContractBuilder {
+    pub fn build(self) -> Contract {
+        Contract {
+            account_id: self.account_id,
+            sub_account_id: self.sub_account_id,
+            slot_id: self.slot_id,
+            nonce: self.nonce,
+            pair_id: self.pair_id,
+            size: self.size,
+            price: self.price,
+            direction: self.direction as u8,
+            fee_rates: self.fee_rates,
+            has_subsidy: self.has_subsidy as u8,
             signature: Default::default(),
         }
     }
