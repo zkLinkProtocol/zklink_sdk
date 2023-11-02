@@ -16,7 +16,7 @@ pub const CHAIN_SUB_TREE_DEPTH: usize = SUB_ACCOUNT_TREE_DEPTH;
 pub const USED_ACCOUNT_SUBTREE_DEPTH: usize = 24;
 /// Depth of the position subtree that used for the current circuit construct available position subtree
 pub const USED_POSITION_SUBTREE_DEPTH: usize = 2;
-pub const USED_BALANCE_SUBTREE_DEPTH: usize = 8;
+pub const USED_BALANCE_SUBTREE_DEPTH: usize = 16;
 /// The total account number and maximum account id allowed for the current zklink layer2(if not enough, modify this parameter and update circuit).
 pub const TOTAL_ACCOUNT_NUMBER: usize = usize::pow(2, USED_ACCOUNT_SUBTREE_DEPTH as u32);
 pub const MAX_ACCOUNT_ID: AccountId = AccountId(TOTAL_ACCOUNT_NUMBER as u32 - 1);
@@ -42,7 +42,7 @@ pub const MIN_PRICE: u128 = 1;
 /// deciamls of price in order will be improved with TOKEN_MAX_PRECISION(18)
 /// the bit width of price in pubdata is PRICE_BIT_WIDTH(120)
 /// so the max price of price that order can submit is
-/// 2 ** 120 - 1 / 10 ^18 = 1329227995784915872
+/// (2 ** 120 - 1) / 10 ^18 = 1329227995784915872
 pub const MAX_PRICE: u128 = 1329227995784915872000000000000000000;
 
 pub const TOKEN_BIT_WIDTH: usize = 16;
@@ -210,6 +210,8 @@ pub const SIGNED_BATCH_FUNDING_BIT_WIDTH: usize = TX_TYPE_BIT_WIDTH
     + TOKEN_BIT_WIDTH
     + FEE_BIT_WIDTH;
 
+/// 0 can not be used as token id
+pub const TOKEN_ID_ZERO: u32 = 0;
 pub const CONTRACT_PRICE_BIT_WIDTH: usize = PRICE_BIT_WIDTH + PAIR_BIT_WIDTH;
 pub const CONTRACT_PRICE_BYTES: usize = CONTRACT_PRICE_BIT_WIDTH / 8;
 pub const MARGIN_PRICE_BIT_WIDTH: usize = PRICE_BIT_WIDTH + TOKEN_BIT_WIDTH;

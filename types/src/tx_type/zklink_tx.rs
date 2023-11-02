@@ -29,25 +29,6 @@ pub enum ZkLinkTxType {
     UpdateGlobalVar,
 }
 
-impl ZkLinkTxType {
-    pub fn op_codes(&self) -> Vec<u8> {
-        match self {
-            ZkLinkTxType::Deposit => vec![Deposit::TX_TYPE],
-            ZkLinkTxType::Transfer => vec![Transfer::TX_TYPE],
-            ZkLinkTxType::Withdraw => vec![Withdraw::TX_TYPE],
-            ZkLinkTxType::FullExit => vec![FullExit::TX_TYPE],
-            ZkLinkTxType::ChangePubKey => vec![ChangePubKey::TX_TYPE],
-            ZkLinkTxType::ForcedExit => vec![ForcedExit::TX_TYPE],
-            ZkLinkTxType::OrderMatching => vec![OrderMatching::TX_TYPE],
-            ZkLinkTxType::ContractMatching => vec![ContractMatching::TX_TYPE],
-            ZkLinkTxType::Liquidation => vec![Liquidation::TX_TYPE],
-            ZkLinkTxType::AutoDeleveraging => vec![AutoDeleveraging::TX_TYPE],
-            ZkLinkTxType::UpdateGlobalVar => vec![UpdateGlobalVar::TX_TYPE],
-            ZkLinkTxType::Funding => vec![Funding::TX_TYPE],
-        }
-    }
-}
-
 /// A set of L2 transaction supported by the zklink network.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
