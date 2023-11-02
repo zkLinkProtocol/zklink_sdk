@@ -1,6 +1,8 @@
 use crate::basic_types::{AccountId, ChainId, GetBytes, MarginId, PairId, SubAccountId, TokenId};
 use crate::contract::funding::FundingRate;
 use crate::prelude::validator::*;
+#[cfg(feature = "ffi")]
+use crate::tx_builder::UpdateGlobalVarBuilder;
 use crate::tx_type::TxTrait;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
@@ -19,18 +21,9 @@ pub struct UpdateGlobalVar {
 }
 
 impl UpdateGlobalVar {
-    pub fn new(
-        from_chain_id: ChainId,
-        sub_account_id: SubAccountId,
-        parameter: Parameter,
-        serial_id: u64,
-    ) -> Self {
-        Self {
-            from_chain_id,
-            sub_account_id,
-            parameter,
-            serial_id,
-        }
+    #[cfg(feature = "ffi")]
+    pub fn new(builder: UpdateGlobalVarBuilder) -> Self {
+        builder.build()
     }
 }
 

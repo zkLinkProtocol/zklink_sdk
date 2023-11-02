@@ -3,9 +3,11 @@ use crate::basic_types::{
 };
 use crate::tx_type::order_matching::Order;
 
+use crate::contract::prices::{ContractPrice, SpotPriceInfo};
 use crate::prelude::{
-    ChangePubKey, ChangePubKeyAuthData, Deposit, ForcedExit, FullExit, OrderMatching, Transfer,
-    Withdraw,
+    AutoDeleveraging, ChangePubKey, ChangePubKeyAuthData, Contract, ContractMatching, Deposit,
+    ForcedExit, FullExit, Funding, Liquidation, OraclePrices, OrderMatching, PairId, Parameter,
+    Transfer, UpdateGlobalVar, Withdraw,
 };
 use crate::tx_type::exit_info::ExitInfo;
 use num::BigUint;
@@ -288,6 +290,134 @@ impl ExitInfoBuilder {
             l1_target_token: self.l1_target_token,
             chain_id: self.chain_id,
             signature: Default::default(),
+        }
+    }
+}
+
+pub struct AutoDeleveragingBuilder {
+    pub account_id: AccountId,
+    pub sub_account_id: SubAccountId,
+    pub sub_account_nonce: Nonce,
+    pub contract_prices: Vec<ContractPrice>,
+    pub margin_prices: Vec<SpotPriceInfo>,
+    pub adl_account_id: AccountId,
+    pub pair_id: PairId,
+    pub adl_size: BigUint,
+    pub adl_price: BigUint,
+    pub fee: BigUint,
+    pub fee_token: TokenId,
+}
+
+impl AutoDeleveragingBuilder {
+    pub fn build(self) -> AutoDeleveraging {
+        AutoDeleveraging {
+            account_id: self.account_id,
+            sub_account_id: self.sub_account_id,
+            sub_account_nonce: self.sub_account_nonce,
+            oracle_prices: OraclePrices {
+                contract_prices: self.contract_prices,
+                margin_prices: self.margin_prices,
+            },
+            adl_account_id: self.adl_account_id,
+            pair_id: self.pair_id,
+            adl_size: self.adl_size,
+            adl_price: self.adl_price,
+            fee: self.fee,
+            fee_token: self.fee_token,
+            signature: Default::default(),
+        }
+    }
+}
+
+pub struct ContractMatchingBuilder {
+    pub account_id: AccountId,
+    pub sub_account_id: SubAccountId,
+    pub taker: Contract,
+    pub maker: Vec<Contract>,
+    pub fee: BigUint,
+    pub fee_token: TokenId,
+}
+
+impl ContractMatchingBuilder {
+    pub fn build(self) -> ContractMatching {
+        ContractMatching {
+            account_id: self.account_id,
+            taker: self.taker,
+            maker: self.maker,
+            sub_account_id: self.sub_account_id,
+            fee: self.fee,
+            fee_token: self.fee_token,
+            signature: Default::default(),
+        }
+    }
+}
+
+pub struct FundingBuilder {
+    pub account_id: AccountId,
+    pub sub_account_id: SubAccountId,
+    pub sub_account_nonce: Nonce,
+    pub funding_account_ids: Vec<AccountId>,
+    pub fee: BigUint,
+    pub fee_token: TokenId,
+}
+
+impl FundingBuilder {
+    pub fn build(self) -> Funding {
+        Funding {
+            account_id: self.account_id,
+            sub_account_id: self.sub_account_id,
+            sub_account_nonce: self.sub_account_nonce,
+            funding_account_ids: self.funding_account_ids,
+            fee: self.fee,
+            fee_token: self.fee_token,
+            signature: Default::default(),
+        }
+    }
+}
+
+pub struct LiquidationBuilder {
+    pub account_id: AccountId,
+    pub sub_account_id: SubAccountId,
+    pub sub_account_nonce: Nonce,
+    pub contracts_prices: Vec<ContractPrice>,
+    pub margin_prices: Vec<SpotPriceInfo>,
+    pub liquidation_account_id: AccountId,
+    pub fee: BigUint,
+    pub fee_token: TokenId,
+}
+
+impl LiquidationBuilder {
+    pub fn build(self) -> Liquidation {
+        Liquidation {
+            account_id: self.account_id,
+            sub_account_id: self.sub_account_id,
+            sub_account_nonce: self.sub_account_nonce,
+            oracle_prices: OraclePrices {
+                contract_prices: self.contracts_prices,
+                margin_prices: self.margin_prices,
+            },
+            liquidation_account_id: self.liquidation_account_id,
+            fee: self.fee,
+            fee_token: self.fee_token,
+            signature: Default::default(),
+        }
+    }
+}
+
+pub struct UpdateGlobalVarBuilder {
+    pub from_chain_id: ChainId,
+    pub sub_account_id: SubAccountId,
+    pub parameter: Parameter,
+    pub serial_id: u64,
+}
+
+impl UpdateGlobalVarBuilder {
+    pub fn build(self) -> UpdateGlobalVar {
+        UpdateGlobalVar {
+            from_chain_id: self.from_chain_id,
+            sub_account_id: self.sub_account_id,
+            parameter: self.parameter,
+            serial_id: self.serial_id,
         }
     }
 }

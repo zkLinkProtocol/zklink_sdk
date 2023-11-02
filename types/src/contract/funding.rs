@@ -4,6 +4,8 @@ use crate::params::{
     FUNDING_RATE_BYTES, PAIR_BIT_WIDTH, SIGNED_BATCH_FUNDING_BIT_WIDTH, SIGNED_FUNDING_BIT_WIDTH,
 };
 use crate::prelude::validator::*;
+#[cfg(feature = "ffi")]
+use crate::tx_builder::FundingBuilder;
 use crate::tx_type::{TxTrait, ZkSignatureTrait};
 use num::BigUint;
 use serde::{Deserialize, Serialize};
@@ -58,24 +60,9 @@ pub struct Funding {
 }
 
 impl Funding {
-    pub fn new(
-        account_id: AccountId,
-        sub_account_id: SubAccountId,
-        sub_account_nonce: Nonce,
-        funding_account_ids: Vec<AccountId>,
-        fee: BigUint,
-        fee_token: TokenId,
-        signature: Option<ZkLinkSignature>,
-    ) -> Self {
-        Self {
-            account_id,
-            sub_account_id,
-            sub_account_nonce,
-            funding_account_ids,
-            fee,
-            fee_token,
-            signature: signature.unwrap_or_default(),
-        }
+    #[cfg(feature = "ffi")]
+    pub fn new(builder: FundingBuilder) -> Self {
+        builder.build()
     }
 
     pub fn is_batch_funding(&self) -> bool {

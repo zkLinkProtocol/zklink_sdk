@@ -22,11 +22,11 @@ pub enum ZkLinkTxType {
     Withdraw,
     ForcedExit,
     OrderMatching,
-    ContractMatching,
-    Liquidation,
     AutoDeleveraging,
-    UpdateGlobalVar,
+    ContractMatching,
     Funding,
+    Liquidation,
+    UpdateGlobalVar,
 }
 
 impl ZkLinkTxType {
@@ -59,11 +59,11 @@ pub enum ZkLinkTx {
     ChangePubKey(Box<ChangePubKey>),
     ForcedExit(Box<ForcedExit>),
     OrderMatching(Box<OrderMatching>),
-    ContractMatching(Box<ContractMatching>),
-    Liquidation(Box<Liquidation>),
     AutoDeleveraging(Box<AutoDeleveraging>),
-    UpdateGlobalVar(Box<UpdateGlobalVar>),
+    ContractMatching(Box<ContractMatching>),
     Funding(Box<Funding>),
+    Liquidation(Box<Liquidation>),
+    UpdateGlobalVar(Box<UpdateGlobalVar>),
 }
 
 impl From<FullExit> for ZkLinkTx {

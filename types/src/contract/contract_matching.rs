@@ -5,6 +5,8 @@ use crate::params::{
     CONTRACT_BYTES, ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_CONTRACT_MATCHING_BIT_WIDTH,
 };
 use crate::prelude::validator::*;
+#[cfg(feature = "ffi")]
+use crate::tx_builder::ContractMatchingBuilder;
 use crate::tx_type::{format_units, TxTrait, ZkSignatureTrait};
 use num::{BigUint, One, Zero};
 use serde::{Deserialize, Serialize};
@@ -38,28 +40,9 @@ pub struct ContractMatching {
 
 impl ContractMatching {
     /// Creates transaction from all the required fields.
-    ///
-    /// While `signature` field is mandatory for new transactions, it may be `None`
-    /// in some cases (e.g. when restoring the network state from the L1 contract data).
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        account_id: AccountId,
-        sub_account_id: SubAccountId,
-        taker: Contract,
-        maker: Vec<Contract>,
-        fee: BigUint,
-        fee_token: TokenId,
-        signature: Option<ZkLinkSignature>,
-    ) -> Self {
-        Self {
-            account_id,
-            taker,
-            maker,
-            sub_account_id,
-            fee,
-            fee_token,
-            signature: signature.unwrap_or_default(),
-        }
+    #[cfg(feature = "ffi")]
+    pub fn new(builder: ContractMatchingBuilder) -> Self {
+        builder.build()
     }
 }
 
@@ -172,35 +155,6 @@ impl GetBytes for Contract {
 impl TxTrait for Contract {}
 
 impl Contract {
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        account_id: AccountId,
-        sub_account_id: SubAccountId,
-        slot_id: SlotId,
-        nonce: Nonce,
-        pair_id: PairId,
-        size: BigUint,
-        price: BigUint,
-        direction: bool,
-        fee_rates: [u8; 2],
-        has_subsidy: bool,
-        signature: Option<ZkLinkSignature>,
-    ) -> Self {
-        Self {
-            account_id,
-            sub_account_id,
-            slot_id,
-            nonce,
-            pair_id,
-            size,
-            price,
-            direction: direction as u8,
-            fee_rates,
-            has_subsidy: has_subsidy as u8,
-            signature: signature.unwrap_or_default(),
-        }
-    }
-
     pub fn is_long(&self) -> bool {
         self.direction == 1
     }

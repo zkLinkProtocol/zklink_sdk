@@ -1,9 +1,11 @@
 use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
 use crate::basic_types::pad::pad_front;
 use crate::basic_types::{AccountId, GetBytes, Nonce, PairId, SubAccountId, TokenId};
-use crate::contract::prices::{ContractPrice, OraclePrices, SpotPriceInfo};
+use crate::contract::prices::OraclePrices;
 use crate::params::{PRICE_BIT_WIDTH, SIGNED_AUTO_DELEVERAGING_BIT_WIDTH};
 use crate::prelude::validator::*;
+#[cfg(feature = "ffi")]
+use crate::tx_builder::AutoDeleveragingBuilder;
 use crate::tx_type::{TxTrait, ZkSignatureTrait};
 use num::BigUint;
 use serde::{Deserialize, Serialize};
@@ -51,36 +53,9 @@ pub struct AutoDeleveraging {
 }
 
 impl AutoDeleveraging {
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        account_id: AccountId,
-        sub_account_id: SubAccountId,
-        sub_account_nonce: Nonce,
-        contract_prices: Vec<ContractPrice>,
-        margin_prices: Vec<SpotPriceInfo>,
-        adl_account_id: AccountId,
-        pair_id: PairId,
-        adl_size: BigUint,
-        adl_price: BigUint,
-        fee: BigUint,
-        fee_token: TokenId,
-    ) -> Self {
-        Self {
-            account_id,
-            sub_account_id,
-            sub_account_nonce,
-            oracle_prices: OraclePrices {
-                contract_prices,
-                margin_prices,
-            },
-            adl_account_id,
-            pair_id,
-            adl_size,
-            adl_price,
-            fee,
-            fee_token,
-            signature: Default::default(),
-        }
+    #[cfg(feature = "ffi")]
+    pub fn new(builder: AutoDeleveragingBuilder) -> Self {
+        builder.build()
     }
 }
 

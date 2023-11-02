@@ -1,8 +1,10 @@
 use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::{AccountId, GetBytes, Nonce, SubAccountId, TokenId};
-use crate::contract::prices::{ContractPrice, OraclePrices, SpotPriceInfo};
+use crate::contract::prices::OraclePrices;
 use crate::params::SIGNED_LIQUIDATION_BIT_WIDTH;
 use crate::prelude::validator::*;
+#[cfg(feature = "ffi")]
+use crate::tx_builder::LiquidationBuilder;
 use crate::tx_type::{TxTrait, ZkSignatureTrait};
 use num::BigUint;
 use serde::{Deserialize, Serialize};
@@ -40,33 +42,9 @@ pub struct Liquidation {
 
 impl Liquidation {
     /// Creates transaction from all the required fields.
-    ///
-    /// While `signature` field is mandatory for new transactions, it may be `None`
-    /// in some cases (e.g. when restoring the network state from the L1 contract data).
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        account_id: AccountId,
-        sub_account_id: SubAccountId,
-        sub_account_nonce: Nonce,
-        contracts_prices: Vec<ContractPrice>,
-        margin_prices: Vec<SpotPriceInfo>,
-        liquidation_account_id: AccountId,
-        fee: BigUint,
-        fee_token: TokenId,
-    ) -> Self {
-        Self {
-            account_id,
-            sub_account_id,
-            sub_account_nonce,
-            oracle_prices: OraclePrices {
-                contract_prices: contracts_prices,
-                margin_prices,
-            },
-            liquidation_account_id,
-            fee,
-            fee_token,
-            signature: Default::default(),
-        }
+    #[cfg(feature = "ffi")]
+    pub fn new(builder: LiquidationBuilder) -> Self {
+        builder.build()
     }
 }
 
