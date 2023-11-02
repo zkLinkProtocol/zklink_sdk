@@ -1,4 +1,4 @@
-use crate::basic_types::ZkLinkAddress;
+use crate::basic_types::{GetBytes, ZkLinkAddress};
 use crate::tx_type::change_pubkey::ChangePubKey;
 use crate::tx_type::deposit::Deposit;
 use crate::tx_type::forced_exit::ForcedExit;
@@ -20,6 +20,7 @@ pub mod validator;
 
 pub mod change_pubkey;
 pub mod deposit;
+pub mod exit_info;
 pub mod forced_exit;
 pub mod full_exit;
 pub mod order_matching;
@@ -112,10 +113,7 @@ pub fn format_units(wei: impl ToString, units: u8) -> String {
     chars.iter().collect()
 }
 
-pub trait TxTrait: Validate + Serialize {
-    /// Encodes the transaction data as the byte sequence according to the zkLink protocol.
-    fn get_bytes(&self) -> Vec<u8>;
-
+pub trait TxTrait: Validate + Serialize + GetBytes {
     fn tx_hash(&self) -> Vec<u8> {
         let bytes = self.get_bytes();
         sha256_bytes(&bytes)

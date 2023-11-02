@@ -1,13 +1,14 @@
 use crate::basic_types::pack::pack_fee_amount;
-use crate::basic_types::params::{SIGNED_CHANGE_PUBKEY_BIT_WIDTH, TX_TYPE_BIT_WIDTH};
 use crate::basic_types::{
-    AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
+    AccountId, ChainId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
-use crate::tx_builder::ChangePubKeyBuilder;
+use crate::params::{SIGNED_CHANGE_PUBKEY_BIT_WIDTH, TX_TYPE_BIT_WIDTH};
+#[cfg(feature = "ffi")]
+use crate::prelude::ChangePubKeyBuilder;
 use crate::tx_type::validator::*;
-use crate::tx_type::{TxTrait, ZkSignatureTrait};
+use crate::tx_type::{format_units, TxTrait, ZkSignatureTrait};
 use ethers::utils::keccak256;
-use num::BigUint;
+use num::{BigUint, Zero};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_sdk_signers::eth_signer::eip712::eip712::{EIP712Domain, TypedData};
@@ -81,9 +82,9 @@ impl ChangePubKeyAuthData {
         matches!(self, ChangePubKeyAuthData::EthCreate2 { .. })
     }
 
-    pub fn get_eth_witness(&self) -> Option<Vec<u8>> {
+    pub fn get_eth_witness(&self) -> Vec<u8> {
         match self {
-            ChangePubKeyAuthData::Onchain => None,
+            ChangePubKeyAuthData::Onchain => vec![],
             ChangePubKeyAuthData::EthECDSA { eth_signature } => {
                 let mut bytes = Vec::new();
                 bytes.push(0x00);
@@ -94,7 +95,7 @@ impl ChangePubKeyAuthData {
                     v += 27;
                 }
                 bytes.push(v);
-                Some(bytes)
+                bytes
             }
             ChangePubKeyAuthData::EthCreate2 { data } => {
                 let mut bytes = Vec::new();
@@ -102,7 +103,7 @@ impl ChangePubKeyAuthData {
                 bytes.extend_from_slice(data.creator_address.as_bytes());
                 bytes.extend_from_slice(data.salt_arg.as_bytes());
                 bytes.extend_from_slice(data.code_hash.as_bytes());
-                Some(bytes)
+                bytes
             }
         }
     }
@@ -147,9 +148,10 @@ pub struct ChangePubKey {
     pub ts: TimeStamp,
 }
 
-impl TxTrait for ChangePubKey {
+impl GetBytes for ChangePubKey {
     fn get_bytes(&self) -> Vec<u8> {
-        let mut out = Vec::new();
+        let bytes_len = self.bytes_len();
+        let mut out = Vec::with_capacity(bytes_len);
         out.extend_from_slice(&[Self::TX_TYPE]);
         out.extend_from_slice(&self.chain_id.to_be_bytes());
         out.extend_from_slice(&self.account_id.to_be_bytes());
@@ -159,13 +161,16 @@ impl TxTrait for ChangePubKey {
         out.extend_from_slice(&pack_fee_amount(&self.fee));
         out.extend_from_slice(&self.nonce.to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
-        assert_eq!(
-            out.len() * TX_TYPE_BIT_WIDTH,
-            SIGNED_CHANGE_PUBKEY_BIT_WIDTH
-        );
+        assert_eq!(out.len(), bytes_len);
         out
     }
+
+    fn bytes_len(&self) -> usize {
+        SIGNED_CHANGE_PUBKEY_BIT_WIDTH / TX_TYPE_BIT_WIDTH
+    }
 }
+
+impl TxTrait for ChangePubKey {}
 
 impl ZkSignatureTrait for ChangePubKey {
     fn set_signature(&mut self, signature: ZkLinkSignature) {
@@ -184,28 +189,9 @@ impl ZkSignatureTrait for ChangePubKey {
 }
 
 impl ChangePubKey {
-    /// Creates transaction from all the required fields.
-    ///
-    /// While `signature` field is mandatory for new transactions, it may be `None`
-    /// in some cases (e.g. when restoring the network state from the L1 contract data).
+    #[cfg(feature = "ffi")]
     pub fn new(builder: ChangePubKeyBuilder) -> Self {
-        let eth_auth_data = builder
-            .eth_signature
-            .map(|eth_signature| ChangePubKeyAuthData::EthECDSA { eth_signature })
-            .unwrap_or(ChangePubKeyAuthData::Onchain);
-
-        Self {
-            chain_id: builder.chain_id,
-            account_id: builder.account_id,
-            sub_account_id: builder.sub_account_id,
-            new_pk_hash: builder.new_pubkey_hash,
-            fee_token: builder.fee_token,
-            fee: builder.fee,
-            nonce: builder.nonce,
-            signature: ZkLinkSignature::default(),
-            eth_auth_data,
-            ts: builder.timestamp,
-        }
+        builder.build()
     }
 
     pub fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
@@ -241,6 +227,31 @@ impl ChangePubKey {
             nonce,
             account_id
         )
+    }
+
+    /// Get part of the message that should be signed with Ethereum account key for the batch of transactions.
+    /// The message for single `ChangePubKey` transaction is defined differently. The pattern is:
+    ///
+    /// Set signing key: {pubKeyHash}
+    /// [Fee: {fee} {token}]
+    ///
+    /// Note that the second line is optional.
+    pub fn get_eth_sign_msg_part(&self, token_symbol: &str, decimals: u8) -> String {
+        let mut message = format!(
+            "Set signing key: {}",
+            hex::encode(self.new_pk_hash.data).to_ascii_lowercase()
+        );
+        if !self.fee.is_zero() {
+            message.push_str(
+                format!(
+                    "\nFee: {fee} {token}",
+                    fee = format_units(&self.fee, decimals),
+                    token = token_symbol,
+                )
+                .as_str(),
+            );
+        }
+        message
     }
 
     pub fn to_eip712_request_payload(
@@ -287,6 +298,7 @@ impl From<&ChangePubKey> for EIP712ChangePubKey {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::prelude::ChangePubKeyBuilder;
     use zklink_sdk_signers::eth_signer::EthSigner;
     use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 
@@ -309,7 +321,7 @@ mod test {
             eth_signature: None,
             timestamp: ts.into(),
         };
-        let change_pubkey = ChangePubKey::new(builder);
+        let change_pubkey = builder.build();
         let bytes = change_pubkey.get_bytes();
         let expected_bytes = [
             6, 1, 0, 0, 0, 1, 1, 216, 213, 251, 106, 108, 174, 240, 106, 163, 220, 42, 189, 205,

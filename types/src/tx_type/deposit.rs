@@ -1,6 +1,7 @@
 use super::validator::*;
-use crate::basic_types::{ChainId, SubAccountId, TokenId, ZkLinkAddress};
-use crate::tx_builder::DepositBuilder;
+use crate::basic_types::{ChainId, GetBytes, SubAccountId, TokenId, ZkLinkAddress};
+#[cfg(feature = "ffi")]
+use crate::prelude::DepositBuilder;
 use crate::tx_type::TxTrait;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
@@ -38,41 +39,37 @@ pub struct Deposit {
 }
 
 impl Deposit {
-    /// Creates transaction from all the required fields.
-    ///
-    /// While `signature` field is mandatory for new transactions, it may be `None`
-    /// in some cases (e.g. when restoring the network state from the L1 contract data).
+    #[cfg(feature = "ffi")]
     pub fn new(builder: DepositBuilder) -> Self {
-        Self {
-            from: builder.from_address,
-            to: builder.to_address,
-            from_chain_id: builder.from_chain_id,
-            sub_account_id: builder.sub_account_id,
-            l2_target_token: builder.l2_target_token,
-            l1_source_token: builder.l1_source_token,
-            amount: builder.amount,
-            serial_id: builder.serial_id,
-            eth_hash: builder.eth_hash,
-        }
+        builder.build()
     }
 }
 
-impl TxTrait for Deposit {
+impl GetBytes for Deposit {
     fn get_bytes(&self) -> Vec<u8> {
-        let mut out = Vec::new();
+        let bytes_len = self.bytes_len();
+        let mut out = Vec::with_capacity(bytes_len);
         out.extend_from_slice(&self.serial_id.to_be_bytes());
         out.extend_from_slice(self.eth_hash.as_bytes());
+        assert_eq!(out.len(), bytes_len);
         out
     }
+
+    fn bytes_len(&self) -> usize {
+        40
+    }
 }
+
+impl TxTrait for Deposit {}
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::prelude::DepositBuilder;
     use std::str::FromStr;
 
     #[test]
-    fn test_get_bytes() {
+    fn test_deposit_get_bytes() {
         let address =
             ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
         let eth_hash =
@@ -89,7 +86,7 @@ mod test {
             serial_id: 32001,
             eth_hash,
         };
-        let deposit = Deposit::new(builder);
+        let deposit = builder.build();
         let bytes = deposit.get_bytes();
         let excepted_bytes = [
             0, 0, 0, 0, 0, 0, 125, 1, 227, 95, 58, 57, 213, 66, 246, 210, 118, 194, 242, 3, 232,

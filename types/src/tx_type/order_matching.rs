@@ -1,11 +1,13 @@
 use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
+use crate::basic_types::pad::pad_front;
 use crate::basic_types::params::{
-    ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH,
-    TOKEN_MAX_PRECISION, TX_TYPE_BIT_WIDTH,
+    ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH, TX_TYPE_BIT_WIDTH,
 };
-use crate::basic_types::{AccountId, Nonce, SlotId, SubAccountId, TokenId};
+use crate::basic_types::{AccountId, GetBytes, Nonce, SlotId, SubAccountId, TokenId};
+use crate::params::{SIGNED_ORDER_BIT_WIDTH, TOKEN_MAX_PRECISION};
+#[cfg(feature = "ffi")]
+use crate::prelude::OrderMatchingBuilder;
 use crate::signatures::TxLayer1Signature;
-use crate::tx_builder::OrderMatchingBuilder;
 use crate::tx_type::validator::*;
 use crate::tx_type::{format_units, TxTrait, ZkSignatureTrait};
 use num::{BigUint, One, ToPrimitive, Zero};
@@ -48,10 +50,11 @@ pub struct Order {
     /// Order type, 0: buy, 1: sell
     #[validate(custom = "boolean_validator")]
     pub is_sell: u8,
-    /// Fee as maker, 100 means 1%, max is 2.56 %
-    pub fee_ratio1: u8,
-    /// Fee as taker
-    pub fee_ratio2: u8,
+    /// Subsidy only works for maker and fee_rates[0]
+    #[validate(custom = "boolean_validator")]
+    pub has_subsidy: u8,
+    /// index 0 => maker_fee, index 1 => taker_fee, 100 means 1%, max is 2.56%
+    pub fee_rates: [u8; 2],
     pub signature: ZkLinkSignature,
 }
 
@@ -69,6 +72,7 @@ impl Order {
         amount: BigUint,
         price: BigUint,
         is_sell: bool,
+        has_subsidy: bool,
         fee_ratio1: u8,
         fee_ratio2: u8,
         signature: Option<ZkLinkSignature>,
@@ -83,8 +87,8 @@ impl Order {
             amount,
             price,
             is_sell: u8::from(is_sell),
-            fee_ratio1,
-            fee_ratio2,
+            has_subsidy: u8::from(has_subsidy),
+            fee_rates: [fee_ratio1, fee_ratio2],
             signature: signature.unwrap_or_default(),
         }
     }
@@ -111,9 +115,13 @@ impl Order {
     }
 }
 
-impl TxTrait for Order {
+impl GetBytes for Order {
+    fn bytes_len(&self) -> usize {
+        SIGNED_ORDER_BIT_WIDTH / TX_TYPE_BIT_WIDTH
+    }
     fn get_bytes(&self) -> Vec<u8> {
-        let mut out = Vec::with_capacity(SIGNED_ORDER_BIT_WIDTH / 8);
+        let bytes_len = self.bytes_len();
+        let mut out = Vec::with_capacity(bytes_len);
         out.extend_from_slice(&[Self::MSG_TYPE]);
         out.extend_from_slice(&self.account_id.to_be_bytes());
         out.extend_from_slice(&self.sub_account_id.to_be_bytes());
@@ -123,13 +131,15 @@ impl TxTrait for Order {
         out.extend_from_slice(&(*self.quote_token_id as u16).to_be_bytes());
         out.extend_from_slice(&pad_front(&self.price.to_bytes_be(), PRICE_BIT_WIDTH / 8));
         out.extend_from_slice(&self.is_sell.to_be_bytes());
-        out.extend_from_slice(&self.fee_ratio1.to_be_bytes());
-        out.extend_from_slice(&self.fee_ratio2.to_be_bytes());
+        out.extend(self.fee_rates);
+        out.extend_from_slice(&self.has_subsidy.to_be_bytes());
         out.extend_from_slice(&pack_token_amount(&self.amount));
-        assert_eq!(out.len() * TX_TYPE_BIT_WIDTH, SIGNED_ORDER_BIT_WIDTH);
+        assert_eq!(out.len(), bytes_len);
         out
     }
 }
+
+impl TxTrait for Order {}
 
 impl ZkSignatureTrait for Order {
     fn set_signature(&mut self, signature: ZkLinkSignature) {
@@ -213,35 +223,9 @@ pub struct OrderMatching {
     pub signature: ZkLinkSignature,
 }
 impl OrderMatching {
-    /// Creates transaction from all the required fields.
     #[cfg(feature = "ffi")]
     pub fn new(builder: OrderMatchingBuilder) -> Self {
-        Self {
-            account_id: builder.account_id,
-            taker: (*builder.taker).clone(),
-            maker: (*builder.maker).clone(),
-            fee: builder.fee,
-            fee_token: builder.fee_token,
-            sub_account_id: builder.sub_account_id,
-            expect_base_amount: builder.expect_base_amount,
-            expect_quote_amount: builder.expect_quote_amount,
-            signature: ZkLinkSignature::default(),
-        }
-    }
-
-    #[cfg(not(feature = "ffi"))]
-    pub fn new(builder: OrderMatchingBuilder) -> Self {
-        Self {
-            account_id: builder.account_id,
-            taker: builder.taker,
-            maker: builder.maker,
-            fee: builder.fee,
-            fee_token: builder.fee_token,
-            sub_account_id: builder.sub_account_id,
-            expect_base_amount: builder.expect_base_amount,
-            expect_quote_amount: builder.expect_quote_amount,
-            signature: ZkLinkSignature::default(),
-        }
+        builder.build()
     }
 
     pub fn get_eth_sign_msg(&self) -> String {
@@ -304,15 +288,15 @@ impl OrderMatching {
     }
 }
 
-impl TxTrait for OrderMatching {
+impl GetBytes for OrderMatching {
     fn get_bytes(&self) -> Vec<u8> {
-        let mut orders_bytes = Vec::with_capacity(SIGNED_ORDER_BIT_WIDTH / TX_TYPE_BIT_WIDTH * 2);
+        let mut orders_bytes = Vec::with_capacity(self.maker.bytes_len() + self.taker.bytes_len());
         orders_bytes.extend(self.maker.get_bytes());
         orders_bytes.extend(self.taker.get_bytes());
         // Todo: do not resize, sdk should be update
         orders_bytes.resize(ORDERS_BYTES, 0);
-
-        let mut out = Vec::with_capacity(SIGNED_ORDER_MATCHING_BIT_WIDTH / TX_TYPE_BIT_WIDTH);
+        let bytes_len = self.bytes_len();
+        let mut out = Vec::with_capacity(bytes_len);
         out.push(Self::TX_TYPE);
         out.extend_from_slice(&self.account_id.to_be_bytes());
         out.extend_from_slice(&self.sub_account_id.to_be_bytes());
@@ -321,13 +305,16 @@ impl TxTrait for OrderMatching {
         out.extend_from_slice(&pack_fee_amount(&self.fee));
         out.extend_from_slice(&self.expect_base_amount.to_u128().unwrap().to_be_bytes());
         out.extend_from_slice(&self.expect_quote_amount.to_u128().unwrap().to_be_bytes());
-        assert_eq!(
-            out.len() * TX_TYPE_BIT_WIDTH,
-            SIGNED_ORDER_MATCHING_BIT_WIDTH
-        );
+        assert_eq!(out.len(), bytes_len);
         out
     }
 
+    fn bytes_len(&self) -> usize {
+        SIGNED_ORDER_MATCHING_BIT_WIDTH / TX_TYPE_BIT_WIDTH
+    }
+}
+
+impl TxTrait for OrderMatching {
     fn is_valid(&self) -> bool {
         let order_valid = match self.validate() {
             Ok(_) => self.maker.is_valid() && self.taker.is_valid(),
@@ -353,9 +340,17 @@ impl ZkSignatureTrait for OrderMatching {
     }
 }
 
-fn pad_front(bytes: &[u8], size: usize) -> Vec<u8> {
-    assert!(size >= bytes.len());
-    let mut result = vec![0u8; size];
-    result[size - bytes.len()..].copy_from_slice(bytes);
-    result
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_order_matching_get_bytes() {
+        {
+            let tx = OrderMatching::default();
+            let bytes = tx.get_bytes();
+            let bytes_len = tx.bytes_len();
+            assert_eq!(bytes.len(), bytes_len);
+        }
+    }
 }

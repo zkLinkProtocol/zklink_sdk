@@ -241,6 +241,7 @@ interface Order {
         BigUint amount,
         BigUint price,
         boolean is_sell,
+        boolean has_subsidy,
         u8 fee_ratio1,
         u8 fee_ratio2,
         ZkLinkSignature ?signature

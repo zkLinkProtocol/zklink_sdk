@@ -1,13 +1,17 @@
 #![allow(unused_doc_comments)]
 use crate::basic_types::pack::{is_fee_amount_packable, is_token_amount_packable};
 use crate::basic_types::params::{
-    GLOBAL_ASSET_ACCOUNT_ID, MAX_ACCOUNT_ID, MAX_CHAIN_ID, MAX_NONCE, MAX_PRICE, MAX_SLOT_ID,
-    MAX_SUB_ACCOUNT_ID, MAX_TOKEN_ID, MIN_PRICE, TOKEN_ID_ZERO, USDX_TOKEN_ID_LOWER_BOUND,
-    USDX_TOKEN_ID_UPPER_BOUND,
+    GLOBAL_ASSET_ACCOUNT_ID, MARGIN_TOKENS_NUMBER, MAX_ACCOUNT_ID, MAX_CHAIN_ID, MAX_NONCE,
+    MAX_ORDER_NONCE, MAX_PRICE, MAX_SLOT_ID, MAX_SUB_ACCOUNT_ID, MAX_TOKEN_ID, MIN_PRICE,
+    USDX_TOKEN_ID_LOWER_BOUND, USDX_TOKEN_ID_UPPER_BOUND, USED_POSITION_NUMBER,
+    USED_POSITION_PAIR_ID_RANGE,
 };
-use crate::basic_types::{AccountId, ChainId, Nonce, SlotId, SubAccountId, TokenId, ZkLinkAddress};
+use crate::prelude::{
+    AccountId, ChainId, ContractPrice, Nonce, PairId, Parameter, SlotId, SpotPriceInfo,
+    SubAccountId, TokenId, ZkLinkAddress,
+};
 use num::BigUint;
-use validator::ValidationError;
+use validator::{Validate, ValidationError};
 
 /// Check transaction account value validation
 ///
@@ -73,10 +77,19 @@ pub fn token_validator(token_id: &TokenId) -> Result<(), ValidationError> {
     if *token_id > MAX_TOKEN_ID {
         return Err(ValidationError::new("token id out of range"));
     }
-    if **token_id == TOKEN_ID_ZERO
-        || (**token_id >= USDX_TOKEN_ID_LOWER_BOUND && **token_id <= USDX_TOKEN_ID_UPPER_BOUND)
-    {
+    if **token_id >= USDX_TOKEN_ID_LOWER_BOUND && **token_id <= USDX_TOKEN_ID_UPPER_BOUND {
         return Err(ValidationError::new("token id should not use 0 or [2, 16]"));
+    }
+    Ok(())
+}
+
+/// Check contract token pair value validation
+///
+/// - pair id should <= MAX_TOKEN_ID
+/// - pair id should not use 0
+pub fn pair_validator(pair_id: &PairId) -> Result<(), ValidationError> {
+    if !USED_POSITION_PAIR_ID_RANGE.contains(&(**pair_id as u8)) {
+        return Err(ValidationError::new("pair id out of range"));
     }
     Ok(())
 }
@@ -116,22 +129,95 @@ pub fn boolean_validator(boolean: u8) -> Result<(), ValidationError> {
     Ok(())
 }
 
-/// Check withdraw fee ratio value validation
+/// Check direction flag value validation
 ///
-/// - withdraw_fee_ratio should <= 10000
-pub fn withdraw_fee_ratio_validator(withdraw_fee_ratio: u16) -> Result<(), ValidationError> {
-    if withdraw_fee_ratio > 10000u16 {
-        return Err(ValidationError::new("withdraw fee ratio out of range"));
+/// - direction should <= 3
+pub fn direction_validator(direction: u8) -> Result<(), ValidationError> {
+    if direction > 3u8 {
+        return Err(ValidationError::new(
+            "direction value should be 0 or 1 or 2 or 3",
+        ));
+    }
+    Ok(())
+}
+
+/// Check ratio value validation
+///
+/// - withdraw rate should <= 10000(withdraw rate 100.00%)
+pub fn rate_validator(ratio: u16) -> Result<(), ValidationError> {
+    if ratio > 10000u16 {
+        return Err(ValidationError::new("ratio out of range"));
+    }
+    Ok(())
+}
+
+/// Check margin currency ratio value validation
+///
+/// - margin_ratio should <= 100
+pub fn margin_rate_validator(margin_ratio: u8) -> Result<(), ValidationError> {
+    if margin_ratio > 100u8 {
+        return Err(ValidationError::new("margin ratio out of range"));
+    }
+    Ok(())
+}
+
+/// Check contracts prices infos
+///
+/// - contracts_prices must be ordered by pair_id from smallest to largest
+pub fn contract_prices_validator(
+    contracts_prices: &[ContractPrice],
+) -> Result<(), ValidationError> {
+    if contracts_prices.len() != USED_POSITION_NUMBER {
+        return Err(ValidationError::new("contract prices number mismatch"));
+    }
+    for (info, pair_id) in contracts_prices.iter().zip(0..USED_POSITION_NUMBER) {
+        if let Err(e) = info.validate() {
+            return Err(ValidationError::new(
+                e.into_errors().into_keys().last().unwrap(),
+            ));
+        }
+        if *info.pair_id != pair_id as u16 {
+            return Err(ValidationError::new(
+                "contracts prices array are wrong order",
+            ));
+        }
+    }
+    Ok(())
+}
+
+/// Check margin price infos
+///
+/// - The tokens of margin_prices and margin tokens must correspond to each other in order
+pub fn margin_prices_validator(margin_prices: &[SpotPriceInfo]) -> Result<(), ValidationError> {
+    if margin_prices.len() != MARGIN_TOKENS_NUMBER {
+        return Err(ValidationError::new("margin prices token mismatch"));
+    }
+    for info in margin_prices.iter() {
+        if let Err(e) = info.validate() {
+            return Err(ValidationError::new(
+                e.into_errors().into_keys().last().unwrap(),
+            ));
+        }
     }
     Ok(())
 }
 
 /// Check order matching price value validation
 ///
-/// - price should > MIN_PRICE(1)
-/// - price should < MAX_PRICE(\[(2 ** 15 - 1)/10 ^18\] * 10^18 = 1329227995784915872000000000000000000)
+/// - price should > MIN_PRICE
+/// - price should < MAX_PRICE
 pub fn price_validator(price: &BigUint) -> Result<(), ValidationError> {
     if *price <= BigUint::from(MIN_PRICE) || *price >= BigUint::from(MAX_PRICE) {
+        return Err(ValidationError::new("price value out of range"));
+    }
+    Ok(())
+}
+
+/// Check contract matching price value validation
+///
+/// - price should < MAX_PRICE
+pub fn external_price_validator(price: &BigUint) -> Result<(), ValidationError> {
+    if *price >= BigUint::from(MAX_PRICE) {
         return Err(ValidationError::new("price value out of range"));
     }
     Ok(())
@@ -157,10 +243,65 @@ pub fn nonce_validator(nonce: &Nonce) -> Result<(), ValidationError> {
     Ok(())
 }
 
+/// Check order nonce validation
+///
+/// - nonce should < MAX_ORDER_NONCE
+pub fn order_nonce_validator(nonce: &Nonce) -> Result<(), ValidationError> {
+    if *nonce >= MAX_ORDER_NONCE {
+        return Err(ValidationError::new(
+            "The order nonce has reached its maximum.",
+        ));
+    }
+    Ok(())
+}
+
+/// Check parameter validation
+///
+pub fn parameter_validator(param: &Parameter) -> Result<(), ValidationError> {
+    match param {
+        Parameter::FundingRates(funding_rates) => {
+            if funding_rates.len() != USED_POSITION_NUMBER {
+                return Err(ValidationError::new("update funding rates number mismatch"));
+            }
+            for funding_rate in funding_rates {
+                if let Err(e) = funding_rate.validate() {
+                    return Err(ValidationError::new(
+                        e.into_errors().into_keys().last().unwrap(),
+                    ));
+                }
+            }
+        }
+        Parameter::FeeAccount(fee_account_id) => account_validator(fee_account_id)?,
+        Parameter::InsuranceFundAccount(insurance_account_id) => {
+            account_validator(insurance_account_id)?
+        }
+        Parameter::MarginInfo {
+            margin_id,
+            token_id,
+            ratio,
+        } => {
+            if **margin_id >= MARGIN_TOKENS_NUMBER as u8 {
+                return Err(ValidationError::new("margin id out of range"));
+            }
+            token_validator(token_id)?;
+            margin_rate_validator(*ratio)?;
+        }
+        Parameter::InitialMarginRate { pair_id, rate }
+        | Parameter::MaintenanceMarginRate { pair_id, rate } => {
+            pair_validator(pair_id)?;
+            if *rate >= 1000 {
+                return Err(ValidationError::new(
+                    "initial or maintenance margin rate out of range",
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod validators_tests {
     use super::*;
-    use crate::basic_types::params::USDX_TOKEN_ID_UPPER_BOUND;
     use validator::Validate;
 
     #[test]
@@ -293,13 +434,6 @@ mod validators_tests {
         /// out of range
         let mock = Mock::new(MAX_TOKEN_ID + 1);
         assert!(mock.validate().is_err());
-        /// invalid
-        let mock = Mock::new(TokenId(TOKEN_ID_ZERO));
-        assert!(mock.validate().is_err());
-        let mock = Mock::new(TokenId(USDX_TOKEN_ID_LOWER_BOUND));
-        assert!(mock.validate().is_err());
-        let mock = Mock::new(TokenId(USDX_TOKEN_ID_UPPER_BOUND));
-        assert!(mock.validate().is_err());
     }
 
     #[test]
@@ -317,16 +451,13 @@ mod validators_tests {
         }
         /// should success
         let v1: Vec<u8> = vec![1; 32];
-        /// zklink address is 0
-        let v2: Vec<u8> = vec![0; 32];
-        /// zklink address is global account address
-        let v3: Vec<u8> = vec![0xff; 32];
         let mock = Mock::new(ZkLinkAddress::from(v1));
         assert!(mock.validate().is_ok());
         /// out of range
+        let v2: Vec<u8> = vec![0; 32];
         let mock = Mock::new(ZkLinkAddress::from(v2));
         assert!(mock.validate().is_err());
-        /// out of range
+        let v3: Vec<u8> = vec![0xff; 32];
         let mock = Mock::new(ZkLinkAddress::from(v3));
         assert!(mock.validate().is_err());
     }
@@ -379,7 +510,7 @@ mod validators_tests {
     fn test_withdraw_fee_ratio_validate() {
         #[derive(Debug, Validate)]
         struct Mock {
-            #[validate(custom = "withdraw_fee_ratio_validator")]
+            #[validate(custom = "rate_validator")]
             pub withdraw_fee_ratio: u16,
         }
 
@@ -417,6 +548,29 @@ mod validators_tests {
         /// out of range
         let mock = Mock::new(BigUint::from(MIN_PRICE));
         assert!(mock.validate().is_err());
+        let mock = Mock::new(BigUint::from(MAX_PRICE));
+        assert!(mock.validate().is_err());
+    }
+
+    #[test]
+    fn test_external_price_validate() {
+        #[derive(Debug, Validate)]
+        struct Mock {
+            #[validate(custom = "external_price_validator")]
+            pub price: BigUint,
+        }
+
+        impl Mock {
+            pub fn new(price: BigUint) -> Self {
+                Self { price }
+            }
+        }
+        /// should success
+        let mock = Mock::new(BigUint::from(0u8));
+        assert!(mock.validate().is_ok());
+        let mock = Mock::new(BigUint::from(MAX_PRICE - 1));
+        assert!(mock.validate().is_ok());
+        /// out of range
         let mock = Mock::new(BigUint::from(MAX_PRICE));
         assert!(mock.validate().is_err());
     }

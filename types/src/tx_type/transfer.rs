@@ -1,13 +1,14 @@
 use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
-use crate::basic_types::params::{
-    SIGNED_TRANSFER_BIT_WIDTH, TOKEN_MAX_PRECISION, TX_TYPE_BIT_WIDTH,
+use crate::basic_types::{
+    AccountId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
-use crate::basic_types::{AccountId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress};
 use crate::tx_type::validator::*;
 use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait};
 
+use crate::params::{SIGNED_TRANSFER_BIT_WIDTH, TOKEN_MAX_PRECISION, TX_TYPE_BIT_WIDTH};
+#[cfg(feature = "ffi")]
+use crate::prelude::TransferBuilder;
 use crate::signatures::TxLayer1Signature;
-use crate::tx_builder::TransferBuilder;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "ffi")]
@@ -58,23 +59,9 @@ pub struct Transfer {
 }
 
 impl Transfer {
-    /// Creates transaction from all the required fields.
-    ///
-    /// While `signature` field is mandatory for new transactions, it may be `None`
-    /// in some cases (e.g. when restoring the network state from the L1 contract data).
+    #[cfg(feature = "ffi")]
     pub fn new(builder: TransferBuilder) -> Self {
-        Self {
-            account_id: builder.account_id,
-            from_sub_account_id: builder.from_sub_account_id,
-            to_sub_account_id: builder.to_sub_account_id,
-            to: builder.to_address,
-            token: builder.token,
-            amount: builder.amount,
-            fee: builder.fee,
-            nonce: builder.nonce,
-            signature: ZkLinkSignature::default(),
-            ts: builder.timestamp,
-        }
+        builder.build()
     }
 
     /// Restores the `PubKeyHash` from the transaction signature.
@@ -134,9 +121,10 @@ impl Transfer {
     }
 }
 
-impl TxTrait for Transfer {
+impl GetBytes for Transfer {
     fn get_bytes(&self) -> Vec<u8> {
-        let mut out = Vec::new();
+        let bytes_len = self.bytes_len();
+        let mut out = Vec::with_capacity(bytes_len);
         out.extend_from_slice(&[Self::TX_TYPE]);
         out.extend_from_slice(&self.account_id.to_be_bytes());
         out.extend_from_slice(&self.from_sub_account_id.to_be_bytes());
@@ -147,10 +135,15 @@ impl TxTrait for Transfer {
         out.extend_from_slice(&pack_fee_amount(&self.fee));
         out.extend_from_slice(&self.nonce.to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
-        assert_eq!(out.len() * TX_TYPE_BIT_WIDTH, SIGNED_TRANSFER_BIT_WIDTH);
+        assert_eq!(out.len(), bytes_len);
         out
     }
+    fn bytes_len(&self) -> usize {
+        SIGNED_TRANSFER_BIT_WIDTH / TX_TYPE_BIT_WIDTH
+    }
 }
+
+impl TxTrait for Transfer {}
 
 impl ZkSignatureTrait for Transfer {
     fn set_signature(&mut self, signature: ZkLinkSignature) {
@@ -170,6 +163,7 @@ impl ZkSignatureTrait for Transfer {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::prelude::TransferBuilder;
     use std::str::FromStr;
     use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
     use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
@@ -191,7 +185,7 @@ mod test {
             nonce: Nonce(1),
             timestamp: ts.into(),
         };
-        let transfer = Transfer::new(builder);
+        let transfer = builder.build();
         let bytes = transfer.get_bytes();
         let excepted_bytes = [
             4, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4, 37,
@@ -221,7 +215,7 @@ mod test {
             nonce: Nonce(1),
             timestamp: ts.into(),
         };
-        let mut tx = Transfer::new(builder);
+        let mut tx = builder.build();
         //check l2 signature
         tx.signature = ZkLinkSignature::from_hex(signature).unwrap();
         let recover_pubkey_hash = tx.verify_signature().unwrap();
