@@ -97,9 +97,6 @@ basic_type!(
 );
 
 pub trait GetBytes {
-    /// the length of encoded bytes
-    fn bytes_len(&self) -> usize;
-
     /// Encodes the data as the byte sequence.
     fn get_bytes(&self) -> Vec<u8>;
 
@@ -109,6 +106,9 @@ pub trait GetBytes {
         hash_input.resize(RESCUE_HASH_INPUT_BYTES, 0);
         rescue_hash_orders(&hash_input)
     }
+
+    /// the length of encoded bytes
+    fn bytes_len(&self) -> usize;
 }
 
 impl GetBytes for AccountId {

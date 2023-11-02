@@ -1,8 +1,6 @@
 use crate::basic_types::pad::pad_front;
 use crate::basic_types::{GetBytes, PairId, TokenId};
-use crate::params::{
-    CONTRACT_PRICE_BYTES, MARGIN_PRICE_BYTES, PRICE_BIT_WIDTH,
-};
+use crate::params::{CONTRACT_PRICE_BYTES, MARGIN_PRICE_BYTES, PRICE_BIT_WIDTH};
 use crate::prelude::validator::*;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
