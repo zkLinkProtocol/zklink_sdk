@@ -1,7 +1,7 @@
 use crate::basic_types::pad::pad_front;
 use crate::basic_types::{GetBytes, PairId, TokenId};
 use crate::params::{
-    CONTRACT_PRICE_BYTES, MARGIN_PRICE_BYTES, PRICE_BIT_WIDTH, RESCUE_HASH_INPUT_BYTES,
+    CONTRACT_PRICE_BYTES, MARGIN_PRICE_BYTES, PRICE_BIT_WIDTH,
 };
 use crate::prelude::validator::*;
 use num::BigUint;
@@ -97,13 +97,11 @@ impl GetBytes for OraclePrices {
         let mut margins_encode = Vec::with_capacity(bytes_len);
         margins_encode.extend(self.contract_prices.get_bytes());
         margins_encode.extend(self.margin_prices.get_bytes());
-        // TODO: use assert_eq
-        // assert_eq!(margins_encode.len(), bytes_len);
+        assert_eq!(margins_encode.len(), bytes_len);
         margins_encode
     }
 
     fn bytes_len(&self) -> usize {
-        // Todo: Need to wait for the front-end to modify their SDKs
-        RESCUE_HASH_INPUT_BYTES
+        self.margin_prices.bytes_len() + self.contract_prices.bytes_len()
     }
 }

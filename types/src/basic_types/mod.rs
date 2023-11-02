@@ -21,7 +21,7 @@ pub(crate) mod params;
 pub mod tx_hash;
 pub mod zklink_address;
 
-use crate::params::{ACCOUNT_ID_BIT_WIDTH, TOKEN_BIT_WIDTH};
+use crate::params::{ACCOUNT_ID_BIT_WIDTH, RESCUE_HASH_INPUT_BYTES, TOKEN_BIT_WIDTH};
 pub use num::BigUint;
 use zklink_sdk_signers::zklink_signer::utils::rescue_hash_orders;
 
@@ -106,7 +106,7 @@ pub trait GetBytes {
     /// calculate the hash of encoded bytes
     fn rescue_hash(&self) -> Vec<u8> {
         let mut hash_input = self.get_bytes();
-        hash_input.resize(self.bytes_len(), 0);
+        hash_input.resize(RESCUE_HASH_INPUT_BYTES, 0);
         rescue_hash_orders(&hash_input)
     }
 }
