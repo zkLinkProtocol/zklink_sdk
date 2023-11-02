@@ -6,10 +6,13 @@ pub const TOKEN_MAX_PRECISION: u8 = 18;
 pub const MAX_CHAIN_ID: ChainId = ChainId(u8::pow(2, CHAIN_SUB_TREE_DEPTH as u32) - 1);
 pub const MAX_SUB_ACCOUNT_ID: SubAccountId =
     SubAccountId(u8::pow(2, SUB_ACCOUNT_TREE_DEPTH as u32) - 1);
+/// Depth of sub-account tree allowed (be used for multiple different partition dex).
 pub const SUB_ACCOUNT_TREE_DEPTH: usize = 5;
 /// Depth of the orders subtree for each account.
 pub const ORDER_SUB_TREE_DEPTH: usize = 16;
+/// Depth of the chains subtree for global asset tree(located GLOBAL_ASSET_ACCOUNT_ID's balance tree, sub_account_id => chain_id).
 pub const CHAIN_SUB_TREE_DEPTH: usize = SUB_ACCOUNT_TREE_DEPTH;
+/// Depth of the account subtree that used for the current circuit chunk branch
 pub const USED_ACCOUNT_SUBTREE_DEPTH: usize = 24;
 /// Depth of the position subtree that used for the current circuit construct available position subtree
 pub const USED_POSITION_SUBTREE_DEPTH: usize = 2;
@@ -36,12 +39,17 @@ pub const ACCOUNT_ID_BIT_WIDTH: usize = 32;
 pub const SUB_ACCOUNT_ID_BIT_WIDTH: usize = 8;
 pub const PRICE_BIT_WIDTH: usize = 120;
 pub const MIN_PRICE: u128 = 1;
+/// deciamls of price in order will be improved with TOKEN_MAX_PRECISION(18)
+/// the bit width of price in pubdata is PRICE_BIT_WIDTH(120)
+/// so the max price of price that order can submit is
+/// 2 ** 120 - 1 / 10 ^18 = 1329227995784915872
 pub const MAX_PRICE: u128 = 1329227995784915872000000000000000000;
 
 pub const TOKEN_BIT_WIDTH: usize = 16;
 pub const TX_TYPE_BIT_WIDTH: usize = 8;
 /// balance bit width
 pub const BALANCE_BIT_WIDTH: usize = 128;
+/// The maximum bit width allowed by multiplication and division
 pub const NEW_PUBKEY_HASH_BYTES_LEN: usize = 20;
 pub const NEW_PUBKEY_HASH_WIDTH: usize = NEW_PUBKEY_HASH_BYTES_LEN * 8;
 
@@ -59,6 +67,7 @@ pub const FEE_BIT_WIDTH: usize = FEE_EXPONENT_BIT_WIDTH + FEE_MANTISSA_BIT_WIDTH
 pub const FEE_EXPONENT_BIT_WIDTH: usize = 5;
 pub const FEE_MANTISSA_BIT_WIDTH: usize = 11;
 
+/// Timestamp bit width
 pub const SIMP_TIMESTAMP_BIT_WIDTH: usize = 4 * 8;
 
 /// Fr element encoding
@@ -220,6 +229,12 @@ pub const MARGIN_TOKENS_NUMBER: usize = 3;
 pub const USED_POSITION_NUMBER: usize = 2usize.pow(USED_POSITION_SUBTREE_DEPTH as u32);
 pub const USED_POSITION_PAIR_ID_RANGE: std::ops::Range<u8> = 0..USED_POSITION_NUMBER as u8;
 
+/// The account used to store the remaining assets of the tokens for contracts of layer1.
+/// The token balances of this account are used in withdraw to layer one or create exit proof.
+///
+/// There are two kind of accounts:
+/// * Normal account(id = \[0, 2-MAX_ACCOUNT_ID\])
+/// * Global asset account(id = 1)
 pub const GLOBAL_ASSET_ACCOUNT_ID: AccountId = AccountId(1);
 /// All fee related values
 pub const FEE_RATIO_BIT_WIDTH: usize = 8;
