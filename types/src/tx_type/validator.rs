@@ -131,12 +131,10 @@ pub fn boolean_validator(boolean: u8) -> Result<(), ValidationError> {
 
 /// Check direction flag value validation
 ///
-/// - direction should <= 3
+/// - direction should <= 1
 pub fn direction_validator(direction: u8) -> Result<(), ValidationError> {
-    if direction > 3u8 {
-        return Err(ValidationError::new(
-            "direction value should be 0 or 1 or 2 or 3",
-        ));
+    if direction > 1u8 {
+        return Err(ValidationError::new("direction value should be 0 or 1"));
     }
     Ok(())
 }

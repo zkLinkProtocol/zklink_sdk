@@ -32,7 +32,7 @@ pub struct Order {
     pub sub_account_id: SubAccountId,
     #[validate(custom = "slot_id_validator")]
     pub slot_id: SlotId,
-    #[validate(custom = "nonce_validator")]
+    #[validate(custom = "order_nonce_validator")]
     pub nonce: Nonce,
     #[validate(custom = "token_validator")]
     pub base_token_id: TokenId, // btc
