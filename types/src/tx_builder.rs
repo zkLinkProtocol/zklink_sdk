@@ -10,6 +10,7 @@ use crate::prelude::{
     SlotId, Transfer, UpdateGlobalVar, Withdraw,
 };
 use crate::tx_type::exit_info::ExitInfo;
+use cfg_if::cfg_if;
 use num::BigUint;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
@@ -213,23 +214,16 @@ impl FullExitBuilder {
     }
 }
 
-#[cfg(feature = "ffi")]
 pub struct OrderMatchingBuilder {
     pub account_id: AccountId,
     pub sub_account_id: SubAccountId,
+    #[cfg(feature = "ffi")]
     pub taker: Arc<Order>,
+    #[cfg(feature = "ffi")]
     pub maker: Arc<Order>,
-    pub fee: BigUint,
-    pub fee_token: TokenId,
-    pub expect_base_amount: BigUint,
-    pub expect_quote_amount: BigUint,
-}
-
-#[cfg(not(feature = "ffi"))]
-pub struct OrderMatchingBuilder {
-    pub account_id: AccountId,
-    pub sub_account_id: SubAccountId,
+    #[cfg(not(feature = "ffi"))]
     pub taker: Order,
+    #[cfg(not(feature = "ffi"))]
     pub maker: Order,
     pub fee: BigUint,
     pub fee_token: TokenId,
@@ -238,29 +232,20 @@ pub struct OrderMatchingBuilder {
 }
 
 impl OrderMatchingBuilder {
-    #[cfg(feature = "ffi")]
     pub fn build(self) -> OrderMatching {
-        let taker = (*self.taker).clone();
-        let maker = (*self.maker).clone();
+        cfg_if! {
+            if #[cfg(feature = "ffi")] {
+                let taker = (*self.taker).clone();
+                let maker = (*self.maker).clone();
+            } else {
+                let taker = self.taker;
+                let maker = self.maker;
+            }
+        }
         OrderMatching {
             account_id: self.account_id,
             taker,
             maker,
-            fee: self.fee,
-            fee_token: self.fee_token,
-            sub_account_id: self.sub_account_id,
-            expect_base_amount: self.expect_base_amount,
-            expect_quote_amount: self.expect_quote_amount,
-            signature: Default::default(),
-        }
-    }
-
-    #[cfg(not(feature = "ffi"))]
-    pub fn build(self) -> OrderMatching {
-        OrderMatching {
-            account_id: self.account_id,
-            taker: self.taker,
-            maker: self.maker,
             fee: self.fee,
             fee_token: self.fee_token,
             sub_account_id: self.sub_account_id,
@@ -332,7 +317,13 @@ impl AutoDeleveragingBuilder {
 pub struct ContractMatchingBuilder {
     pub account_id: AccountId,
     pub sub_account_id: SubAccountId,
+    #[cfg(feature = "ffi")]
+    pub taker: Arc<Contract>,
+    #[cfg(feature = "ffi")]
+    pub maker: Vec<Arc<Contract>>,
+    #[cfg(not(feature = "ffi"))]
     pub taker: Contract,
+    #[cfg(not(feature = "ffi"))]
     pub maker: Vec<Contract>,
     pub fee: BigUint,
     pub fee_token: TokenId,
@@ -340,10 +331,21 @@ pub struct ContractMatchingBuilder {
 
 impl ContractMatchingBuilder {
     pub fn build(self) -> ContractMatching {
+        cfg_if! {
+            if #[cfg(feature = "ffi")] {
+                let maker = self.maker.into_iter()
+                    .map(|p| (*p).clone())
+                    .collect();
+                let taker = (*self.taker).clone();
+            } else {
+                let maker = self.maker;
+                let taker = self.taker;
+            }
+        }
         ContractMatching {
             account_id: self.account_id,
-            taker: self.taker,
-            maker: self.maker,
+            taker,
+            maker,
             sub_account_id: self.sub_account_id,
             fee: self.fee,
             fee_token: self.fee_token,
@@ -361,7 +363,10 @@ pub struct ContractBuilder {
     pub size: BigUint,
     pub price: BigUint,
     pub direction: bool,
-    pub fee_rates: [u8; 2],
+    /// 100 means 1%, max is 2.56%
+    pub maker_fee_ratio: u8,
+    /// 100 means 1%, max is 2.56%
+    pub taker_fee_ratio: u8,
     pub has_subsidy: bool,
 }
 
@@ -376,7 +381,7 @@ impl ContractBuilder {
             size: self.size,
             price: self.price,
             direction: self.direction as u8,
-            fee_rates: self.fee_rates,
+            fee_rates: [self.maker_fee_ratio, self.taker_fee_ratio],
             has_subsidy: self.has_subsidy as u8,
             signature: Default::default(),
         }
@@ -410,7 +415,7 @@ pub struct LiquidationBuilder {
     pub account_id: AccountId,
     pub sub_account_id: SubAccountId,
     pub sub_account_nonce: Nonce,
-    pub contracts_prices: Vec<ContractPrice>,
+    pub contract_prices: Vec<ContractPrice>,
     pub margin_prices: Vec<SpotPriceInfo>,
     pub liquidation_account_id: AccountId,
     pub fee: BigUint,
@@ -424,7 +429,7 @@ impl LiquidationBuilder {
             sub_account_id: self.sub_account_id,
             sub_account_nonce: self.sub_account_nonce,
             oracle_prices: OraclePrices {
-                contract_prices: self.contracts_prices,
+                contract_prices: self.contract_prices,
                 margin_prices: self.margin_prices,
             },
             liquidation_account_id: self.liquidation_account_id,
@@ -438,16 +443,20 @@ impl LiquidationBuilder {
 pub struct UpdateGlobalVarBuilder {
     pub from_chain_id: ChainId,
     pub sub_account_id: SubAccountId,
+    #[cfg(feature = "ffi")]
+    pub parameter: Parameter,
+    #[cfg(not(feature = "ffi"))]
     pub parameter: Parameter,
     pub serial_id: u64,
 }
 
 impl UpdateGlobalVarBuilder {
     pub fn build(self) -> UpdateGlobalVar {
+        let parameter = self.parameter;
         UpdateGlobalVar {
             from_chain_id: self.from_chain_id,
             sub_account_id: self.sub_account_id,
-            parameter: self.parameter,
+            parameter,
             serial_id: self.serial_id,
         }
     }

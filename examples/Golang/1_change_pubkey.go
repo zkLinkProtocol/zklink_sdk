@@ -95,7 +95,7 @@ func LowLevelChangePubkey() {
     if !valid {
         return
     }
-    zklinkTx := sdk.ZklinkTxFromChangePubkey(tx)
+    zklinkTx := tx.ToZklinkTx();
     fmt.Println("changePubKey tx: %v", zklinkTx)
 
     // create submitter signature

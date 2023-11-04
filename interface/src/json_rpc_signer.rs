@@ -2,7 +2,6 @@ use crate::do_submitter_signature;
 use crate::error::SignError;
 use crate::sign_change_pubkey::do_sign_change_pubkey_with_create2data_auth;
 use crate::sign_forced_exit::sign_forced_exit;
-use crate::sign_order::create_signed_order;
 use crate::sign_order_matching::sign_order_matching;
 use crate::sign_transfer::sign_transfer;
 use crate::sign_withdraw::sign_withdraw;
@@ -104,7 +103,7 @@ impl JsonRpcSigner {
 
     #[inline]
     pub fn create_signed_order(&self, order: &Order) -> Result<Order, SignError> {
-        let signed_order = create_signed_order(&self.zklink_signer, order)?;
+        let signed_order = order.create_signed_order(&self.zklink_signer)?;
         Ok(signed_order)
     }
 

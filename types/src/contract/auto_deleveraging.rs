@@ -23,11 +23,9 @@ pub struct AutoDeleveraging {
     pub sub_account_id: SubAccountId,
     #[validate(custom = "nonce_validator")]
     pub sub_account_nonce: Nonce,
-
     /// Contains required mark prices for all margin tokens and contracts from Oracle(e.g. ChainLink, Band, Api3)
     #[validate]
     pub oracle_prices: OraclePrices,
-
     /// The account that are required to adl their position
     #[validate(custom = "account_validator")]
     pub adl_account_id: AccountId,
@@ -42,13 +40,11 @@ pub struct AutoDeleveraging {
     #[serde(with = "BigUintSerdeAsRadix10Str")]
     #[validate(custom = "price_validator")]
     pub adl_price: BigUint,
-
     #[serde(with = "BigUintSerdeAsRadix10Str")]
     #[validate(custom = "fee_packable")]
     pub fee: BigUint,
     #[validate(custom = "token_validator")]
     pub fee_token: TokenId,
-
     pub signature: ZkLinkSignature,
 }
 

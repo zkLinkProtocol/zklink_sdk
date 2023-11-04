@@ -1,13 +1,9 @@
 use crate::error::SignError;
-#[cfg(feature = "ffi")]
-use std::sync::Arc;
 #[cfg(feature = "web")]
 use zklink_sdk_signers::eth_signer::json_rpc_signer::JsonRpcSigner;
 #[cfg(not(feature = "web"))]
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
-#[cfg(feature = "ffi")]
-use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::prelude::TxSignature;
 use zklink_sdk_types::tx_type::withdraw::Withdraw;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
@@ -44,16 +40,6 @@ pub async fn sign_withdraw(
         tx: tx.into(),
         eth_signature: Some(eth_signature),
     })
-}
-
-#[cfg(feature = "ffi")]
-pub fn create_signed_withdraw(
-    zklink_singer: Arc<ZkLinkSigner>,
-    tx: Arc<Withdraw>,
-) -> Result<Arc<Withdraw>, SignError> {
-    let mut tx = (*tx).clone();
-    tx.signature = zklink_singer.sign_musig(&tx.get_bytes())?;
-    Ok(Arc::new(tx))
 }
 
 #[cfg(test)]

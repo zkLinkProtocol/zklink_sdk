@@ -33,6 +33,8 @@ typedef u8 ChainId;
 [Custom]
 typedef u8 SubAccountId;
 [Custom]
+typedef u8 MarginId;
+[Custom]
 typedef string H256;
 [Custom]
 typedef string Address;
@@ -45,7 +47,36 @@ typedef string TxHash;
 [Custom]
 typedef string TxLayer1Signature;
 
+dictionary ContractPrice {
+    PairId pair_id;
+    BigUint market_price;
+};
+
+dictionary SpotPriceInfo {
+    TokenId token_id;
+    BigUint price;
+};
+
+dictionary OraclePrices {
+    sequence<ContractPrice> contract_prices;
+    sequence<SpotPriceInfo> margin_prices;
+};
+
 // ============================ tx builder  ============================
+dictionary ContractBuilder {
+    AccountId account_id;
+    SubAccountId sub_account_id;
+    SlotId slot_id;
+    Nonce nonce;
+    PairId pair_id;
+    BigUint size;
+    BigUint price;
+    boolean direction;
+    u8 taker_fee_ratio;
+    u8 maker_fee_ratio;
+    boolean has_subsidy;
+};
+
 dictionary ChangePubKeyBuilder {
     ChainId chain_id;
     AccountId account_id;
@@ -137,6 +168,60 @@ dictionary OrderMatchingBuilder {
     BigUint expect_quote_amount;
 };
 
+dictionary AutoDeleveragingBuilder {
+    AccountId account_id;
+    SubAccountId sub_account_id;
+    Nonce sub_account_nonce;
+    sequence<ContractPrice> contract_prices;
+    sequence<SpotPriceInfo> margin_prices;
+    AccountId adl_account_id;
+    PairId pair_id;
+    BigUint adl_size;
+    BigUint adl_price;
+    BigUint fee;
+    TokenId fee_token;
+};
+
+dictionary ContractMatchingBuilder {
+    AccountId account_id;
+    SubAccountId sub_account_id;
+    Contract taker;
+    sequence<Contract> maker;
+    BigUint fee;
+    TokenId fee_token;
+};
+
+dictionary FundingBuilder {
+    AccountId account_id;
+    SubAccountId sub_account_id;
+    Nonce sub_account_nonce;
+    sequence<AccountId> funding_account_ids;
+    BigUint fee;
+    TokenId fee_token;
+};
+
+dictionary LiquidationBuilder {
+    AccountId account_id;
+    SubAccountId sub_account_id;
+    Nonce sub_account_nonce;
+    sequence<ContractPrice> contract_prices;
+    sequence<SpotPriceInfo> margin_prices;
+    AccountId liquidation_account_id;
+    BigUint fee;
+    TokenId fee_token;
+};
+
+dictionary UpdateGlobalVarBuilder {
+    ChainId from_chain_id;
+    SubAccountId sub_account_id;
+    Parameter parameter;
+    u64 serial_id;
+};
+
+dictionary FundingRate {
+    PairId pair_id;
+    i16 funding_rate;
+};
 
 // ============================  transaction types  ============================
 dictionary Create2Data {
@@ -179,6 +264,9 @@ interface Withdraw {
     PackedEthSignature  eth_signature(EthSigner eth_signer, [ByRef] string l2_source_token_symbol);
     [Throws=ZkSignerError]
     ZkLinkSignature submitter_signature(ZkLinkSigner signer);
+    [Throws=ZkSignerError]
+    Withdraw create_signed_tx(ZkLinkSigner signer);
+    ZkLinkTx to_zklink_tx();
 };
 
 interface ChangePubKey {
@@ -192,6 +280,7 @@ interface ChangePubKey {
     boolean is_signature_valid();
     [Throws=ZkSignerError]
     ZkLinkSignature submitter_signature(ZkLinkSigner signer);
+    ZkLinkTx to_zklink_tx();
 };
 
 interface ForcedExit {
@@ -204,6 +293,9 @@ interface ForcedExit {
     boolean is_signature_valid();
     [Throws=ZkSignerError]
     ZkLinkSignature submitter_signature(ZkLinkSigner signer);
+    [Throws=ZkSignerError]
+    ForcedExit create_signed_tx(ZkLinkSigner signer);
+    ZkLinkTx to_zklink_tx();
 };
 
 
@@ -213,6 +305,7 @@ interface FullExit {
     sequence<u8> tx_hash();
     string json_str();
     boolean is_valid();
+    ZkLinkTx to_zklink_tx();
 };
 
 interface Transfer {
@@ -228,6 +321,9 @@ interface Transfer {
     TxLayer1Signature eth_signature(EthSigner eth_signer, [ByRef]string token_symbol);
     [Throws=ZkSignerError]
     ZkLinkSignature submitter_signature(ZkLinkSigner signer);
+    [Throws=ZkSignerError]
+    Transfer create_signed_tx(ZkLinkSigner signer);
+    ZkLinkTx to_zklink_tx();
 };
 
 
@@ -253,16 +349,101 @@ interface Order {
     boolean is_valid();
     boolean is_signature_valid();
     string get_eth_sign_msg([ByRef] string quote_token, [ByRef] string based_token, u8 decimals);
+    [Throws=ZkSignerError]
+    Order create_signed_order(ZkLinkSigner zklink_signer);
 };
 
 interface OrderMatching {
     constructor( OrderMatchingBuilder builder);
-    ZkLinkSignature signature();
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
     string json_str();
     boolean is_valid();
+    ZkLinkSignature signature();
     boolean is_signature_valid();
+    [Throws=ZkSignerError]
+    OrderMatching create_signed_tx(ZkLinkSigner signer);
+    ZkLinkTx to_zklink_tx();
+};
+
+interface Contract {
+    constructor(ContractBuilder builder);
+    boolean is_long();
+    boolean is_short();
+    ZkLinkSignature signature();
+    boolean is_signature_valid();
+    sequence<u8> get_bytes();
+};
+
+[Enum]
+interface Parameter {
+    FeeAccount(AccountId fee_account_id);
+    InsuranceFundAccount(AccountId insurance_account_id);
+    MarginInfo(MarginId margin_id, TokenId token_id, u8 ratio);
+    FundingRates( sequence<FundingRate> funding_rates );
+    InitialMarginRate(PairId pair_id, u16 rate);
+    MaintenanceMarginRate(PairId pair_id, u16 rate);
+};
+
+interface AutoDeleveraging {
+    constructor(AutoDeleveragingBuilder builder);
+    sequence<u8> get_bytes();
+    sequence<u8> tx_hash();
+    string json_str();
+    boolean is_valid();
+    ZkLinkSignature signature();
+    boolean is_signature_valid();
+    ZkLinkTx to_zklink_tx();
+    [Throws=ZkSignerError]
+    AutoDeleveraging create_signed_tx(ZkLinkSigner signer);
+};
+
+interface ContractMatching {
+    constructor(ContractMatchingBuilder builder);
+    sequence<u8> get_bytes();
+    sequence<u8> tx_hash();
+    string json_str();
+    boolean is_valid();
+    ZkLinkSignature signature();
+    boolean is_signature_valid();
+    ZkLinkTx to_zklink_tx();
+    [Throws=ZkSignerError]
+    ContractMatching create_signed_tx(ZkLinkSigner signer);
+};
+
+interface Funding {
+    constructor(FundingBuilder builder);
+    sequence<u8> get_bytes();
+    sequence<u8> tx_hash();
+    string json_str();
+    boolean is_valid();
+    ZkLinkSignature signature();
+    boolean is_signature_valid();
+    ZkLinkTx to_zklink_tx();
+    [Throws=ZkSignerError]
+    Funding create_signed_tx(ZkLinkSigner signer);
+};
+
+interface Liquidation {
+    constructor(LiquidationBuilder builder);
+    sequence<u8> get_bytes();
+    sequence<u8> tx_hash();
+    string json_str();
+    boolean is_valid();
+    ZkLinkSignature signature();
+    boolean is_signature_valid();
+    ZkLinkTx to_zklink_tx();
+    [Throws=ZkSignerError]
+    Liquidation create_signed_tx(ZkLinkSigner signer);
+};
+
+interface UpdateGlobalVar {
+   constructor(UpdateGlobalVarBuilder builder);
+    sequence<u8> get_bytes();
+    sequence<u8> tx_hash();
+    string json_str();
+    boolean is_valid();
+    ZkLinkTx to_zklink_tx();
 };
 
 
@@ -389,24 +570,5 @@ namespace zklink_sdk {
     PackedEthSignature eth_signature_of_change_pubkey(u32 l1_client_id, ChangePubKey tx, EthSigner eth_signer, ZkLinkAddress main_contract);
     [Throws=SignError]
     ChangePubKey create_signed_change_pubkey(ZkLinkSigner zklink_signer, ChangePubKey tx, ChangePubKeyAuthData eth_auth_data);
-
-    [Throws=ZkSignerError]
-    ForcedExit create_signed_forced_exit(ZkLinkSigner zklink_signer, ForcedExit tx);
-    [Throws=ZkSignerError]
-    Order create_signed_order(ZkLinkSigner zklink_signer, Order order);
-    [Throws=ZkSignerError]
-    OrderMatching create_signed_order_matching(ZkLinkSigner signer, OrderMatching tx);
-    [Throws=SignError]
-    Transfer create_signed_transfer(ZkLinkSigner zklink_signer, Transfer tx);
-    [Throws=SignError]
-    Withdraw create_signed_withdraw(ZkLinkSigner zklink_signer, Withdraw tx);
-
-    ZkLinkTx zklink_tx_from_change_pubkey(ChangePubKey tx);
-    ZkLinkTx zklink_tx_from_transfer(Transfer tx);
-    ZkLinkTx zklink_tx_from_deposit(Deposit tx);
-    ZkLinkTx zklink_tx_from_withdraw(Withdraw tx);
-    ZkLinkTx zklink_tx_from_forced_exit(ForcedExit tx);
-    ZkLinkTx zklink_tx_from_full_exit(FullExit tx);
-    ZkLinkTx zklink_tx_from_order_matching(OrderMatching tx);
 };
 

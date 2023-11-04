@@ -17,6 +17,8 @@ pub mod prelude {
     pub use super::error::TypeError;
     pub use super::signatures::{TxLayer1Signature, TxSignature};
     pub use super::tx_builder::*;
+    #[cfg(feature = "ffi")]
+    pub use super::tx_type::ToZklinkTx;
     pub use super::tx_type::{
         change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data},
         deposit::Deposit,

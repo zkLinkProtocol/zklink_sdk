@@ -1,4 +1,6 @@
 use crate::basic_types::{GetBytes, ZkLinkAddress};
+#[cfg(feature = "ffi")]
+use crate::prelude::ZkLinkTx;
 use crate::tx_type::change_pubkey::ChangePubKey;
 use crate::tx_type::deposit::Deposit;
 use crate::tx_type::forced_exit::ForcedExit;
@@ -129,6 +131,25 @@ pub trait TxTrait: Validate + Serialize + GetBytes {
     }
 }
 
+#[cfg(feature = "ffi")]
+pub trait ToZklinkTx {
+    fn to_zklink_tx(&self) -> ZkLinkTx;
+}
+
+#[cfg(feature = "ffi")]
+impl<T> ToZklinkTx for T
+where
+    ZkLinkTx: From<T>,
+    T: Clone,
+{
+    fn to_zklink_tx(&self) -> ZkLinkTx
+    where
+        Self: Sized,
+    {
+        self.clone().into()
+    }
+}
+
 pub trait ZkSignatureTrait: TxTrait {
     fn set_signature(&mut self, signature: ZkLinkSignature);
 
@@ -144,6 +165,17 @@ pub trait ZkSignatureTrait: TxTrait {
         Ok(())
     }
 
+    #[cfg(feature = "ffi")]
+    fn create_signed_tx(&self, signer: Arc<ZkLinkSigner>) -> Result<Arc<Self>, ZkSignerError>
+    where
+        Self: Sized + Clone,
+    {
+        let mut tx = self.clone();
+        let bytes = self.get_bytes();
+        let signature = signer.sign_musig(&bytes)?;
+        tx.set_signature(signature);
+        Ok(Arc::new(tx))
+    }
     #[cfg(feature = "ffi")]
     fn submitter_signature(
         &self,

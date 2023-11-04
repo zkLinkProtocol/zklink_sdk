@@ -1,6 +1,4 @@
 use crate::error::SignError;
-#[cfg(feature = "ffi")]
-use std::sync::Arc;
 #[cfg(feature = "web")]
 use zklink_sdk_signers::eth_signer::json_rpc_signer::JsonRpcSigner;
 #[cfg(not(feature = "web"))]
@@ -43,17 +41,6 @@ pub async fn sign_transfer(
         eth_signature: Some(eth_signature),
     })
 }
-
-#[cfg(feature = "ffi")]
-pub fn create_signed_transfer(
-    zklink_syner: Arc<ZkLinkSigner>,
-    tx: Arc<Transfer>,
-) -> Result<Arc<Transfer>, SignError> {
-    let mut tx = (*tx).clone();
-    tx.signature = zklink_syner.sign_musig(&tx.get_bytes())?;
-    Ok(Arc::new(tx))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

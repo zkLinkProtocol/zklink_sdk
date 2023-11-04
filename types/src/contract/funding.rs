@@ -18,14 +18,11 @@ use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 pub struct FundingRate {
     #[validate(custom = "pair_validator")]
     pub pair_id: PairId,
+    // TODO: can it be lower than 0?
     pub funding_rate: i16,
 }
 
 impl GetBytes for FundingRate {
-    fn bytes_len(&self) -> usize {
-        PAIR_BIT_WIDTH / 8 + FUNDING_RATE_BYTES
-    }
-
     fn get_bytes(&self) -> Vec<u8> {
         let bytes_len = self.bytes_len();
         let mut funding_rate_encode = Vec::with_capacity(bytes_len);
@@ -38,6 +35,10 @@ impl GetBytes for FundingRate {
         funding_rate_encode.extend(rate_bytes);
         assert_eq!(funding_rate_encode.len(), bytes_len);
         funding_rate_encode
+    }
+
+    fn bytes_len(&self) -> usize {
+        PAIR_BIT_WIDTH / 8 + FUNDING_RATE_BYTES
     }
 }
 
