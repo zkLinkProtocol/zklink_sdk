@@ -62,7 +62,7 @@ impl ForcedExitBuilder {
     #[wasm_bindgen]
     pub fn build(self) -> ForcedExit {
         ForcedExit {
-            inner: self.inner.build()
+            inner: self.inner.build(),
         }
     }
 }
