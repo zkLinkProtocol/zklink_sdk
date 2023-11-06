@@ -307,6 +307,26 @@ pub struct TokenInfo {
     pub fast_withdraw: bool,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct RelayerTx {
+    pub tx_hash: TxHash,
+    pub call_data: RelayerData,
+    pub final_hash: TxHash,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum RelayerData {
+    Deposit(RelayerDeposit),
+}
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RelayerDeposit {
+    pub account: ZkLinkAddress,
+    pub token: ZkLinkAddress,
+    pub sub_account_id: SubAccountId,
+    pub amount: BigUintSerdeWrapper,
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
