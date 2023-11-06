@@ -1,6 +1,10 @@
+SHELL := /bin/bash
+
 lint:
 	cargo fmt
-	cargo clippy --all-targets
+	cargo clippy --features ffi -- -D warnings
+	cargo clippy --features web -- -D warnings
+	cargo clippy -- -D warnings
 	cargo sort
 	bash -c "cd ./interface && cargo sort"
 	bash -c "cd ./types && cargo sort"
@@ -8,6 +12,8 @@ lint:
 	bash -c "cd ./provider && cargo sort"
 	bash -c "cd ./signers && cargo sort"
 	cargo machete
+	cargo test --all
+	make test_go
 
 lint-check:
 	cargo fmt -- --check
@@ -75,9 +81,12 @@ test_go: build_binding_files build_binding_lib
 
 build_wasm: prepare_wasm
 	cd ${ROOT_DIR}/bindings/wasm && \
-	wasm-pack build --release --target=web --out-name=zklink-sdk-web --out-dir=web-dist && \
+	wasm-pack build --release --target=web --out-name=zklink-sdk-web --out-dir=web-dist -- --features web && \
     wasm-pack build --release --target=nodejs --out-name=zklink-sdk-node --out-dir=node-dist
 	#wasm-pack build --release --target=bundler --out-name=zklink-bundler-node --out-dir=dist
+test_wasm:
+	cd ${ROOT_DIR}/bindings/wasm && \
+	wasm-pack test --firefox --headless -- --test test_rpc
 
 
 run_example_go_%: ${ROOT_DIR}/examples/Golang/%.go

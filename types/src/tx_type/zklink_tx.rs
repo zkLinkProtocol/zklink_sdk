@@ -11,8 +11,10 @@ use crate::tx_type::order_matching::OrderMatching;
 use crate::tx_type::transfer::Transfer;
 use crate::tx_type::withdraw::Withdraw;
 use crate::tx_type::TxTrait;
+use wasm_bindgen::prelude::wasm_bindgen;
 
 /// A set of L2 transaction type supported by the zklink network.
+#[wasm_bindgen]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ZkLinkTxType {
     Deposit,

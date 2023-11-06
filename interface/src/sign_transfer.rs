@@ -1,12 +1,16 @@
 use crate::error::SignError;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
+#[cfg(feature = "web")]
+use zklink_sdk_signers::eth_signer::json_rpc_signer::JsonRpcSigner;
+#[cfg(not(feature = "web"))]
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::prelude::TxSignature;
 use zklink_sdk_types::tx_type::transfer::Transfer;
 
+#[cfg(not(feature = "web"))]
 pub fn sign_transfer(
     eth_signer: &EthSigner,
     zklink_syner: &ZkLinkSigner,
@@ -16,6 +20,23 @@ pub fn sign_transfer(
     tx.signature = zklink_syner.sign_musig(&tx.get_bytes())?;
     let message = tx.get_eth_sign_msg(token_symbol).as_bytes().to_vec();
     let eth_signature = eth_signer.sign_message(&message)?;
+
+    Ok(TxSignature {
+        tx: tx.into(),
+        eth_signature: Some(eth_signature),
+    })
+}
+
+#[cfg(feature = "web")]
+pub async fn sign_transfer(
+    eth_signer: &JsonRpcSigner,
+    zklink_syner: &ZkLinkSigner,
+    mut tx: Transfer,
+    token_symbol: &str,
+) -> Result<TxSignature, SignError> {
+    tx.signature = zklink_syner.sign_musig(&tx.get_bytes())?;
+    let message = tx.get_eth_sign_msg(token_symbol).as_bytes().to_vec();
+    let eth_signature = eth_signer.sign_message(&message).await?;
 
     Ok(TxSignature {
         tx: tx.into(),

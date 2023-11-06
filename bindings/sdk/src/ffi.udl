@@ -7,6 +7,7 @@ enum TypeError {
     "SizeMismatch",
     "DecodeFromHexErr",
     "TooBigInteger",
+    "InvalidBigIntStr"
 };
 
 [Custom]

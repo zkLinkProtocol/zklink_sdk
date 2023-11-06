@@ -5,10 +5,13 @@ use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::tx_type::order_matching::Order;
 #[cfg(not(feature = "ffi"))]
-pub fn sign(order: &mut Order, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
-    let bytes = order.get_bytes();
-    order.signature = signer.sign_musig(&bytes)?;
-    Ok(())
+pub fn create_signed_order(
+    zklink_signer: &ZkLinkSigner,
+    order: &Order,
+) -> Result<Order, ZkSignerError> {
+    let mut order = order.clone();
+    order.signature = zklink_signer.sign_musig(&order.get_bytes())?;
+    Ok(order)
 }
 
 #[cfg(feature = "ffi")]

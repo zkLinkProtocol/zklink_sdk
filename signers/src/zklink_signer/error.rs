@@ -1,5 +1,7 @@
 use crate::eth_signer::error::EthSignerError;
 use thiserror::Error;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::JsValue;
 
 #[derive(Debug, Error)]
 pub enum ZkSignerError {
@@ -28,5 +30,12 @@ impl ZkSignerError {
     }
     pub fn invalid_privkey<T: ToString>(s: T) -> Self {
         Self::InvalidPrivKey(s.to_string())
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+impl From<ZkSignerError> for JsValue {
+    fn from(error: ZkSignerError) -> Self {
+        JsValue::from_str(&format!("error: {error}"))
     }
 }
