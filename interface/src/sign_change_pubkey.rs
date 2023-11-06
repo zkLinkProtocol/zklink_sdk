@@ -6,7 +6,9 @@ use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 #[cfg(not(feature = "web"))]
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_sdk_types::basic_types::ZkLinkAddress;
+#[cfg(feature = "ffi")]
+use zklink_sdk_types::prelude::GetBytes;
+use zklink_sdk_types::prelude::ZkLinkAddress;
 use zklink_sdk_types::signatures::TxSignature;
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data;
 use zklink_sdk_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData};
