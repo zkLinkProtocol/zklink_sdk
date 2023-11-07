@@ -8,15 +8,17 @@ use chrono::serde::{ts_microseconds, ts_microseconds_option};
 use zklink_sdk_signers::eth_signer::H256;
 use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
-use zklink_sdk_types::basic_types::{
-    AccountId, BlockNumber, ChainId, Nonce, SlotId, SubAccountId, TokenId, ZkLinkAddress,
-};
-use zklink_sdk_types::prelude::{BigUintSerdeWrapper, U256};
+use zklink_sdk_types::basic_types::{AccountId, BlockNumber, ChainId, MarginId, Nonce, PairId, SlotId, SubAccountId, TokenId, ZkLinkAddress};
+use zklink_sdk_types::prelude::{BigIntSerdeWrapper, BigUintSerdeWrapper, U256};
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 
 pub type SubAccountNonces = HashMap<SubAccountId, Nonce>;
-pub type SubAccountBalances = HashMap<SubAccountId, HashMap<TokenId, BigUintSerdeWrapper>>;
+pub type SubAccountBalances = HashMap<SubAccountId, HashMap<TokenId, BigIntSerdeWrapper>>;
+pub type SubAccountPositions = HashMap<SubAccountId, HashMap<PairId, ResponsePosition>>;
 pub type SubAccountOrders = HashMap<SubAccountId, HashMap<SlotId, ResponseTidyOrder>>;
+pub type SubAccountGlobalVars = HashMap<SubAccountId, GlobalVarsResp>;
+pub type MarginParams = HashMap<MarginId, ResponseMarginParams>;
+pub type ContractParams = HashMap<PairId, ResponseContractParams>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -119,6 +121,32 @@ pub struct AccountInfoResp {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct GlobalVarsResp {
+    pub sub_account_id: SubAccountId,
+    pub fee_account: Option<AccountId>,
+    pub insurance_fund_account: Option<AccountId>,
+    pub margin_params: MarginParams,
+    pub contract_params: ContractParams,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ResponseMarginParams {
+    pub token_id: TokenId,
+    pub ratio: u8
+}
+
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ResponseContractParams {
+    pub initial_margin_rate: u16,
+    pub maintenance_margin_rate: u16,
+    pub acc_funding_rate: i32
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct ResponseTidyOrder {
     pub nonce: Nonce,
     pub residue: BigDecimal,
@@ -127,6 +155,31 @@ pub struct ResponseTidyOrder {
 impl ResponseTidyOrder {
     pub fn new(nonce: Nonce, residue: BigDecimal) -> Self {
         Self { nonce, residue }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ResponsePosition {
+    pub direction: bool,
+    pub price: BigDecimal,
+    pub size: BigDecimal,
+    pub acc_funding_rate: i32
+}
+
+impl ResponsePosition {
+    pub fn new(
+        direction: bool,
+        price: BigDecimal,
+        size: BigDecimal,
+        acc_funding_rate: i32
+    ) -> Self {
+        Self {
+            direction,
+            price,
+            size,
+            acc_funding_rate,
+        }
     }
 }
 
@@ -141,26 +194,121 @@ pub struct AccountSnapshotResp {
     pub balances: SubAccountBalances,
     pub order_slots: SubAccountOrders,
     pub block_number: BlockNumber,
+    pub positions: SubAccountPositions,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(tag = "type")]
+#[serde(tag = "stateUpdateType")]
 pub enum StateUpdateResp {
-    AccountCreate(AccountCreateResp),
-    AccountChangePubkeyUpdate(AccountChangePubkeyUpdateResp),
-    BalanceUpdate(BalanceUpdateResp),
-    OrderUpdate(OrderUpdateResp),
+    AccountUpdate(AccountUpdateResp),
+    GlobalVarsUpdate(GlobalVarsUpdateResp),
+}
+
+impl From<AccountUpdateResp> for StateUpdateResp {
+    fn from(value: AccountUpdateResp) -> Self {
+        Self::AccountUpdate(value)
+    }
+}
+
+impl From<GlobalVarsUpdateResp> for StateUpdateResp {
+    fn from(value: GlobalVarsUpdateResp) -> Self {
+        Self::GlobalVarsUpdate(value)
+    }
 }
 
 impl StateUpdateResp {
     pub fn update_id(&self) -> i32 {
         match self {
-            StateUpdateResp::AccountCreate(u) => u.update_id,
-            StateUpdateResp::AccountChangePubkeyUpdate(u) => u.update_id,
-            StateUpdateResp::BalanceUpdate(u) => u.update_id,
-            StateUpdateResp::OrderUpdate(u) => u.update_id,
+            StateUpdateResp::AccountUpdate(u) => u.update_id(),
+            StateUpdateResp::GlobalVarsUpdate(u) => u.update_id(),
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(tag = "accountUpdateType")]
+pub enum AccountUpdateResp {
+    AccountCreate(AccountCreateResp),
+    AccountChangePubkeyUpdate(AccountChangePubkeyUpdateResp),
+    BalanceUpdate(BalanceUpdateResp),
+    OrderUpdate(OrderUpdateResp),
+    PositionUpdate(PositionUpdateResp),
+}
+
+impl AccountUpdateResp {
+    pub fn update_id(&self) -> i32 {
+        match self {
+            AccountUpdateResp::AccountCreate(u) => u.update_id,
+            AccountUpdateResp::AccountChangePubkeyUpdate(u) => u.update_id,
+            AccountUpdateResp::BalanceUpdate(u) => u.update_id,
+            AccountUpdateResp::OrderUpdate(u) => u.update_id,
+            AccountUpdateResp::PositionUpdate(u) => u.update_id
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(tag = "globalVarUpdate")]
+pub enum GlobalVarsUpdateResp {
+    FeeAccountUpdate(FeeAccountUpdateResp),
+    InsuranceFundAccountUpdate(InsuranceFundAccountUpdateResp),
+    MarginParamsUpdate(MarginParamsUpdateResp),
+    ContractParamsUpdate(ContractParamsUpdateResp),
+}
+
+impl GlobalVarsUpdateResp {
+    pub fn update_id(&self) -> i32 {
+        match self {
+            GlobalVarsUpdateResp::FeeAccountUpdate(u) => u.update_id,
+            GlobalVarsUpdateResp::InsuranceFundAccountUpdate(u) => u.update_id,
+            GlobalVarsUpdateResp::MarginParamsUpdate(u) => u.update_id,
+            GlobalVarsUpdateResp::ContractParamsUpdate(u) => u.update_id,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FeeAccountUpdateResp {
+    pub update_id: i32,
+    pub sub_account_id: SubAccountId,
+    pub old_fee_account_id: AccountId,
+    pub new_fee_account_id: AccountId,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct InsuranceFundAccountUpdateResp {
+    pub update_id: i32,
+    pub sub_account_id: SubAccountId,
+    pub old_insurance_fund_account_id: AccountId,
+    pub new_insurance_fund_account_id: AccountId,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct MarginParamsUpdateResp {
+    pub update_id: i32,
+    pub sub_account_id: SubAccountId,
+    pub margin_id: MarginId,
+    pub old_token_id: TokenId,
+    pub new_token_id: TokenId,
+    pub old_ratio: u8,
+    pub new_ratio: u8,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ContractParamsUpdateResp {
+    pub update_id: i32,
+    pub sub_account_id: SubAccountId,
+    pub pair_id: PairId,
+    pub old_maintenance_margin_rate: u16,
+    pub new_maintenance_margin_rate: u16,
+    pub old_initial_margin_rate: u16,
+    pub new_initial_margin_rate: u16,
+    pub old_acc_funding_rate: i32,
+    pub new_acc_funding_rate: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -189,8 +337,8 @@ pub struct BalanceUpdateResp {
     pub account_id: AccountId,
     pub sub_account_id: SubAccountId,
     pub coin_id: TokenId,
-    pub old_balance: BigUintSerdeWrapper,
-    pub new_balance: BigUintSerdeWrapper,
+    pub old_balance: BigIntSerdeWrapper,
+    pub new_balance: BigIntSerdeWrapper,
     pub old_nonce: Nonce,
     pub new_nonce: Nonce,
 }
@@ -204,6 +352,17 @@ pub struct OrderUpdateResp {
     pub slot_id: SlotId,
     pub old_tidy_order: ResponseTidyOrder,
     pub new_tidy_order: ResponseTidyOrder,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct PositionUpdateResp {
+    pub update_id: i32,
+    pub account_id: AccountId,
+    pub sub_account_id: SubAccountId,
+    pub pair_id: PairId,
+    pub old_position: ResponsePosition,
+    pub new_position: ResponsePosition,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
