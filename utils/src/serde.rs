@@ -1,4 +1,4 @@
-use num::BigUint;
+use num::{BigInt, BigUint};
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::str::FromStr;
 /// Trait for specifying prefix for bytes to hex serialization
@@ -117,6 +117,31 @@ impl BigUintSerdeAsRadix10Str {
         let s = String::deserialize(deserializer)?;
         let num =
             BigUint::from_str(&s).map_err(|_| Error::custom("Invalid string type of big unit"))?;
+        Ok(num)
+    }
+}
+
+/// Used to serialize BigInt as radix 10 string.
+#[derive(Clone, Debug)]
+pub struct BigIntSerdeAsRadix10Str;
+
+impl BigIntSerdeAsRadix10Str {
+    pub fn serialize<S>(val: &BigInt, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+    {
+        let s = val.to_string();
+        serializer.serialize_str(&s)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<BigInt, D::Error>
+        where
+            D: Deserializer<'de>,
+    {
+        use serde::de::Error;
+        let s = String::deserialize(deserializer)?;
+        let num =
+            BigInt::from_str(&s).map_err(|_| Error::custom("Invalid string type of big unit"))?;
         Ok(num)
     }
 }

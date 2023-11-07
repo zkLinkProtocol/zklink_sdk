@@ -8,7 +8,7 @@ pub mod utils;
 
 pub mod prelude {
     pub use super::basic_types::{
-        bigunit_wrapper::BigUintSerdeWrapper, bit_convert::BitConvert,
+        num_wrapper::{BigUintSerdeWrapper, BigIntSerdeWrapper}, bit_convert::BitConvert,
         float_convert::FloatConversions, pad::pad_front, tx_hash::TxHash,
         zklink_address::ZkLinkAddress, AccountId, BlockNumber, ChainId, EthBlockId, GetBytes,
         MarginId, Nonce, PairId, PriorityOpId, SlotId, SubAccountId, TimeStamp, TokenId,

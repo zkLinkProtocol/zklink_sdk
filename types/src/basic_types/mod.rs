@@ -12,7 +12,7 @@ pub use zklink_address::ZkLinkAddress;
 
 #[macro_use]
 mod macros;
-pub mod bigunit_wrapper;
+pub mod num_wrapper;
 pub mod bit_convert;
 pub mod float_convert;
 pub mod pack;
