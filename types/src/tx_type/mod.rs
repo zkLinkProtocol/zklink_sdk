@@ -16,6 +16,8 @@ use std::collections::VecDeque;
 use std::sync::Arc;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pk_signer::{sha256_bytes, ZkLinkSigner};
+#[cfg(feature = "ffi")]
+use zklink_sdk_signers::zklink_signer::PubKeyHash;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 
 pub mod validator;
@@ -155,6 +157,14 @@ pub trait ZkSignatureTrait: TxTrait {
 
     #[cfg(feature = "ffi")]
     fn signature(&self) -> ZkLinkSignature;
+
+    #[cfg(feature = "ffi")]
+    fn verify_signature(&self) -> Option<PubKeyHash> {
+        let signature = self.signature();
+        signature
+            .verify_musig(&self.get_bytes())
+            .then(|| signature.pub_key.public_key_hash())
+    }
 
     fn is_signature_valid(&self) -> bool;
 

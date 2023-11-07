@@ -18,7 +18,6 @@ use crate::params::TOKEN_MAX_PRECISION;
 use crate::prelude::WithdrawBuilder;
 use crate::tx_type::validator::*;
 use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait};
-use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 
 /// `Withdraw` transaction performs a withdrawal of funds from zklink account to L1 account.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
@@ -74,14 +73,6 @@ impl Withdraw {
     #[cfg(feature = "ffi")]
     pub fn new(builder: WithdrawBuilder) -> Self {
         builder.build()
-    }
-
-    /// Restores the `PubKeyHash` from the transaction signature.
-    pub fn verify_signature(&self) -> Option<PubKeyHash> {
-        match self.signature.verify_musig(&self.get_bytes()) {
-            ret if ret => Some(self.signature.pub_key.public_key_hash()),
-            _ => None,
-        }
     }
 
     /// Get the first part of the message we expect to be signed by Ethereum account key.

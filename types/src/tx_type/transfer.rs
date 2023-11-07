@@ -16,7 +16,6 @@ use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
-use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
@@ -62,14 +61,6 @@ impl Transfer {
     #[cfg(feature = "ffi")]
     pub fn new(builder: TransferBuilder) -> Self {
         builder.build()
-    }
-
-    /// Restores the `PubKeyHash` from the transaction signature.
-    pub fn verify_signature(&self) -> Option<PubKeyHash> {
-        match self.signature.verify_musig(&self.get_bytes()) {
-            ret if ret => Some(self.signature.pub_key.public_key_hash()),
-            _ => None,
-        }
     }
 
     /// Get the first part of the message we expect to be signed by Ethereum account key.
