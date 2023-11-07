@@ -22,16 +22,17 @@ func HighLevelForcedExit() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
     address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
     builder := sdk.ForcedExitBuilder{
-        sdk.ChainId(1),
-        sdk.AccountId(1),
-        sdk.SubAccountId(1),
-        address,
-        sdk.SubAccountId(1),
-        sdk.TokenId(18),
-        sdk.TokenId(18),
-        sdk.Nonce(1),
-        *big.NewInt(100000),
-        sdk.TimeStamp(1693472232),
+        ToChainId: sdk.ChainId(1),
+        InitiatorAccountId: sdk.AccountId(1),
+        TargetSubAccountId: sdk.SubAccountId(1),
+        Target: address,
+        InitiatorSubAccountId: sdk.SubAccountId(1),
+        L2SourceToken: sdk.TokenId(18),
+        L1TargetToken: sdk.TokenId(18),
+        InitiatorNonce: sdk.Nonce(1),
+        ExitAmount: *big.NewInt(100000),
+        WithdrawToL1: false,
+        Timestamp: sdk.TimeStamp(1693472232),
     }
     tx := sdk.NewForcedExit(builder)
     signer, err := sdk.NewSigner(privateKey)
@@ -45,8 +46,8 @@ func HighLevelForcedExit() {
     fmt.Println("tx signature: %s", txSignature)
     // get eth signature
     var ethSignature2 []byte = nil;
-    if txSignature.EthSignature != nil {
-        ethSignature2 = []byte(fmt.Sprintf(`"%s"`, *txSignature.EthSignature))
+    if txSignature.Layer1Signature != nil {
+        ethSignature2 = []byte(*txSignature.Layer1Signature)
     }
 
 	rpc_req := RPCTransaction {

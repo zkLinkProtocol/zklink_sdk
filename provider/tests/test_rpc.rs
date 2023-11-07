@@ -7,14 +7,14 @@ mod test {
     use zklink_sdk_signers::eth_signer::EthSigner;
     use zklink_sdk_signers::zklink_signer::{PubKeyHash, ZkLinkSigner};
     use zklink_sdk_types::basic_types::BigUint;
+    use zklink_sdk_types::basic_types::GetBytes;
     use zklink_sdk_types::basic_types::{
         AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
     };
     use zklink_sdk_types::tx_builder::{ChangePubKeyBuilder, OrderMatchingBuilder};
-    use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey;
-    use zklink_sdk_types::tx_type::order_matching::{Order, OrderMatching};
+    use zklink_sdk_types::tx_type::order_matching::Order;
     use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
-    use zklink_sdk_types::tx_type::{TxTrait, ZkSignatureTrait};
+    use zklink_sdk_types::tx_type::ZkSignatureTrait;
 
     #[tokio::test]
     async fn test_send_change_pubkey() {
@@ -37,7 +37,7 @@ mod test {
             eth_signature: None,
             timestamp: TimeStamp(ts),
         };
-        let change_pubkey = ChangePubKey::new(builder);
+        let change_pubkey = builder.build();
         let message = change_pubkey
             .to_eip712_request_payload(
                 l1_client_id,
@@ -58,7 +58,7 @@ mod test {
             eth_signature: Some(signature),
             timestamp: TimeStamp(ts),
         };
-        let mut tx = ChangePubKey::new(builder_with_sig);
+        let mut tx = builder_with_sig.build();
         tx.sign(&zklink_signer).unwrap();
         let submitter_signature = tx.submitter_signature(&zklink_signer).unwrap();
 
@@ -90,6 +90,7 @@ mod test {
             BigUint::from_str("10000000000000").unwrap(),
             BigUint::from_str("10000000000").unwrap(),
             true,
+            true,
             5,
             3,
             None,
@@ -105,6 +106,7 @@ mod test {
             17.into(),
             BigUint::from_str("10000000000000").unwrap(),
             BigUint::from_str("10000000000").unwrap(),
+            false,
             false,
             5,
             3,
@@ -123,7 +125,7 @@ mod test {
             maker,
             expect_quote_amount: BigUint::from(100000000000000u64),
         };
-        let mut order_matching = OrderMatching::new(builder);
+        let mut order_matching = builder.build();
         order_matching.sign(&zklink_signer).unwrap();
         let submitter_signature = order_matching.submitter_signature(&zklink_signer).unwrap();
 

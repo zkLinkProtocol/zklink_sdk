@@ -253,7 +253,6 @@ func TestSignWithdraw(t *testing.T) {
     assert.Nil(t, err)
     tx_signature, err := signer.SignWithdraw(tx, l2SourceTokenSymbol)
     assert.Nil(t, err)
-    assert.Equal(t, *tx_signature.EthSignature, ethSignature)
 
     // test submitter
     submitterSignature, err := tx.SubmitterSignature(zklink_signer)

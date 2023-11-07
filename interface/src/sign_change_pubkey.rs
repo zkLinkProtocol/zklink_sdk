@@ -64,7 +64,7 @@ pub fn do_sign_change_pubkey_with_onchain_auth_data(
     tx.eth_auth_data = ChangePubKeyAuthData::Onchain;
     Ok(TxSignature {
         tx: tx.into(),
-        eth_signature: None,
+        layer1_signature: None,
     })
 }
 
@@ -81,7 +81,7 @@ pub fn do_sign_change_pubkey_with_create2data_auth(
     tx.eth_auth_data = ChangePubKeyAuthData::EthCreate2 { data: create2data };
     Ok(TxSignature {
         tx: tx.into(),
-        eth_signature: None,
+        layer1_signature: None,
     })
 }
 
@@ -104,7 +104,7 @@ pub fn do_sign_change_pubkey_with_eth_ecdsa_auth(
 
     Ok(TxSignature {
         tx: tx.into(),
-        eth_signature: None,
+        layer1_signature: None,
     })
 }
 

@@ -10,7 +10,7 @@ pub fn sign_forced_exit(
     tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
     Ok(TxSignature {
         tx: tx.into(),
-        eth_signature: None,
+        layer1_signature: None,
     })
 }
 #[cfg(test)]
@@ -41,7 +41,7 @@ mod tests {
         let tx = builder.build();
 
         let signature = sign_forced_exit(&zk_signer, tx).unwrap();
-        assert!(signature.eth_signature.is_none());
+        assert!(signature.layer1_signature.is_none());
 
         if let ZkLinkTx::ForcedExit(zk_sign) = signature.tx {
             assert_eq!(zk_sign.signature.signature.as_hex(), "0xff9ee61170cc7ebb16b1061f7434cf82e74cc37d809a16cfc6b7dd6554e5ef8538e76e847b434c10cbd21e09522f642735edc8f76c009901aca1b1672cd0ce03");

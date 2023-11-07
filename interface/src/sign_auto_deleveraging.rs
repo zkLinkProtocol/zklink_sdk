@@ -9,6 +9,6 @@ pub fn sign_auto_deleveraging(
     tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
     Ok(TxSignature {
         tx: tx.into(),
-        eth_signature: None,
+        layer1_signature: None,
     })
 }

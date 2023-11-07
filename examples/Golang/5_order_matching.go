@@ -85,8 +85,8 @@ func HighLevelOrderMatching() {
 
     // get eth signature
     var ethSignature []byte = nil;
-    if txSignature.EthSignature != nil {
-        ethSignature = []byte(*txSignature.EthSignature)
+    if txSignature.Layer1Signature != nil {
+        ethSignature = []byte(*txSignature.Layer1Signature)
     }
 
 	rpc_req := RPCTransaction {

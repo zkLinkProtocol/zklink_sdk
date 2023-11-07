@@ -531,7 +531,7 @@ typedef string ZkLinkTx;
 
 dictionary TxSignature {
     ZkLinkTx tx;
-    PackedEthSignature ?eth_signature;
+    TxLayer1Signature ?layer1_signature;
 };
 
 interface Signer {

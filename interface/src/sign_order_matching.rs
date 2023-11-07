@@ -11,6 +11,6 @@ pub fn sign_order_matching(
     tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
     Ok(TxSignature {
         tx: tx.into(),
-        eth_signature: None,
+        layer1_signature: None,
     })
 }

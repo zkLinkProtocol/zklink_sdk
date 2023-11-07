@@ -77,7 +77,7 @@ impl JsonRpcSigner {
 
         Ok(TxSignature {
             tx: tx.into(),
-            eth_signature: None,
+            layer1_signature: None,
         })
     }
 
