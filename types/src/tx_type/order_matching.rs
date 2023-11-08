@@ -72,8 +72,8 @@ impl Order {
         price: BigUint,
         is_sell: bool,
         has_subsidy: bool,
-        maker_fee_ratio: u8,
-        taker_fee_ratio: u8,
+        maker_fee_rate: u8,
+        taker_fee_rate: u8,
         signature: Option<ZkLinkSignature>,
     ) -> Self {
         Self {
@@ -87,7 +87,7 @@ impl Order {
             price,
             is_sell: u8::from(is_sell),
             has_subsidy: u8::from(has_subsidy),
-            fee_rates: [maker_fee_ratio, taker_fee_ratio],
+            fee_rates: [maker_fee_rate, taker_fee_rate],
             signature: signature.unwrap_or_default(),
         }
     }

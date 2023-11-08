@@ -72,8 +72,8 @@ dictionary ContractBuilder {
     BigUint size;
     BigUint price;
     boolean direction;
-    u8 taker_fee_ratio;
-    u8 maker_fee_ratio;
+    u8 taker_fee_rate;
+    u8 maker_fee_rate;
     boolean has_subsidy;
 };
 
@@ -339,8 +339,8 @@ interface Order {
         BigUint price,
         boolean is_sell,
         boolean has_subsidy,
-        u8 fee_ratio1,
-        u8 fee_ratio2,
+        u8 fee_rate1,
+        u8 fee_rate2,
         ZkLinkSignature ?signature
     );
     ZkLinkSignature signature();
