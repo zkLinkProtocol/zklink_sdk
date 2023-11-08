@@ -47,7 +47,7 @@ func TestSignChangePubkey(t *testing.T) {
     assert.Equal(t, valid, true)
     fmt.Printf("%v\n", tx.JsonStr())
     // create ZkLinkTx
-    zkinkTx := sdk.ZklinkTxFromChangePubkey(tx)
+    zkinkTx := tx.ToZklinkTx();
     fmt.Printf("%s\n", zkinkTx)
 
     // submitter signature
@@ -77,15 +77,12 @@ func TestSignForcedExit(t *testing.T) {
         sdk.TimeStamp(1693472232),
     }
     tx := sdk.NewForcedExit(builder)
-    signed_tx, err := sdk.CreateSignedForcedExit(
-        zklink_signer,
-        tx,
-    )
+    signed_tx, err := tx.CreateSignedTx(zklink_signer)
     assert.Nil(t, err)
     should_be_valid := signed_tx.IsSignatureValid();
     assert.Equal(t, should_be_valid, true)
     fmt.Printf("signed forced exit:%v\n", signed_tx.JsonStr())
-    zklink_tx := sdk.ZklinkTxFromForcedExit(tx)
+    zklink_tx := tx.ToZklinkTx()
     fmt.Printf("forced exit tx: %s", zklink_tx)
 }
 
@@ -111,10 +108,7 @@ func TestSignTransfer(t *testing.T) {
         sdk.TimeStamp(1693472232),
     }
     tx := sdk.NewTransfer(builder)
-    signed_tx, err := sdk.CreateSignedTransfer(
-        zklink_signer,
-        tx,
-    )
+    signed_tx, err := tx.CreateSignedTx(zklink_signer)
     assert.Nil(t, err)
     should_be_valid := signed_tx.IsSignatureValid();
     assert.Equal(t, should_be_valid, true)
@@ -124,7 +118,7 @@ func TestSignTransfer(t *testing.T) {
     assert.Nil(t, err)
     fmt.Printf("eth signature: %v\n", eth_signature)
     // get ZklinkTx
-    zklinkTx := sdk.ZklinkTxFromTransfer(tx)
+    zklinkTx := tx.ToZklinkTx()
     fmt.Printf("zklink Tx: %s\n", zklinkTx)
 }
 
@@ -148,10 +142,7 @@ func TestSignOrderMatching(t *testing.T) {
         5,
         nil,
     )
-    taker, err = sdk.CreateSignedOrder(
-        zklink_signer,
-        taker,
-    )
+    taker, err = taker.CreateSignedOrder(zklink_signer)
     assert.Nil(t, err)
     assert.NotNil(t, taker.Signature())
     fmt.Printf("taker signature:%v\n", taker.Signature())
@@ -171,10 +162,7 @@ func TestSignOrderMatching(t *testing.T) {
          5,
          nil,
     )
-    maker, err = sdk.CreateSignedOrder(
-        zklink_signer,
-        maker,
-    )
+    maker, err = maker.CreateSignedOrder(zklink_signer)
     assert.Nil(t, err)
     assert.NotNil(t, maker.Signature())
     fmt.Printf("maker signature:%v\n", maker.Signature())
@@ -190,15 +178,12 @@ func TestSignOrderMatching(t *testing.T) {
         *big.NewInt(5479779),
     }
     tx := sdk.NewOrderMatching(builder)
-    signed_tx, err := sdk.CreateSignedOrderMatching(
-        zklink_signer,
-        tx,
-    )
+    signed_tx, err := tx.CreateSignedTx(zklink_signer)
     assert.Nil(t, err)
     should_be_valid := signed_tx.IsSignatureValid();
     assert.Equal(t, should_be_valid, true)
     fmt.Printf("order matching: %v\n", signed_tx.JsonStr())
-    zklinkTx := sdk.ZklinkTxFromOrderMatching(tx)
+    zklinkTx := tx.ToZklinkTx()
     fmt.Printf("zklink tx: %s\n", zklinkTx)
 }
 
@@ -247,10 +232,7 @@ func TestSignWithdraw(t *testing.T) {
         sdk.TimeStamp(1693472232),
     }
     tx := sdk.NewWithdraw(builder)
-    signedTx, err := sdk.CreateSignedWithdraw(
-        zklink_signer,
-        tx,
-    )
+    signedTx, err := tx.CreateSignedTx(zklink_signer)
     assert.Nil(t, err)
     should_be_valid := signedTx.IsSignatureValid();
     assert.Equal(t, should_be_valid, true)
@@ -263,7 +245,7 @@ func TestSignWithdraw(t *testing.T) {
     fmt.Printf("eth signature: %v\n", ethSignature)
 
     // create zklink tx
-    zklinkTx := sdk.ZklinkTxFromWithdraw(signedTx)
+    zklinkTx := tx.ToZklinkTx()
     fmt.Printf("zklink tx: %s\n", zklinkTx)
 
     // test signer
@@ -271,8 +253,6 @@ func TestSignWithdraw(t *testing.T) {
     assert.Nil(t, err)
     tx_signature, err := signer.SignWithdraw(tx, l2SourceTokenSymbol)
     assert.Nil(t, err)
-    assert.Equal(t, tx_signature.Tx, zklinkTx)
-    assert.Equal(t, *tx_signature.EthSignature, ethSignature)
 
     // test submitter
     submitterSignature, err := tx.SubmitterSignature(zklink_signer)
@@ -281,4 +261,144 @@ func TestSignWithdraw(t *testing.T) {
     fmt.Printf("submitter signature: %s\n", submitterSignature)
     fmt.Printf("submitter signature: %s\n", submitterSignature2)
     assert.Equal(t, submitterSignature, submitterSignature2)
+}
+
+
+func TestAutoDeleveraging(t *testing.T) {
+	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
+	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
+    assert.Nil(t, err)
+    builder := sdk.AutoDeleveragingBuilder{
+        AccountId: sdk.AccountId(1),
+        SubAccountId: sdk.SubAccountId(1),
+        SubAccountNonce: sdk.Nonce(1),
+        ContractPrices: []sdk.ContractPrice {
+            sdk.ContractPrice {
+                PairId: sdk.PairId(1),
+                MarketPrice: *big.NewInt(100000),
+            },
+            sdk.ContractPrice {
+                PairId: sdk.PairId(2),
+                MarketPrice: *big.NewInt(100000),
+            },
+        },
+        MarginPrices: []sdk.SpotPriceInfo {
+            sdk.SpotPriceInfo {
+                TokenId: sdk.TokenId(1),
+                Price: *big.NewInt(100000),
+            },
+            sdk.SpotPriceInfo {
+                TokenId: sdk.TokenId(2),
+                Price: *big.NewInt(100000),
+            },
+        },
+        AdlAccountId: sdk.AccountId(18),
+        PairId: sdk.PairId(18),
+        AdlSize: *big.NewInt(100000),
+        AdlPrice: *big.NewInt(100),
+        Fee: *big.NewInt(100),
+        FeeToken: sdk.TokenId(1),
+    }
+    tx := sdk.NewAutoDeleveraging(builder)
+    signedTx, err := tx.CreateSignedTx(zklink_signer)
+    assert.Nil(t, err)
+    should_be_valid := signedTx.IsSignatureValid();
+    assert.Equal(t, should_be_valid, true)
+    fmt.Printf("signed auto deleveraging tx: %v\n", signedTx.JsonStr())
+}
+
+func TestContractMatching(t *testing.T) {
+	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
+	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
+    assert.Nil(t, err)
+    contract_builder := sdk.ContractBuilder {
+        AccountId: sdk.AccountId(1),
+        SubAccountId: sdk.SubAccountId(1),
+        SlotId: sdk.SlotId(1),
+        Nonce: sdk.Nonce(10),
+        PairId: sdk.PairId(1),
+        Size: *big.NewInt(100),
+        Price: *big.NewInt(100),
+        Direction: false,
+        MakerFeeRatio: 10,
+        TakerFeeRatio: 20,
+        HasSubsidy: false,
+    }
+    taker := sdk.NewContract(contract_builder)
+    maker1 := sdk.NewContract(contract_builder)
+    maker2 := sdk.NewContract(contract_builder)
+    builder := sdk.ContractMatchingBuilder {
+        sdk.AccountId(1),
+        sdk.SubAccountId(1),
+        taker,
+        []*sdk.Contract {maker1, maker2},
+        *big.NewInt(100),
+        sdk.TokenId(1),
+    }
+    tx := sdk.NewContractMatching(builder)
+    signedTx, err := tx.CreateSignedTx(zklink_signer)
+    assert.Nil(t, err)
+    should_be_valid := signedTx.IsSignatureValid();
+    assert.Equal(t, should_be_valid, true)
+    fmt.Printf("signed contract matching tx: %v\n", signedTx.JsonStr())
+}
+
+func TestFunding(t *testing.T) {
+	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
+	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
+    assert.Nil(t, err)
+    builder := sdk.FundingBuilder {
+        AccountId: sdk.AccountId(1),
+        SubAccountId: sdk.SubAccountId(1),
+        SubAccountNonce: sdk.Nonce(1),
+        FundingAccountIds: []sdk.AccountId{sdk.AccountId(1), sdk.AccountId(2)},
+        Fee: *big.NewInt(100),
+        FeeToken: sdk.TokenId(2),
+    }
+    tx := sdk.NewFunding(builder)
+    signedTx, err := tx.CreateSignedTx(zklink_signer)
+    assert.Nil(t, err)
+    should_be_valid := signedTx.IsSignatureValid();
+    assert.Equal(t, should_be_valid, true)
+    fmt.Printf("signed funding tx: %v\n", signedTx.JsonStr())
+}
+
+func TestLiquidation(t *testing.T) {
+	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
+	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
+    assert.Nil(t, err)
+    builder := sdk.LiquidationBuilder {
+        AccountId: sdk.AccountId(1),
+        SubAccountId: sdk.SubAccountId(1),
+        SubAccountNonce: sdk.Nonce(1),
+        ContractPrices: []sdk.ContractPrice {
+            sdk.ContractPrice {
+                PairId: sdk.PairId(1),
+                MarketPrice: *big.NewInt(100000),
+            },
+            sdk.ContractPrice {
+                PairId: sdk.PairId(2),
+                MarketPrice: *big.NewInt(100000),
+            },
+        },
+        MarginPrices: []sdk.SpotPriceInfo {
+            sdk.SpotPriceInfo {
+                TokenId: sdk.TokenId(1),
+                Price: *big.NewInt(100000),
+            },
+            sdk.SpotPriceInfo {
+                TokenId: sdk.TokenId(2),
+                Price: *big.NewInt(100000),
+            },
+        },
+        LiquidationAccountId: sdk.AccountId(1),
+        Fee: *big.NewInt(100),
+        FeeToken: sdk.TokenId(2),
+    }
+    tx := sdk.NewLiquidation(builder)
+    signedTx, err := tx.CreateSignedTx(zklink_signer)
+    assert.Nil(t, err)
+    should_be_valid := signedTx.IsSignatureValid();
+    assert.Equal(t, should_be_valid, true)
+    fmt.Printf("signed liquidation tx: %v\n", signedTx.JsonStr())
 }

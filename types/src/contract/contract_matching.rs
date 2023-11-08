@@ -6,9 +6,9 @@ use crate::params::{
 };
 use crate::prelude::validator::*;
 #[cfg(feature = "ffi")]
-use crate::tx_builder::ContractMatchingBuilder;
-use crate::tx_type::{format_units, TxTrait, ZkSignatureTrait};
-use num::{BigUint, One, Zero};
+use crate::tx_builder::{ContractBuilder, ContractMatchingBuilder};
+use crate::tx_type::{TxTrait, ZkSignatureTrait};
+use num::BigUint;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_sdk_signers::zklink_signer::utils::rescue_hash_orders;
@@ -155,41 +155,17 @@ impl GetBytes for Contract {
 impl TxTrait for Contract {}
 
 impl Contract {
+    #[cfg(feature = "ffi")]
+    pub fn new(builder: ContractBuilder) -> Self {
+        builder.build()
+    }
+
     pub fn is_long(&self) -> bool {
         self.direction == 1
     }
 
     pub fn is_short(&self) -> bool {
         self.direction == 0
-    }
-
-    pub fn get_ethereum_sign_message(&self, symbol: &str, decimals: u8) -> String {
-        let mut message = if self.size.is_zero() {
-            format!("Contract order for {}\n", symbol)
-        } else {
-            format!(
-                "Contract order for {} {}\n",
-                format_units(&self.size, decimals),
-                symbol,
-            )
-        };
-        message += format!(
-            "Direction: {Direction}\n\
-            Price: {price}\n
-            Nonce: {nonce}\n\
-            Fee rate: {maker_fee_rate},{taker_fee_rate}\n",
-            Direction = if self.direction.is_one() {
-                "Long"
-            } else {
-                "Short"
-            },
-            price = self.price,
-            nonce = self.nonce,
-            maker_fee_rate = self.fee_rates[0],
-            taker_fee_rate = self.fee_rates[1],
-        )
-        .as_str();
-        message
     }
 }
 

@@ -52,9 +52,9 @@ impl GetBytes for UpdateGlobalVar {
 #[serde(rename_all = "camelCase")]
 pub enum Parameter {
     /// modify the collect-fee account
-    FeeAccount(AccountId),
+    FeeAccount { fee_account_id: AccountId },
     /// modify the insurance fund account
-    InsuranceFundAccount(AccountId),
+    InsuranceFundAccount { insurance_account_id: AccountId },
     /// modify the margin info in the specified index.
     MarginInfo {
         margin_id: MarginId,
@@ -62,7 +62,7 @@ pub enum Parameter {
         ratio: u8,
     },
     /// update the funding rates to accumulated funding rates of the Global Vars for all position(contract pair) in this period
-    FundingRates(Vec<FundingRate>),
+    FundingRates { funding_rates: Vec<FundingRate> },
     /// modify the initial margin rate of every margin
     InitialMarginRate { pair_id: PairId, rate: u16 },
     /// modify the maintenance margin rate of every margin
@@ -83,12 +83,12 @@ impl Parameter {
 
     pub fn parameter_type(&self) -> u8 {
         match self {
-            Parameter::FeeAccount(_) => Self::FEE_ACCOUNT_PARAM_TYPE,
-            Parameter::InsuranceFundAccount(_) => Self::INSURANCE_FUND_PARAM_TYPE,
+            Parameter::FeeAccount { .. } => Self::FEE_ACCOUNT_PARAM_TYPE,
+            Parameter::InsuranceFundAccount { .. } => Self::INSURANCE_FUND_PARAM_TYPE,
             Parameter::MarginInfo { .. } => Self::MARGIN_INFO_PARAM_TYPE,
             Parameter::InitialMarginRate { .. } => Self::INITIAL_MARGIN_RATE_PARAM_TYPE,
             Parameter::MaintenanceMarginRate { .. } => Self::MAINTENANCE_MARGIN_RATE_PARAM_TYPE,
-            Parameter::FundingRates(_) => Self::FUNDING_RATE_PARAM_TYPE,
+            Parameter::FundingRates { .. } => Self::FUNDING_RATE_PARAM_TYPE,
         }
     }
 
@@ -101,10 +101,10 @@ impl GetBytes for Parameter {
     fn get_bytes(&self) -> Vec<u8> {
         let mut bytes = vec![self.parameter_type()];
         bytes.extend(match self {
-            Parameter::FeeAccount(fee_account_id) => fee_account_id.to_be_bytes().to_vec(),
-            Parameter::InsuranceFundAccount(insurance_fund_account_id) => {
-                insurance_fund_account_id.get_bytes()
-            }
+            Parameter::FeeAccount { fee_account_id } => fee_account_id.to_be_bytes().to_vec(),
+            Parameter::InsuranceFundAccount {
+                insurance_account_id,
+            } => insurance_account_id.get_bytes(),
             Parameter::MarginInfo {
                 margin_id,
                 token_id,
@@ -120,7 +120,7 @@ impl GetBytes for Parameter {
                 .into_iter()
                 .chain(rate.to_be_bytes())
                 .collect(),
-            Parameter::FundingRates(funding_rates) => funding_rates.get_bytes(),
+            Parameter::FundingRates { funding_rates } => funding_rates.get_bytes(),
         });
         bytes
     }

@@ -1,12 +1,10 @@
-use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_sdk_types::basic_types::GetBytes;
-use zklink_sdk_types::prelude::TxSignature;
-use zklink_sdk_types::tx_type::order_matching::OrderMatching;
+use zklink_sdk_signers::zklink_signer::ZkSignerError;
+use zklink_sdk_types::prelude::{ContractMatching, GetBytes, TxSignature};
 
-pub fn sign_order_matching(
+pub fn sign_contract_matching(
     zklink_signer: &ZkLinkSigner,
-    mut tx: OrderMatching,
+    mut tx: ContractMatching,
 ) -> Result<TxSignature, ZkSignerError> {
     tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
     Ok(TxSignature {

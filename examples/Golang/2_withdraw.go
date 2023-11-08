@@ -36,18 +36,19 @@ func HighLevelWithdraw() {
     timestamp := sdk.TimeStamp(now.Unix())
 
     builder := sdk.WithdrawBuilder{
-        accountId,
-        subAccountId,
-        toChainId,
-        toAddress,
-        l2SourceToken,
-        l1TargetToken,
-        amount,
-        fee,
-        nonce,
-        fastWithdraw,
-        withdrawFeeRatio,
-        timestamp,
+        AccountId: accountId,
+        ToChainId: toChainId,
+        SubAccountId: subAccountId,
+        ToAddress: toAddress,
+        L2SourceToken: l2SourceToken,
+        L1TargetToken: l1TargetToken,
+        Amount: amount,
+        Fee: fee,
+        Nonce: nonce,
+        FastWithdraw: fastWithdraw,
+        WithdrawToL1: true,
+        WithdrawFeeRatio: withdrawFeeRatio,
+        Timestamp: timestamp,
     }
     tx := sdk.NewWithdraw(builder)
     signer, err := sdk.NewSigner(privateKey)
@@ -60,9 +61,9 @@ func HighLevelWithdraw() {
         return
     }
     // get the eth signature
-    var ethSignature2 []byte = nil;
-    if txSignature.EthSignature != nil {
-        ethSignature2 = []byte(fmt.Sprintf(`"%s"`, *txSignature.EthSignature))
+    var layer1Signature []byte = nil;
+    if txSignature.Layer1Signature != nil {
+        layer1Signature = []byte(*txSignature.Layer1Signature)
     }
 	rpc_req := RPCTransaction {
 		Id:      1,
@@ -71,7 +72,7 @@ func HighLevelWithdraw() {
 		Params: []json.RawMessage{
 		    []byte(txSignature.Tx),
 		    nil,
-            ethSignature2,
+            layer1Signature,
 		},
     }
 

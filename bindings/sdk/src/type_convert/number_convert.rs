@@ -1,6 +1,6 @@
 use crate::{
-    AccountId, BlockNumber, ChainId, EthBlockId, Nonce, PairId, PriorityOpId, SlotId, SubAccountId,
-    TimeStamp, TokenId, TypeError, UniffiCustomTypeConverter,
+    AccountId, BlockNumber, ChainId, EthBlockId, MarginId, Nonce, PairId, PriorityOpId, SlotId,
+    SubAccountId, TimeStamp, TokenId, TypeError, UniffiCustomTypeConverter,
 };
 use zklink_sdk_signers::eth_signer::{Address, H256};
 macro_rules! ffi_num_convert {
@@ -28,6 +28,7 @@ ffi_num_convert!(PriorityOpId, u64);
 ffi_num_convert!(EthBlockId, u64);
 ffi_num_convert!(ChainId, u8);
 ffi_num_convert!(SubAccountId, u8);
+ffi_num_convert!(MarginId, u8);
 
 macro_rules! ffi_num_hex_convert {
     ($(#[$attr:meta])* $name:ident, $num:expr) => {

@@ -17,7 +17,6 @@ use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
-#[cfg(feature = "ffi")]
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_signers::zklink_signer::utils::rescue_hash_orders;
@@ -93,6 +92,23 @@ impl Order {
         }
     }
 
+    #[cfg(feature = "ffi")]
+    pub fn create_signed_order(
+        &self,
+        zklink_signer: Arc<ZkLinkSigner>,
+    ) -> Result<Arc<Self>, ZkSignerError> {
+        let mut order = self.clone();
+        order.signature = zklink_signer.sign_musig(&order.get_bytes())?;
+        Ok(Arc::new(order))
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn create_signed_order(&self, zklink_signer: &ZkLinkSigner) -> Result<Self, ZkSignerError> {
+        let mut order = self.clone();
+        order.signature = zklink_signer.sign_musig(&order.get_bytes())?;
+        Ok(order)
+    }
+
     pub fn get_eth_sign_msg(&self, quote_token: &str, based_token: &str, decimals: u8) -> String {
         let mut message = if self.amount.is_zero() {
             format!("Limit order for {} -> {}\n", quote_token, based_token)
@@ -116,9 +132,6 @@ impl Order {
 }
 
 impl GetBytes for Order {
-    fn bytes_len(&self) -> usize {
-        SIGNED_ORDER_BIT_WIDTH / TX_TYPE_BIT_WIDTH
-    }
     fn get_bytes(&self) -> Vec<u8> {
         let bytes_len = self.bytes_len();
         let mut out = Vec::with_capacity(bytes_len);
@@ -136,6 +149,9 @@ impl GetBytes for Order {
         out.extend_from_slice(&pack_token_amount(&self.amount));
         assert_eq!(out.len(), bytes_len);
         out
+    }
+    fn bytes_len(&self) -> usize {
+        SIGNED_ORDER_BIT_WIDTH / TX_TYPE_BIT_WIDTH
     }
 }
 
@@ -161,7 +177,9 @@ impl ZkSignatureTrait for Order {
         &self,
         _signer: Arc<ZkLinkSigner>,
     ) -> Result<ZkLinkSignature, ZkSignerError> {
-        unreachable!("no need submitter signature for Order")
+        Err(ZkSignerError::CustomError(
+            "no need submitter signature for Order".into(),
+        ))
     }
 }
 

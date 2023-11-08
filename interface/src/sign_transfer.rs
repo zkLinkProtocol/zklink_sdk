@@ -1,6 +1,4 @@
 use crate::error::SignError;
-#[cfg(feature = "ffi")]
-use std::sync::Arc;
 #[cfg(feature = "web")]
 use zklink_sdk_signers::eth_signer::json_rpc_signer::JsonRpcSigner;
 #[cfg(not(feature = "web"))]
@@ -23,7 +21,7 @@ pub fn sign_transfer(
 
     Ok(TxSignature {
         tx: tx.into(),
-        eth_signature: Some(eth_signature),
+        layer1_signature: Some(eth_signature.into()),
     })
 }
 
@@ -40,20 +38,9 @@ pub async fn sign_transfer(
 
     Ok(TxSignature {
         tx: tx.into(),
-        eth_signature: Some(eth_signature),
+        layer1_signature: Some(eth_signature.into()),
     })
 }
-
-#[cfg(feature = "ffi")]
-pub fn create_signed_transfer(
-    zklink_syner: Arc<ZkLinkSigner>,
-    tx: Arc<Transfer>,
-) -> Result<Arc<Transfer>, SignError> {
-    let mut tx = (*tx).clone();
-    tx.signature = zklink_syner.sign_musig(&tx.get_bytes())?;
-    Ok(Arc::new(tx))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -82,9 +69,11 @@ mod tests {
 
         let signature = sign_transfer(&eth_signer, &zk_signer, tx, "USD").unwrap();
         let eth_sign = signature
-            .eth_signature
+            .layer1_signature
             .expect("transfer must has eth signature");
-        assert_eq!(eth_sign.as_hex(), "0x08c9cd25416c871a153e9d51385c28413311e8ed055a195e4f5e8c229244e1a05bab15a9e6eb1cff9a5d237d878c41553215341742779745574a631d89e09a831b");
+        if let TxLayer1Signature::EthereumSignature(eth_sign) = eth_sign {
+            assert_eq!(eth_sign.as_hex(), "0x08c9cd25416c871a153e9d51385c28413311e8ed055a195e4f5e8c229244e1a05bab15a9e6eb1cff9a5d237d878c41553215341742779745574a631d89e09a831b");
+        }
 
         if let ZkLinkTx::Transfer(zk_sign) = signature.tx {
             assert_eq!(zk_sign.signature.signature.as_hex(), "0x2aa6ebe4695f2c57e79fc284f87098ffefed9d4a53adadcd601b69bc3825511e5c859a5345526e52a77660e993dd92322fef64ad4521847ecd0215b556487902");

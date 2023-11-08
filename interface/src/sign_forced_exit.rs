@@ -1,9 +1,6 @@
-#[cfg(feature = "ffi")]
-use std::sync::Arc;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
-use zklink_sdk_types::basic_types::GetBytes;
-use zklink_sdk_types::prelude::TxSignature;
+use zklink_sdk_types::prelude::{GetBytes, TxSignature};
 use zklink_sdk_types::tx_type::forced_exit::ForcedExit;
 
 pub fn sign_forced_exit(
@@ -13,20 +10,9 @@ pub fn sign_forced_exit(
     tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
     Ok(TxSignature {
         tx: tx.into(),
-        eth_signature: None,
+        layer1_signature: None,
     })
 }
-
-#[cfg(feature = "ffi")]
-pub fn create_signed_forced_exit(
-    zklink_signer: Arc<ZkLinkSigner>,
-    tx: Arc<ForcedExit>,
-) -> Result<Arc<ForcedExit>, ZkSignerError> {
-    let mut tx = (*tx).clone();
-    tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
-    Ok(Arc::new(tx))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -55,7 +41,7 @@ mod tests {
         let tx = builder.build();
 
         let signature = sign_forced_exit(&zk_signer, tx).unwrap();
-        assert!(signature.eth_signature.is_none());
+        assert!(signature.layer1_signature.is_none());
 
         if let ZkLinkTx::ForcedExit(zk_sign) = signature.tx {
             assert_eq!(zk_sign.signature.signature.as_hex(), "0xff9ee61170cc7ebb16b1061f7434cf82e74cc37d809a16cfc6b7dd6554e5ef8538e76e847b434c10cbd21e09522f642735edc8f76c009901aca1b1672cd0ce03");

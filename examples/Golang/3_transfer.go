@@ -18,6 +18,11 @@ type RPCTransaction struct {
      Params  []json.RawMessage `json:"params"`
 }
 
+type SubmiterSignature struct {
+    PubKey string `json:"pubKey"`
+    Signature string `json:"signature"`
+}
+
 func HighLevelTransfer() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
     address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
@@ -44,13 +49,17 @@ func HighLevelTransfer() {
     }
     fmt.Println("tx signature: %s", txSignature)
     // get the eth signature
-    var ethSignature2 []byte = nil;
-    if txSignature.EthSignature != nil {
-        ethSignature2 = []byte(fmt.Sprintf(`"%s"`, *txSignature.EthSignature))
+    var layer1Signature []byte = nil;
+    if txSignature.Layer1Signature != nil {
+        layer1Signature = []byte(*txSignature.Layer1Signature)
     }
     // create the submitter signature
-    zklinkTx := sdk.ZklinkTxFromTransfer(tx)
+    zklinkTx := tx.ToZklinkTx()
     submitterSignature, err := signer.SubmitterSignature(zklinkTx)
+    submitterSignature2, err := json.Marshal(SubmiterSignature {
+        PubKey: submitterSignature.PubKey,
+        Signature: submitterSignature.Signature,
+    })
 
 	rpc_req := RPCTransaction {
 		Id:      1,
@@ -58,11 +67,15 @@ func HighLevelTransfer() {
 		Method:  "sendTransaction",
 		Params: []json.RawMessage{
 		    []byte(txSignature.Tx),
-		    []byte(submitterSignature),
-            ethSignature2,
+            layer1Signature,
+		    []byte(submitterSignature2),
 		},
     }
 	JsonTx, err := json.Marshal(rpc_req)
+	if err != nil {
+        fmt.Println("error rpc req: %s", err)
+        return
+	}
 	fmt.Println("ChangePubKey rpc request:",  string(JsonTx))
 	// get the testnet url or main net url
 	zklinkUrl := sdk.ZklinkTestNetUrl()
