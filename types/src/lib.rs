@@ -1,5 +1,4 @@
 pub mod basic_types;
-pub mod contract;
 pub mod error;
 pub mod signatures;
 pub mod tx_builder;
@@ -17,7 +16,6 @@ pub mod prelude {
         AccountId, BlockNumber, ChainId, EthBlockId, GetBytes, MarginId, Nonce, PairId,
         PriorityOpId, SlotId, SubAccountId, TimeStamp, TokenId,
     };
-    pub use super::contract::*;
     pub use super::error::TypeError;
     pub use super::signatures::{TxLayer1Signature, TxSignature};
     pub use super::tx_builder::*;
@@ -25,6 +23,7 @@ pub mod prelude {
     pub use super::tx_type::ToZklinkTx;
     pub use super::tx_type::{
         change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data},
+        contract::*,
         deposit::Deposit,
         exit_info::ExitInfo,
         forced_exit::ForcedExit,

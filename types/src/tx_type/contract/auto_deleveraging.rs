@@ -1,7 +1,7 @@
+use super::prices::OraclePrices;
 use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
 use crate::basic_types::pad::pad_front;
 use crate::basic_types::{AccountId, GetBytes, Nonce, PairId, SubAccountId, TokenId};
-use crate::contract::prices::OraclePrices;
 use crate::params::{PRICE_BIT_WIDTH, SIGNED_AUTO_DELEVERAGING_BIT_WIDTH};
 use crate::prelude::validator::*;
 #[cfg(feature = "ffi")]

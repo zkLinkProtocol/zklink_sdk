@@ -22,6 +22,7 @@ use zklink_sdk_signers::zklink_signer::PubKeyHash;
 pub mod validator;
 
 pub mod change_pubkey;
+pub mod contract;
 pub mod deposit;
 pub mod exit_info;
 pub mod forced_exit;

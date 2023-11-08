@@ -1,6 +1,6 @@
+use super::prices::OraclePrices;
 use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::{AccountId, GetBytes, Nonce, SubAccountId, TokenId};
-use crate::contract::prices::OraclePrices;
 use crate::params::SIGNED_LIQUIDATION_BIT_WIDTH;
 use crate::prelude::validator::*;
 #[cfg(feature = "ffi")]

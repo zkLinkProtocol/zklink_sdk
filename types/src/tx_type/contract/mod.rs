@@ -3,7 +3,7 @@ mod contract_matching;
 mod funding;
 mod liquidation;
 pub mod prices;
-mod update_global_var; // TODO: move to super directory
+mod update_global_var;
 
 pub use auto_deleveraging::AutoDeleveraging;
 pub use contract_matching::{Contract, ContractMatching};

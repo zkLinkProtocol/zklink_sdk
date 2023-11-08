@@ -1,14 +1,12 @@
 use crate::basic_types::{
     AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
-use crate::tx_type::order_matching::Order;
-
-use crate::contract::prices::{ContractPrice, SpotPriceInfo};
 use crate::prelude::{
     AutoDeleveraging, ChangePubKey, ChangePubKeyAuthData, Contract, ContractMatching, Deposit,
-    ForcedExit, FullExit, Funding, Liquidation, OraclePrices, OrderMatching, PairId, Parameter,
-    SlotId, Transfer, UpdateGlobalVar, Withdraw,
+    ForcedExit, FullExit, Funding, Liquidation, OraclePrices, Order, OrderMatching, PairId,
+    Parameter, SlotId, Transfer, UpdateGlobalVar, Withdraw,
 };
+use crate::tx_type::contract::prices::{ContractPrice, SpotPriceInfo};
 use crate::tx_type::exit_info::ExitInfo;
 use cfg_if::cfg_if;
 use num::BigUint;
