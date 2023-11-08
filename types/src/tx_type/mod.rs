@@ -17,7 +17,6 @@ use std::sync::Arc;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pk_signer::{sha256_bytes, ZkLinkSigner};
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
-#[cfg(feature = "ffi")]
 use zklink_sdk_signers::zklink_signer::PubKeyHash;
 
 pub mod validator;
@@ -156,17 +155,23 @@ pub trait ZkSignatureTrait: TxTrait {
     fn set_signature(&mut self, signature: ZkLinkSignature);
 
     #[cfg(feature = "ffi")]
-    fn signature(&self) -> ZkLinkSignature;
+    fn signature(&self) -> ZkLinkSignature {
+        self.internal_signature()
+    }
 
-    #[cfg(feature = "ffi")]
+    fn internal_signature(&self) -> ZkLinkSignature;
+
     fn verify_signature(&self) -> Option<PubKeyHash> {
-        let signature = self.signature();
+        let signature = self.internal_signature();
         signature
             .verify_musig(&self.get_bytes())
             .then(|| signature.pub_key.public_key_hash())
     }
 
-    fn is_signature_valid(&self) -> bool;
+    fn is_signature_valid(&self) -> bool {
+        let bytes = self.get_bytes();
+        self.internal_signature().verify_musig(&bytes)
+    }
 
     fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {
         let bytes = self.get_bytes();

@@ -89,13 +89,8 @@ impl ZkSignatureTrait for AutoDeleveraging {
         self.signature = signature;
     }
 
-    #[cfg(feature = "ffi")]
-    fn signature(&self) -> ZkLinkSignature {
+    fn internal_signature(&self) -> ZkLinkSignature {
         self.signature.clone()
-    }
-    fn is_signature_valid(&self) -> bool {
-        let bytes = self.get_bytes();
-        self.signature.verify_musig(&bytes)
     }
 }
 
