@@ -144,8 +144,8 @@ func TestSignOrderMatching(t *testing.T) {
     )
     taker, err = taker.CreateSignedOrder(zklink_signer)
     assert.Nil(t, err)
-    assert.NotNil(t, taker.Signature())
-    fmt.Printf("taker signature:%v\n", taker.Signature())
+    assert.NotNil(t, taker.GetSignature())
+    fmt.Printf("taker signature:%v\n", taker.GetSignature())
 
     maker := sdk.NewOrder(
          sdk.AccountId(2),
@@ -164,8 +164,8 @@ func TestSignOrderMatching(t *testing.T) {
     )
     maker, err = maker.CreateSignedOrder(zklink_signer)
     assert.Nil(t, err)
-    assert.NotNil(t, maker.Signature())
-    fmt.Printf("maker signature:%v\n", maker.Signature())
+    assert.NotNil(t, maker.GetSignature())
+    fmt.Printf("maker signature:%v\n", maker.GetSignature())
 
     builder := sdk.OrderMatchingBuilder{
         sdk.AccountId(3),
@@ -320,8 +320,8 @@ func TestContractMatching(t *testing.T) {
         Size: *big.NewInt(100),
         Price: *big.NewInt(100),
         Direction: false,
-        MakerFeeRatio: 10,
-        TakerFeeRatio: 20,
+        MakerFeeRate: 10,
+        TakerFeeRate: 20,
         HasSubsidy: false,
     }
     taker := sdk.NewContract(contract_builder)

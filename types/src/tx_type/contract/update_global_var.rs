@@ -1,5 +1,5 @@
+use super::funding::FundingRate;
 use crate::basic_types::{AccountId, ChainId, GetBytes, MarginId, PairId, SubAccountId, TokenId};
-use crate::contract::funding::FundingRate;
 use crate::prelude::validator::*;
 #[cfg(feature = "ffi")]
 use crate::tx_builder::UpdateGlobalVarBuilder;
