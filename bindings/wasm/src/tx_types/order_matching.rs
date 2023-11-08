@@ -28,8 +28,8 @@ impl Order {
         amount: String,
         price: String,
         is_sell: bool,
-        maker_fee_ratio: u8,
-        taker_fee_ratio2: u8,
+        maker_fee_rate: u8,
+        taker_fee_rate: u8,
         has_subsidy: bool,
     ) -> Order {
         Order {
@@ -43,7 +43,7 @@ impl Order {
                 amount: BigUint::from_str(&amount).unwrap(),
                 price: BigUint::from_str(&price).unwrap(),
                 is_sell: is_sell as u8,
-                fee_rates: [maker_fee_ratio, taker_fee_ratio2],
+                fee_rates: [maker_fee_rate, taker_fee_rate],
                 has_subsidy: has_subsidy as u8,
                 signature: Default::default(),
             },

@@ -16,7 +16,6 @@ use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
-use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
@@ -62,14 +61,6 @@ impl Transfer {
     #[cfg(feature = "ffi")]
     pub fn new(builder: TransferBuilder) -> Self {
         builder.build()
-    }
-
-    /// Restores the `PubKeyHash` from the transaction signature.
-    pub fn verify_signature(&self) -> Option<PubKeyHash> {
-        match self.signature.verify_musig(&self.get_bytes()) {
-            ret if ret => Some(self.signature.pub_key.public_key_hash()),
-            _ => None,
-        }
     }
 
     /// Get the first part of the message we expect to be signed by Ethereum account key.
@@ -150,13 +141,8 @@ impl ZkSignatureTrait for Transfer {
         self.signature = signature
     }
 
-    #[cfg(feature = "ffi")]
-    fn signature(&self) -> ZkLinkSignature {
-        self.signature.clone()
-    }
-
-    fn is_signature_valid(&self) -> bool {
-        self.signature.verify_musig(&self.get_bytes())
+    fn signature(&self) -> &ZkLinkSignature {
+        &self.signature
     }
 }
 
@@ -198,10 +184,10 @@ mod test {
     #[test]
     fn test_verify_signature() {
         let private_key_str = "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
-        let signature = "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f8125107ecbe23c307d18007ee43090940a4a43bd02bdcda206ad695f745c2f0a64f4ac4c4c8beb9ed9cbdd0e523e75ffc7dedd0281da4946bb37fa26a04283bd480a04";
-        let public_key_str = "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510";
         let ts = 1693472232;
         let eth_signature = "0x1f11707e54773e059bc38aa73526fe2b51af9b89a77df731af7bcc429750d0317727a857efda5d79232eb5f9a66ed60a79aad2195d4de1375f5021c0db041b221b";
+        let signature = "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f8125107ecbe23c307d18007ee43090940a4a43bd02bdcda206ad695f745c2f0a64f4ac4c4c8beb9ed9cbdd0e523e75ffc7dedd0281da4946bb37fa26a04283bd480a04";
+        let public_key_str = "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510";
         let address =
             ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
         let builder = TransferBuilder {
@@ -215,12 +201,14 @@ mod test {
             nonce: Nonce(1),
             timestamp: ts.into(),
         };
-        let mut tx = builder.build();
+
         //check l2 signature
+        let mut tx = builder.build();
         tx.signature = ZkLinkSignature::from_hex(signature).unwrap();
         let recover_pubkey_hash = tx.verify_signature().unwrap();
         let pubkey = PackedPublicKey::from_hex(public_key_str).unwrap();
         let pubkey_hash = pubkey.public_key_hash();
+        assert_eq!(pubkey_hash, recover_pubkey_hash);
 
         //check l1 signature
         let l1_signature = PackedEthSignature::from_hex(eth_signature).unwrap();
@@ -229,7 +217,6 @@ mod test {
         let recover_address = l1_signature.signature_recover_signer(&message).unwrap();
         let private_key = EthSigner::try_from(private_key_str).unwrap();
         let address = private_key.get_address();
-        assert_eq!(pubkey_hash, recover_pubkey_hash);
         assert_eq!(address, recover_address);
     }
 }

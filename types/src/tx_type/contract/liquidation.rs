@@ -1,6 +1,6 @@
+use super::prices::OraclePrices;
 use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::{AccountId, GetBytes, Nonce, SubAccountId, TokenId};
-use crate::contract::prices::OraclePrices;
 use crate::params::SIGNED_LIQUIDATION_BIT_WIDTH;
 use crate::prelude::validator::*;
 #[cfg(feature = "ffi")]
@@ -77,12 +77,7 @@ impl ZkSignatureTrait for Liquidation {
         self.signature = signature;
     }
 
-    #[cfg(feature = "ffi")]
-    fn signature(&self) -> ZkLinkSignature {
-        self.signature.clone()
-    }
-    fn is_signature_valid(&self) -> bool {
-        let bytes = self.get_bytes();
-        self.signature.verify_musig(&bytes)
+    fn signature(&self) -> &ZkLinkSignature {
+        &self.signature
     }
 }
