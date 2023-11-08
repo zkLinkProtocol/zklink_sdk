@@ -141,8 +141,8 @@ impl ZkSignatureTrait for Transfer {
         self.signature = signature
     }
 
-    fn internal_signature(&self) -> ZkLinkSignature {
-        self.signature.clone()
+    fn signature(&self) -> &ZkLinkSignature {
+        &self.signature
     }
 }
 

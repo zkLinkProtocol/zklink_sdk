@@ -84,8 +84,8 @@ impl ZkSignatureTrait for ContractMatching {
         self.signature = signature;
     }
 
-    fn internal_signature(&self) -> ZkLinkSignature {
-        self.signature.clone()
+    fn signature(&self) -> &ZkLinkSignature {
+        &self.signature
     }
 }
 
@@ -168,8 +168,8 @@ impl ZkSignatureTrait for Contract {
         self.signature = signature;
     }
 
-    fn internal_signature(&self) -> ZkLinkSignature {
-        self.signature.clone()
+    fn signature(&self) -> &ZkLinkSignature {
+        &self.signature
     }
 }
 

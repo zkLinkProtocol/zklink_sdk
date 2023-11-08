@@ -156,14 +156,14 @@ pub trait ZkSignatureTrait: TxTrait {
     fn set_signature(&mut self, signature: ZkLinkSignature);
 
     #[cfg(feature = "ffi")]
-    fn signature(&self) -> ZkLinkSignature {
-        self.internal_signature()
+    fn get_signature(&self) -> ZkLinkSignature {
+        self.signature().clone()
     }
 
-    fn internal_signature(&self) -> ZkLinkSignature;
+    fn signature(&self) -> &ZkLinkSignature;
 
     fn verify_signature(&self) -> Option<PubKeyHash> {
-        let signature = self.internal_signature();
+        let signature = self.signature();
         signature
             .verify_musig(&self.get_bytes())
             .then(|| signature.pub_key.public_key_hash())
@@ -171,7 +171,7 @@ pub trait ZkSignatureTrait: TxTrait {
 
     fn is_signature_valid(&self) -> bool {
         let bytes = self.get_bytes();
-        self.internal_signature().verify_musig(&bytes)
+        self.signature().verify_musig(&bytes)
     }
 
     fn sign(&mut self, signer: &ZkLinkSigner) -> Result<(), ZkSignerError> {

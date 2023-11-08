@@ -253,7 +253,7 @@ interface Deposit {
 
 interface Withdraw {
     constructor(WithdrawBuilder builder);
-    ZkLinkSignature signature();
+    ZkLinkSignature get_signature();
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
     string json_str();
@@ -271,7 +271,7 @@ interface Withdraw {
 
 interface ChangePubKey {
     constructor(ChangePubKeyBuilder builder);
-    ZkLinkSignature signature();
+    ZkLinkSignature get_signature();
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
     string json_str();
@@ -285,7 +285,7 @@ interface ChangePubKey {
 
 interface ForcedExit {
     constructor(ForcedExitBuilder builder);
-    ZkLinkSignature signature();
+    ZkLinkSignature get_signature();
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
     string json_str();
@@ -310,7 +310,7 @@ interface FullExit {
 
 interface Transfer {
     constructor(TransferBuilder builder);
-    ZkLinkSignature signature();
+    ZkLinkSignature get_signature();
     sequence<u8> get_bytes();
     sequence<u8> tx_hash();
     string json_str();
@@ -343,7 +343,7 @@ interface Order {
         u8 fee_rate2,
         ZkLinkSignature ?signature
     );
-    ZkLinkSignature signature();
+    ZkLinkSignature get_signature();
     sequence<u8> get_bytes();
     string json_str();
     boolean is_valid();
@@ -359,7 +359,7 @@ interface OrderMatching {
     sequence<u8> tx_hash();
     string json_str();
     boolean is_valid();
-    ZkLinkSignature signature();
+    ZkLinkSignature get_signature();
     boolean is_signature_valid();
     [Throws=ZkSignerError]
     OrderMatching create_signed_tx(ZkLinkSigner signer);
@@ -370,7 +370,7 @@ interface Contract {
     constructor(ContractBuilder builder);
     boolean is_long();
     boolean is_short();
-    ZkLinkSignature signature();
+    ZkLinkSignature get_signature();
     boolean is_signature_valid();
     sequence<u8> get_bytes();
 };
@@ -391,7 +391,7 @@ interface AutoDeleveraging {
     sequence<u8> tx_hash();
     string json_str();
     boolean is_valid();
-    ZkLinkSignature signature();
+    ZkLinkSignature get_signature();
     boolean is_signature_valid();
     ZkLinkTx to_zklink_tx();
     [Throws=ZkSignerError]
@@ -404,7 +404,7 @@ interface ContractMatching {
     sequence<u8> tx_hash();
     string json_str();
     boolean is_valid();
-    ZkLinkSignature signature();
+    ZkLinkSignature get_signature();
     boolean is_signature_valid();
     ZkLinkTx to_zklink_tx();
     [Throws=ZkSignerError]
@@ -417,7 +417,7 @@ interface Funding {
     sequence<u8> tx_hash();
     string json_str();
     boolean is_valid();
-    ZkLinkSignature signature();
+    ZkLinkSignature get_signature();
     boolean is_signature_valid();
     ZkLinkTx to_zklink_tx();
     [Throws=ZkSignerError]
@@ -430,7 +430,7 @@ interface Liquidation {
     sequence<u8> tx_hash();
     string json_str();
     boolean is_valid();
-    ZkLinkSignature signature();
+    ZkLinkSignature get_signature();
     boolean is_signature_valid();
     ZkLinkTx to_zklink_tx();
     [Throws=ZkSignerError]
