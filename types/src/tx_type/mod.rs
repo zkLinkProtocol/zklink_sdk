@@ -16,9 +16,9 @@ use std::collections::VecDeque;
 use std::sync::Arc;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pk_signer::{sha256_bytes, ZkLinkSigner};
+use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 #[cfg(feature = "ffi")]
 use zklink_sdk_signers::zklink_signer::PubKeyHash;
-use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 
 pub mod validator;
 

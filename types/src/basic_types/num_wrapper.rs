@@ -1,8 +1,8 @@
+use num::bigint::ToBigInt;
 use num::{BigInt, BigUint};
 use serde::{Deserialize, Serialize};
 use std::ops::{Deref, DerefMut};
-use num::bigint::ToBigInt;
-use zklink_sdk_utils::serde::{BigUintSerdeAsRadix10Str, BigIntSerdeAsRadix10Str};
+use zklink_sdk_utils::serde::{BigIntSerdeAsRadix10Str, BigUintSerdeAsRadix10Str};
 
 #[derive(Clone, Debug, Serialize, Deserialize, Default, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct BigUintSerdeWrapper(#[serde(with = "BigUintSerdeAsRadix10Str")] pub BigUint);
@@ -72,4 +72,3 @@ impl ToString for BigIntSerdeWrapper {
         self.0.to_string()
     }
 }
-

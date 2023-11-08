@@ -8,7 +8,10 @@ use chrono::serde::{ts_microseconds, ts_microseconds_option};
 use zklink_sdk_signers::eth_signer::H256;
 use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
-use zklink_sdk_types::basic_types::{AccountId, BlockNumber, ChainId, MarginId, Nonce, PairId, SlotId, SubAccountId, TokenId, ZkLinkAddress};
+use zklink_sdk_types::basic_types::{
+    AccountId, BlockNumber, ChainId, MarginId, Nonce, PairId, SlotId, SubAccountId, TokenId,
+    ZkLinkAddress,
+};
 use zklink_sdk_types::prelude::{BigIntSerdeWrapper, BigUintSerdeWrapper, U256};
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 
@@ -133,16 +136,15 @@ pub struct GlobalVarsResp {
 #[serde(rename_all = "camelCase")]
 pub struct ResponseMarginParams {
     pub token_id: TokenId,
-    pub ratio: u8
+    pub ratio: u8,
 }
-
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ResponseContractParams {
     pub initial_margin_rate: u16,
     pub maintenance_margin_rate: u16,
-    pub acc_funding_rate: i32
+    pub acc_funding_rate: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -164,7 +166,7 @@ pub struct ResponsePosition {
     pub direction: bool,
     pub price: BigDecimal,
     pub size: BigDecimal,
-    pub acc_funding_rate: i32
+    pub acc_funding_rate: i32,
 }
 
 impl ResponsePosition {
@@ -172,7 +174,7 @@ impl ResponsePosition {
         direction: bool,
         price: BigDecimal,
         size: BigDecimal,
-        acc_funding_rate: i32
+        acc_funding_rate: i32,
     ) -> Self {
         Self {
             direction,
@@ -242,7 +244,7 @@ impl AccountUpdateResp {
             AccountUpdateResp::AccountChangePubkeyUpdate(u) => u.update_id,
             AccountUpdateResp::BalanceUpdate(u) => u.update_id,
             AccountUpdateResp::OrderUpdate(u) => u.update_id,
-            AccountUpdateResp::PositionUpdate(u) => u.update_id
+            AccountUpdateResp::PositionUpdate(u) => u.update_id,
         }
     }
 }

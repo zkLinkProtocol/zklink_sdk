@@ -127,21 +127,21 @@ pub struct BigIntSerdeAsRadix10Str;
 
 impl BigIntSerdeAsRadix10Str {
     pub fn serialize<S>(val: &BigInt, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         let s = val.to_string();
         serializer.serialize_str(&s)
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<BigInt, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         use serde::de::Error;
         let s = String::deserialize(deserializer)?;
         let num =
-            BigInt::from_str(&s).map_err(|_| Error::custom("Invalid string type of big unit"))?;
+            BigInt::from_str(&s).map_err(|_| Error::custom("Invalid string type of big int"))?;
         Ok(num)
     }
 }

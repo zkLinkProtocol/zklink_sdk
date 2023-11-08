@@ -8,10 +8,14 @@ pub mod utils;
 
 pub mod prelude {
     pub use super::basic_types::{
-        num_wrapper::{BigUintSerdeWrapper, BigIntSerdeWrapper}, bit_convert::BitConvert,
-        float_convert::FloatConversions, pad::pad_front, tx_hash::TxHash,
-        zklink_address::ZkLinkAddress, AccountId, BlockNumber, ChainId, EthBlockId, GetBytes,
-        MarginId, Nonce, PairId, PriorityOpId, SlotId, SubAccountId, TimeStamp, TokenId,
+        bit_convert::BitConvert,
+        float_convert::FloatConversions,
+        num_wrapper::{BigIntSerdeWrapper, BigUintSerdeWrapper},
+        pad::pad_front,
+        tx_hash::TxHash,
+        zklink_address::ZkLinkAddress,
+        AccountId, BlockNumber, ChainId, EthBlockId, GetBytes, MarginId, Nonce, PairId,
+        PriorityOpId, SlotId, SubAccountId, TimeStamp, TokenId,
     };
     pub use super::contract::*;
     pub use super::error::TypeError;
