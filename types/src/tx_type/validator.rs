@@ -269,10 +269,9 @@ pub fn parameter_validator(param: &Parameter) -> Result<(), ValidationError> {
                 }
             }
         }
-        Parameter::FeeAccount { fee_account_id } => account_validator(fee_account_id)?,
-        Parameter::InsuranceFundAccount {
-            insurance_account_id,
-        } => account_validator(insurance_account_id)?,
+        Parameter::FeeAccount { account_id } | Parameter::InsuranceFundAccount { account_id } => {
+            account_validator(account_id)?
+        }
         Parameter::MarginInfo {
             margin_id,
             token_id,
