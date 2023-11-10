@@ -4,12 +4,10 @@ on:
   pull_request:
     branches:
       - main
-      - perp-wasm
       - v*
   push:
     branches:
       - main
-      - perp-wasm
       - v*
 
 jobs:
