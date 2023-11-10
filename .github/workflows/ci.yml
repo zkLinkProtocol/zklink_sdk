@@ -4,10 +4,12 @@ on:
   pull_request:
     branches:
       - main
+      - perp-wasm
       - v*
   push:
     branches:
       - main
+      - perp-wasm
       - v*
 
 jobs:
@@ -103,6 +105,14 @@ jobs:
         with:
           go-version: 1.21
       - run: make test_go
+
+  build_wasm:
+    name: build wasm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - run: make build_wasm
 
   test:
     name: cargo test
