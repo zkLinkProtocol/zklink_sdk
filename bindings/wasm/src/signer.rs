@@ -1,3 +1,8 @@
+use crate::contract_types::funding::Funding;
+use crate::contract_types::liquidation::Liquidation;
+use crate::contract_types::{
+    auto_deleveraging::AutoDeleveraging, contract_matching::ContractMatching,
+};
 use crate::tx_types::change_pubkey::{ChangePubKey, Create2Data};
 use crate::tx_types::forced_exit::ForcedExit;
 use crate::tx_types::order_matching::{Order, OrderMatching};
@@ -7,6 +12,10 @@ use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_interface::signer::Signer as InterfaceSigner;
 use zklink_sdk_types::basic_types::ZkLinkAddress;
+use zklink_sdk_types::contract::{
+    AutoDeleveraging as TxAutoDeleveraging, ContractMatching as TxContractMatching,
+    Funding as TxFunding, Liquidation as TxLiquidation,
+};
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey as TxChangePubKey;
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data as ChangePubKeyCreate2Data;
 use zklink_sdk_types::tx_type::forced_exit::ForcedExit as TxForcedExit;
@@ -101,6 +110,38 @@ impl Signer {
         let inner_tx = tx.json_value()?;
         let forced_exit: TxForcedExit = serde_wasm_bindgen::from_value(inner_tx)?;
         let signature = self.inner.sign_forced_exit(forced_exit)?;
+        Ok(serde_wasm_bindgen::to_value(&signature)?)
+    }
+
+    #[wasm_bindgen(js_name=signAutoDeleveraging)]
+    pub fn sign_auto_deleveraging(&self, tx: AutoDeleveraging) -> Result<JsValue, JsValue> {
+        let inner_tx = tx.json_value()?;
+        let auto_deleveraging: TxAutoDeleveraging = serde_wasm_bindgen::from_value(inner_tx)?;
+        let signature = self.inner.sign_auto_deleveraging(auto_deleveraging)?;
+        Ok(serde_wasm_bindgen::to_value(&signature)?)
+    }
+
+    #[wasm_bindgen(js_name=signContractMatching)]
+    pub fn sign_contract_matching(&self, tx: ContractMatching) -> Result<JsValue, JsValue> {
+        let inner_tx = tx.json_value()?;
+        let contract_matching: TxContractMatching = serde_wasm_bindgen::from_value(inner_tx)?;
+        let signature = self.inner.sign_contract_matching(contract_matching)?;
+        Ok(serde_wasm_bindgen::to_value(&signature)?)
+    }
+
+    #[wasm_bindgen(js_name=signFunding)]
+    pub fn sign_funding(&self, tx: Funding) -> Result<JsValue, JsValue> {
+        let inner_tx = tx.json_value()?;
+        let funding: TxFunding = serde_wasm_bindgen::from_value(inner_tx)?;
+        let signature = self.inner.sign_funding(funding)?;
+        Ok(serde_wasm_bindgen::to_value(&signature)?)
+    }
+
+    #[wasm_bindgen(js_name=signLiquidation)]
+    pub fn sign_liquidation(&self, tx: Liquidation) -> Result<JsValue, JsValue> {
+        let inner_tx = tx.json_value()?;
+        let liquidation: TxLiquidation = serde_wasm_bindgen::from_value(inner_tx)?;
+        let signature = self.inner.sign_liquidation(liquidation)?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
     }
 
