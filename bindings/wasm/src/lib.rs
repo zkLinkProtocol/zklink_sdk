@@ -1,5 +1,4 @@
 #![cfg(target_arch = "wasm32")]
-pub mod contract_types;
 #[cfg(feature = "web")]
 pub mod json_rpc_signer;
 pub mod rpc_client;

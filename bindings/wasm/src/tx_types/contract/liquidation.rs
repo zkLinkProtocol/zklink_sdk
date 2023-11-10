@@ -2,11 +2,11 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
-use zklink_sdk_types::contract::Liquidation as LiquidationTx;
-use zklink_sdk_types::contract::{
+use zklink_sdk_types::tx_builder::LiquidationBuilder as TxLiquidationBuilder;
+use zklink_sdk_types::tx_type::contract::Liquidation as LiquidationTx;
+use zklink_sdk_types::tx_type::contract::{
     ContractPrice as InnerContractPrice, SpotPriceInfo as InnerSpotPriceInfo,
 };
-use zklink_sdk_types::tx_builder::LiquidationBuilder as TxLiquidationBuilder;
 
 #[wasm_bindgen]
 pub struct Liquidation {

@@ -2,7 +2,7 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
-use zklink_sdk_types::contract::{
+use zklink_sdk_types::tx_type::contract::{
     ContractPrice as InnerContractPrice, SpotPriceInfo as InnerSpotPriceInfo,
 };
 

@@ -1,9 +1,8 @@
-use crate::contract_types::funding::Funding;
-use crate::contract_types::liquidation::Liquidation;
-use crate::contract_types::{
-    auto_deleveraging::AutoDeleveraging, contract_matching::ContractMatching,
-};
 use crate::tx_types::change_pubkey::{ChangePubKey, Create2Data};
+use crate::tx_types::contract::auto_deleveraging::AutoDeleveraging;
+use crate::tx_types::contract::contract_matching::ContractMatching;
+use crate::tx_types::contract::funding::Funding;
+use crate::tx_types::contract::liquidation::Liquidation;
 use crate::tx_types::forced_exit::ForcedExit;
 use crate::tx_types::order_matching::{Order, OrderMatching};
 use crate::tx_types::transfer::Transfer;
@@ -12,12 +11,12 @@ use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_interface::signer::Signer as InterfaceSigner;
 use zklink_sdk_types::basic_types::ZkLinkAddress;
-use zklink_sdk_types::contract::{
+use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey as TxChangePubKey;
+use zklink_sdk_types::tx_type::change_pubkey::Create2Data as ChangePubKeyCreate2Data;
+use zklink_sdk_types::tx_type::contract::{
     AutoDeleveraging as TxAutoDeleveraging, ContractMatching as TxContractMatching,
     Funding as TxFunding, Liquidation as TxLiquidation,
 };
-use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey as TxChangePubKey;
-use zklink_sdk_types::tx_type::change_pubkey::Create2Data as ChangePubKeyCreate2Data;
 use zklink_sdk_types::tx_type::forced_exit::ForcedExit as TxForcedExit;
 use zklink_sdk_types::tx_type::order_matching::{
     Order as TxOrder, OrderMatching as TxOrderMatching,

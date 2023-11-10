@@ -17,9 +17,9 @@ use zklink_sdk_provider::response::{
     SubAccountBalances, SubAccountOrders, TokenResp, TxHashOrDetailResp, TxResp, ZkLinkTxHistory,
 };
 use zklink_sdk_signers::zklink_signer::ZkLinkSignature;
-use zklink_sdk_types::basic_types::bigunit_wrapper::BigUintSerdeWrapper;
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
 use zklink_sdk_types::basic_types::{AccountId, BlockNumber, ChainId, SubAccountId, TokenId};
+use zklink_sdk_types::prelude::BigUintSerdeWrapper;
 use zklink_sdk_types::prelude::ZkLinkAddress;
 use zklink_sdk_types::signatures::TxLayer1Signature as TypesTxLayer1Signature;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;

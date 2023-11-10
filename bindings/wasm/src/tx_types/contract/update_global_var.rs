@@ -1,11 +1,11 @@
 use serde::Deserialize;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
-use zklink_sdk_types::contract::{
+use zklink_sdk_types::tx_builder::UpdateGlobalVarBuilder as TxUpdateGlobalVarBuilder;
+use zklink_sdk_types::tx_type::contract::{
     FundingRate as InnerFundingRate, Parameter as ContractParameter,
     UpdateGlobalVar as UpdateGlobalVarTx,
 };
-use zklink_sdk_types::tx_builder::UpdateGlobalVarBuilder as TxUpdateGlobalVarBuilder;
 
 #[wasm_bindgen]
 pub struct UpdateGlobalVar {

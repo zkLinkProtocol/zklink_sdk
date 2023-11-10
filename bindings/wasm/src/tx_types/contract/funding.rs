@@ -2,8 +2,10 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
-use zklink_sdk_types::contract::{Funding as InnerFunding, FundingRate as InnerFundingRate};
 use zklink_sdk_types::tx_builder::FundingBuilder as TxFundingBuilder;
+use zklink_sdk_types::tx_type::contract::{
+    Funding as InnerFunding, FundingRate as InnerFundingRate,
+};
 
 #[wasm_bindgen]
 pub struct FundingRate {

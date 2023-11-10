@@ -2,11 +2,11 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
-use zklink_sdk_types::contract::{
-    Contract as InnerContract, ContractMatching as ContractMatchingTx,
-};
 use zklink_sdk_types::tx_builder::{
     ContractBuilder as TxContractBuilder, ContractMatchingBuilder as TxContractMatchingBuilder,
+};
+use zklink_sdk_types::tx_type::contract::{
+    Contract as InnerContract, ContractMatching as ContractMatchingTx,
 };
 
 #[wasm_bindgen]
@@ -97,8 +97,8 @@ impl ContractBuilder {
         size: String,
         price: String,
         direction: bool,
-        maker_fee_ratio: u8,
-        taker_fee_ratio: u8,
+        maker_fee_rate: u8,
+        taker_fee_rate: u8,
         has_subsidy: bool,
     ) -> Result<ContractBuilder, JsValue> {
         let inner = TxContractBuilder {
@@ -110,8 +110,8 @@ impl ContractBuilder {
             size: BigUint::from_str(&size).unwrap(),
             price: BigUint::from_str(&price).unwrap(),
             direction,
-            maker_fee_ratio,
-            taker_fee_ratio,
+            maker_fee_rate,
+            taker_fee_rate,
             has_subsidy,
         };
         Ok(ContractBuilder { inner })
