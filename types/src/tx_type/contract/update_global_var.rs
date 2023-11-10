@@ -52,20 +52,26 @@ impl GetBytes for UpdateGlobalVar {
 #[serde(rename_all = "camelCase")]
 pub enum Parameter {
     /// modify the collect-fee account
-    FeeAccount { fee_account_id: AccountId },
+    #[serde(rename_all = "camelCase")]
+    FeeAccount { account_id: AccountId },
     /// modify the insurance fund account
-    InsuranceFundAccount { insurance_account_id: AccountId },
+    #[serde(rename_all = "camelCase")]
+    InsuranceFundAccount { account_id: AccountId },
     /// modify the margin info in the specified index.
+    #[serde(rename_all = "camelCase")]
     MarginInfo {
         margin_id: MarginId,
         token_id: TokenId,
         ratio: u8,
     },
     /// update the funding rates to accumulated funding rates of the Global Vars for all position(contract pair) in this period
+    #[serde(rename_all = "camelCase")]
     FundingRates { funding_rates: Vec<FundingRate> },
     /// modify the initial margin rate of every margin
+    #[serde(rename_all = "camelCase")]
     InitialMarginRate { pair_id: PairId, rate: u16 },
     /// modify the maintenance margin rate of every margin
+    #[serde(rename_all = "camelCase")]
     MaintenanceMarginRate { pair_id: PairId, rate: u16 },
 }
 
@@ -101,10 +107,8 @@ impl GetBytes for Parameter {
     fn get_bytes(&self) -> Vec<u8> {
         let mut bytes = vec![self.parameter_type()];
         bytes.extend(match self {
-            Parameter::FeeAccount { fee_account_id } => fee_account_id.to_be_bytes().to_vec(),
-            Parameter::InsuranceFundAccount {
-                insurance_account_id,
-            } => insurance_account_id.get_bytes(),
+            Parameter::FeeAccount { account_id }
+            | Parameter::InsuranceFundAccount { account_id } => account_id.get_bytes(),
             Parameter::MarginInfo {
                 margin_id,
                 token_id,

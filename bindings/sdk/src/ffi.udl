@@ -377,8 +377,8 @@ interface Contract {
 
 [Enum]
 interface Parameter {
-    FeeAccount(AccountId fee_account_id);
-    InsuranceFundAccount(AccountId insurance_account_id);
+    FeeAccount(AccountId account_id);
+    InsuranceFundAccount(AccountId account_id);
     MarginInfo(MarginId margin_id, TokenId token_id, u8 ratio);
     FundingRates( sequence<FundingRate> funding_rates );
     InitialMarginRate(PairId pair_id, u16 rate);
