@@ -257,7 +257,7 @@ pub fn order_nonce_validator(nonce: &Nonce) -> Result<(), ValidationError> {
 ///
 pub fn parameter_validator(param: &Parameter) -> Result<(), ValidationError> {
     match param {
-        Parameter::FundingRates { funding_rates } => {
+        Parameter::FundingInfos { infos: funding_rates } => {
             if funding_rates.len() != USED_POSITION_NUMBER {
                 return Err(ValidationError::new("update funding rates number mismatch"));
             }

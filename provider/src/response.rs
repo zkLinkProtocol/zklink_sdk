@@ -1,5 +1,6 @@
 use bigdecimal::BigDecimal;
 use std::collections::HashMap;
+use bigdecimal::num_bigint::BigInt;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -142,7 +143,7 @@ pub struct ResponseMarginParams {
 pub struct ResponseContractParams {
     pub initial_margin_rate: u16,
     pub maintenance_margin_rate: u16,
-    pub acc_funding_rate: i32,
+    pub acc_funding_price: BigInt,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -164,7 +165,7 @@ pub struct ResponsePosition {
     pub direction: bool,
     pub price: BigDecimal,
     pub size: BigDecimal,
-    pub acc_funding_rate: i32,
+    pub acc_funding_price: BigIntSerdeWrapper,
 }
 
 impl ResponsePosition {
@@ -172,13 +173,13 @@ impl ResponsePosition {
         direction: bool,
         price: BigDecimal,
         size: BigDecimal,
-        acc_funding_rate: i32,
+        acc_funding_price: BigIntSerdeWrapper,
     ) -> Self {
         Self {
             direction,
             price,
             size,
-            acc_funding_rate,
+            acc_funding_price,
         }
     }
 }
@@ -307,8 +308,8 @@ pub struct ContractParamsUpdateResp {
     pub new_maintenance_margin_rate: u16,
     pub old_initial_margin_rate: u16,
     pub new_initial_margin_rate: u16,
-    pub old_acc_funding_rate: i32,
-    pub new_acc_funding_rate: i32,
+    pub old_acc_funding_price: BigIntSerdeWrapper,
+    pub new_acc_funding_price: BigIntSerdeWrapper,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

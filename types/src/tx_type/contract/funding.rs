@@ -1,32 +1,35 @@
 use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::{AccountId, GetBytes, Nonce, PairId, SubAccountId, TokenId};
-use crate::params::{
-    FUNDING_RATE_BYTES, PAIR_BIT_WIDTH, SIGNED_BATCH_FUNDING_BIT_WIDTH, SIGNED_FUNDING_BIT_WIDTH,
-};
+use crate::params::{FUNDING_RATE_BYTES, PAIR_BIT_WIDTH, PRICE_BIT_WIDTH, SIGNED_BATCH_FUNDING_BIT_WIDTH, SIGNED_FUNDING_BIT_WIDTH};
 use crate::prelude::validator::*;
 #[cfg(feature = "ffi")]
 use crate::tx_builder::FundingBuilder;
 use crate::tx_type::{TxTrait, ZkSignatureTrait};
 use num::BigUint;
+use num::traits::ToBytes;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use zklink_sdk_signers::zklink_signer::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
+use crate::prelude::pad_front;
 
-#[derive(Default, Debug, Clone, Copy, Serialize, Deserialize, Validate)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
-pub struct FundingRate {
+pub struct FundingInfo {
     #[validate(custom = "pair_validator")]
     pub pair_id: PairId,
-    // TODO: can it be lower than 0?
+    #[serde(with = "BigUintSerdeAsRadix10Str")]
+    #[validate(custom = "price_validator")]
+    pub price: BigUint,
     pub funding_rate: i16,
 }
 
-impl GetBytes for FundingRate {
+impl GetBytes for FundingInfo {
     fn get_bytes(&self) -> Vec<u8> {
         let bytes_len = self.bytes_len();
         let mut funding_rate_encode = Vec::with_capacity(bytes_len);
         funding_rate_encode.push(*self.pair_id as u8);
+        funding_rate_encode.extend(pad_front(&self.price.to_be_bytes(), PRICE_BIT_WIDTH));
         // For the convenience of the circuit, we use the true code instead of the original complement.
         let mut rate_bytes = self.funding_rate.unsigned_abs().to_be_bytes();
         if self.funding_rate.is_negative() {
