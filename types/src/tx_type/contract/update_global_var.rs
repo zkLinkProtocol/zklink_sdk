@@ -124,7 +124,7 @@ impl GetBytes for Parameter {
                 .into_iter()
                 .chain(rate.to_be_bytes())
                 .collect(),
-            Parameter::FundingInfos{ infos } => infos.get_bytes(),
+            Parameter::FundingInfos { infos } => infos.get_bytes(),
         });
         bytes
     }

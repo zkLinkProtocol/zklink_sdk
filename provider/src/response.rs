@@ -1,6 +1,6 @@
+use bigdecimal::num_bigint::BigInt;
 use bigdecimal::BigDecimal;
 use std::collections::HashMap;
-use bigdecimal::num_bigint::BigInt;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
