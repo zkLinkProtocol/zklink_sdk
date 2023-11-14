@@ -9,7 +9,6 @@ use crate::prelude::validator::*;
 #[cfg(feature = "ffi")]
 use crate::tx_builder::FundingBuilder;
 use crate::tx_type::{TxTrait, ZkSignatureTrait};
-use num::traits::ToBytes;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
@@ -34,7 +33,7 @@ impl GetBytes for FundingInfo {
         let bytes_len = self.bytes_len();
         let mut funding_rate_encode = Vec::with_capacity(bytes_len);
         funding_rate_encode.push(*self.pair_id as u8);
-        funding_rate_encode.extend(pad_front(&self.price.to_be_bytes(), PRICE_BIT_WIDTH / 8));
+        funding_rate_encode.extend(pad_front(&self.price.to_bytes_be(), PRICE_BIT_WIDTH / 8));
         // For the convenience of the circuit, we use the Original Code instead of the Two's Complement.
         let mut rate_bytes = self.funding_rate.unsigned_abs().to_be_bytes();
         if self.funding_rate.is_negative() {
