@@ -35,6 +35,14 @@ pub mod zklink_tx;
 impl Deposit {
     pub const TX_TYPE: u8 = 0x01;
 }
+
+// The transaction structure is equivalent to Transfer
+// Here for reference to TX_TYPE in use is consistent
+pub struct TransferToNew;
+impl TransferToNew {
+    pub const TX_TYPE: u8 = 0x02;
+}
+
 impl Withdraw {
     pub const TX_TYPE: u8 = 0x03;
 }
