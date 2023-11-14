@@ -133,3 +133,80 @@ impl GetBytes for Parameter {
         unreachable!()
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::prelude::UpdateGlobalVarBuilder;
+
+    #[test]
+    fn test_get_bytes() {
+        let params = vec![
+            Parameter::FundingInfos {
+                infos: vec![
+                    FundingInfo {
+                        pair_id: PairId(0),
+                        price: 1000_000_000_000_000_000u128.into(),
+                        funding_rate: i16::MAX,
+                    },
+                    FundingInfo {
+                        pair_id: PairId(1),
+                        price: 1000_000_000_000_000u128.into(),
+                        funding_rate: 0,
+                    },
+                    FundingInfo {
+                        pair_id: PairId(2),
+                        price: 1000_000_000_000u128.into(),
+                        funding_rate: -1,
+                    },
+                    FundingInfo {
+                        pair_id: PairId(3),
+                        price: 1000_000_000u128.into(),
+                        funding_rate: 1,
+                    },
+                ],
+            },
+            Parameter::FeeAccount {
+                account_id: 10.into(),
+            },
+            Parameter::InsuranceFundAccount {
+                account_id: 9.into(),
+            },
+            Parameter::MarginInfo {
+                margin_id: 1.into(),
+                token_id: 9.into(),
+                ratio: 0,
+            },
+            Parameter::InitialMarginRate {
+                pair_id: 2.into(),
+                rate: 8,
+            },
+            Parameter::MaintenanceMarginRate {
+                pair_id: 2.into(),
+                rate: 100,
+            },
+        ];
+        let excepted_bytes = [
+            vec![
+                12, 1, 1, 5, 0, 0, 0, 0, 0, 0, 0, 0, 13, 224, 182, 179, 167, 100, 0, 0, 127, 255,
+                1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 141, 126, 164, 198, 128, 0, 0, 0, 2, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 232, 212, 165, 16, 0, 128, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                59, 154, 202, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+            ],
+            vec![12, 1, 1, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0],
+            vec![12, 1, 1, 1, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0],
+            vec![12, 1, 1, 2, 1, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ];
+        for (param, excepted_bytes) in params.into_iter().zip(excepted_bytes) {
+            let builder = UpdateGlobalVarBuilder {
+                from_chain_id: ChainId(1),
+                sub_account_id: SubAccountId(1),
+                parameter: param,
+                serial_id: 0,
+            };
+            let tx = builder.build();
+            let bytes = tx.get_bytes();
+            assert_eq!(bytes, excepted_bytes);
+        }
+    }
+}
