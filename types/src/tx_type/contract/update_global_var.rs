@@ -1,4 +1,4 @@
-use super::funding::FundingRate;
+use super::funding::FundingInfo;
 use crate::basic_types::{AccountId, ChainId, GetBytes, MarginId, PairId, SubAccountId, TokenId};
 use crate::prelude::validator::*;
 #[cfg(feature = "ffi")]
@@ -66,7 +66,7 @@ pub enum Parameter {
     },
     /// update the funding rates to accumulated funding rates of the Global Vars for all position(contract pair) in this period
     #[serde(rename_all = "camelCase")]
-    FundingRates { funding_rates: Vec<FundingRate> },
+    FundingInfos { infos: Vec<FundingInfo> },
     /// modify the initial margin rate of every margin
     #[serde(rename_all = "camelCase")]
     InitialMarginRate { pair_id: PairId, rate: u16 },
@@ -94,7 +94,7 @@ impl Parameter {
             Parameter::MarginInfo { .. } => Self::MARGIN_INFO_PARAM_TYPE,
             Parameter::InitialMarginRate { .. } => Self::INITIAL_MARGIN_RATE_PARAM_TYPE,
             Parameter::MaintenanceMarginRate { .. } => Self::MAINTENANCE_MARGIN_RATE_PARAM_TYPE,
-            Parameter::FundingRates { .. } => Self::FUNDING_RATE_PARAM_TYPE,
+            Parameter::FundingInfos { .. } => Self::FUNDING_RATE_PARAM_TYPE,
         }
     }
 
@@ -124,7 +124,7 @@ impl GetBytes for Parameter {
                 .into_iter()
                 .chain(rate.to_be_bytes())
                 .collect(),
-            Parameter::FundingRates { funding_rates } => funding_rates.get_bytes(),
+            Parameter::FundingInfos { infos } => infos.get_bytes(),
         });
         bytes
     }

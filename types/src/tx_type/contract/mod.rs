@@ -7,7 +7,7 @@ mod update_global_var;
 
 pub use auto_deleveraging::AutoDeleveraging;
 pub use contract_matching::{Contract, ContractMatching};
-pub use funding::{Funding, FundingRate};
+pub use funding::{Funding, FundingInfo};
 pub use liquidation::Liquidation;
 pub use prices::{ContractPrice, OraclePrices, SpotPriceInfo};
 pub use update_global_var::{Parameter, UpdateGlobalVar};

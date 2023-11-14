@@ -253,16 +253,28 @@ pub fn order_nonce_validator(nonce: &Nonce) -> Result<(), ValidationError> {
     Ok(())
 }
 
+/// Check funding rate validation
+///
+/// - funding rate should not eq i16::MIN(for the convenience of the circuit)
+pub fn funding_rate_validator(rate: i16) -> Result<(), ValidationError> {
+    if rate == i16::MIN {
+        return Err(ValidationError::new(
+            "The funding rate disables i16 minimum value",
+        ));
+    }
+    Ok(())
+}
+
 /// Check parameter validation
 ///
 pub fn parameter_validator(param: &Parameter) -> Result<(), ValidationError> {
     match param {
-        Parameter::FundingRates { funding_rates } => {
-            if funding_rates.len() != USED_POSITION_NUMBER {
-                return Err(ValidationError::new("update funding rates number mismatch"));
+        Parameter::FundingInfos { infos } => {
+            if infos.len() != USED_POSITION_NUMBER {
+                return Err(ValidationError::new("update funding infos number mismatch"));
             }
-            for funding_rate in funding_rates {
-                if let Err(e) = funding_rate.validate() {
+            for funding_info in infos {
+                if let Err(e) = funding_info.validate() {
                     return Err(ValidationError::new(
                         e.into_errors().into_keys().last().unwrap(),
                     ));

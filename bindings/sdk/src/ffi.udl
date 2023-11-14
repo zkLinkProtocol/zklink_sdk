@@ -218,8 +218,9 @@ dictionary UpdateGlobalVarBuilder {
     u64 serial_id;
 };
 
-dictionary FundingRate {
+dictionary FundingInfo {
     PairId pair_id;
+    BigUint price;
     i16 funding_rate;
 };
 
@@ -380,7 +381,7 @@ interface Parameter {
     FeeAccount(AccountId account_id);
     InsuranceFundAccount(AccountId account_id);
     MarginInfo(MarginId margin_id, TokenId token_id, u8 ratio);
-    FundingRates( sequence<FundingRate> funding_rates );
+    FundingInfos( sequence<FundingInfo> infos );
     InitialMarginRate(PairId pair_id, u16 rate);
     MaintenanceMarginRate(PairId pair_id, u16 rate);
 };
