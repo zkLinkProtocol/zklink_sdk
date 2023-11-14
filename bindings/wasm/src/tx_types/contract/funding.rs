@@ -4,21 +4,22 @@ use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
 use zklink_sdk_types::tx_builder::FundingBuilder as TxFundingBuilder;
 use zklink_sdk_types::tx_type::contract::{
-    Funding as InnerFunding, FundingRate as InnerFundingRate,
+    Funding as InnerFunding, FundingInfo as InnerFundingInfo,
 };
 
 #[wasm_bindgen]
-pub struct FundingRate {
-    inner: InnerFundingRate,
+pub struct FundingInfo {
+    inner: InnerFundingInfo,
 }
 
 #[wasm_bindgen]
-impl FundingRate {
+impl FundingInfo {
     #[wasm_bindgen(constructor)]
-    pub fn new(pair_id: u16, funding_rate: i16) -> FundingRate {
-        FundingRate {
-            inner: InnerFundingRate {
+    pub fn new(pair_id: u16, funding_rate: i16, price: String) -> FundingInfo {
+        FundingInfo {
+            inner: InnerFundingInfo {
                 pair_id: pair_id.into(),
+                price: BigUint::from_str(&price).unwrap(),
                 funding_rate,
             },
         }

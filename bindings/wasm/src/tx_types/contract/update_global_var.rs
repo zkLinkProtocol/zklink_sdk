@@ -3,7 +3,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::tx_builder::UpdateGlobalVarBuilder as TxUpdateGlobalVarBuilder;
 use zklink_sdk_types::tx_type::contract::{
-    FundingRate as InnerFundingRate, Parameter as ContractParameter,
+    FundingInfo as InnerFundingInfo, Parameter as ContractParameter,
     UpdateGlobalVar as UpdateGlobalVarTx,
 };
 
@@ -61,7 +61,7 @@ pub enum ParameterType {
     FeeAccount,
     InsuranceFundAccount,
     MarginInfo,
-    FundingRates,
+    FundingInfos,
     InitialMarginRate,
     MaintenanceMarginRate,
 }
@@ -123,13 +123,13 @@ impl From<Parameter> for ContractParameter {
             ParameterType::FeeAccount => {
                 let value = parameter.parameter_value.as_f64().unwrap() as u32;
                 ContractParameter::FeeAccount {
-                    fee_account_id: value.into(),
+                    account_id: value.into(),
                 }
             }
             ParameterType::InsuranceFundAccount => {
                 let value = parameter.parameter_value.as_f64().unwrap() as u32;
                 ContractParameter::InsuranceFundAccount {
-                    insurance_account_id: value.into(),
+                    account_id: value.into(),
                 }
             }
             ParameterType::MarginInfo => {
@@ -141,12 +141,10 @@ impl From<Parameter> for ContractParameter {
                     ratio: value.ratio,
                 }
             }
-            ParameterType::FundingRates => {
-                let value: Vec<InnerFundingRate> =
+            ParameterType::FundingInfos => {
+                let value: Vec<InnerFundingInfo> =
                     serde_wasm_bindgen::from_value(parameter.parameter_value).unwrap();
-                ContractParameter::FundingRates {
-                    funding_rates: value,
-                }
+                ContractParameter::FundingInfos { infos: value }
             }
             ParameterType::InitialMarginRate => {
                 let value: MarginRate =
