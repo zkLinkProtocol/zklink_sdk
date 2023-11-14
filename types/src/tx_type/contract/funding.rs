@@ -21,9 +21,11 @@ use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 pub struct FundingInfo {
     #[validate(custom = "pair_validator")]
     pub pair_id: PairId,
+    /// The index price of the specified pair.
     #[serde(with = "BigUintSerdeAsRadix10Str")]
     #[validate(custom = "price_validator")]
     pub price: BigUint,
+    #[validate(custom = "funding_rate_validator")]
     pub funding_rate: i16,
 }
 
@@ -33,7 +35,7 @@ impl GetBytes for FundingInfo {
         let mut funding_rate_encode = Vec::with_capacity(bytes_len);
         funding_rate_encode.push(*self.pair_id as u8);
         funding_rate_encode.extend(pad_front(&self.price.to_be_bytes(), PRICE_BIT_WIDTH));
-        // For the convenience of the circuit, we use the true code instead of the original complement.
+        // For the convenience of the circuit, we use the Original Code instead of the Two's Complement.
         let mut rate_bytes = self.funding_rate.unsigned_abs().to_be_bytes();
         if self.funding_rate.is_negative() {
             rate_bytes[0] |= 0b1000_0000
