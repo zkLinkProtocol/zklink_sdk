@@ -50,5 +50,3 @@ impl SpotPriceInfo {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }
 }
-
-pub struct OraclePrices {}

@@ -74,7 +74,7 @@ pub struct Contract {
 
 #[wasm_bindgen]
 impl Contract {
-    #[wasm_bindgen(js_name=jsValue)]
+    #[wasm_bindgen(js_name=jsonValue)]
     pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }
