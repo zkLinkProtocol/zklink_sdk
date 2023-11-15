@@ -83,7 +83,6 @@ pub const SIGNED_WITHDRAW_BIT_WIDTH: usize = TX_TYPE_BIT_WIDTH
     + 2 * FEE_EXPONENT_BIT_WIDTH
     + 2 * FEE_MANTISSA_BIT_WIDTH
     + NONCE_BIT_WIDTH
-    + 8 // fast withdraw
     + 8 // withdraw to l1
     + SIMP_TIMESTAMP_BIT_WIDTH;
 

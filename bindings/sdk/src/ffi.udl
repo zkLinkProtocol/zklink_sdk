@@ -125,7 +125,6 @@ dictionary WithdrawBuilder {
     BigUint amount;
     BigUint fee;
     Nonce nonce;
-    boolean fast_withdraw;
     u16 withdraw_fee_ratio;
     boolean withdraw_to_l1;
     TimeStamp timestamp;
