@@ -1,4 +1,3 @@
-use bigdecimal::num_bigint::BigInt;
 use bigdecimal::BigDecimal;
 use std::collections::HashMap;
 
@@ -143,7 +142,7 @@ pub struct ResponseMarginParams {
 pub struct ResponseContractParams {
     pub initial_margin_rate: u16,
     pub maintenance_margin_rate: u16,
-    pub acc_funding_price: BigInt,
+    pub acc_funding_price: BigIntSerdeWrapper,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

@@ -22,7 +22,7 @@ pub struct FundingInfo {
     pub pair_id: PairId,
     /// The index price of the specified pair.
     #[serde(with = "BigUintSerdeAsRadix10Str")]
-    #[validate(custom = "price_validator")]
+    #[validate(custom = "external_price_validator")]
     pub price: BigUint,
     #[validate(custom = "funding_rate_validator")]
     pub funding_rate: i16,
