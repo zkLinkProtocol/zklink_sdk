@@ -120,7 +120,6 @@ pub struct WithdrawBuilder {
     pub amount: BigUint,
     pub fee: BigUint,
     pub nonce: Nonce,
-    pub fast_withdraw: bool,
     pub withdraw_to_l1: bool,
     pub withdraw_fee_ratio: u16,
     pub timestamp: TimeStamp,
@@ -129,7 +128,6 @@ pub struct WithdrawBuilder {
 impl WithdrawBuilder {
     /// Creates Withdraw transaction
     pub fn build(self) -> Withdraw {
-        let fast_withdraw = u8::from(self.fast_withdraw);
         let withdraw_to_l1 = u8::from(self.withdraw_to_l1);
 
         Withdraw {
@@ -143,7 +141,6 @@ impl WithdrawBuilder {
             fee: self.fee,
             nonce: self.nonce,
             signature: Default::default(),
-            fast_withdraw,
             withdraw_to_l1,
             withdraw_fee_ratio: self.withdraw_fee_ratio,
             ts: self.timestamp,

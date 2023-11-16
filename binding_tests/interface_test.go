@@ -209,7 +209,6 @@ func TestDeposit(t *testing.T) {
 func TestSignWithdraw(t *testing.T) {
     packed_eth_signature := sdk.PackedEthSignature("0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001b")
     assert.NotNil(t, packed_eth_signature)
-
 	s := "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
     eth_signer, err := sdk.NewEthSigner(s)
     assert.Nil(t, err)
@@ -226,7 +225,6 @@ func TestSignWithdraw(t *testing.T) {
         *big.NewInt(100000),
         *big.NewInt(100),
         sdk.Nonce(1),
-        false,
         50,
         true,
         sdk.TimeStamp(1693472232),
