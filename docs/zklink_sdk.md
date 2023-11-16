@@ -312,8 +312,7 @@ OrderData {
 | l1TargetToken  | number | 提现的1层目的tokenId |
 | amount  | BigNumberish | 提现金额 |
 | fee  | BigNumberish | 手续费 |
-| withdrawFeeRatio  | number | 提现费率 |
-| fastWithdraw  | number | 是否快提 |
+| withdrawFeeRatio  | number | 快速提现费率 |
 | ts  | number | 时间戳 |
 | nonce  | number | from账户的2层nonce |
 | signature  | Signatrue | 空 |
@@ -332,8 +331,7 @@ OrderData {
 | l1TargetToken  | number | 提现的1层目的tokenId |
 | amount  | BigNumberish | 提现金额 |
 | fee  | BigNumberish | 手续费 |
-| withdrawFeeRatio  | number | 提现费率 |
-| fastWithdraw  | number | 是否快提 |
+| withdrawFeeRatio  | number | 快速提现费率 |
 | ts  | number | 时间戳 |
 | nonce  | number | from账户的2层nonce |
 | signature  | Signatrue | 空 |
@@ -600,8 +598,7 @@ export interface TxEthSignature {
 | l1TargetToken  | number | 提现的1层目的tokenId |
 | amount  | BigNumberish | 提现金额 |
 | fee  | BigNumberish | 手续费 |
-| withdrawFeeRatio  | number | 提现费率 |
-| fastWithdraw  | bool | 是否快提 |
+| withdrawFeeRatio  | number | 快速提现费率 |
 | nonce  | number | 账户的2层nonce |
 ### process
 钱包提交withdraw交易

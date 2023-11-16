@@ -29,7 +29,6 @@ func HighLevelWithdraw() {
 	amount := *big.NewInt(1000000)
 	fee := *big.NewInt(1000)
 	nonce := sdk.Nonce(1)
-	fastWithdraw := false
 	withdrawFeeRatio := uint16(50)
     // get current timestamp
     now := time.Now()
@@ -45,7 +44,6 @@ func HighLevelWithdraw() {
         Amount: amount,
         Fee: fee,
         Nonce: nonce,
-        FastWithdraw: fastWithdraw,
         WithdrawToL1: true,
         WithdrawFeeRatio: withdrawFeeRatio,
         Timestamp: timestamp,
