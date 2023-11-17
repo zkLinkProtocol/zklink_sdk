@@ -127,8 +127,9 @@ impl GetBytes for Parameter {
                 maintenance_margin_rate,
             } => {
                 let mut bytes = vec![(**pair_id as u8)];
-                let mut symbol_bytes = symbol.clone().into_bytes();
-                symbol_bytes.resize(PAIR_SYMBOL_BYTES, 0);
+                let mut symbol_bytes = [0u8; PAIR_SYMBOL_BYTES];
+                symbol_bytes[PAIR_SYMBOL_BYTES - symbol.as_bytes().len()..]
+                    .copy_from_slice(symbol.as_bytes());
                 bytes.extend(symbol_bytes);
                 bytes.extend(initial_margin_rate.to_be_bytes());
                 bytes.extend(maintenance_margin_rate.to_be_bytes());
