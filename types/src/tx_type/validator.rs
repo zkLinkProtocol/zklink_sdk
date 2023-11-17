@@ -6,6 +6,7 @@ use crate::basic_types::params::{
     USDX_TOKEN_ID_LOWER_BOUND, USDX_TOKEN_ID_UPPER_BOUND, USED_POSITION_NUMBER,
     USED_POSITION_PAIR_ID_RANGE,
 };
+use crate::params::PAIR_SYMBOL_BYTES;
 use crate::prelude::{
     AccountId, ChainId, ContractPrice, Nonce, PairId, Parameter, SlotId, SpotPriceInfo,
     SubAccountId, TokenId, ZkLinkAddress,
@@ -295,10 +296,22 @@ pub fn parameter_validator(param: &Parameter) -> Result<(), ValidationError> {
             token_validator(token_id)?;
             margin_rate_validator(*ratio)?;
         }
-        Parameter::InitialMarginRate { pair_id, rate }
-        | Parameter::MaintenanceMarginRate { pair_id, rate } => {
+        Parameter::ContractInfo {
+            pair_id,
+            symbol,
+            initial_margin_rate,
+            maintenance_margin_rate,
+        } => {
             pair_validator(pair_id)?;
-            if *rate >= 1000 {
+            if !symbol.is_ascii() {
+                return Err(ValidationError::new("pair symbol are not ascii chars"));
+            }
+            if symbol.len() > PAIR_SYMBOL_BYTES {
+                return Err(ValidationError::new(
+                    "pair symbol chars length out of range",
+                ));
+            }
+            if *initial_margin_rate >= 1000 || *maintenance_margin_rate >= 1000 {
                 return Err(ValidationError::new(
                     "initial or maintenance margin rate out of range",
                 ));

@@ -140,6 +140,7 @@ pub struct ResponseMarginParams {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ResponseContractParams {
+    pub symbol: String,
     pub initial_margin_rate: u16,
     pub maintenance_margin_rate: u16,
     pub acc_funding_price: BigIntSerdeWrapper,
@@ -303,6 +304,8 @@ pub struct ContractParamsUpdateResp {
     pub update_id: i32,
     pub sub_account_id: SubAccountId,
     pub pair_id: PairId,
+    pub old_symbol: String,
+    pub new_symbol: String,
     pub old_maintenance_margin_rate: u16,
     pub new_maintenance_margin_rate: u16,
     pub old_initial_margin_rate: u16,

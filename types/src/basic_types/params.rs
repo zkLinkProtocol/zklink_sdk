@@ -29,6 +29,7 @@ pub const MAX_SLOT_ID: SlotId = SlotId(TOTAL_SLOT_NUMBER as u32 - 1);
 
 /// contract pair number bit width
 pub const PAIR_BIT_WIDTH: usize = 8;
+pub const PAIR_SYMBOL_BYTES: usize = 15;
 /// slot number bit width
 pub const SLOT_BIT_WIDTH: usize = 16;
 /// Order nonce bit width

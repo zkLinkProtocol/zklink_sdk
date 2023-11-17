@@ -381,8 +381,7 @@ interface Parameter {
     InsuranceFundAccount(AccountId account_id);
     MarginInfo(MarginId margin_id, TokenId token_id, u8 ratio);
     FundingInfos( sequence<FundingInfo> infos );
-    InitialMarginRate(PairId pair_id, u16 rate);
-    MaintenanceMarginRate(PairId pair_id, u16 rate);
+    ContractInfo(PairId pair_id, string symbol, u16 initial_margin_rate, u16 maintenance_margin_rate);
 };
 
 interface AutoDeleveraging {
