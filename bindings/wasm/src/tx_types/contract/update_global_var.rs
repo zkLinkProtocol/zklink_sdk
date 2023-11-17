@@ -62,8 +62,7 @@ pub enum ParameterType {
     InsuranceFundAccount,
     MarginInfo,
     FundingInfos,
-    InitialMarginRate,
-    MaintenanceMarginRate,
+    ContractInfo,
 }
 
 #[wasm_bindgen]
@@ -98,6 +97,33 @@ impl MarginInfo {
             margin_id,
             token_id,
             ratio,
+        }
+    }
+}
+
+#[wasm_bindgen]
+#[derive(Deserialize)]
+pub struct ContractInfo {
+    pair_id: u8,
+    symbol: String,
+    initial_margin_rate: u16,
+    maintenance_margin_rate: u16,
+}
+
+#[wasm_bindgen]
+impl ContractInfo {
+    #[wasm_bindgen(constructor)]
+    pub fn new(
+        pair_id: u8,
+        symbol: String,
+        initial_margin_rate: u16,
+        maintenance_margin_rate: u16,
+    ) -> ContractInfo {
+        ContractInfo {
+            pair_id,
+            symbol,
+            initial_margin_rate,
+            maintenance_margin_rate,
         }
     }
 }
@@ -146,20 +172,14 @@ impl From<Parameter> for ContractParameter {
                     serde_wasm_bindgen::from_value(parameter.parameter_value).unwrap();
                 ContractParameter::FundingInfos { infos: value }
             }
-            ParameterType::InitialMarginRate => {
-                let value: MarginRate =
+            ParameterType::ContractInfo => {
+                let value: ContractInfo =
                     serde_wasm_bindgen::from_value(parameter.parameter_value).unwrap();
-                ContractParameter::InitialMarginRate {
+                ContractParameter::ContractInfo {
                     pair_id: value.pair_id.into(),
-                    rate: value.rate,
-                }
-            }
-            ParameterType::MaintenanceMarginRate => {
-                let value: MarginRate =
-                    serde_wasm_bindgen::from_value(parameter.parameter_value).unwrap();
-                ContractParameter::MaintenanceMarginRate {
-                    pair_id: value.pair_id.into(),
-                    rate: value.rate,
+                    symbol: value.symbol,
+                    initial_margin_rate: value.initial_margin_rate,
+                    maintenance_margin_rate: value.maintenance_margin_rate,
                 }
             }
         }
