@@ -189,6 +189,8 @@ pub struct FullExitBuilder {
     pub exit_address: ZkLinkAddress,
     pub l2_source_token: TokenId,
     pub l1_target_token: TokenId,
+    pub contract_prices: Vec<ContractPrice>,
+    pub margin_prices: Vec<SpotPriceInfo>,
     pub serial_id: u64,
     pub eth_hash: H256,
 }
@@ -203,6 +205,10 @@ impl FullExitBuilder {
             exit_address: self.exit_address,
             l2_source_token: self.l2_source_token,
             l1_target_token: self.l1_target_token,
+            oracle_prices: OraclePrices {
+                contract_prices: self.contract_prices,
+                margin_prices: self.margin_prices,
+            },
             serial_id: self.serial_id,
             eth_hash: self.eth_hash,
         }

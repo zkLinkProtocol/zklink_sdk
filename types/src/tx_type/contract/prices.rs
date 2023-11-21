@@ -1,6 +1,9 @@
 use crate::basic_types::pad::pad_front;
 use crate::basic_types::{GetBytes, PairId, TokenId};
-use crate::params::{CONTRACT_PRICE_BYTES, MARGIN_PRICE_BYTES, PRICE_BIT_WIDTH};
+use crate::params::{
+    CONTRACT_PRICE_BYTES, MARGIN_PRICE_BYTES, MARGIN_TOKENS_NUMBER, PRICE_BIT_WIDTH,
+    USED_POSITION_NUMBER,
+};
 use crate::prelude::validator::*;
 use num::BigUint;
 use serde::{Deserialize, Serialize};
@@ -63,7 +66,7 @@ impl GetBytes for SpotPriceInfo {
 }
 
 /// The current margin token price, used to handle Liquidation and ADL
-#[derive(Default, Debug, Clone, Serialize, Deserialize, Validate)]
+#[derive(Debug, Clone, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct OraclePrices {
     /// The current prices of all contracts
@@ -74,6 +77,22 @@ pub struct OraclePrices {
     #[validate]
     #[validate(custom = "margin_prices_validator")]
     pub margin_prices: Vec<SpotPriceInfo>,
+}
+
+impl Default for OraclePrices {
+    fn default() -> Self {
+        Self {
+            contract_prices: (0..USED_POSITION_NUMBER)
+                .map(|pair_id| ContractPrice {
+                    pair_id: PairId(pair_id as u16),
+                    ..Default::default()
+                })
+                .collect(),
+            margin_prices: (0..MARGIN_TOKENS_NUMBER)
+                .map(|_| SpotPriceInfo::default())
+                .collect(),
+        }
+    }
 }
 
 impl OraclePrices {

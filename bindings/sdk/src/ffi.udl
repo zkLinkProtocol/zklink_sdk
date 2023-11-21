@@ -151,6 +151,8 @@ dictionary FullExitBuilder {
     ZkLinkAddress exit_address;
     TokenId l2_source_token;
     TokenId l1_target_token;
+    sequence<ContractPrice> contract_prices;
+    sequence<SpotPriceInfo> margin_prices;
     u64 serial_id;
     H256 eth_hash;
 };
