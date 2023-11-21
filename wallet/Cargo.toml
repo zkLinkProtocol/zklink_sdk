@@ -13,7 +13,6 @@ thiserror = "1.0"
 wasm-bindgen = { version = "0.2.87", features = ["serde-serialize"] }
 zklink_sdk_signers = { path = "../signers" }
 zklink_sdk_types = { path = "../types" }
-getrandom = { version = "0.2.10", features = ["js"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
