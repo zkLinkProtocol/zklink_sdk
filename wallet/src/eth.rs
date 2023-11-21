@@ -17,7 +17,7 @@ pub struct EthTxOption {
 }
 
 #[derive(Clone, Default)]
-pub struct EthParam {
+pub struct EthTxParam {
     pub(crate) is_support_eip1559: bool,
     pub(crate) to: Address,
     pub(crate) data: Option<Vec<u8>>,
@@ -27,9 +27,9 @@ pub struct EthParam {
     pub(crate) gas_price: Option<U256>,
 }
 
-impl From<EthTxOption> for EthParam {
-    fn from(eth_tx_option: EthTxOption) -> EthParam {
-        EthParam {
+impl From<EthTxOption> for EthTxParam {
+    fn from(eth_tx_option: EthTxOption) -> EthTxParam {
+        EthTxParam {
             is_support_eip1559: eth_tx_option.is_support_eip1559,
             to: Address::from_slice(eth_tx_option.to.as_bytes()),
             data: None,
@@ -45,7 +45,7 @@ impl From<EthTxOption> for EthParam {
     }
 }
 
-pub fn new_typed_tx(from: Address, tx_params: EthParam, chain_id: u64) -> TypedTransaction {
+pub fn new_typed_tx(from: Address, tx_params: EthTxParam, chain_id: u64) -> TypedTransaction {
     let mut tx = if tx_params.is_support_eip1559 {
         TypedTransaction::Eip1559(Eip1559TransactionRequest::new())
     } else {
