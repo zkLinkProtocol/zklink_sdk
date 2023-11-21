@@ -16,13 +16,13 @@ global.AbortController = AbortController;
 
 async function testEcdsaAuth() {
     const private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
-    const main_contract = "0x5505a8cD4594Dbf79d8C59C0Df1414AB871CA896";
+    const main_contract = "0x49ea5715b7aae82e0dece40a9263797e5a12cfb9";
     const l1_client_id = 80001;
-    const new_pubkey_hash = "0xd8d5fb6a6caef06aa3dc2abdcdc240987e5330fe";
+    const new_pubkey_hash = "0x0043a38170c9fe8ff718bb86435814468a616044";
     const ts  = Math.floor(Date.now() / 1000);
     try {
         let tx_builder = new ChangePubKeyBuilder(
-            1,5,1,new_pubkey_hash,18,"100000000000000",
+            2,31,0,new_pubkey_hash,17,"0",
             1,"0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001b",
             ts);
         let tx = newChangePubkey(tx_builder);

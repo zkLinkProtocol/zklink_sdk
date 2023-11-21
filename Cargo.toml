@@ -8,6 +8,7 @@ members = [
     "signers",
     "types",
     "utils",
+    "wallet"
 ]
 default-members = [
     "signers",
@@ -15,6 +16,7 @@ default-members = [
     "types",
     "provider",
     "interface",
+    "wallet"
 ]
 exclude = ["examples/Rust/rust_sdk_example"]
 
