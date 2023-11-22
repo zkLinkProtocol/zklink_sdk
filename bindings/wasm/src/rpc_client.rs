@@ -89,10 +89,13 @@ pub struct RpcClient {
 #[wasm_bindgen]
 impl RpcClient {
     #[wasm_bindgen(constructor)]
-    pub fn new(network: &str) -> RpcClient {
-        RpcClient {
-            server_url: Network::from_str(network).unwrap().url().to_owned(),
-        }
+    pub fn new(network: &str, custom_url: Option<String>) -> RpcClient {
+        let server_url = if let Ok(network) = Network::from_str(network) {
+            network.url().to_owned()
+        } else {
+            custom_url.unwrap()
+        };
+        RpcClient { server_url }
     }
 
     #[wasm_bindgen(js_name=getSupportTokens)]

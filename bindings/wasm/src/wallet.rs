@@ -1,114 +1,160 @@
-use crate::error::ClientError;
-use crate::signer::Signer;
-use crate::{AccountType, Wallet};
-use num::BigUint;
-use zklink_sdk_interface::{ChangePubKeyAuthRequest, TxSignature};
-use zklink_sdk_provider::response::{AccountQuery, ChainResp, TokenResp, AccountInfoResp};
-use zklink_sdk_provider::rpc::ZkLinkRpcClient;
-use zklink_sdk_signers::eth_signer::eth_signature::TxEthSignature;
-use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
-
-use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
-use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
-use zklink_sdk_types::basic_types::params::MAIN_SUB_ACCOUNT_ID;
-use zklink_sdk_types::basic_types::tx_hash::TxHash;
-use zklink_sdk_types::basic_types::{AccountId, ChainId, Nonce, SubAccountId, TokenId, ZkLinkAddress};
-use zklink_sdk_types::tx_type::order_matching::Order;
-use std::collections::HashMap;
+use std::str::FromStr;
+use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
+use zklink_sdk_types::basic_types::BigUint;
+use zklink_sdk_types::prelude::ZkLinkAddress;
+use zklink_sdk_wallet::eth::EthTxOption as InnerEthTxOption;
+use zklink_sdk_wallet::wallet::Wallet as InnerWallet;
+
+#[wasm_bindgen]
+pub struct EthTxOption {
+    inner: InnerEthTxOption,
+}
+
+#[wasm_bindgen]
+impl EthTxOption {
+    #[wasm_bindgen(constructor)]
+    pub fn new(
+        is_support_eip1559: bool,
+        to: String,
+        nonce: Option<f64>,
+        value: Option<String>,
+        gas: Option<f64>,
+        gas_price: Option<String>,
+    ) -> Result<EthTxOption, JsValue> {
+        let value = if let Some(v) = value {
+            Some(
+                BigUint::from_str(&v)
+                    .map_err(|error| JsValue::from_str(&format!("error: {error}")))?,
+            )
+        } else {
+            None
+        };
+
+        let gas_price = if let Some(g) = gas_price {
+            Some(
+                BigUint::from_str(&g)
+                    .map_err(|error| JsValue::from_str(&format!("error: {error}")))?,
+            )
+        } else {
+            None
+        };
+        let inner = InnerEthTxOption {
+            is_support_eip1559,
+            to: ZkLinkAddress::from_str(&to)
+                .map_err(|error| JsValue::from_str(&format!("error: {error}")))?,
+            nonce: nonce.map(|n| n as u64),
+            value,
+            gas: gas.map(|g| g as u64),
+            gas_price,
+        };
+        Ok(EthTxOption { inner })
+    }
+
+    pub fn json_value(&self) -> Result<JsValue, JsValue> {
+        Ok(serde_wasm_bindgen::to_value(&self.inner)?)
+    }
+}
 
 #[wasm_bindgen]
 pub struct Wallet {
-    pub provider: ZkLinkRpcProvider,
-    pub address: ZklinkAddress,
-    pub account_info: AccountInfoResp,
-    pub account_type: AccountType,
-    pub chains: HashMap<ChainId, ChainResp>,
-    pub tokens: HashMap<TokenId, TokenResp>,
+    inner: InnerWallet,
 }
 
 #[wasm_bindgen]
 impl Wallet {
-    #[wasm_bindgen]
-    pub async fn new(
-        provider: ZkLinkRpcProvider,
-        address: ZkLinkAddress,
-        account_type: AccountType,
-    ) -> Result<Wallet, JsValue> {
-        let chains = provider.get_support_chains().await?;
-        let chains = chains.iter().map(|c| (c.chain_id, c.clone())).collect();
-        let tokens = provider.tokens().await?;
-        let account_info = provider
-            .account_info(AccountQuery::Address(address.clone()))
-            .await?;
+    #[wasm_bindgen(constructor)]
+    pub fn new(url: &str, private_key: &str) -> Result<Wallet, JsValue> {
+        let inner = InnerWallet::new(url, private_key);
+        Ok(Wallet { inner })
+    }
 
-        let wallet = Wallet {
-            provider,
-            address,
-            account_info,
-            account_type,
-            chains,
-            tokens,
+    #[wasm_bindgen(js_name=approveERC20)]
+    pub async fn approve_erc20(
+        &self,
+        contract: String,
+        amount: String,
+        eth_params: EthTxOption,
+    ) -> Result<String, JsValue> {
+        let contract = ZkLinkAddress::from_str(&contract)
+            .map_err(|error| JsValue::from_str(&format!("error: {error}")))?;
+        let amount = BigUint::from_str(&amount)
+            .map_err(|error| JsValue::from_str(&format!("error: {error}")))?;
+        let eth_params: InnerEthTxOption =
+            serde_wasm_bindgen::from_value(eth_params.json_value().unwrap()).unwrap();
+        let tx_hash = self
+            .inner
+            .approve_erc20(contract, amount, eth_params)
+            .await?;
+        Ok(tx_hash.to_string())
+    }
+
+    #[wasm_bindgen(js_name=depositERC20)]
+    pub async fn deposit_erc20(
+        &self,
+        sub_account_id: u8,
+        deposit_to: String,
+        token_addr: String,
+        amount: String,
+        mapping: bool,
+        eth_params: EthTxOption,
+        is_gateway: bool,
+    ) -> Result<String, JsValue> {
+        let deposit_to = ZkLinkAddress::from_str(&deposit_to)
+            .map_err(|error| JsValue::from_str(&format!("error: {error}")))?;
+        let token_addr = ZkLinkAddress::from_str(&token_addr)
+            .map_err(|error| JsValue::from_str(&format!("error: {error}")))?;
+        let amount = BigUint::from_str(&amount)
+            .map_err(|error| JsValue::from_str(&format!("error: {error}")))?;
+        let eth_params: InnerEthTxOption =
+            serde_wasm_bindgen::from_value(eth_params.json_value().unwrap()).unwrap();
+        let tx_hash = if !is_gateway {
+            self.inner
+                .deposit_erc20_to_layer1(
+                    sub_account_id,
+                    deposit_to,
+                    token_addr,
+                    amount,
+                    mapping,
+                    eth_params,
+                )
+                .await?
+        } else {
+            self.inner
+                .deposit_erc20_to_gateway(
+                    sub_account_id,
+                    deposit_to,
+                    token_addr,
+                    amount,
+                    mapping,
+                    eth_params,
+                )
+                .await?
         };
-
-        Ok(wallet)
+        Ok(tx_hash.to_string())
     }
 
-    /// Returns the wallet address.
-    #[wasm_bindgen]
-    pub fn address(&self) -> ZkLinkAddress {
-        self.address.clone()
-    }
-
-    /// Returns the current account id
-    #[wasm_bindgen]
-    pub fn account_id(&self) -> AccountId {
-        self.account_info.id
-    }
-
-    /// Returns the current account pub key hash
-    #[wasm_bindgen]
-    pub fn account_pubkey_hash(&self) -> PubKeyHash {
-        self.account_info.pub_key_hash
-    }
-
-    #[wasm_bindgen]
-    pub fn account_nonce(&self) -> Nonce {
-        self.account_info.nonce
-    }
-
-    /// Updates account info stored in the wallet.
-    #[wasm_bindgen]
-    pub async fn update_account_info(&mut self) -> Result<(), JsValue> {
-        self.account_info = self
-            .provider
-            .account_info(AccountQuery::Address(self.address.clone()))
-            .await?;
-
-        Ok(())
-    }
-
-    /// Returns `true` if signing key for account was set in zkLink network.
-    /// In other words, returns `true` if `ChangePubKey` operation was performed for the
-    /// account.
-    ///
-    /// If this method has returned `false`, one must send a `ChangePubKey` transaction
-    /// via `Wallet::start_change_pubkey` method.
-    #[wasm_bindgen]
-    pub async fn is_signing_key_set(&self) -> Result<bool, JsValue> {
-        let signer_pub_key_hash = self.signer.pub_key_hash;
-
-        let key_set = self.account_pubkey_hash() == signer_pub_key_hash;
-        Ok(key_set)
-    }
-
-    #[wasm_bindgen]
-    pub fn get_chain(&self, chain_id: &ChainId) -> Option<ChainResp> {
-        self.chains.get(chain_id).cloned()
-    }
-
-    #[wasm_bindgen]
-    pub fn get_token(&self, token_id: &TokenId) -> Option<TokenResp> {
-        self.tokens.get(token_id).cloned()
+    #[wasm_bindgen(js_name=depositETH)]
+    pub async fn deposit_eth(
+        &self,
+        sub_account_id: u8,
+        deposit_to: String,
+        eth_params: EthTxOption,
+        is_gateway: bool,
+    ) -> Result<String, JsValue> {
+        let deposit_to = ZkLinkAddress::from_str(&deposit_to)
+            .map_err(|error| JsValue::from_str(&format!("error: {error}")))?;
+        let eth_params: InnerEthTxOption =
+            serde_wasm_bindgen::from_value(eth_params.json_value().unwrap()).unwrap();
+        let tx_hash = if !is_gateway {
+            self.inner
+                .deposit_eth_to_layer1(sub_account_id, deposit_to, eth_params)
+                .await?
+        } else {
+            self.inner
+                .deposit_eth_to_gateway(sub_account_id, deposit_to, eth_params)
+                .await?
+        };
+        Ok(tx_hash.to_string())
     }
 }

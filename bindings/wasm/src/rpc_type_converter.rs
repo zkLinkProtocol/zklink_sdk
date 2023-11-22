@@ -70,7 +70,7 @@ impl From<AccountQuery> for RpcAccountQuery {
 
 #[wasm_bindgen]
 impl TxLayer1Signature {
-    #[wasm_bindgen]
+    #[wasm_bindgen(constructor)]
     pub fn new(sign_type: L1SignatureType, signature: String) -> TxLayer1Signature {
         TxLayer1Signature {
             sign_type,

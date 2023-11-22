@@ -7,5 +7,6 @@ pub mod rpc_type_converter;
 pub mod signer;
 pub mod tx_types;
 pub mod utils;
+pub mod wallet;
 
 extern crate getrandom;
