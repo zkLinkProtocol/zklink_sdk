@@ -4,7 +4,7 @@ use crate::sign_forced_exit::sign_forced_exit;
 use crate::sign_liquidation::sign_liquidation;
 use crate::sign_transfer::sign_transfer;
 use crate::sign_withdraw::sign_withdraw;
-use zklink_sdk_types::prelude::TxSignature;
+use zklink_sdk_types::prelude::{TxSignature, PubKeyHash};
 
 use crate::do_submitter_signature;
 use crate::sign_change_pubkey::{
@@ -57,6 +57,11 @@ impl Signer {
             zklink_signer,
             eth_signer,
         })
+    }
+
+    #[inline]
+    pub fn pubkey_hash(&self) -> PubKeyHash {
+        self.zklink_signer.public_key().public_key_hash()
     }
 
     #[inline]

@@ -5,11 +5,13 @@ use zklink_sdk_provider::response::AccountQuery as RpcAccountQuery;
 use zklink_sdk_signers::eth_signer::{EIP1271Signature, PackedEthSignature};
 use zklink_sdk_signers::starknet_signer::StarkECDSASignature;
 use zklink_sdk_types::basic_types::AccountId;
-use zklink_sdk_types::prelude::ZkLinkAddress;
+use zklink_sdk_types::prelude::{ZkLinkAddress, PackedPublicKey};
 use zklink_sdk_types::signatures::TxLayer1Signature as TypesTxLayer1Signature;
+use zklink_sdk_types::prelude::ZkLinkSignature;
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey;
 use zklink_sdk_types::tx_type::transfer::Transfer;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx as TypesZkLinkTx;
+use zklink_sdk_signers::zklink_signer::PackedSignature;
 
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
@@ -39,9 +41,26 @@ pub struct TxLayer1Signature {
 }
 
 #[wasm_bindgen]
+pub struct TxZkLinkSignature {
+    pub(crate) pub_key: String,
+    pub(crate) signature: String,
+}
+
+#[wasm_bindgen]
 pub struct ZkLinkTx {
     tx_type: u8,
     tx: JsValue,
+}
+
+#[wasm_bindgen]
+impl TxZkLinkSignature {
+    #[wasm_bindgen(constructor)]
+    pub fn new(pub_key: String, signature: String) -> TxZkLinkSignature {
+        TxZkLinkSignature {
+            pub_key,
+            signature,
+        }
+    }
 }
 
 #[wasm_bindgen]
@@ -95,6 +114,23 @@ impl From<TxLayer1Signature> for TypesTxLayer1Signature {
     }
 }
 
+impl From<TxZkLinkSignature> for ZkLinkSignature {
+    fn from(signature: TxZkLinkSignature) -> ZkLinkSignature {
+        ZkLinkSignature {
+            pub_key: PackedPublicKey::from_hex(&signature.pub_key).unwrap(),
+            signature: PackedSignature::from_hex(&signature.signature).unwrap(),
+        }
+    }
+}
+
+impl From<ZkLinkSignature> for TxZkLinkSignature {
+    fn from(signature: ZkLinkSignature) -> TxZkLinkSignature {
+        TxZkLinkSignature {
+            pub_key: signature.pub_key.as_hex(),
+            signature: signature.signature.as_hex(),
+        }
+    }
+}
 #[wasm_bindgen]
 impl ZkLinkTx {
     #[wasm_bindgen(constructor)]

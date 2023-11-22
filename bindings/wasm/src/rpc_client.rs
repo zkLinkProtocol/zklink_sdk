@@ -1,4 +1,4 @@
-use crate::rpc_type_converter::{AccountQuery, TxLayer1Signature};
+use crate::rpc_type_converter::{AccountQuery, TxLayer1Signature, TxZkLinkSignature};
 use getrandom::getrandom;
 use jsonrpsee::core::params::ArrayParams;
 use jsonrpsee::core::traits::ToRpcParams;
@@ -128,13 +128,13 @@ impl RpcClient {
         &self,
         tx: JsValue,
         l1_signature: Option<TxLayer1Signature>,
-        l2_signature: Option<String>,
+        l2_signature: Option<TxZkLinkSignature>,
     ) -> Result<JsValue, JsValue> {
         let mut builder = ArrayParams::new();
         let zklink_tx: ZkLinkTx = serde_wasm_bindgen::from_value(tx)?;
         let _ = builder.insert(zklink_tx);
         let _ = builder.insert(l1_signature.map(|t| TypesTxLayer1Signature::from(t)));
-        let _ = builder.insert(l2_signature.map(|s| ZkLinkSignature::from_hex(&s).unwrap()));
+        let _ = builder.insert(l2_signature.map(|s| ZkLinkSignature::from(s)));
         rpc_request!("sendTransaction", builder, &self.server_url, TxHash)
     }
 

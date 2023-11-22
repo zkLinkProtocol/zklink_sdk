@@ -24,6 +24,7 @@ use zklink_sdk_types::tx_type::order_matching::{
 use zklink_sdk_types::tx_type::transfer::Transfer as TxTransfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw as TxWithdraw;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
+use crate::rpc_type_converter::TxZkLinkSignature;
 
 #[wasm_bindgen]
 pub struct Signer {
@@ -36,6 +37,11 @@ impl Signer {
     pub fn new(private_key: &str) -> Result<Signer, JsValue> {
         let inner = InterfaceSigner::new(private_key)?;
         Ok(Signer { inner })
+    }
+
+    #[wasm_bindgen(js_name=getPubkeyHash)]
+    pub fn get_pubkey_hash(&self) -> String {
+        self.inner.pubkey_hash().as_hex()
     }
 
     #[wasm_bindgen(js_name=signChangePubkeyWithEthEcdsaAuth)]
@@ -145,9 +151,9 @@ impl Signer {
     }
 
     #[wasm_bindgen(js_name=submitterSignature)]
-    pub fn submitter_signature(&self, tx: JsValue) -> Result<String, JsValue> {
+    pub fn submitter_signature(&self, tx: JsValue) -> Result<TxZkLinkSignature, JsValue> {
         let zklink_tx: ZkLinkTx = serde_wasm_bindgen::from_value(tx)?;
         let zklink_signature = self.inner.submitter_signature(&zklink_tx)?;
-        Ok(zklink_signature.as_hex())
+        Ok(zklink_signature.into())
     }
 }
