@@ -205,6 +205,10 @@ mod test {
             vec![12, 1, 1, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0],
             vec![12, 1, 1, 1, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0],
             vec![12, 1, 1, 2, 1, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            vec![
+                12, 1, 1, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 66, 84, 67, 85, 83, 68, 67, 0, 6, 0, 8, 0,
+                0, 0, 0, 0, 0, 0, 0,
+            ],
         ];
         for (param, excepted_bytes) in params.into_iter().zip(excepted_bytes) {
             let builder = UpdateGlobalVarBuilder {

@@ -2,6 +2,7 @@ use super::validator::*;
 use crate::basic_types::{AccountId, ChainId, GetBytes, SubAccountId, TokenId, ZkLinkAddress};
 #[cfg(feature = "ffi")]
 use crate::prelude::FullExitBuilder;
+use crate::prelude::OraclePrices;
 use crate::tx_type::TxTrait;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
@@ -24,6 +25,9 @@ pub struct FullExit {
     pub l2_source_token: TokenId,
     #[validate(custom = "token_validator")]
     pub l1_target_token: TokenId,
+    /// Contains required mark prices for all margin tokens and contracts from Oracle(e.g. ChainLink, Band, Api3)
+    #[validate]
+    pub oracle_prices: OraclePrices,
     pub serial_id: u64,
     pub eth_hash: H256,
 }
@@ -39,7 +43,7 @@ impl GetBytes for FullExit {
     fn get_bytes(&self) -> Vec<u8> {
         let bytes_len = self.bytes_len();
         let mut out = Vec::with_capacity(bytes_len);
-        out.extend_from_slice(&self.serial_id.to_be_bytes());
+        out.extend(self.serial_id.to_be_bytes());
         out.extend_from_slice(self.eth_hash.as_bytes());
         assert_eq!(out.len(), bytes_len);
         out
@@ -58,12 +62,13 @@ mod test {
     use std::str::FromStr;
 
     #[test]
-    fn test_force_exit_get_bytes() {
+    fn test_full_exit_get_bytes() {
         let address =
             ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
         let eth_hash =
             H256::from_str("0xe35f3a39d542f6d276c2f203e8fd64fcb8bf5db062b71ccacf45d5ecd9d456f3")
                 .unwrap();
+        let default_oracle_price = OraclePrices::default();
         let builder = FullExitBuilder {
             to_chain_id: ChainId(1),
             account_id: AccountId(10),
@@ -71,6 +76,8 @@ mod test {
             exit_address: address,
             l2_source_token: TokenId(18),
             l1_target_token: TokenId(18),
+            contract_prices: default_oracle_price.contract_prices,
+            margin_prices: default_oracle_price.margin_prices,
             serial_id: 100,
             eth_hash,
         };
