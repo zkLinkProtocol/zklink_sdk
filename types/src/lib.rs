@@ -6,6 +6,8 @@ pub mod tx_type;
 pub mod utils;
 
 pub mod prelude {
+    pub use validator::Validate;
+
     pub use super::basic_types::{
         bit_convert::BitConvert,
         float_convert::FloatConversions,

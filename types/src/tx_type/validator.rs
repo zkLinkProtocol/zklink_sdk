@@ -12,7 +12,7 @@ use crate::prelude::{
     SubAccountId, TokenId, ZkLinkAddress,
 };
 use num::BigUint;
-use validator::{Validate, ValidationError};
+pub use validator::{Validate, ValidationError};
 
 /// Check transaction account value validation
 ///
