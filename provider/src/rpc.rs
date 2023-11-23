@@ -118,11 +118,4 @@ pub trait ZkLinkRpc {
         eth_signature: Option<TxLayer1Signature>,
         submitter_signature: Option<ZkLinkSignature>,
     ) -> RpcResult<TxHash>;
-
-    #[method(name = "confirmFullExit")]
-    async fn confirm_full_exit(
-        &self,
-        tx_hash: TxHash,
-        submitter_signature: ZkLinkSignature,
-    ) -> RpcResult<bool>;
 }
