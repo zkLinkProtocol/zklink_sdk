@@ -543,7 +543,7 @@ interface Signer {
     [Throws=SignError]
     TxSignature sign_change_pubkey_with_onchain_auth_data(ChangePubKey tx);
     [Throws=SignError]
-    TxSignature sign_change_pubkey_with_eth_ecdsa_auth(ChangePubKey tx, u32 l1_client_id, ZkLinkAddress main_contract_address);
+    TxSignature sign_change_pubkey_with_eth_ecdsa_auth(ChangePubKey tx);
     [Throws=SignError]
     TxSignature sign_transfer(Transfer tx, [ByRef]string token_sybmol);
     [Throws=SignError]

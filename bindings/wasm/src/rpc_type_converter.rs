@@ -4,14 +4,14 @@ use wasm_bindgen::JsValue;
 use zklink_sdk_provider::response::AccountQuery as RpcAccountQuery;
 use zklink_sdk_signers::eth_signer::{EIP1271Signature, PackedEthSignature};
 use zklink_sdk_signers::starknet_signer::StarkECDSASignature;
+use zklink_sdk_signers::zklink_signer::PackedSignature;
 use zklink_sdk_types::basic_types::AccountId;
-use zklink_sdk_types::prelude::{ZkLinkAddress, PackedPublicKey};
-use zklink_sdk_types::signatures::TxLayer1Signature as TypesTxLayer1Signature;
 use zklink_sdk_types::prelude::ZkLinkSignature;
+use zklink_sdk_types::prelude::{PackedPublicKey, ZkLinkAddress};
+use zklink_sdk_types::signatures::TxLayer1Signature as TypesTxLayer1Signature;
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey;
 use zklink_sdk_types::tx_type::transfer::Transfer;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx as TypesZkLinkTx;
-use zklink_sdk_signers::zklink_signer::PackedSignature;
 
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
@@ -42,8 +42,8 @@ pub struct TxLayer1Signature {
 
 #[wasm_bindgen]
 pub struct TxZkLinkSignature {
-    pub(crate) pub_key: String,
-    pub(crate) signature: String,
+    pub_key: String,
+    signature: String,
 }
 
 #[wasm_bindgen]
@@ -56,10 +56,7 @@ pub struct ZkLinkTx {
 impl TxZkLinkSignature {
     #[wasm_bindgen(constructor)]
     pub fn new(pub_key: String, signature: String) -> TxZkLinkSignature {
-        TxZkLinkSignature {
-            pub_key,
-            signature,
-        }
+        TxZkLinkSignature { pub_key, signature }
     }
 }
 
@@ -98,6 +95,18 @@ impl TxLayer1Signature {
     }
 }
 
+#[wasm_bindgen]
+impl TxLayer1Signature {
+    #[wasm_bindgen(js_name=signType)]
+    pub fn sign_type(&self) -> L1SignatureType {
+        self.sign_type
+    }
+    #[wasm_bindgen]
+    pub fn signature(&self) -> String {
+        self.signature.clone()
+    }
+}
+
 impl From<TxLayer1Signature> for TypesTxLayer1Signature {
     fn from(signature: TxLayer1Signature) -> TypesTxLayer1Signature {
         match signature.sign_type {
@@ -111,6 +120,18 @@ impl From<TxLayer1Signature> for TypesTxLayer1Signature {
                 hex::decode(signature.signature).unwrap(),
             )),
         }
+    }
+}
+
+#[wasm_bindgen]
+impl TxZkLinkSignature {
+    #[wasm_bindgen(js_name=pubKey)]
+    pub fn pub_key(&self) -> String {
+        self.pub_key.clone()
+    }
+    #[wasm_bindgen]
+    pub fn signature(&self) -> String {
+        self.signature.clone()
     }
 }
 

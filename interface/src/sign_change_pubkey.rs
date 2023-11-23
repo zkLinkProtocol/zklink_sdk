@@ -90,16 +90,14 @@ pub fn do_sign_change_pubkey_with_eth_ecdsa_auth(
     eth_signer: &EthSigner,
     zklink_signer: &ZkLinkSigner,
     mut tx: ChangePubKey,
-    l1_client_id: u32,
-    main_contract_address: ZkLinkAddress,
 ) -> Result<TxSignature, SignError> {
     tx.sign(zklink_signer)?;
     let should_valid = tx.is_signature_valid();
     assert!(should_valid);
 
     // create auth data
-    let typed_data = tx.to_eip712_request_payload(l1_client_id, &main_contract_address)?;
-    let eth_signature = eth_signer.sign_hash(typed_data.data_hash.as_bytes())?;
+    let eth_sign_msg = ChangePubKey::get_eth_sign_msg(&tx.new_pk_hash, tx.nonce, tx.account_id);
+    let eth_signature = eth_signer.sign_message(eth_sign_msg.as_bytes())?;
     tx.eth_auth_data = ChangePubKeyAuthData::EthECDSA { eth_signature };
 
     Ok(TxSignature {

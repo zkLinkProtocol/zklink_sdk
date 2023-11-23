@@ -5,32 +5,19 @@ use jsonrpsee::core::traits::ToRpcParams;
 use jsonrpsee::types::request::Request;
 use jsonrpsee::types::Id;
 use serde::Deserialize;
-use std::collections::HashMap;
 use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_provider::error::RpcError;
 use zklink_sdk_provider::network::Network;
-use zklink_sdk_provider::response::{
-    AccountInfoResp, AccountQuery as RpcAccountQuery, AccountSnapshotResp, BlockNumberResp,
-    BlockOnChainResp, BlockResp, ChainResp, FastWithdrawTxResp, ForwardTxResp, Page,
-    SubAccountBalances, SubAccountOrders, TokenResp, TxHashOrDetailResp, TxResp, ZkLinkTxHistory,
-};
+use zklink_sdk_provider::response::AccountQuery as RpcAccountQuery;
 use zklink_sdk_signers::zklink_signer::ZkLinkSignature;
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
-use zklink_sdk_types::basic_types::{AccountId, BlockNumber, ChainId, SubAccountId, TokenId};
-use zklink_sdk_types::prelude::BigUintSerdeWrapper;
+use zklink_sdk_types::basic_types::{AccountId, BlockNumber, SubAccountId, TokenId};
 use zklink_sdk_types::prelude::ZkLinkAddress;
 use zklink_sdk_types::signatures::TxLayer1Signature as TypesTxLayer1Signature;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTxType;
-
-#[derive(Deserialize, Clone)]
-pub struct ErrMsg {
-    #[allow(dead_code)]
-    code: i32,
-    message: String,
-}
 
 macro_rules! rpc_request {
     ($method:expr,$builder:expr, $server_url:expr, $resp_type: ty) => {{
@@ -48,24 +35,10 @@ macro_rules! rpc_request {
             .send()
             .await
             .map_err(RpcError::RequestError)?
-            .json::<HashMap<String, serde_json::Value>>()
+            .json::<serde_json::Value>()
             .await
             .map_err(RpcError::ResponseError)?;
-        if let Some(&ref result) = res.get("result") {
-            let resp = serde_json::from_value::<$resp_type>(result.clone());
-            match resp {
-                Ok(resp) => Ok(serde_wasm_bindgen::to_value(&resp)?),
-                Err(e) => Err(RpcError::ParseJsonError(e.to_string()).into()),
-            }
-        } else if let Some(&ref error) = res.get("error") {
-            let err_msg = serde_json::from_value::<ErrMsg>(error.clone());
-            match err_msg {
-                Ok(msg) => Err(RpcError::GetErrorResult(msg.message).into()),
-                Err(_) => Err(RpcError::GetErrorResult("Other error response".to_string()).into()),
-            }
-        } else {
-            Err(RpcError::GetErrorResult("Other error response".to_string()).into())
-        }
+        Ok(serde_wasm_bindgen::to_value(&res.to_string())?)
     }};
 }
 
@@ -131,7 +104,8 @@ impl RpcClient {
         l2_signature: Option<TxZkLinkSignature>,
     ) -> Result<JsValue, JsValue> {
         let mut builder = ArrayParams::new();
-        let zklink_tx: ZkLinkTx = serde_wasm_bindgen::from_value(tx)?;
+        let zklink_tx: ZkLinkTx =
+            serde_wasm_bindgen::from_value(tx).map_err(|_e| RpcError::InvalidInputParameter)?;
         let _ = builder.insert(zklink_tx);
         let _ = builder.insert(l1_signature.map(|t| TypesTxLayer1Signature::from(t)));
         let _ = builder.insert(l2_signature.map(|s| ZkLinkSignature::from(s)));
