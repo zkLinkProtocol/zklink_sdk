@@ -140,6 +140,24 @@ impl ZkLinkTx {
         }
     }
 
+    /// Check tx format
+    pub fn tx_type(&self) -> ZkLinkTxType {
+        match self {
+            ZkLinkTx::Transfer(_) => ZkLinkTxType::Transfer,
+            ZkLinkTx::Withdraw(_) => ZkLinkTxType::Withdraw,
+            ZkLinkTx::ChangePubKey(_) => ZkLinkTxType::ChangePubKey,
+            ZkLinkTx::ForcedExit(_) => ZkLinkTxType::ForcedExit,
+            ZkLinkTx::OrderMatching(_) => ZkLinkTxType::OrderMatching,
+            ZkLinkTx::Deposit(_) => ZkLinkTxType::Deposit,
+            ZkLinkTx::FullExit(_) => ZkLinkTxType::FullExit,
+            ZkLinkTx::ContractMatching(_) => ZkLinkTxType::ContractMatching,
+            ZkLinkTx::Liquidation(_) => ZkLinkTxType::Liquidation,
+            ZkLinkTx::AutoDeleveraging(_) => ZkLinkTxType::AutoDeleveraging,
+            ZkLinkTx::UpdateGlobalVar(_) => ZkLinkTxType::UpdateGlobalVar,
+            ZkLinkTx::Funding(_) => ZkLinkTxType::Funding,
+        }
+    }
+
     /// Check tx correct
     pub fn is_valid(&self) -> bool {
         match self {
@@ -206,6 +224,7 @@ impl ZkLinkTx {
             ZkLinkTx::ContractMatching(tx) => vec![tx.sub_account_id],
             ZkLinkTx::AutoDeleveraging(tx) => vec![tx.sub_account_id],
             ZkLinkTx::Funding(tx) => vec![tx.sub_account_id],
+            ZkLinkTx::UpdateGlobalVar(tx) => vec![tx.sub_account_id],
             _ => vec![],
         }
     }
