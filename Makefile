@@ -100,7 +100,7 @@ run_example_js_%:   ${ROOT_DIR}/examples/Javascript/node-example/%.js
 	@cd ${ROOT_DIR}/examples/Javascript/node-example && \
 	node $< \
 
-GO_FILES = 1_change_pubkey 2_withdraw 3_transfer 4_forced_exit 5_order_matching
+GO_FILES = 1_change_pubkey 2_withdraw 3_transfer 4_forced_exit 5_order_matching 6_contract_matching 7_auto_deleveraging 8_funding 9_liquidation
 RUN_GO_EXAMPLES = $(patsubst %, run_example_go_%, $(GO_FILES))
 run_example_go:  ${RUN_GO_EXAMPLES}
 

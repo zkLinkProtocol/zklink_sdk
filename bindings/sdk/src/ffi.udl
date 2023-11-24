@@ -553,6 +553,15 @@ interface Signer {
     [Throws=SignError]
     TxSignature sign_order_matching(OrderMatching tx);
     [Throws=SignError]
+    TxSignature sign_contract_matching(ContractMatching tx);
+    [Throws=SignError]
+    TxSignature sign_funding(Funding tx);
+    [Throws=SignError]
+    TxSignature sign_liquidation(Liquidation tx);
+    [Throws=SignError]
+    TxSignature sign_auto_deleveraging(AutoDeleveraging tx);
+
+    [Throws=SignError]
     ZkLinkSignature submitter_signature([ByRef] ZkLinkTx zklink_tx);
 };
 
