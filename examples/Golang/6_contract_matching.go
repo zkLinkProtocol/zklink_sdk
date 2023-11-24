@@ -22,67 +22,75 @@ type SubmiterSignature struct {
     Signature string `json:"signature"`
 }
 
-func HighLevelOrderMatching() {
+func HighLevelContractMatching() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
-    // create zklink signer
-	zklinkSigner, err := sdk.ZkLinkSignerNewFromHexEthSigner(privateKey)
-	if err != nil {
-		return
-	}
-    taker := sdk.NewOrder(
+
+	taker_contract_builder := sdk.ContractBuilder {
         sdk.AccountId(1),
         sdk.SubAccountId(1),
-        sdk.SlotId(3),
-        sdk.Nonce(1),
-        sdk.TokenId(18),
-        sdk.TokenId(145),
-        *big.NewInt(323289),
-        *big.NewInt(135),
+        sdk.SlotId(2),
+        sdk.Nonce(10),
+        sdk.PairId(1),
+        *big.NewInt(45454),
+        *big.NewInt(113),
         true,
-        true,
-        2,
         5,
-        nil,
-    )
-    taker, err = taker.CreateSignedOrder(
-        zklinkSigner,
-    )
+        3,
+        false,
+    }
 
-    maker := sdk.NewOrder(
-         sdk.AccountId(2),
-         sdk.SubAccountId(1),
-         sdk.SlotId(3),
-         sdk.Nonce(1),
-         sdk.TokenId(18),
-         sdk.TokenId(145),
-         *big.NewInt(323355),
-         *big.NewInt(135),
-         false,
-         true,
-         2,
-         5,
-         nil,
-    )
-    maker, err = maker.CreateSignedOrder(
-        zklinkSigner,
-    )
+    taker_contract := sdk.NewContract(taker_contract_builder)
 
-    builder := sdk.OrderMatchingBuilder{
+    maker_contract1_builder := sdk.ContractBuilder {
         sdk.AccountId(3),
         sdk.SubAccountId(1),
-        taker,
-        maker,
-        *big.NewInt(1000),
-        sdk.TokenId(18),
-        *big.NewInt(808077878),
-        *big.NewInt(5479779),
+        sdk.SlotId(2),
+        sdk.Nonce(6),
+        sdk.PairId(1),
+        *big.NewInt(43434),
+        *big.NewInt(6767),
+        true,
+        1,
+        2,
+        false,
     }
-    tx := sdk.NewOrderMatching(builder)
+
+    maker_contract2_builder := sdk.ContractBuilder {
+        sdk.AccountId(5),
+        sdk.SubAccountId(1),
+        sdk.SlotId(2),
+        sdk.Nonce(100),
+        sdk.PairId(1),
+        *big.NewInt(45656),
+        *big.NewInt(343),
+        true,
+        8,
+        20,
+        true,
+    }
+
+    maker_contract1 := sdk.NewContract(maker_contract1_builder)
+    maker_contract2 := sdk.NewContract(maker_contract2_builder)
+    var makers []*sdk.Contract
+    makers = make([]*sdk.Contract,2)
+    makers[0] = maker_contract1
+    makers[1] = maker_contract2
+
+    builder := sdk.ContractMatchingBuilder {
+        sdk.AccountId(1),
+        sdk.SubAccountId(1),
+        taker_contract,
+        makers,
+       *big.NewInt(5545),
+        sdk.TokenId(17),
+    }
+
+    tx := sdk.NewContractMatching(builder)
     signer, err := sdk.NewSigner(privateKey)
     if err != nil {
         return
     }
-    txSignature, err := signer.SignOrderMatching(tx)
+    txSignature, err := signer.SignContractMatching(tx)
     if err != nil {
         return
     }
@@ -95,6 +103,7 @@ func HighLevelOrderMatching() {
         PubKey: submitterSignature.PubKey,
         Signature: submitterSignature.Signature,
     })
+
 	rpc_req := RPCTransaction {
 		Id:      1,
 		JsonRpc: "2.0",
@@ -106,7 +115,7 @@ func HighLevelOrderMatching() {
 		},
     }
 	JsonTx, err := json.Marshal(rpc_req)
-	fmt.Println("ChangePubKey rpc request:",  string(JsonTx))
+	fmt.Println("ContractMatching rpc request:",  string(JsonTx))
 	// get the testnet url or main net url
 	zklinkUrl := sdk.ZklinkTestNetUrl()
 	response, err := http.Post(zklinkUrl, "application/json", bytes.NewBuffer(JsonTx))
@@ -120,5 +129,5 @@ func HighLevelOrderMatching() {
 }
 
 func main() {
-    HighLevelOrderMatching()
+    HighLevelContractMatching()
 }

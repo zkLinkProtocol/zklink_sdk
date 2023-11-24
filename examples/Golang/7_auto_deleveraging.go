@@ -22,67 +22,54 @@ type SubmiterSignature struct {
     Signature string `json:"signature"`
 }
 
-func HighLevelOrderMatching() {
+func HighLevelAutoDeleveraging() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
-    // create zklink signer
-	zklinkSigner, err := sdk.ZkLinkSignerNewFromHexEthSigner(privateKey)
-	if err != nil {
-		return
-	}
-    taker := sdk.NewOrder(
-        sdk.AccountId(1),
-        sdk.SubAccountId(1),
-        sdk.SlotId(3),
-        sdk.Nonce(1),
-        sdk.TokenId(18),
-        sdk.TokenId(145),
-        *big.NewInt(323289),
-        *big.NewInt(135),
-        true,
-        true,
-        2,
-        5,
-        nil,
-    )
-    taker, err = taker.CreateSignedOrder(
-        zklinkSigner,
-    )
+    contract_price1 := sdk.ContractPrice{
+        sdk.PairId(1),
+        *big.NewInt(656566),
+    }
 
-    maker := sdk.NewOrder(
-         sdk.AccountId(2),
-         sdk.SubAccountId(1),
-         sdk.SlotId(3),
-         sdk.Nonce(1),
-         sdk.TokenId(18),
-         sdk.TokenId(145),
-         *big.NewInt(323355),
-         *big.NewInt(135),
-         false,
-         true,
-         2,
-         5,
-         nil,
-    )
-    maker, err = maker.CreateSignedOrder(
-        zklinkSigner,
-    )
+    contract_price2 := sdk.ContractPrice{
+        sdk.PairId(3),
+        *big.NewInt(52552131),
+    }
 
-    builder := sdk.OrderMatchingBuilder{
+    var contract_prices = make([]sdk.ContractPrice,2)
+    contract_prices[0] = contract_price1
+    contract_prices[1] = contract_price2
+
+    margin_price1 := sdk.SpotPriceInfo {
+       sdk.TokenId(17),
+       *big.NewInt(3236653653635635),
+    }
+    margin_price2 := sdk.SpotPriceInfo {
+      sdk.TokenId(18),
+      *big.NewInt(549574875297),
+    }
+
+    var margin_prices = make([]sdk.SpotPriceInfo,2)
+    margin_prices[0] = margin_price1
+    margin_prices[1] = margin_price2
+
+    builder := sdk.AutoDeleveragingBuilder{
         sdk.AccountId(3),
         sdk.SubAccountId(1),
-        taker,
-        maker,
+        sdk.Nonce(9),
+        contract_prices,
+        margin_prices,
+        sdk.AccountId(7),
+        sdk.PairId(3),
         *big.NewInt(1000),
+        *big.NewInt(100000000000),
+         *big.NewInt(10000),
         sdk.TokenId(18),
-        *big.NewInt(808077878),
-        *big.NewInt(5479779),
     }
-    tx := sdk.NewOrderMatching(builder)
+    tx := sdk.NewAutoDeleveraging(builder)
     signer, err := sdk.NewSigner(privateKey)
     if err != nil {
         return
     }
-    txSignature, err := signer.SignOrderMatching(tx)
+    txSignature, err := signer.SignAutoDeleveraging(tx)
     if err != nil {
         return
     }
@@ -106,7 +93,7 @@ func HighLevelOrderMatching() {
 		},
     }
 	JsonTx, err := json.Marshal(rpc_req)
-	fmt.Println("ChangePubKey rpc request:",  string(JsonTx))
+	fmt.Println("AutoDeleveraging rpc request:",  string(JsonTx))
 	// get the testnet url or main net url
 	zklinkUrl := sdk.ZklinkTestNetUrl()
 	response, err := http.Post(zklinkUrl, "application/json", bytes.NewBuffer(JsonTx))
@@ -120,5 +107,5 @@ func HighLevelOrderMatching() {
 }
 
 func main() {
-    HighLevelOrderMatching()
+    HighLevelAutoDeleveraging()
 }
