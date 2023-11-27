@@ -2,8 +2,6 @@ import init, *  as wasm  from "./web-dist/zklink-sdk-web.js";
 
 async function testEcdsaAuth() {
     await init();
-    const main_contract = "0x5505a8cD4594Dbf79d8C59C0Df1414AB871CA896";
-    const l1_client_id = 80001;
     const new_pubkey_hash = "0xd8d5fb6a6caef06aa3dc2abdcdc240987e5330fe";
     const ts  = Math.floor(Date.now() / 1000);
     try {
@@ -14,7 +12,7 @@ async function testEcdsaAuth() {
         let tx = wasm.newChangePubkey(tx_builder);
         const signer = new wasm.JsonRpcSigner();
         await signer.initZklinkSigner();
-        let tx_signature = await signer.signChangePubkeyWithEthEcdsaAuth(tx,l1_client_id,main_contract);
+        let tx_signature = await signer.signChangePubkeyWithEthEcdsaAuth(tx);
         console.log(tx_signature);
 
         let submitter_signature = signer.submitterSignature(tx_signature.tx);

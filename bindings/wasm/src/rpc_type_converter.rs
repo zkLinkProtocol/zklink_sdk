@@ -42,8 +42,7 @@ pub struct TxLayer1Signature {
 
 #[wasm_bindgen]
 pub struct TxZkLinkSignature {
-    pub_key: String,
-    signature: String,
+    inner: ZkLinkSignature,
 }
 
 #[wasm_bindgen]
@@ -55,8 +54,12 @@ pub struct ZkLinkTx {
 #[wasm_bindgen]
 impl TxZkLinkSignature {
     #[wasm_bindgen(constructor)]
-    pub fn new(pub_key: String, signature: String) -> TxZkLinkSignature {
-        TxZkLinkSignature { pub_key, signature }
+    pub fn new(pub_key: String, signature: String) -> Result<TxZkLinkSignature, JsValue> {
+        let inner = ZkLinkSignature {
+            pub_key: PackedPublicKey::from_hex(&pub_key)?,
+            signature: PackedSignature::from_hex(&signature)?,
+        };
+        Ok(TxZkLinkSignature { inner })
     }
 }
 
@@ -127,31 +130,26 @@ impl From<TxLayer1Signature> for TypesTxLayer1Signature {
 impl TxZkLinkSignature {
     #[wasm_bindgen(js_name=pubKey)]
     pub fn pub_key(&self) -> String {
-        self.pub_key.clone()
+        self.inner.pub_key.as_hex()
     }
     #[wasm_bindgen]
     pub fn signature(&self) -> String {
-        self.signature.clone()
-    }
-}
-
-impl From<TxZkLinkSignature> for ZkLinkSignature {
-    fn from(signature: TxZkLinkSignature) -> ZkLinkSignature {
-        ZkLinkSignature {
-            pub_key: PackedPublicKey::from_hex(&signature.pub_key).unwrap(),
-            signature: PackedSignature::from_hex(&signature.signature).unwrap(),
-        }
+        self.inner.signature.as_hex()
     }
 }
 
 impl From<ZkLinkSignature> for TxZkLinkSignature {
-    fn from(signature: ZkLinkSignature) -> TxZkLinkSignature {
-        TxZkLinkSignature {
-            pub_key: signature.pub_key.as_hex(),
-            signature: signature.signature.as_hex(),
-        }
+    fn from(tx: ZkLinkSignature) -> TxZkLinkSignature {
+        TxZkLinkSignature { inner: tx }
     }
 }
+
+impl From<TxZkLinkSignature> for ZkLinkSignature {
+    fn from(tx: TxZkLinkSignature) -> ZkLinkSignature {
+        tx.inner
+    }
+}
+
 #[wasm_bindgen]
 impl ZkLinkTx {
     #[wasm_bindgen(constructor)]

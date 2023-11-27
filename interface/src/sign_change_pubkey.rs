@@ -16,13 +16,11 @@ use zklink_sdk_types::tx_type::ZkSignatureTrait;
 
 #[cfg(feature = "ffi")]
 pub fn eth_signature_of_change_pubkey(
-    l1_client_id: u32,
     tx: Arc<ChangePubKey>,
     eth_signer: Arc<EthSigner>,
-    main_contract: ZkLinkAddress,
 ) -> Result<PackedEthSignature, SignError> {
-    let typed_data = tx.to_eip712_request_payload(l1_client_id, &main_contract)?;
-    let eth_signature = eth_signer.sign_hash(typed_data.data_hash.as_bytes())?;
+    let eth_sign_msg = ChangePubKey::get_eth_sign_msg(&tx.new_pk_hash, tx.nonce, tx.account_id);
+    let eth_signature = eth_signer.sign_message(eth_sign_msg.as_bytes())?;
     Ok(eth_signature)
 }
 

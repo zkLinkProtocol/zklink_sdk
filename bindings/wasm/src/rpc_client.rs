@@ -4,7 +4,6 @@ use jsonrpsee::core::params::ArrayParams;
 use jsonrpsee::core::traits::ToRpcParams;
 use jsonrpsee::types::request::Request;
 use jsonrpsee::types::Id;
-use serde::Deserialize;
 use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
