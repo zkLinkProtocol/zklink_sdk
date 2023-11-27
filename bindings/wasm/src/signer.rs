@@ -1,3 +1,4 @@
+use crate::rpc_type_converter::TxZkLinkSignature;
 use crate::tx_types::change_pubkey::{ChangePubKey, Create2Data};
 use crate::tx_types::contract::auto_deleveraging::AutoDeleveraging;
 use crate::tx_types::contract::contract_matching::ContractMatching;
@@ -10,7 +11,6 @@ use crate::tx_types::withdraw::Withdraw;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_interface::signer::Signer as InterfaceSigner;
-use zklink_sdk_types::basic_types::ZkLinkAddress;
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey as TxChangePubKey;
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data as ChangePubKeyCreate2Data;
 use zklink_sdk_types::tx_type::contract::{
@@ -38,21 +38,21 @@ impl Signer {
         Ok(Signer { inner })
     }
 
+    #[wasm_bindgen(js_name=getPubkeyHash)]
+    pub fn get_pubkey_hash(&self) -> String {
+        self.inner.pubkey_hash().as_hex()
+    }
+
     #[wasm_bindgen(js_name=signChangePubkeyWithEthEcdsaAuth)]
     pub fn sign_change_pubkey_with_eth_ecdsa_auth(
         &self,
         tx: ChangePubKey,
-        l1_client_id: u32,
-        main_contract: &str,
     ) -> Result<JsValue, JsValue> {
         let inner_tx = tx.json_value()?;
         let change_pubkey: TxChangePubKey = serde_wasm_bindgen::from_value(inner_tx)?;
-        let contract_address = ZkLinkAddress::from_hex(main_contract)?;
-        let signature = self.inner.sign_change_pubkey_with_eth_ecdsa_auth(
-            change_pubkey,
-            l1_client_id,
-            contract_address,
-        )?;
+        let signature = self
+            .inner
+            .sign_change_pubkey_with_eth_ecdsa_auth(change_pubkey)?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
     }
 
@@ -145,9 +145,9 @@ impl Signer {
     }
 
     #[wasm_bindgen(js_name=submitterSignature)]
-    pub fn submitter_signature(&self, tx: JsValue) -> Result<String, JsValue> {
+    pub fn submitter_signature(&self, tx: JsValue) -> Result<TxZkLinkSignature, JsValue> {
         let zklink_tx: ZkLinkTx = serde_wasm_bindgen::from_value(tx)?;
         let zklink_signature = self.inner.submitter_signature(&zklink_tx)?;
-        Ok(zklink_signature.as_hex())
+        Ok(zklink_signature.into())
     }
 }

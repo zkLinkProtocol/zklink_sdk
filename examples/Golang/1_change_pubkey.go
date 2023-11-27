@@ -71,10 +71,7 @@ func LowLevelChangePubkey() {
 	// 2. sdk.ChangePubKeyAuthDataEthCreate2 { Data: sdk.Create2Data }
 	// 3. sdk.ChangePubKeyAuthDataEthEcdsa
 
-	// TODO: use real main contract address
-    mainContract := sdk.ZkLinkAddress("0x0000000000000000000000000000000000000000")
-    l1ClientId := uint32(1)
-    ethSignature, err = sdk.EthSignatureOfChangePubkey(l1ClientId, tx, ethSigner, mainContract);
+    ethSignature, err = sdk.EthSignatureOfChangePubkey(tx, ethSigner);
     if err != nil {
         return
     }
@@ -143,8 +140,6 @@ func HighLevelChangePubkeyEcdsa() {
     // get current timestamp
     now := time.Now()
     timeStamp := sdk.TimeStamp(now.Unix())
-	// TODO: use real main contract address
-    mainContract := sdk.ZkLinkAddress("0x0000000000000000000000000000000000000000")
 
     // create ChangePubKey transaction type without signed
 	builder := sdk.ChangePubKeyBuilder{
@@ -159,12 +154,11 @@ func HighLevelChangePubkeyEcdsa() {
 		timeStamp,
 	}
 	tx := sdk.NewChangePubKey(builder)
-    l1ClientId := uint32(1)
     signer, err := sdk.NewSigner(privateKey)
     if err != nil {
         return
     }
-    txSignature, err := signer.SignChangePubkeyWithEthEcdsaAuth(tx, l1ClientId, mainContract)
+    txSignature, err := signer.SignChangePubkeyWithEthEcdsaAuth(tx)
     fmt.Println("tx signature: %s", txSignature)
 
     // get eth signature

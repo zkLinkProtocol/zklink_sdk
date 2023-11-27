@@ -16,8 +16,6 @@ global.AbortController = AbortController;
 
 async function testEcdsaAuth() {
     const private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
-    const main_contract = "0x49ea5715b7aae82e0dece40a9263797e5a12cfb9";
-    const l1_client_id = 80001;
     const new_pubkey_hash = "0x0043a38170c9fe8ff718bb86435814468a616044";
     const ts  = Math.floor(Date.now() / 1000);
     try {
@@ -27,7 +25,7 @@ async function testEcdsaAuth() {
             ts);
         let tx = newChangePubkey(tx_builder);
         const signer = new Signer(private_key);
-        let tx_signature = signer.signChangePubkeyWithEthEcdsaAuth(tx,l1_client_id,main_contract);
+        let tx_signature = signer.signChangePubkeyWithEthEcdsaAuth(tx);
         console.log(tx_signature);
 
         let submitter_signature = signer.submitterSignature(tx_signature.tx);

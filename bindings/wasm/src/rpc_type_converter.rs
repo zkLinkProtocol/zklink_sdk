@@ -4,8 +4,10 @@ use wasm_bindgen::JsValue;
 use zklink_sdk_provider::response::AccountQuery as RpcAccountQuery;
 use zklink_sdk_signers::eth_signer::{EIP1271Signature, PackedEthSignature};
 use zklink_sdk_signers::starknet_signer::StarkECDSASignature;
+use zklink_sdk_signers::zklink_signer::PackedSignature;
 use zklink_sdk_types::basic_types::AccountId;
-use zklink_sdk_types::prelude::ZkLinkAddress;
+use zklink_sdk_types::prelude::ZkLinkSignature;
+use zklink_sdk_types::prelude::{PackedPublicKey, ZkLinkAddress};
 use zklink_sdk_types::signatures::TxLayer1Signature as TypesTxLayer1Signature;
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey;
 use zklink_sdk_types::tx_type::transfer::Transfer;
@@ -39,9 +41,26 @@ pub struct TxLayer1Signature {
 }
 
 #[wasm_bindgen]
+pub struct TxZkLinkSignature {
+    inner: ZkLinkSignature,
+}
+
+#[wasm_bindgen]
 pub struct ZkLinkTx {
     tx_type: u8,
     tx: JsValue,
+}
+
+#[wasm_bindgen]
+impl TxZkLinkSignature {
+    #[wasm_bindgen(constructor)]
+    pub fn new(pub_key: String, signature: String) -> Result<TxZkLinkSignature, JsValue> {
+        let inner = ZkLinkSignature {
+            pub_key: PackedPublicKey::from_hex(&pub_key)?,
+            signature: PackedSignature::from_hex(&signature)?,
+        };
+        Ok(TxZkLinkSignature { inner })
+    }
 }
 
 #[wasm_bindgen]
@@ -79,6 +98,18 @@ impl TxLayer1Signature {
     }
 }
 
+#[wasm_bindgen]
+impl TxLayer1Signature {
+    #[wasm_bindgen(js_name=signType)]
+    pub fn sign_type(&self) -> L1SignatureType {
+        self.sign_type
+    }
+    #[wasm_bindgen]
+    pub fn signature(&self) -> String {
+        self.signature.clone()
+    }
+}
+
 impl From<TxLayer1Signature> for TypesTxLayer1Signature {
     fn from(signature: TxLayer1Signature) -> TypesTxLayer1Signature {
         match signature.sign_type {
@@ -92,6 +123,30 @@ impl From<TxLayer1Signature> for TypesTxLayer1Signature {
                 hex::decode(signature.signature).unwrap(),
             )),
         }
+    }
+}
+
+#[wasm_bindgen]
+impl TxZkLinkSignature {
+    #[wasm_bindgen(js_name=pubKey)]
+    pub fn pub_key(&self) -> String {
+        self.inner.pub_key.as_hex()
+    }
+    #[wasm_bindgen]
+    pub fn signature(&self) -> String {
+        self.inner.signature.as_hex()
+    }
+}
+
+impl From<ZkLinkSignature> for TxZkLinkSignature {
+    fn from(tx: ZkLinkSignature) -> TxZkLinkSignature {
+        TxZkLinkSignature { inner: tx }
+    }
+}
+
+impl From<TxZkLinkSignature> for ZkLinkSignature {
+    fn from(tx: TxZkLinkSignature) -> ZkLinkSignature {
+        tx.inner
     }
 }
 

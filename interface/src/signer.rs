@@ -4,7 +4,7 @@ use crate::sign_forced_exit::sign_forced_exit;
 use crate::sign_liquidation::sign_liquidation;
 use crate::sign_transfer::sign_transfer;
 use crate::sign_withdraw::sign_withdraw;
-use zklink_sdk_types::prelude::TxSignature;
+use zklink_sdk_types::prelude::{PubKeyHash, TxSignature};
 
 use crate::do_submitter_signature;
 use crate::sign_change_pubkey::{
@@ -21,7 +21,6 @@ use zklink_sdk_signers::eth_signer::error::EthSignerError;
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
-use zklink_sdk_types::basic_types::ZkLinkAddress;
 #[cfg(not(feature = "ffi"))]
 use zklink_sdk_types::prelude::{GetBytes, Order};
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data;
@@ -60,6 +59,11 @@ impl Signer {
     }
 
     #[inline]
+    pub fn pubkey_hash(&self) -> PubKeyHash {
+        self.zklink_signer.public_key().public_key_hash()
+    }
+
+    #[inline]
     pub fn sign_change_pubkey_with_create2data_auth(
         &self,
         tx: ChangePubKey,
@@ -85,18 +89,10 @@ impl Signer {
     pub fn sign_change_pubkey_with_eth_ecdsa_auth(
         &self,
         tx: ChangePubKey,
-        l1_client_id: u32,
-        main_contract_address: ZkLinkAddress,
     ) -> Result<TxSignature, SignError> {
         #[cfg(feature = "ffi")]
         let tx = (*tx).clone();
-        do_sign_change_pubkey_with_eth_ecdsa_auth(
-            &self.eth_signer,
-            &self.zklink_signer,
-            tx,
-            l1_client_id,
-            main_contract_address,
-        )
+        do_sign_change_pubkey_with_eth_ecdsa_auth(&self.eth_signer, &self.zklink_signer, tx)
     }
 
     #[cfg(not(feature = "web"))]

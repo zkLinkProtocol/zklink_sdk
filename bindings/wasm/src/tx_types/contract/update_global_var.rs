@@ -128,21 +128,6 @@ impl ContractInfo {
     }
 }
 
-#[wasm_bindgen]
-#[derive(Deserialize)]
-pub struct MarginRate {
-    pair_id: u16,
-    rate: u16,
-}
-
-#[wasm_bindgen]
-impl MarginRate {
-    #[wasm_bindgen(constructor)]
-    pub fn new(pair_id: u16, rate: u16) -> MarginRate {
-        MarginRate { pair_id, rate }
-    }
-}
-
 impl From<Parameter> for ContractParameter {
     fn from(parameter: Parameter) -> ContractParameter {
         match parameter.parameter_type {

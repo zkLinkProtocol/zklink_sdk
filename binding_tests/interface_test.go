@@ -32,9 +32,7 @@ func TestSignChangePubkey(t *testing.T) {
     tx := sdk.NewChangePubKey(builder)
 
     // create auth data
-    main_contract := sdk.ZkLinkAddress("0x0000000000000000000000000000000000000000")
-    l1_client_id := uint32(1)
-    eth_signature, err := sdk.EthSignatureOfChangePubkey(l1_client_id, tx, eth_signer, main_contract);
+    eth_signature, err := sdk.EthSignatureOfChangePubkey(tx, eth_signer);
     assert.Nil(t, err)
     eth_auth_data := sdk.ChangePubKeyAuthDataEthEcdsa {
         EthSignature: eth_signature,

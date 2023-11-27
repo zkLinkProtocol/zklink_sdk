@@ -543,7 +543,7 @@ interface Signer {
     [Throws=SignError]
     TxSignature sign_change_pubkey_with_onchain_auth_data(ChangePubKey tx);
     [Throws=SignError]
-    TxSignature sign_change_pubkey_with_eth_ecdsa_auth(ChangePubKey tx, u32 l1_client_id, ZkLinkAddress main_contract_address);
+    TxSignature sign_change_pubkey_with_eth_ecdsa_auth(ChangePubKey tx);
     [Throws=SignError]
     TxSignature sign_transfer(Transfer tx, [ByRef]string token_sybmol);
     [Throws=SignError]
@@ -577,7 +577,7 @@ namespace zklink_sdk {
 
     // for change pubkey
     [Throws=SignError]
-    PackedEthSignature eth_signature_of_change_pubkey(u32 l1_client_id, ChangePubKey tx, EthSigner eth_signer, ZkLinkAddress main_contract);
+    PackedEthSignature eth_signature_of_change_pubkey(ChangePubKey tx, EthSigner eth_signer);
     [Throws=SignError]
     ChangePubKey create_signed_change_pubkey(ZkLinkSigner zklink_signer, ChangePubKey tx, ChangePubKeyAuthData eth_auth_data);
 };
