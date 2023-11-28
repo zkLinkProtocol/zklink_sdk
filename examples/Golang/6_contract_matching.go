@@ -24,7 +24,11 @@ type SubmiterSignature struct {
 
 func HighLevelContractMatching() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
-
+    // create zklink signer
+	zklinkSigner, err := sdk.ZkLinkSignerNewFromHexEthSigner(privateKey)
+	if err != nil {
+		return
+	}
 	taker_contract_builder := sdk.ContractBuilder {
         sdk.AccountId(1),
         sdk.SubAccountId(1),
@@ -39,7 +43,10 @@ func HighLevelContractMatching() {
         false,
     }
 
-    taker_contract := sdk.NewContract(taker_contract_builder)
+    unsigned_taker_contract := sdk.NewContract(taker_contract_builder)
+    taker_contract, err := unsigned_taker_contract.CreateSignedContract(
+        zklinkSigner,
+    )
 
     maker_contract1_builder := sdk.ContractBuilder {
         sdk.AccountId(3),
@@ -69,8 +76,15 @@ func HighLevelContractMatching() {
         true,
     }
 
-    maker_contract1 := sdk.NewContract(maker_contract1_builder)
-    maker_contract2 := sdk.NewContract(maker_contract2_builder)
+    unsigned_maker_contract1 := sdk.NewContract(maker_contract1_builder)
+    unsigned_maker_contract2 := sdk.NewContract(maker_contract2_builder)
+    maker_contract1, err := unsigned_maker_contract1.CreateSignedContract(
+        zklinkSigner,
+    )
+    maker_contract2, err := unsigned_maker_contract2.CreateSignedContract(
+        zklinkSigner,
+    )
+
     var makers []*sdk.Contract
     makers = make([]*sdk.Contract,2)
     makers[0] = maker_contract1

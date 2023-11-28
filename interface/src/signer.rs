@@ -22,7 +22,7 @@ use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 #[cfg(not(feature = "ffi"))]
-use zklink_sdk_types::prelude::{GetBytes, Order};
+use zklink_sdk_types::prelude::{Contract, GetBytes, Order};
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 
@@ -38,7 +38,7 @@ cfg_if! {
         type Funding = Arc<zklink_sdk_types::prelude::Funding>;
         type Liquidation = Arc<zklink_sdk_types::prelude::Liquidation>;
     } else {
-        use zklink_sdk_types::prelude::{AutoDeleveraging, ChangePubKey, Withdraw, Transfer, OrderMatching, ForcedExit, ContractMatching, Funding, Liquidation};
+        use zklink_sdk_types::prelude::{AutoDeleveraging, ChangePubKey, Withdraw, Transfer, OrderMatching, ForcedExit,ContractMatching, Funding, Liquidation};
     }
 }
 
@@ -170,6 +170,14 @@ impl Signer {
         let mut order = order.clone();
         order.signature = self.zklink_signer.sign_musig(&order.get_bytes())?;
         Ok(order)
+    }
+
+    #[inline]
+    #[cfg(not(feature = "ffi"))]
+    pub fn create_signed_contract(&self, contract: &Contract) -> Result<Contract, SignError> {
+        let mut contract = contract.clone();
+        contract.signature = self.zklink_signer.sign_musig(&contract.get_bytes())?;
+        Ok(contract)
     }
 
     #[inline]
