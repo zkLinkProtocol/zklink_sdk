@@ -1,3 +1,4 @@
+use crate::rpc_type_converter::TxZkLinkSignature;
 use crate::tx_types::change_pubkey::{ChangePubKey, Create2Data};
 use crate::tx_types::forced_exit::ForcedExit;
 use crate::tx_types::order_matching::{Order, OrderMatching};
@@ -6,7 +7,7 @@ use crate::tx_types::withdraw::Withdraw;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_interface::json_rpc_signer::JsonRpcSigner as InterfaceJsonRpcSigner;
-use zklink_sdk_types::basic_types::ZkLinkAddress;
+use zklink_sdk_signers::eth_signer::json_rpc_signer::Provider;
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey as TxChangePubKey;
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data as ChangePubKeyCreate2Data;
 use zklink_sdk_types::tx_type::forced_exit::ForcedExit as TxForcedExit;
@@ -25,14 +26,14 @@ pub struct JsonRpcSigner {
 #[wasm_bindgen]
 impl JsonRpcSigner {
     #[wasm_bindgen(constructor)]
-    pub fn new() -> Result<JsonRpcSigner, JsValue> {
-        let inner = InterfaceJsonRpcSigner::new()?;
+    pub fn new(provider: Provider) -> Result<JsonRpcSigner, JsValue> {
+        let inner = InterfaceJsonRpcSigner::new(provider)?;
         Ok(JsonRpcSigner { inner })
     }
 
     #[wasm_bindgen(js_name = initZklinkSigner)]
-    pub async fn init_zklink_signer(&mut self) -> Result<(), JsValue> {
-        Ok(self.inner.init_zklink_signer().await?)
+    pub async fn init_zklink_signer(&mut self, signature: Option<String>) -> Result<(), JsValue> {
+        Ok(self.inner.init_zklink_signer(signature).await?)
     }
 
     #[wasm_bindgen(js_name = signTransfer)]
@@ -51,15 +52,12 @@ impl JsonRpcSigner {
     pub async fn sign_change_pubkey_with_eth_ecdsa_auth(
         &self,
         tx: ChangePubKey,
-        l1_client_id: u32,
-        main_contract: &str,
     ) -> Result<JsValue, JsValue> {
         let inner_tx = tx.json_value()?;
         let change_pubkey: TxChangePubKey = serde_wasm_bindgen::from_value(inner_tx)?;
-        let contract_address = ZkLinkAddress::from_hex(main_contract)?;
         let signature = self
             .inner
-            .sign_change_pubkey_with_eth_ecdsa_auth(change_pubkey, l1_client_id, contract_address)
+            .sign_change_pubkey_with_eth_ecdsa_auth(change_pubkey)
             .await?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
     }
@@ -117,9 +115,9 @@ impl JsonRpcSigner {
     }
 
     #[wasm_bindgen(js_name=submitterSignature)]
-    pub fn submitter_signature(&self, tx: JsValue) -> Result<String, JsValue> {
+    pub fn submitter_signature(&self, tx: JsValue) -> Result<TxZkLinkSignature, JsValue> {
         let zklink_tx: ZkLinkTx = serde_wasm_bindgen::from_value(tx)?;
         let zklink_signature = self.inner.submitter_signature(&zklink_tx)?;
-        Ok(zklink_signature.as_hex())
+        Ok(zklink_signature.into())
     }
 }
