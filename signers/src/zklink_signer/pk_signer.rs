@@ -1,6 +1,8 @@
 use super::error::ZkSignerError as Error;
 use super::{JUBJUB_PARAMS, RESCUE_PARAMS};
 
+#[cfg(feature = "web")]
+use crate::eth_signer::PackedEthSignature;
 use crate::eth_signer::H256;
 use crate::zklink_signer::public_key::PackedPublicKey;
 use crate::zklink_signer::signature::{PackedSignature, ZkLinkSignature};
@@ -99,10 +101,17 @@ impl ZkLinkSigner {
     }
 
     #[cfg(feature = "web")]
-    pub async fn new_from_eth_rpc_signer(eth_signer: &JsonRpcSigner) -> Result<Self, Error> {
-        let signature = eth_signer
-            .sign_message(Self::SIGN_MESSAGE.as_bytes())
-            .await?;
+    pub async fn new_from_eth_rpc_signer(
+        eth_signer: &JsonRpcSigner,
+        signature: Option<PackedEthSignature>,
+    ) -> Result<Self, Error> {
+        let signature = if let Some(s) = signature {
+            s
+        } else {
+            eth_signer
+                .sign_message(Self::SIGN_MESSAGE.as_bytes())
+                .await?
+        };
         let seed = signature.serialize_packed();
         Self::new_from_seed(&seed)
     }

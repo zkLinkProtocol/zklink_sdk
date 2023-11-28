@@ -2,14 +2,16 @@ import init, *  as wasm  from "./web-dist/zklink-sdk-web.js";
 
 async function main() {
     await init();
-    const private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
     const to_address = "0x5505a8cD4594Dbf79d8C59C0Df1414AB871CA896";
     const ts  = Math.floor(Date.now() / 1000);
     try {
         let tx_builder = new wasm.ForcedExitBuilder(1,10, 1, 1, to_address,18, 18,"100000000000000",  1,ts);
         let forced_exit = wasm.newForcedExit(tx_builder);
-        let signer = new wasm.JsonRpcSigner();
-        await signer.initZklinkSigner();
+        const provider = window.bitkeep && window.bitkeep.ethereum;
+        await provider.request({ method: 'eth_requestAccounts' });
+        const signer = new wasm.JsonRpcSigner(provider);
+        await signer.initZklinkSigner(null);
+        console.log(signer);
         let signature = signer.signForcedExit(forced_exit)
         console.log(signature);
 
