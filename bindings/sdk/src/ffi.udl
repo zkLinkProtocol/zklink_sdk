@@ -375,6 +375,8 @@ interface Contract {
     ZkLinkSignature get_signature();
     boolean is_signature_valid();
     sequence<u8> get_bytes();
+    [Throws=ZkSignerError]
+    Contract create_signed_contract(ZkLinkSigner zklink_signer);
 };
 
 [Enum]

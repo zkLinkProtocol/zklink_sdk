@@ -10,9 +10,11 @@ use crate::tx_builder::{ContractBuilder, ContractMatchingBuilder};
 use crate::tx_type::{TxTrait, ZkSignatureTrait};
 use num::BigUint;
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "ffi")]
+use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_signers::zklink_signer::utils::rescue_hash_orders;
-use zklink_sdk_signers::zklink_signer::ZkLinkSignature;
+use zklink_sdk_signers::zklink_signer::{ZkLinkSignature, ZkLinkSigner, ZkSignerError};
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 /// `ContractMatching` transaction was used to match two contract orders.
@@ -160,6 +162,26 @@ impl Contract {
 
     pub fn is_short(&self) -> bool {
         self.direction == 0
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn create_signed_contract(
+        &self,
+        zklink_signer: Arc<ZkLinkSigner>,
+    ) -> Result<Arc<Self>, ZkSignerError> {
+        let mut contract = self.clone();
+        contract.signature = zklink_signer.sign_musig(&contract.get_bytes())?;
+        Ok(Arc::new(contract))
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn create_signed_contract(
+        &self,
+        zklink_signer: &ZkLinkSigner,
+    ) -> Result<Self, ZkSignerError> {
+        let mut contract = self.clone();
+        contract.signature = zklink_signer.sign_musig(&contract.get_bytes())?;
+        Ok(contract)
     }
 }
 
