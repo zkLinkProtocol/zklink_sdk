@@ -8,8 +8,12 @@ async function main() {
 
         let tx_builder = new wasm.WithdrawBuilder(10, 1, 1, to_address,18, "100000000000000", false,10,18,"10000000000000000", 1,ts);
         let withdraw = wasm.newWithdraw(tx_builder);
-        let signer = new wasm.JsonRpcSigner();
-        await signer.initZklinkSigner();
+        const provider = window.bitkeep && window.bitkeep.ethereum;
+        await provider.request({ method: 'eth_requestAccounts' });
+        const signer = new wasm.JsonRpcSigner(provider);
+        await signer.initZklinkSigner(null);
+        console.log(signer);
+
         let signature = await signer.signWithdraw(withdraw,"USDC")
         console.log(signature);
 

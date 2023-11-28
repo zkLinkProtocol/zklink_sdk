@@ -10,8 +10,12 @@ async function main() {
         let tx_builder = new wasm.TransferBuilder(10, to_address, 1,
             1, 18, fee, amount, 1,ts);
         let transfer = wasm.newTransfer(tx_builder);
-        let signer = new wasm.JsonRpcSigner();
-        await signer.initZklinkSigner();
+        const provider = window.bitkeep && window.bitkeep.ethereum;
+        await provider.request({ method: 'eth_requestAccounts' });
+        const signer = new wasm.JsonRpcSigner(provider);
+        await signer.initZklinkSigner(null);
+        console.log(signer);
+
         let signature = await signer.signTransfer(transfer,"USDC")
         console.log(signature);
 

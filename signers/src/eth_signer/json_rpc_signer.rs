@@ -18,21 +18,11 @@ extern "C" {
     /// An EIP-1193 provider object. Available by convention at `window.ethereum`
     pub type Provider;
 
-    #[wasm_bindgen(catch, method)]
+    #[wasm_bindgen(structural,catch, method)]
     async fn request(_: &Provider, args: JsValue) -> Result<JsValue, JsValue>;
 
     #[wasm_bindgen(method,getter)]
     fn selectedAddress(this: &Provider) -> Option<String>;
-}
-
-#[wasm_bindgen(inline_js = "export function get_provider_js() {return window.ethereum}")]
-extern "C" {
-    #[wasm_bindgen(catch)]
-    fn get_provider_js() -> Result<Option<Provider>, JsValue>;
-}
-
-pub fn get_provider() -> Result<Option<Provider>, EthSignerError> {
-    get_provider_js().map_err(|_e| EthSignerError::MissingEthSigner)
 }
 
 pub struct JsonRpcSigner {
@@ -40,14 +30,8 @@ pub struct JsonRpcSigner {
 }
 
 impl JsonRpcSigner {
-    pub fn new() -> Result<JsonRpcSigner, EthSignerError> {
-        let provider = get_provider()?;
-        if provider.is_none() {
-            return Err(EthSignerError::MissingEthSigner);
-        }
-        Ok(JsonRpcSigner {
-            provider: provider.unwrap(),
-        })
+    pub fn new(provider: Provider) -> Result<JsonRpcSigner, EthSignerError> {
+        Ok(JsonRpcSigner { provider })
     }
 
     pub async fn sign_message(&self, message: &[u8]) -> Result<PackedEthSignature, EthSignerError> {
