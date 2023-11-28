@@ -1,6 +1,6 @@
 use super::error::ZkSignerError as Error;
 use super::{JUBJUB_PARAMS, RESCUE_PARAMS};
-use crate::eth_signer::pk_signer::EthSigner;
+
 use crate::eth_signer::H256;
 use crate::zklink_signer::public_key::PackedPublicKey;
 use crate::zklink_signer::signature::{PackedSignature, ZkLinkSignature};
@@ -12,6 +12,10 @@ use franklin_crypto::bellman::{PrimeField, PrimeFieldRepr};
 use franklin_crypto::eddsa::{PrivateKey as FLPrivateKey, PrivateKey, PublicKey, Seed};
 use sha2::{Digest, Sha256};
 use std::fmt;
+
+#[cfg(feature = "web")]
+use crate::eth_signer::json_rpc_signer::JsonRpcSigner;
+use crate::eth_signer::pk_signer::EthSigner;
 
 pub struct ZkLinkSigner(EddsaPrivKey<Engine>);
 
@@ -47,7 +51,7 @@ pub fn sha256_bytes(input: &[u8]) -> Vec<u8> {
 }
 
 impl ZkLinkSigner {
-    pub const SIGN_MESSAGE: &'static str =
+    const SIGN_MESSAGE: &'static str =
         "Sign this message to create a key to interact with zkLink's layer2 services.\nNOTE: This application is powered by zkLink protocol.\n\nOnly sign this message for a trusted client!";
     pub fn new() -> Result<Self, Error> {
         let eth_pk = H256::random();
@@ -90,6 +94,15 @@ impl ZkLinkSigner {
 
     pub fn new_from_eth_signer(eth_signer: &EthSigner) -> Result<Self, Error> {
         let signature = eth_signer.sign_message(Self::SIGN_MESSAGE.as_bytes())?;
+        let seed = signature.serialize_packed();
+        Self::new_from_seed(&seed)
+    }
+
+    #[cfg(feature = "web")]
+    pub async fn new_from_eth_rpc_signer(eth_signer: &JsonRpcSigner) -> Result<Self, Error> {
+        let signature = eth_signer
+            .sign_message(Self::SIGN_MESSAGE.as_bytes())
+            .await?;
         let seed = signature.serialize_packed();
         Self::new_from_seed(&seed)
     }

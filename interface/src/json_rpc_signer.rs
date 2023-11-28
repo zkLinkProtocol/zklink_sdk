@@ -35,15 +35,14 @@ impl JsonRpcSigner {
     }
 
     pub async fn init_zklink_signer(&mut self, signature: Option<String>) -> Result<(), SignError> {
-        let signature = if let Some(s) = signature {
-            PackedEthSignature::from_hex(&s)?
+        let zklink_signer = if let Some(s) = signature {
+            let signature = PackedEthSignature::from_hex(&s)?;
+            let seed = signature.serialize_packed();
+            ZkLinkSigner::new_from_seed(&seed)?
         } else {
-            self.eth_signer
-                .sign_message(ZkLinkSigner::SIGN_MESSAGE.as_bytes())
-                .await?
+            ZkLinkSigner::new_from_eth_rpc_signer(&self.eth_signer).await?
         };
-        let seed = signature.serialize_packed();
-        self.zklink_signer = ZkLinkSigner::new_from_seed(&seed)?;
+        self.zklink_signer = zklink_signer;
         Ok(())
     }
 
