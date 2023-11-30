@@ -30,6 +30,7 @@ pub struct ChainResp {
     pub main_contract: ZkLinkAddress,
     pub layer_zero_contract: ZkLinkAddress,
     pub gas_token_id: TokenId,
+    pub deposit_confirmation: u64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
