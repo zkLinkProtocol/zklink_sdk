@@ -2,6 +2,7 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::{BigUint, ZkLinkAddress};
+use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::ForcedExitBuilder as TxForcedExitBuilder;
 use zklink_sdk_types::tx_type::forced_exit::ForcedExit as ForcedExitTx;
 
@@ -54,7 +55,8 @@ impl ForcedExitBuilder {
             initiator_nonce: initiator_nonce.into(),
             target_sub_account_id: target_sub_account_id.into(),
             withdraw_to_l1,
-            exit_amount: BigUint::from_str(&exit_amount).unwrap(),
+            exit_amount: BigUint::from_str(&exit_amount)
+                .map_err(|e| InvalidBigIntStr(e.to_string()))?,
         };
         Ok(ForcedExitBuilder { inner })
     }

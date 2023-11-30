@@ -2,6 +2,7 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::{BigUint, ZkLinkAddress};
+use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::WithdrawBuilder as TxWithdrawBuilder;
 use zklink_sdk_types::tx_type::withdraw::Withdraw as WithdrawTx;
 
@@ -50,11 +51,11 @@ impl WithdrawBuilder {
             to_chain_id: to_chain_id.into(),
             to_address: ZkLinkAddress::from_hex(&to_address)?,
             l2_source_token: l2_source_token.into(),
-            fee: BigUint::from_str(&fee).unwrap(),
+            fee: BigUint::from_str(&fee).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             nonce: nonce.into(),
             withdraw_fee_ratio,
             timestamp: ts.into(),
-            amount: BigUint::from_str(&amount).unwrap(),
+            amount: BigUint::from_str(&amount).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             l1_target_token: l1_target_token.into(),
             withdraw_to_l1,
         };
