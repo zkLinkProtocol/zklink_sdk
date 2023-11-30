@@ -2,6 +2,7 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::{BigUint, ZkLinkAddress};
+use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::TransferBuilder as TxTransferBuilder;
 use zklink_sdk_types::tx_type::transfer::Transfer as TransferTx;
 
@@ -47,10 +48,10 @@ impl TransferBuilder {
             from_sub_account_id: from_sub_account_id.into(),
             to_sub_account_id: to_sub_account_id.into(),
             token: token.into(),
-            fee: BigUint::from_str(&fee).unwrap(),
+            fee: BigUint::from_str(&fee).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             nonce: nonce.into(),
             timestamp: ts.into(),
-            amount: BigUint::from_str(&amount).unwrap(),
+            amount: BigUint::from_str(&amount).map_err(|e| InvalidBigIntStr(e.to_string()))?,
         };
         Ok(TransferBuilder { inner })
     }

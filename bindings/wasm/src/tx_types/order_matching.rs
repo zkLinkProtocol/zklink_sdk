@@ -2,10 +2,12 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
+use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::OrderMatchingBuilder as TxOrderMatchingBuilder;
 use zklink_sdk_types::tx_type::order_matching::{
     Order as OrderTx, OrderMatching as OrderMatchingTx,
 };
+
 #[wasm_bindgen]
 pub struct Order {
     inner: OrderTx,
@@ -31,8 +33,8 @@ impl Order {
         maker_fee_rate: u8,
         taker_fee_rate: u8,
         has_subsidy: bool,
-    ) -> Order {
-        Order {
+    ) -> Result<Order, JsValue> {
+        let order = Order {
             inner: OrderTx {
                 account_id: account_id.into(),
                 sub_account_id: sub_account_id.into(),
@@ -40,14 +42,15 @@ impl Order {
                 nonce: nonce.into(),
                 base_token_id: base_token_id.into(),
                 quote_token_id: quote_token_id.into(),
-                amount: BigUint::from_str(&amount).unwrap(),
-                price: BigUint::from_str(&price).unwrap(),
+                amount: BigUint::from_str(&amount).map_err(|e| InvalidBigIntStr(e.to_string()))?,
+                price: BigUint::from_str(&price).map_err(|e| InvalidBigIntStr(e.to_string()))?,
                 is_sell: is_sell as u8,
                 fee_rates: [maker_fee_rate, taker_fee_rate],
                 has_subsidy: has_subsidy as u8,
                 signature: Default::default(),
             },
-        }
+        };
+        Ok(order)
     }
 
     pub fn json_value(&self) -> Result<JsValue, JsValue> {
@@ -86,11 +89,13 @@ impl OrderMatchingBuilder {
             account_id: account_id.into(),
             sub_account_id: sub_account_id.into(),
             taker,
-            fee: BigUint::from_str(&fee).unwrap(),
+            fee: BigUint::from_str(&fee).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             fee_token: fee_token.into(),
-            expect_base_amount: BigUint::from_str(&expect_base_amount).unwrap(),
+            expect_base_amount: BigUint::from_str(&expect_base_amount)
+                .map_err(|e| InvalidBigIntStr(e.to_string()))?,
             maker,
-            expect_quote_amount: BigUint::from_str(&expect_quote_amount).unwrap(),
+            expect_quote_amount: BigUint::from_str(&expect_quote_amount)
+                .map_err(|e| InvalidBigIntStr(e.to_string()))?,
         };
         Ok(OrderMatchingBuilder { inner })
     }

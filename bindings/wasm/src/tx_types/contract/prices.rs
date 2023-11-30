@@ -2,6 +2,7 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
+use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_type::contract::{
     ContractPrice as InnerContractPrice, SpotPriceInfo as InnerSpotPriceInfo,
 };
@@ -14,13 +15,14 @@ pub struct ContractPrice {
 #[wasm_bindgen]
 impl ContractPrice {
     #[wasm_bindgen(constructor)]
-    pub fn new(pair_id: u16, market_price: String) -> ContractPrice {
-        ContractPrice {
+    pub fn new(pair_id: u16, market_price: String) -> Result<ContractPrice, JsValue> {
+        Ok(ContractPrice {
             inner: InnerContractPrice {
                 pair_id: pair_id.into(),
-                market_price: BigUint::from_str(&market_price).unwrap(),
+                market_price: BigUint::from_str(&market_price)
+                    .map_err(|e| InvalidBigIntStr(e.to_string()))?,
             },
-        }
+        })
     }
 
     #[wasm_bindgen(js_name=jsonValue)]
@@ -36,13 +38,13 @@ pub struct SpotPriceInfo {
 #[wasm_bindgen]
 impl SpotPriceInfo {
     #[wasm_bindgen(constructor)]
-    pub fn new(token_id: u32, price: String) -> SpotPriceInfo {
-        SpotPriceInfo {
+    pub fn new(token_id: u32, price: String) -> Result<SpotPriceInfo, JsValue> {
+        Ok(SpotPriceInfo {
             inner: InnerSpotPriceInfo {
                 token_id: token_id.into(),
-                price: BigUint::from_str(&price).unwrap(),
+                price: BigUint::from_str(&price).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             },
-        }
+        })
     }
 
     #[wasm_bindgen(js_name=jsonValue)]

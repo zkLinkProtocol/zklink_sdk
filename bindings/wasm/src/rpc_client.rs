@@ -4,6 +4,7 @@ use jsonrpsee::core::params::ArrayParams;
 use jsonrpsee::core::traits::ToRpcParams;
 use jsonrpsee::types::request::Request;
 use jsonrpsee::types::Id;
+use std::convert::TryFrom;
 use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
@@ -61,13 +62,13 @@ pub struct RpcClient {
 #[wasm_bindgen]
 impl RpcClient {
     #[wasm_bindgen(constructor)]
-    pub fn new(network: &str, custom_url: Option<String>) -> RpcClient {
+    pub fn new(network: &str, custom_url: Option<String>) -> Result<RpcClient, JsValue> {
         let server_url = if let Ok(network) = Network::from_str(network) {
             network.url().to_owned()
         } else {
-            custom_url.unwrap()
+            custom_url.ok_or(RpcError::InvalidNetwork)?
         };
-        RpcClient { server_url }
+        Ok(RpcClient { server_url })
     }
 
     #[wasm_bindgen(js_name=getSupportTokens)]
@@ -105,8 +106,13 @@ impl RpcClient {
         let mut builder = ArrayParams::new();
         let zklink_tx: ZkLinkTx =
             serde_wasm_bindgen::from_value(tx).map_err(|_e| RpcError::InvalidInputParameter)?;
+        let l1_signature = if let Some(s) = l1_signature {
+            Some(TypesTxLayer1Signature::try_from(s)?)
+        } else {
+            None
+        };
         let _ = builder.insert(zklink_tx);
-        let _ = builder.insert(l1_signature.map(|t| TypesTxLayer1Signature::from(t)));
+        let _ = builder.insert(l1_signature);
         let _ = builder.insert(l2_signature.map(|s| ZkLinkSignature::from(s)));
         rpc_request!("sendTransaction", builder, &self.server_url, TxHash)
     }

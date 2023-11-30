@@ -110,18 +110,26 @@ impl TxLayer1Signature {
     }
 }
 
-impl From<TxLayer1Signature> for TypesTxLayer1Signature {
-    fn from(signature: TxLayer1Signature) -> TypesTxLayer1Signature {
+impl TryFrom<TxLayer1Signature> for TypesTxLayer1Signature {
+    type Error = JsValue;
+
+    fn try_from(signature: TxLayer1Signature) -> Result<TypesTxLayer1Signature, Self::Error> {
         match signature.sign_type {
-            L1SignatureType::Eth => TypesTxLayer1Signature::EthereumSignature(
-                PackedEthSignature::from_hex(&signature.signature).unwrap(),
-            ),
-            L1SignatureType::Eip1271 => TypesTxLayer1Signature::EIP1271Signature(EIP1271Signature(
-                hex::decode(signature.signature).unwrap(),
+            L1SignatureType::Eth => Ok(TypesTxLayer1Signature::EthereumSignature(
+                PackedEthSignature::from_hex(&signature.signature)?,
             )),
-            L1SignatureType::Stark => TypesTxLayer1Signature::StarkSignature(StarkECDSASignature(
-                hex::decode(signature.signature).unwrap(),
-            )),
+            L1SignatureType::Eip1271 => {
+                Ok(TypesTxLayer1Signature::EIP1271Signature(EIP1271Signature(
+                    hex::decode(signature.signature)
+                        .map_err(|e| JsValue::from_str(&format!("error: {e}")))?,
+                )))
+            }
+            L1SignatureType::Stark => {
+                Ok(TypesTxLayer1Signature::StarkSignature(StarkECDSASignature(
+                    hex::decode(signature.signature)
+                        .map_err(|e| JsValue::from_str(&format!("error: {e}")))?,
+                )))
+            }
         }
     }
 }
@@ -158,20 +166,20 @@ impl ZkLinkTx {
     }
 }
 
-impl From<ZkLinkTx> for TypesZkLinkTx {
-    fn from(tx: ZkLinkTx) -> TypesZkLinkTx {
+impl TryFrom<ZkLinkTx> for TypesZkLinkTx {
+    type Error = JsValue;
+
+    fn try_from(tx: ZkLinkTx) -> Result<TypesZkLinkTx, Self::Error> {
         match tx.tx_type {
             ChangePubKey::TX_TYPE => {
-                let change_pubkey: ChangePubKey = serde_wasm_bindgen::from_value(tx.tx).unwrap();
-                TypesZkLinkTx::ChangePubKey(Box::new(change_pubkey))
+                let change_pubkey: ChangePubKey = serde_wasm_bindgen::from_value(tx.tx)?;
+                Ok(TypesZkLinkTx::ChangePubKey(Box::new(change_pubkey)))
             }
             Transfer::TX_TYPE => {
-                let transfer: Transfer = serde_wasm_bindgen::from_value(tx.tx).unwrap();
-                TypesZkLinkTx::Transfer(Box::new(transfer))
+                let transfer: Transfer = serde_wasm_bindgen::from_value(tx.tx)?;
+                Ok(TypesZkLinkTx::Transfer(Box::new(transfer)))
             }
-            _ => {
-                panic!("Not support tx type!")
-            }
+            _ => Err(JsValue::from_str(&format!("error: Invalid tx type"))),
         }
     }
 }

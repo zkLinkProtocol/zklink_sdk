@@ -1,4 +1,4 @@
-const {UpdateGlobalVarBuilder,UpdateGlobalVar,newUpdateGlobalVar,Parameter,ParameterType,FundingRate,RpcClient } = require('./node-dist/zklink-sdk-node');
+const {UpdateGlobalVarBuilder,UpdateGlobalVar,FundingInfo,newUpdateGlobalVar,Parameter,ParameterType,FundingRate,RpcClient } = require('./node-dist/zklink-sdk-node');
 // CommonJS
 const fetch = require('node-fetch');
 const AbortController = require('abort-controller')
@@ -15,12 +15,11 @@ global.Response = fetch.Response;
 global.AbortController = AbortController;
 
 async function testUpdGlobalVar() {
-    const funding_rates = [new FundingRate(1,2).jsonValue(),
-        new FundingRate(1,3).jsonValue(),
-        new FundingRate(2,5).jsonValue(),
-        new FundingRate(1,4).jsonValue()];
-    const parameter = new Parameter(ParameterType.FundingRates,funding_rates);
-    //const parameter = new Parameter(ParameterType.FeeAccount,1);
+    const funding_infos = [new FundingInfo(1,2,"100000").jsonValue(),
+        new FundingInfo(1,3,"3333").jsonValue(),
+        new FundingInfo(2,5,"456").jsonValue(),
+        new FundingInfo(1,4,"8980808098").jsonValue()];
+    const parameter = new Parameter(ParameterType.FundingInfos,funding_infos);
     let tx_builder = new UpdateGlobalVarBuilder(1,2,parameter,1000);
     let tx = newUpdateGlobalVar(tx_builder);
     console.log(tx);
