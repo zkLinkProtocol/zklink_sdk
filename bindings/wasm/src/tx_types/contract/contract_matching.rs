@@ -2,6 +2,7 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
+use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::{
     ContractBuilder as TxContractBuilder, ContractMatchingBuilder as TxContractMatchingBuilder,
 };
@@ -48,7 +49,7 @@ impl ContractMatchingBuilder {
             sub_account_id: sub_account_id.into(),
             taker,
             maker,
-            fee: BigUint::from_str(&fee).unwrap(),
+            fee: BigUint::from_str(&fee).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             fee_token: fee_token.into(),
         };
         Ok(ContractMatchingBuilder { inner })
@@ -107,8 +108,8 @@ impl ContractBuilder {
             slot_id: slot_id.into(),
             nonce: nonce.into(),
             pair_id: pair_id.into(),
-            size: BigUint::from_str(&size).unwrap(),
-            price: BigUint::from_str(&price).unwrap(),
+            size: BigUint::from_str(&size).map_err(|e| InvalidBigIntStr(e.to_string()))?,
+            price: BigUint::from_str(&price).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             direction,
             maker_fee_rate,
             taker_fee_rate,

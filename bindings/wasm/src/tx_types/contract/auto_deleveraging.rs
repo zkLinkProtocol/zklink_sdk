@@ -2,6 +2,7 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
+use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::AutoDeleveragingBuilder as TxAutoDeleveragingBuilder;
 use zklink_sdk_types::tx_type::contract::{
     AutoDeleveraging as AutoDeleveragingTx, ContractPrice as InnerContractPrice,
@@ -58,9 +59,10 @@ impl AutoDeleveragingBuilder {
             margin_prices,
             adl_account_id: adl_account_id.into(),
             pair_id: pair_id.into(),
-            adl_size: BigUint::from_str(&adl_size).unwrap(),
-            adl_price: BigUint::from_str(&adl_price).unwrap(),
-            fee: BigUint::from_str(&fee).unwrap(),
+            adl_size: BigUint::from_str(&adl_size).map_err(|e| InvalidBigIntStr(e.to_string()))?,
+            adl_price: BigUint::from_str(&adl_price)
+                .map_err(|e| InvalidBigIntStr(e.to_string()))?,
+            fee: BigUint::from_str(&fee).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             fee_token: fee_token.into(),
         };
         Ok(AutoDeleveragingBuilder { inner })

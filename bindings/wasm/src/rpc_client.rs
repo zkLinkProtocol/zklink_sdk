@@ -65,7 +65,7 @@ impl RpcClient {
         let server_url = if let Ok(network) = Network::from_str(network) {
             network.url().to_owned()
         } else {
-            custom_url.unwrap()
+            custom_url.unwrap_or_default()
         };
         RpcClient { server_url }
     }

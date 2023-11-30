@@ -2,6 +2,7 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
+use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::LiquidationBuilder as TxLiquidationBuilder;
 use zklink_sdk_types::tx_type::contract::Liquidation as LiquidationTx;
 use zklink_sdk_types::tx_type::contract::{
@@ -53,7 +54,7 @@ impl LiquidationBuilder {
             contract_prices,
             margin_prices,
             liquidation_account_id: liquidation_account_id.into(),
-            fee: BigUint::from_str(&fee).unwrap(),
+            fee: BigUint::from_str(&fee).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             fee_token: fee_token.into(),
         };
         Ok(LiquidationBuilder { inner })

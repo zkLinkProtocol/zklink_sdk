@@ -114,13 +114,13 @@ impl From<TxLayer1Signature> for TypesTxLayer1Signature {
     fn from(signature: TxLayer1Signature) -> TypesTxLayer1Signature {
         match signature.sign_type {
             L1SignatureType::Eth => TypesTxLayer1Signature::EthereumSignature(
-                PackedEthSignature::from_hex(&signature.signature).unwrap(),
+                PackedEthSignature::from_hex(&signature.signature).unwrap_or_default(),
             ),
             L1SignatureType::Eip1271 => TypesTxLayer1Signature::EIP1271Signature(EIP1271Signature(
-                hex::decode(signature.signature).unwrap(),
+                hex::decode(signature.signature).unwrap_or_default(),
             )),
             L1SignatureType::Stark => TypesTxLayer1Signature::StarkSignature(StarkECDSASignature(
-                hex::decode(signature.signature).unwrap(),
+                hex::decode(signature.signature).unwrap_or_default(),
             )),
         }
     }

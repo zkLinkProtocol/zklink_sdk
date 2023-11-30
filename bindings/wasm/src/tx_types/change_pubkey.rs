@@ -5,6 +5,7 @@ use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_sdk_types::basic_types::{BigUint, ZkLinkAddress};
 use zklink_sdk_types::error::TypeError;
+use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::prelude::H256;
 use zklink_sdk_types::tx_builder::ChangePubKeyBuilder as TxChangePubKeyBuilder;
 use zklink_sdk_types::tx_type::change_pubkey::{
@@ -109,7 +110,7 @@ impl ChangePubKeyBuilder {
             sub_account_id: sub_account_id.into(),
             new_pubkey_hash: PubKeyHash::from_hex(&new_pubkey_hash)?,
             fee_token: fee_token.into(),
-            fee: BigUint::from_str(&fee).unwrap(),
+            fee: BigUint::from_str(&fee).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             nonce: nonce.into(),
             eth_signature,
             timestamp: ts.into(),
