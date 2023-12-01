@@ -6,6 +6,7 @@ use zklink_sdk_types::tx_type::contract::{
     FundingInfo as InnerFundingInfo, Parameter as ContractParameter,
     UpdateGlobalVar as UpdateGlobalVarTx,
 };
+use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 
 #[wasm_bindgen]
 pub struct UpdateGlobalVar {
@@ -17,6 +18,12 @@ impl UpdateGlobalVar {
     #[wasm_bindgen(js_name = jsonValue)]
     pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
+    }
+
+    #[wasm_bindgen(js_name = zklinkTx)]
+    pub fn zklink_tx(&self) -> Result<JsValue, JsValue> {
+        let zklink_tx: ZkLinkTx = self.inner.clone().into();
+        Ok(serde_wasm_bindgen::to_value(&zklink_tx)?)
     }
 }
 
