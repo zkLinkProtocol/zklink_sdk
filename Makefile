@@ -104,6 +104,6 @@ GO_FILES = 1_change_pubkey 2_withdraw 3_transfer 4_forced_exit 5_order_matching 
 RUN_GO_EXAMPLES = $(patsubst %, run_example_go_%, $(GO_FILES))
 run_example_go:  ${RUN_GO_EXAMPLES}
 
-JS_FILES = 1_change_pubkey 2_auto_deleveraging 3_update_global_var 4_contract_matching
+JS_FILES = 1_change_pubkey 2_auto_deleveraging 3_update_global_var 4_contract_matching 5_liquidation 6_funding
 RUN_JS_EXAMPLES = $(patsubst %, run_example_js_%, $(JS_FILES))
 run_example_js: ${RUN_JS_EXAMPLES}
