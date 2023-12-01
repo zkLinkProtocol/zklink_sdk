@@ -86,12 +86,12 @@ pub trait ZkLinkRpc {
         page_size: u32,
     ) -> RpcResult<Page<ZkLinkTxHistory>>;
 
-    #[method(name = "getFastWithdrawTxs")]
-    async fn tx_fast_withdraw(
+    #[method(name = "getWithdrawTxs")]
+    async fn tx_withdraw(
         &self,
         last_tx_timestamp: u64,
         max_txs: u32,
-    ) -> RpcResult<Vec<FastWithdrawTxResp>>;
+    ) -> RpcResult<Vec<WithdrawTxResp>>;
 
     #[method(name = "getChangePubkeyChainId")]
     async fn get_change_pubkey_chain_id(&self) -> RpcResult<ChainId>;

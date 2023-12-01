@@ -28,7 +28,6 @@ pub struct ChainResp {
     pub chain_type: u8,
     pub layer_one_chain_id: U256,
     pub main_contract: ZkLinkAddress,
-    pub layer_zero_contract: ZkLinkAddress,
     pub gas_token_id: TokenId,
     pub deposit_confirmation: u64,
 }
@@ -402,7 +401,7 @@ pub struct BlockTxResp {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct FastWithdrawTxResp {
+pub struct WithdrawTxResp {
     pub tx_hash: TxHash,
     pub tx: ZkLinkTx,
     #[serde(with = "ts_microseconds")]
