@@ -163,21 +163,24 @@ impl ResponseTidyOrder {
 #[serde(rename_all = "camelCase")]
 pub struct ResponsePosition {
     pub direction: bool,
-    pub price: BigDecimal,
-    pub size: BigDecimal,
+    pub price: BigUintSerdeWrapper,
+    pub value: BigUintSerdeWrapper,
+    pub size: BigUintSerdeWrapper,
     pub acc_funding_price: BigIntSerdeWrapper,
 }
 
 impl ResponsePosition {
     pub fn new(
         direction: bool,
-        price: BigDecimal,
-        size: BigDecimal,
+        price: BigUintSerdeWrapper,
+        value: BigUintSerdeWrapper,
+        size: BigUintSerdeWrapper,
         acc_funding_price: BigIntSerdeWrapper,
     ) -> Self {
         Self {
             direction,
             price,
+            value,
             size,
             acc_funding_price,
         }
