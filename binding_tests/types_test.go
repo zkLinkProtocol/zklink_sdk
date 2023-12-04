@@ -16,7 +16,7 @@ func TestTypeDeposit(t *testing.T) {
     l1_source_token := sdk.TokenId(2)
     amount := *big.NewInt(123)
     serial_id := uint64(123)
-    eth_hash := "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    l2_hash := "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
     builder := sdk.DepositBuilder{
         from_address,
         to_address,
@@ -26,7 +26,8 @@ func TestTypeDeposit(t *testing.T) {
         l1_source_token,
         amount,
         serial_id,
-        eth_hash,
+        l2_hash,
+        nil,
     }
     deposit := sdk.NewDeposit(builder);
     bytes := deposit.GetBytes()

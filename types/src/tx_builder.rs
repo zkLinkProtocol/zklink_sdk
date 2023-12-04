@@ -90,7 +90,8 @@ pub struct DepositBuilder {
     pub l1_source_token: TokenId,
     pub amount: BigUint,
     pub serial_id: u64,
-    pub eth_hash: H256,
+    pub l2_hash: H256,
+    pub eth_hash: Option<H256>,
 }
 
 impl DepositBuilder {
@@ -105,6 +106,7 @@ impl DepositBuilder {
             l1_source_token: self.l1_source_token,
             amount: self.amount,
             serial_id: self.serial_id,
+            l2_hash: self.l2_hash,
             eth_hash: self.eth_hash,
         }
     }
@@ -192,7 +194,7 @@ pub struct FullExitBuilder {
     pub contract_prices: Vec<ContractPrice>,
     pub margin_prices: Vec<SpotPriceInfo>,
     pub serial_id: u64,
-    pub eth_hash: H256,
+    pub l2_hash: H256,
 }
 
 impl FullExitBuilder {
@@ -210,7 +212,7 @@ impl FullExitBuilder {
                 margin_prices: self.margin_prices,
             },
             serial_id: self.serial_id,
-            eth_hash: self.eth_hash,
+            l2_hash: self.l2_hash,
         }
     }
 }

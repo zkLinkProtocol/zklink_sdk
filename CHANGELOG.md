@@ -18,3 +18,8 @@ Unreleased
 - Add Rust and Golang unit tests, add wasm tests
 - Add example code in folder `examples`
 - Add Makefile to build the bindings and lint the code.
+- Add `l2_hash` field in `Deposit`. Replace the original `eth_hash` semantics.
+
+### Changed
+- Changed the `eth_hash` field to `Option` in `Deposit`.
+- Renamed the `eth_hash` field to `l2_hash` in `Fullexit`.
