@@ -111,7 +111,8 @@ dictionary DepositBuilder {
     TokenId l1_source_token;
     BigUint amount;
     u64 serial_id;
-    H256 eth_hash;
+    H256 l2_hash;
+    H256 ?eth_hash;
 };
 
 
@@ -154,7 +155,7 @@ dictionary FullExitBuilder {
     sequence<ContractPrice> contract_prices;
     sequence<SpotPriceInfo> margin_prices;
     u64 serial_id;
-    H256 eth_hash;
+    H256 l2_hash;
 };
 
 

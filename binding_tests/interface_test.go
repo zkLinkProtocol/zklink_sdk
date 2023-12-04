@@ -188,7 +188,7 @@ func TestSignOrderMatching(t *testing.T) {
 func TestDeposit(t *testing.T) {
     fromAddress := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
     toAddress := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
-    ethHash := "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    l2Hash := "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
     builder := sdk.DepositBuilder {
       fromAddress,
       toAddress,
@@ -198,7 +198,8 @@ func TestDeposit(t *testing.T) {
       sdk.TokenId(4),
       *big.NewInt(100),
       100,
-      ethHash,
+      l2Hash,
+      nil,
     }
     tx := sdk.NewDeposit(builder)
     assert.NotNil(t, tx)

@@ -35,7 +35,10 @@ pub struct Deposit {
     pub amount: BigUint,
     /// serial id for unique tx_hash
     pub serial_id: u64,
-    pub eth_hash: H256,
+    /// Transaction hash of linea/zksync/starket etc
+    pub l2_hash: H256,
+    /// Transaction hash of ethereum, exist when deposit going from Ethereum bridge to linea/zksync/starket etc
+    pub eth_hash: Option<H256>,
 }
 
 impl Deposit {
@@ -50,7 +53,7 @@ impl GetBytes for Deposit {
         let bytes_len = self.bytes_len();
         let mut out = Vec::with_capacity(bytes_len);
         out.extend_from_slice(&self.serial_id.to_be_bytes());
-        out.extend_from_slice(self.eth_hash.as_bytes());
+        out.extend_from_slice(self.l2_hash.as_bytes());
         assert_eq!(out.len(), bytes_len);
         out
     }
@@ -72,7 +75,7 @@ mod test {
     fn test_deposit_get_bytes() {
         let address =
             ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
-        let eth_hash =
+        let l2_hash =
             H256::from_str("0xe35f3a39d542f6d276c2f203e8fd64fcb8bf5db062b71ccacf45d5ecd9d456f3")
                 .unwrap();
         let builder = DepositBuilder {
@@ -84,7 +87,8 @@ mod test {
             l1_source_token: TokenId(18),
             amount: BigUint::from(100u32),
             serial_id: 32001,
-            eth_hash,
+            eth_hash: None,
+            l2_hash,
         };
         let deposit = builder.build();
         let bytes = deposit.get_bytes();
