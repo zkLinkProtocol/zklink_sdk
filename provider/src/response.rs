@@ -150,11 +150,11 @@ pub struct ResponseContractParams {
 #[serde(rename_all = "camelCase")]
 pub struct ResponseTidyOrder {
     pub nonce: Nonce,
-    pub residue: BigDecimal,
+    pub residue: BigUintSerdeWrapper,
 }
 
 impl ResponseTidyOrder {
-    pub fn new(nonce: Nonce, residue: BigDecimal) -> Self {
+    pub fn new(nonce: Nonce, residue: BigUintSerdeWrapper) -> Self {
         Self { nonce, residue }
     }
 }
