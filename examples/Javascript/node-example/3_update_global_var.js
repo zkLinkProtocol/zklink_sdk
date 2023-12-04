@@ -1,4 +1,4 @@
-const {UpdateGlobalVarBuilder,Signer,FundingInfo,newUpdateGlobalVar,Parameter,ParameterType,FundingRate,RpcClient } = require('./node-dist/zklink-sdk-node');
+const {UpdateGlobalVarBuilder,ContractInfo,Signer,FundingInfo,MarginInfo,newUpdateGlobalVar,Parameter,ParameterType,FundingRate,RpcClient } = require('./node-dist/zklink-sdk-node');
 // CommonJS
 const fetch = require('node-fetch');
 const AbortController = require('abort-controller')
@@ -21,11 +21,20 @@ async function testUpdGlobalVar() {
         new FundingInfo(1,3,"3333").jsonValue(),
         new FundingInfo(2,5,"456").jsonValue(),
         new FundingInfo(1,4,"8980808098").jsonValue()];
-    const parameter_infos = new Parameter(ParameterType.FundingInfos,funding_infos);
-    // fee_account
-    const parameter = new Parameter(ParameterType.FeeAccount,10)
-    let tx_builder = new UpdateGlobalVarBuilder(1,2,parameter,1000);
+    const parameter_funding = new Parameter(ParameterType.FundingInfos,funding_infos);
+    // contract_info
+    const contract_info = new ContractInfo(1,"USDC/USDT",5,10).jsonValue();
+    console.log(contract_info);
+    const parameter_contract = new Parameter(ParameterType.ContractInfo,contract_info)
+    // margin_info
+    const margin_info = new MarginInfo(2,17,10).jsonValue();
+    const parameter = new Parameter(ParameterType.MarginInfo,margin_info)
+    console.log(parameter);
+
+    let tx_builder = new UpdateGlobalVarBuilder(1,8,parameter,1000);
+    console.log(tx_builder);
     let tx = newUpdateGlobalVar(tx_builder);
+    console.log(tx.jsonValue());
     const signer = new Signer(private_key);
     const submitterSignature = await signer.submitterSignature(tx.zklinkTx());
     console.log(submitterSignature);

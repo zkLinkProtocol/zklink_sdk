@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::tx_builder::UpdateGlobalVarBuilder as TxUpdateGlobalVarBuilder;
@@ -89,7 +89,7 @@ impl Parameter {
 }
 
 #[wasm_bindgen]
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct MarginInfo {
     margin_id: u8,
     token_id: u32,
@@ -106,10 +106,15 @@ impl MarginInfo {
             ratio,
         }
     }
+
+    #[wasm_bindgen(js_name=jsonValue)]
+    pub fn json_value(&self) -> Result<JsValue, JsValue> {
+        Ok(serde_wasm_bindgen::to_value(&self)?)
+    }
 }
 
 #[wasm_bindgen]
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct ContractInfo {
     pair_id: u8,
     symbol: String,
@@ -132,6 +137,11 @@ impl ContractInfo {
             initial_margin_rate,
             maintenance_margin_rate,
         }
+    }
+
+    #[wasm_bindgen(js_name=jsonValue)]
+    pub fn json_value(&self) -> Result<JsValue, JsValue> {
+        Ok(serde_wasm_bindgen::to_value(&self)?)
     }
 }
 
