@@ -27,7 +27,7 @@ impl StarkSignature {
 
     pub fn as_hex(&self) -> String {
         let bytes = self.to_bytes_be();
-        hex::encode(&bytes)
+        hex::encode(bytes)
     }
 
     pub fn from_bytes_be(bytes: &[u8]) -> Result<Self, StarkSignerError> {
@@ -135,6 +135,6 @@ impl<'de> Deserialize<'de> for StarkECDSASignature {
 impl Serialize for StarkECDSASignature {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let bytes = self.to_bytes_be();
-        ZeroPrefixHexSerde::serialize(&bytes, serializer)
+        ZeroPrefixHexSerde::serialize(bytes, serializer)
     }
 }

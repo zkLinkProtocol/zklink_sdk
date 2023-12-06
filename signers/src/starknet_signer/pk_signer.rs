@@ -7,6 +7,12 @@ use starknet_signers::SigningKey;
 
 pub struct StarkSigner(SigningKey);
 
+impl Default for StarkSigner {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl StarkSigner {
     pub fn new() -> Self {
         let signing_key = SigningKey::from_random();
@@ -18,8 +24,8 @@ impl StarkSigner {
     }
 
     pub fn new_from_hex_str(hex_str: &str) -> Result<Self, Error> {
-        let private_key = FieldElement::from_hex_be(hex_str)
-            .map_err(|e| Error::InvalidPrivKey(e.to_string()))?;
+        let private_key =
+            FieldElement::from_hex_be(hex_str).map_err(|e| Error::InvalidPrivKey(e.to_string()))?;
         let signing_key = SigningKey::from_secret_scalar(private_key);
         Ok(Self(signing_key))
     }

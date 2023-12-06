@@ -1,8 +1,8 @@
 use crate::eth_signer::error::EthSignerError;
+use crate::starknet_signer::error::StarkSignerError;
 use thiserror::Error;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::JsValue;
-use crate::starknet_signer::error::StarkSignerError;
 
 #[derive(Debug, Error)]
 pub enum ZkSignerError {

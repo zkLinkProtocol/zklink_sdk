@@ -3,6 +3,7 @@ use crate::error::SignError;
 use zklink_sdk_signers::eth_signer::json_rpc_signer::JsonRpcSigner;
 #[cfg(not(feature = "web"))]
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+#[cfg(not(feature = "web"))]
 use zklink_sdk_signers::starknet_signer::StarkSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_types::prelude::TxSignature;
