@@ -1,4 +1,8 @@
 use thiserror::Error;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::JsValue;
+#[cfg(target_arch = "wasm32")]
+
 
 #[derive(Debug, Error)]
 pub enum StarkSignerError {
@@ -26,7 +30,7 @@ impl StarkSignerError {
 
 #[cfg(target_arch = "wasm32")]
 impl From<StarkSignerError> for JsValue {
-    fn from(error: ZkSignerError) -> Self {
+    fn from(error: StarkSignerError) -> Self {
         JsValue::from_str(&format!("error: {error}"))
     }
 }
