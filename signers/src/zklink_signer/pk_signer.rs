@@ -16,6 +16,7 @@ use std::fmt;
 #[cfg(feature = "web")]
 use crate::eth_signer::json_rpc_signer::JsonRpcSigner;
 use crate::eth_signer::pk_signer::EthSigner;
+use crate::starknet_signer::StarkSigner;
 
 pub struct ZkLinkSigner(EddsaPrivKey<Engine>);
 
@@ -92,9 +93,21 @@ impl ZkLinkSigner {
         Self::new_from_seed(&seed)
     }
 
+    pub fn new_from_hex_stark_signer(hex_private_key: &str) -> Result<Self, Error> {
+        let stark_signer = StarkSigner::new_from_hex_str(hex_private_key)?;
+        Self::new_from_starknet_signer(&stark_signer)
+    }
+
     pub fn new_from_eth_signer(eth_signer: &EthSigner) -> Result<Self, Error> {
         let signature = eth_signer.sign_message(Self::SIGN_MESSAGE.as_bytes())?;
         let seed = signature.serialize_packed();
+        Self::new_from_seed(&seed)
+    }
+
+    /// create zkLink signer from starknet signer
+    pub fn new_from_starknet_signer(starknet_signer: &StarkSigner) -> Result<Self, Error> {
+        let signature = starknet_signer.sign_message(Self::SIGN_MESSAGE.as_bytes())?;
+        let seed = signature.signature.to_bytes_be();
         Self::new_from_seed(&seed)
     }
 

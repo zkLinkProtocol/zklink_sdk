@@ -1,3 +1,4 @@
+use zklink_sdk_signers::starknet_signer::StarkECDSASignature;
 use crate::{
     PackedEthSignature, PackedPublicKey, PackedSignature, PubKeyHash, TxHash,
     UniffiCustomTypeConverter,
@@ -23,6 +24,7 @@ ffi_hex_convert!(PackedPublicKey);
 ffi_hex_convert!(PackedSignature);
 ffi_hex_convert!(PubKeyHash);
 ffi_hex_convert!(PackedEthSignature);
+ffi_hex_convert!(StarkECDSASignature);
 
 #[cfg(test)]
 mod test {

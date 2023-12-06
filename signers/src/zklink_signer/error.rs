@@ -2,6 +2,7 @@ use crate::eth_signer::error::EthSignerError;
 use thiserror::Error;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::JsValue;
+use crate::starknet_signer::error::StarkSignerError;
 
 #[derive(Debug, Error)]
 pub enum ZkSignerError {
@@ -17,8 +18,10 @@ pub enum ZkSignerError {
     InvalidPubkey(String),
     #[error("invalid public key hash:{0}")]
     InvalidPubkeyHash(String),
-    #[error("invalid eth signature: {0}")]
-    PackedETHSignatureError(#[from] EthSignerError),
+    #[error("{0}")]
+    EthSignerError(#[from] EthSignerError),
+    #[error("{0}")]
+    StarkSignerError(#[from] StarkSignerError),
 }
 
 impl ZkSignerError {

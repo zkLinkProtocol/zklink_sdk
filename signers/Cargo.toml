@@ -21,6 +21,8 @@ thiserror = "1.0"
 wasm-bindgen = { version = "0.2.87", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4"
 zklink_sdk_utils = { path = "../utils" }
+starknet-signers = { git = "https://github.com/xJonathanLEI/starknet-rs" }
+starknet = { git = "https://github.com/xJonathanLEI/starknet-rs" }
 
 [features]
 default = []

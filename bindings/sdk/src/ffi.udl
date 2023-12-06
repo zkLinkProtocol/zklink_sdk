@@ -481,6 +481,27 @@ interface EthSigner {
     Address get_address();
 };
 
+// =========================== starknet crypto ============================
+[Error]
+enum StarkSignerError {
+    "InvalidStarknetSigner",
+    "InvalidSignature",
+    "InvalidPrivKey",
+    "SignError",
+};
+[Custom]
+typedef string StarkECDSASignature;
+
+interface StarkSigner {
+    constructor();
+    [Throws=StarkSignerError,Name=new_from_hex_str]
+    constructor([ByRef] string hex_str);
+    [Throws=StarkSignerError]
+    StarkECDSASignature sign_message([ByRef] sequence<u8> message);
+};
+
+
+
 // ============================ zklink crypto  ============================
 [Error]
 enum ZkSignerError {
@@ -490,7 +511,8 @@ enum ZkSignerError {
     "InvalidSeed",
     "InvalidPubkey",
     "InvalidPubkeyHash",
-    "PackedETHSignatureError",
+    "EthSignerError",
+    "StarkSignerError",
 };
 
 [Custom]
@@ -513,6 +535,8 @@ interface ZkLinkSigner {
     constructor([ByRef] sequence<u8> seed);
     [Throws=ZkSignerError,Name=new_from_hex_eth_signer]
     constructor([ByRef] string eth_hex_private_key);
+    [Throws=ZkSignerError,Name=new_from_hex_stark_signer]
+    constructor([ByRef] string hex_private_key);
     [Throws=ZkSignerError,Name=new_from_bytes]
     constructor([ByRef] sequence<u8> slice);
     PackedPublicKey public_key();
@@ -527,6 +551,7 @@ interface ZkLinkSigner {
 enum SignError {
     "EthSigningError",
     "ZkSigningError",
+    "StarkSigningError",
     "IncorrectTx",
 };
 
@@ -538,9 +563,14 @@ dictionary TxSignature {
     TxLayer1Signature ?layer1_signature;
 };
 
+enum L1Type {
+    "Eth",
+    "Starknet",
+};
+
 interface Signer {
     [Throws=SignError]
-    constructor([ByRef] string private_key);
+    constructor([ByRef] string private_key, L1Type l1_type);
     [Throws=SignError]
     TxSignature sign_change_pubkey_with_create2data_auth(ChangePubKey tx, Create2Data crate2data);
     [Throws=SignError]

@@ -3,13 +3,14 @@ use crate::error::SignError;
 use zklink_sdk_signers::eth_signer::json_rpc_signer::JsonRpcSigner;
 #[cfg(not(feature = "web"))]
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+use zklink_sdk_signers::starknet_signer::StarkSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::prelude::TxSignature;
 use zklink_sdk_types::tx_type::transfer::Transfer;
 
 #[cfg(not(feature = "web"))]
-pub fn sign_transfer(
+pub fn sign_eth_transfer(
     eth_signer: &EthSigner,
     zklink_syner: &ZkLinkSigner,
     mut tx: Transfer,
@@ -26,7 +27,7 @@ pub fn sign_transfer(
 }
 
 #[cfg(feature = "web")]
-pub async fn sign_transfer(
+pub async fn sign_eth_transfer(
     eth_signer: &JsonRpcSigner,
     zklink_syner: &ZkLinkSigner,
     mut tx: Transfer,
@@ -39,6 +40,22 @@ pub async fn sign_transfer(
     Ok(TxSignature {
         tx: tx.into(),
         layer1_signature: Some(eth_signature.into()),
+    })
+}
+
+#[cfg(not(feature = "web"))]
+pub fn sign_starknet_transfer(
+    signer: &StarkSigner,
+    zklink_syner: &ZkLinkSigner,
+    mut tx: Transfer,
+) -> Result<TxSignature, SignError> {
+    tx.signature = zklink_syner.sign_musig(&tx.get_bytes())?;
+    let message = tx.get_starknet_sign_msg();
+    let starknet_signature = signer.sign_message(&message)?;
+
+    Ok(TxSignature {
+        tx: tx.into(),
+        layer1_signature: Some(starknet_signature.into()),
     })
 }
 #[cfg(test)]
@@ -67,7 +84,7 @@ mod tests {
         };
         let tx = builder.build();
 
-        let signature = sign_transfer(&eth_signer, &zk_signer, tx, "USD").unwrap();
+        let signature = sign_eth_transfer(&eth_signer, &zk_signer, tx, "USD").unwrap();
         let eth_sign = signature
             .layer1_signature
             .expect("transfer must has eth signature");

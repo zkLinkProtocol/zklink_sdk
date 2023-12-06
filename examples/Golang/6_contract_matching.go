@@ -100,7 +100,7 @@ func HighLevelContractMatching() {
     }
 
     tx := sdk.NewContractMatching(builder)
-    signer, err := sdk.NewSigner(privateKey)
+    signer, err := sdk.NewSigner(privateKey, sdk.L1TypeEth)
     if err != nil {
         return
     }

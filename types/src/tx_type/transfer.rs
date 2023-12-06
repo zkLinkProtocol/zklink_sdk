@@ -15,6 +15,8 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
+use zklink_sdk_signers::starknet_signer::StarkSigner;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
@@ -87,6 +89,10 @@ impl Transfer {
         message
     }
 
+    pub fn get_starknet_sign_msg(&self) -> Vec<u8> {
+        self.get_bytes()
+    }
+
     #[cfg(not(feature = "ffi"))]
     pub fn eth_signature(
         &self,
@@ -108,6 +114,28 @@ impl Transfer {
         let message = self.get_eth_sign_msg(token_symbol);
         let eth_signature = eth_signer.sign_message(message.as_bytes())?;
         let tx_eth_signature = TxLayer1Signature::EthereumSignature(eth_signature);
+        Ok(tx_eth_signature)
+    }
+
+    #[cfg(not(feature = "ffi"))]
+    pub fn starknet_signature(
+        &self,
+        starknet_signer: &StarkSigner,
+    ) -> Result<TxLayer1Signature, StarkSignerError> {
+        let message = self.get_starknet_sign_msg();
+        let signature = starknet_signer.sign_message(&message)?;
+        let tx_eth_signature = TxLayer1Signature::StarkSignature(signature);
+        Ok(tx_eth_signature)
+    }
+
+    #[cfg(feature = "ffi")]
+    pub fn starknet_signature(
+        &self,
+        starknet_signer: Arc<StarkSigner>,
+    ) -> Result<TxLayer1Signature, StarkSignerError> {
+        let message = self.get_starknet_sign_msg();
+        let signature = starknet_signer.sign_message(&message)?;
+        let tx_eth_signature = TxLayer1Signature::StarkSignature(signature);
         Ok(tx_eth_signature)
     }
 }
@@ -210,7 +238,7 @@ mod test {
         let pubkey_hash = pubkey.public_key_hash();
         assert_eq!(pubkey_hash, recover_pubkey_hash);
 
-        //check l1 signature
+        //check eth signature
         let l1_signature = PackedEthSignature::from_hex(eth_signature).unwrap();
         let token_symbol = "USDC";
         let message = tx.get_eth_sign_msg(token_symbol).as_bytes().to_vec();
@@ -218,5 +246,15 @@ mod test {
         let private_key = EthSigner::try_from(private_key_str).unwrap();
         let address = private_key.get_address();
         assert_eq!(address, recover_address);
+
+        // check starknet signature
+        let private_key_str = "0x02c5dbad71c92a45cc4b40573ae661f8147869a91d57b8d9b8f48c8af7f83159";
+        let private_key = StarkSigner::new_from_hex_str(private_key_str).unwrap();
+        let message = tx.get_starknet_sign_msg();
+        let signature = private_key.sign_message(&message).unwrap();
+        let is_ok = signature.verify(&message).unwrap();
+        assert!(is_ok);
+        let starknet_signature = "0x0226424352505249f119fd6913430aad28321afcff18036139b6fa77c4fad6cc064a51bbd082ecb0956589f6089ee24dd9ec32b083f5d56352ca94e5c51d3aa504b98450aa2cc9f9f1f5c0ab47dc28ccff41f7661b6e20181e8204ada6213e1e";
+        assert_eq!(signature.as_hex(), starknet_signature);
     }
 }

@@ -35,7 +35,7 @@ func HighLevelForcedExit() {
         Timestamp: sdk.TimeStamp(1693472232),
     }
     tx := sdk.NewForcedExit(builder)
-    signer, err := sdk.NewSigner(privateKey)
+    signer, err := sdk.NewSigner(privateKey, sdk.L1TypeEth)
     if err != nil {
         return
     }
