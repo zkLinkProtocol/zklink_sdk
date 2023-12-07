@@ -172,8 +172,6 @@ func TestSignOrderMatching(t *testing.T) {
         maker,
         *big.NewInt(1000),
         sdk.TokenId(18),
-        *big.NewInt(808077878),
-        *big.NewInt(5479779),
         []sdk.ContractPrice {
             sdk.ContractPrice {
                 PairId: sdk.PairId(1),
@@ -194,6 +192,8 @@ func TestSignOrderMatching(t *testing.T) {
                 Price: *big.NewInt(100000),
             },
         },
+        *big.NewInt(808077878),
+        *big.NewInt(5479779),
     }
     tx := sdk.NewOrderMatching(builder)
     signed_tx, err := tx.CreateSignedTx(zklink_signer)
