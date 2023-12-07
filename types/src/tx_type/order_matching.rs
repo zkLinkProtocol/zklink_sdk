@@ -311,12 +311,11 @@ impl OrderMatching {
 
 impl GetBytes for OrderMatching {
     fn get_bytes(&self) -> Vec<u8> {
-        let mut orders_bytes = Vec::with_capacity(
-            self.maker.bytes_len() + self.taker.bytes_len() + self.oracle_prices.bytes_len(),
-        );
+        let oracle_prices_hash = self.oracle_prices.rescue_hash();
+        let mut orders_bytes = Vec::with_capacity(ORDERS_BYTES);
         orders_bytes.extend(self.maker.get_bytes());
         orders_bytes.extend(self.taker.get_bytes());
-        orders_bytes.extend(self.oracle_prices.rescue_hash());
+        orders_bytes.extend(oracle_prices_hash);
         // Todo: do not resize, sdk should be update
         orders_bytes.resize(ORDERS_BYTES, 0);
         let bytes_len = self.bytes_len();
