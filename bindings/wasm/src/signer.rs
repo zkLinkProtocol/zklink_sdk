@@ -10,8 +10,8 @@ use crate::tx_types::transfer::Transfer;
 use crate::tx_types::withdraw::Withdraw;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
-use zklink_sdk_interface::signer::Signer as InterfaceSigner;
 use zklink_sdk_interface::signer::L1Type as InnerL1Type;
+use zklink_sdk_interface::signer::Signer as InterfaceSigner;
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey as TxChangePubKey;
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data as ChangePubKeyCreate2Data;
 use zklink_sdk_types::tx_type::contract::{

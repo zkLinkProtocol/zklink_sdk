@@ -1,9 +1,6 @@
 use thiserror::Error;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::JsValue;
-#[cfg(target_arch = "wasm32")]
-
-
 #[derive(Debug, Error)]
 pub enum StarkSignerError {
     #[error("invalid starknet signer")]
