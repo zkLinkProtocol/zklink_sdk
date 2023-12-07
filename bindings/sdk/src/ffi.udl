@@ -166,6 +166,8 @@ dictionary OrderMatchingBuilder {
     Order maker;
     BigUint fee;
     TokenId fee_token;
+    sequence<ContractPrice> contract_prices;
+    sequence<SpotPriceInfo> margin_prices;
     BigUint expect_base_amount;
     BigUint expect_quote_amount;
 };

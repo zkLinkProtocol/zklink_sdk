@@ -80,9 +80,19 @@ impl OrderMatchingBuilder {
         maker: JsValue,
         fee: String,
         fee_token: u32,
+        contract_prices: Vec<JsValue>,
+        margin_prices: Vec<JsValue>,
         expect_base_amount: String,
         expect_quote_amount: String,
     ) -> Result<OrderMatchingBuilder, JsValue> {
+        let contract_prices = contract_prices
+            .iter()
+            .map(|p| serde_wasm_bindgen::from_value(p.clone()).unwrap())
+            .collect::<Vec<InnerContractPrice>>();
+        let margin_prices = margin_prices
+            .iter()
+            .map(|p| serde_wasm_bindgen::from_value(p.clone()).unwrap())
+            .collect::<Vec<InnerSpotPriceInfo>>();
         let maker: OrderTx = serde_wasm_bindgen::from_value(maker)?;
         let taker: OrderTx = serde_wasm_bindgen::from_value(taker)?;
         let inner = TxOrderMatchingBuilder {
