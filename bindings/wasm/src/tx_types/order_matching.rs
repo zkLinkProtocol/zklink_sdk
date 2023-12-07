@@ -4,6 +4,9 @@ use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
 use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::OrderMatchingBuilder as TxOrderMatchingBuilder;
+use zklink_sdk_types::tx_type::contract::{
+    ContractPrice as InnerContractPrice, SpotPriceInfo as InnerSpotPriceInfo,
+};
 use zklink_sdk_types::tx_type::order_matching::{
     Order as OrderTx, OrderMatching as OrderMatchingTx,
 };
@@ -107,7 +110,7 @@ impl OrderMatchingBuilder {
             expect_quote_amount: BigUint::from_str(&expect_quote_amount)
                 .map_err(|e| InvalidBigIntStr(e.to_string()))?,
             contract_prices,
-            margin_prices
+            margin_prices,
         };
         Ok(OrderMatchingBuilder { inner })
     }
