@@ -106,6 +106,8 @@ impl OrderMatchingBuilder {
             maker,
             expect_quote_amount: BigUint::from_str(&expect_quote_amount)
                 .map_err(|e| InvalidBigIntStr(e.to_string()))?,
+            contract_prices,
+            margin_prices
         };
         Ok(OrderMatchingBuilder { inner })
     }
