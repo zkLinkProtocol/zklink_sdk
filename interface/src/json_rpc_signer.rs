@@ -3,8 +3,8 @@ use crate::error::SignError;
 use crate::sign_change_pubkey::do_sign_change_pubkey_with_create2data_auth;
 use crate::sign_forced_exit::sign_forced_exit;
 use crate::sign_order_matching::sign_order_matching;
-use crate::sign_transfer::sign_transfer;
-use crate::sign_withdraw::sign_withdraw;
+use crate::sign_transfer::sign_eth_transfer;
+use crate::sign_withdraw::sign_eth_withdraw;
 use zklink_sdk_signers::eth_signer::json_rpc_signer::{
     JsonRpcSigner as EthJsonRpcSigner, Provider,
 };
@@ -51,7 +51,7 @@ impl JsonRpcSigner {
         tx: Transfer,
         token_symbol: &str,
     ) -> Result<TxSignature, SignError> {
-        sign_transfer(&self.eth_signer, &self.zklink_signer, tx, token_symbol).await
+        sign_eth_transfer(&self.eth_signer, &self.zklink_signer, tx, token_symbol).await
     }
 
     #[inline]
@@ -92,7 +92,7 @@ impl JsonRpcSigner {
         tx: Withdraw,
         l2_source_token_symbol: &str,
     ) -> Result<TxSignature, SignError> {
-        sign_withdraw(
+        sign_eth_withdraw(
             &self.eth_signer,
             &self.zklink_signer,
             tx,

@@ -246,7 +246,7 @@ func TestSignWithdraw(t *testing.T) {
     fmt.Printf("zklink tx: %s\n", zklinkTx)
 
     // test signer
-    signer, err := sdk.NewSigner(s);
+    signer, err := sdk.NewSigner(s, sdk.L1TypeEth);
     assert.Nil(t, err)
     tx_signature, err := signer.SignWithdraw(tx, l2SourceTokenSymbol)
     assert.Nil(t, err)

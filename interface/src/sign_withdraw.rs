@@ -3,13 +3,31 @@ use crate::error::SignError;
 use zklink_sdk_signers::eth_signer::json_rpc_signer::JsonRpcSigner;
 #[cfg(not(feature = "web"))]
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+#[cfg(not(feature = "web"))]
+use zklink_sdk_signers::starknet_signer::StarkSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_types::prelude::TxSignature;
 use zklink_sdk_types::tx_type::withdraw::Withdraw;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
 
 #[cfg(not(feature = "web"))]
-pub fn sign_withdraw(
+pub fn sign_starknet_withdraw(
+    signer: &StarkSigner,
+    zklink_singer: &ZkLinkSigner,
+    mut tx: Withdraw,
+) -> Result<TxSignature, SignError> {
+    tx.sign(zklink_singer)?;
+    let message = tx.get_starknet_sign_msg();
+    let signature = signer.sign_message(&message)?;
+
+    Ok(TxSignature {
+        tx: tx.into(),
+        layer1_signature: Some(signature.into()),
+    })
+}
+
+#[cfg(not(feature = "web"))]
+pub fn sign_eth_withdraw(
     eth_signer: &EthSigner,
     zklink_singer: &ZkLinkSigner,
     mut tx: Withdraw,
@@ -17,16 +35,16 @@ pub fn sign_withdraw(
 ) -> Result<TxSignature, SignError> {
     tx.sign(zklink_singer)?;
     let message = tx.get_eth_sign_msg(l2_source_token_symbol);
-    let eth_signature = eth_signer.sign_message(message.as_bytes())?;
+    let signature = eth_signer.sign_message(message.as_bytes())?;
 
     Ok(TxSignature {
         tx: tx.into(),
-        layer1_signature: Some(eth_signature.into()),
+        layer1_signature: Some(signature.into()),
     })
 }
 
 #[cfg(feature = "web")]
-pub async fn sign_withdraw(
+pub async fn sign_eth_withdraw(
     eth_signer: &JsonRpcSigner,
     zklink_singer: &ZkLinkSigner,
     mut tx: Withdraw,
@@ -70,7 +88,7 @@ mod tests {
         let tx = builder.build();
         let eth_signer = eth_pk.into();
         let zk_signer = ZkLinkSigner::new_from_eth_signer(&eth_signer).unwrap();
-        let signature = sign_withdraw(&eth_signer, &zk_signer, tx, "USD").unwrap();
+        let signature = sign_eth_withdraw(&eth_signer, &zk_signer, tx, "USD").unwrap();
 
         // let eth_sign = signature
         //     .layer1_signature

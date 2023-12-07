@@ -96,6 +96,10 @@ impl Withdraw {
         message
     }
 
+    pub fn get_starknet_sign_msg(&self) -> Vec<u8> {
+        self.get_bytes()
+    }
+
     #[cfg(feature = "ffi")]
     pub fn eth_signature(
         &self,

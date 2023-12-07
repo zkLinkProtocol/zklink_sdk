@@ -2,8 +2,8 @@ use crate::error::SignError;
 use crate::sign_auto_deleveraging::sign_auto_deleveraging;
 use crate::sign_forced_exit::sign_forced_exit;
 use crate::sign_liquidation::sign_liquidation;
-use crate::sign_transfer::sign_transfer;
-use crate::sign_withdraw::sign_withdraw;
+use crate::sign_transfer::{sign_eth_transfer, sign_starknet_transfer};
+use crate::sign_withdraw::{sign_eth_withdraw, sign_starknet_withdraw};
 use zklink_sdk_types::prelude::{PubKeyHash, TxSignature};
 
 use crate::do_submitter_signature;
@@ -19,6 +19,8 @@ use cfg_if::cfg_if;
 use std::sync::Arc;
 use zklink_sdk_signers::eth_signer::error::EthSignerError;
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
+use zklink_sdk_signers::starknet_signer::pk_signer::StarkSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 #[cfg(not(feature = "ffi"))]
@@ -42,19 +44,39 @@ cfg_if! {
     }
 }
 
+pub enum Layer1Sginer {
+    EthSigner(EthSigner),
+    StarknetSigner(StarkSigner),
+}
+
+pub enum L1Type {
+    Eth,
+    Starknet,
+}
+
 pub struct Signer {
     zklink_signer: ZkLinkSigner,
-    eth_signer: EthSigner,
+    layer1_signer: Layer1Sginer,
 }
 
 impl Signer {
-    pub fn new(private_key: &str) -> Result<Self, SignError> {
+    pub fn new(private_key: &str, l1_signer_type: L1Type) -> Result<Self, SignError> {
         let zklink_signer = ZkLinkSigner::new_from_hex_eth_signer(private_key)?;
-        let eth_signer =
-            EthSigner::try_from(private_key).map_err(|_| EthSignerError::InvalidEthSigner)?;
+        let layer1_signer = match l1_signer_type {
+            L1Type::Eth => {
+                let eth_signer = EthSigner::try_from(private_key)
+                    .map_err(|_| EthSignerError::InvalidEthSigner)?;
+                Layer1Sginer::EthSigner(eth_signer)
+            }
+            L1Type::Starknet => {
+                let stark_signer = StarkSigner::new_from_hex_str(private_key)
+                    .map_err(|_| StarkSignerError::InvalidStarknetSigner)?;
+                Layer1Sginer::StarknetSigner(stark_signer)
+            }
+        };
         Ok(Self {
             zklink_signer,
-            eth_signer,
+            layer1_signer,
         })
     }
 
@@ -92,7 +114,11 @@ impl Signer {
     ) -> Result<TxSignature, SignError> {
         #[cfg(feature = "ffi")]
         let tx = (*tx).clone();
-        do_sign_change_pubkey_with_eth_ecdsa_auth(&self.eth_signer, &self.zklink_signer, tx)
+        if let Layer1Sginer::EthSigner(signer) = &self.layer1_signer {
+            do_sign_change_pubkey_with_eth_ecdsa_auth(signer, &self.zklink_signer, tx)
+        } else {
+            Err(EthSignerError::InvalidEthSigner.into())
+        }
     }
 
     #[cfg(not(feature = "web"))]
@@ -103,7 +129,14 @@ impl Signer {
     ) -> Result<TxSignature, SignError> {
         #[cfg(feature = "ffi")]
         let tx = (*tx).clone();
-        sign_transfer(&self.eth_signer, &self.zklink_signer, tx, token_symbol)
+        match &self.layer1_signer {
+            Layer1Sginer::EthSigner(signer) => {
+                sign_eth_transfer(signer, &self.zklink_signer, tx, token_symbol)
+            }
+            Layer1Sginer::StarknetSigner(signer) => {
+                sign_starknet_transfer(signer, &self.zklink_signer, tx)
+            }
+        }
     }
 
     #[cfg(not(feature = "web"))]
@@ -114,12 +147,14 @@ impl Signer {
     ) -> Result<TxSignature, SignError> {
         #[cfg(feature = "ffi")]
         let tx = (*tx).clone();
-        sign_withdraw(
-            &self.eth_signer,
-            &self.zklink_signer,
-            tx,
-            l2_source_token_symbol,
-        )
+        match &self.layer1_signer {
+            Layer1Sginer::EthSigner(signer) => {
+                sign_eth_withdraw(signer, &self.zklink_signer, tx, l2_source_token_symbol)
+            }
+            Layer1Sginer::StarknetSigner(signer) => {
+                sign_starknet_withdraw(signer, &self.zklink_signer, tx)
+            }
+        }
     }
 
     pub fn sign_forced_exit(&self, tx: ForcedExit) -> Result<TxSignature, SignError> {

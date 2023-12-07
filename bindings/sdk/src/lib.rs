@@ -10,6 +10,9 @@ use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::eth_signer::{Address, H256};
 
+use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
+use zklink_sdk_signers::starknet_signer::{StarkECDSASignature, StarkSigner};
+
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
@@ -31,7 +34,7 @@ use zklink_sdk_interface::error::SignError;
 use zklink_sdk_interface::sign_change_pubkey::{
     create_signed_change_pubkey, eth_signature_of_change_pubkey,
 };
-use zklink_sdk_interface::signer::Signer;
+use zklink_sdk_interface::signer::{L1Type, Signer};
 use zklink_sdk_interface::ChangePubKeyAuthRequest;
 
 include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));

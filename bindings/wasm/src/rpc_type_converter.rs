@@ -125,10 +125,10 @@ impl TryFrom<TxLayer1Signature> for TypesTxLayer1Signature {
                 )))
             }
             L1SignatureType::Stark => {
-                Ok(TypesTxLayer1Signature::StarkSignature(StarkECDSASignature(
-                    hex::decode(signature.signature)
-                        .map_err(|e| JsValue::from_str(&format!("error: {e}")))?,
-                )))
+                let signature = StarkECDSASignature::from_hex(&signature.signature)
+                    .map_err(|e| JsValue::from_str(&format!("error: {e}")))?;
+
+                Ok(TypesTxLayer1Signature::StarkSignature(signature))
             }
         }
     }

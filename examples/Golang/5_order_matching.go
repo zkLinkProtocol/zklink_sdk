@@ -78,7 +78,7 @@ func HighLevelOrderMatching() {
         *big.NewInt(5479779),
     }
     tx := sdk.NewOrderMatching(builder)
-    signer, err := sdk.NewSigner(privateKey)
+    signer, err := sdk.NewSigner(privateKey, sdk.L1TypeEth)
     if err != nil {
         return
     }
