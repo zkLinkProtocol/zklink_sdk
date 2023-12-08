@@ -213,12 +213,12 @@ pub struct OrderMatching {
     /// 8000, 2
     /// buy (price, amount)
     /// 7000, 3
-    /// when a user buy 3 BTC for price 10000, dex will submit two OrderMathcing
+    /// when a user buy 3 BTC for price 10000, dex will submit two OrderMatching
     /// maker: 8000, 2 <-> taker: 10000, 3
     /// maker: 10000, 4 <-> taker: 10000, 3
-    /// if all is well, all OrderMathcing will be executed in sequence
-    /// but when the balance of maker (8000, 2) is not enough, the first OrderMathcing will be failed
-    /// and the second OrderMathcing will be still success, the second maker (10000, 4) will be trade for 3 BTC
+    /// if all is well, all OrderMatching will be executed in sequence
+    /// but when the balance of maker (8000, 2) is not enough, the first OrderMatching will be failed
+    /// and the second OrderMatching will be still success, the second maker (10000, 4) will be trade for 3 BTC
     /// but the result may be not dex want to see
     /// dex can set `expect_base_amount` and `expect_quote_amount` to limit the maximum trade amount
     /// maker: 8000, 2, <-> taker: 10000, 3 <-> expect_base_amount 2 => the maximum of BTC traded will be 2

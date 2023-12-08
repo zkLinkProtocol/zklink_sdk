@@ -61,7 +61,7 @@ where
     pub primary_type: String,
     /// Signing domain metadata. The signing domain is the intended context for the signature (e.g.
     /// the dapp, protocol, etc. that it's intended for). This data is used to construct the domain
-    /// seperator of the message.
+    /// separator of the message.
     pub domain: EIP712Domain,
     /// The message to be signed.
     pub message: M,
