@@ -40,7 +40,7 @@ pub const ACCOUNT_ID_BIT_WIDTH: usize = 32;
 pub const SUB_ACCOUNT_ID_BIT_WIDTH: usize = 8;
 pub const PRICE_BIT_WIDTH: usize = 120;
 pub const MIN_PRICE: u128 = 1;
-/// deciamls of price in order will be improved with TOKEN_MAX_PRECISION(18)
+/// decimals of price in order will be improved with TOKEN_MAX_PRECISION(18)
 /// the bit width of price in pubdata is PRICE_BIT_WIDTH(120)
 /// so the max price of price that order can submit is
 /// (2 ** 120 - 1) / 10 ^18 = 1329227995784915872

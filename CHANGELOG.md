@@ -4,7 +4,7 @@ Unreleased
 ## [3.0.0] - 2023-11-08
 ### Added
 - Defined data types including:
-  - basic types like `ChainId`,`Nonce`, `AccountId`, `SubAccoundId`, `TokenId` and so on;
+  - basic types like `ChainId`,`Nonce`, `AccountId`, `SubAccountId`, `TokenId` and so on;
   - transaction types:`ChangePubkey`, `Deposit`, `Withdraw`, `ForcedExit`, `FullExit`, `OrderMatching`, `Transfer`;
   - contract transaction types: `AutoDeleveraging`, `ContractMatching`, `Funding`, `Liquidation`;
   - the builder to build the transaction types;
