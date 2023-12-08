@@ -452,6 +452,8 @@ pub struct EthPropertyResp {
     pub chain_id: ChainId,
     pub layer_one_chain_id: U256,
     pub gateways: Vec<GateWayInfo>,
+    pub gas_token_id: TokenId,
+    pub deposit_confirmation: u64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -520,7 +522,9 @@ mod test {
 				}
 			]
 		}
-	]
+	],
+    "gasTokenId": 1,
+    "depositConfirmation": 200
 }
         "#;
         let resp: Result<EthPropertyResp, _> = serde_json::from_str(s);
