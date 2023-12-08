@@ -5,6 +5,7 @@ use crate::basic_types::params::{
 };
 use crate::basic_types::{AccountId, GetBytes, Nonce, SlotId, SubAccountId, TokenId};
 use crate::params::{SIGNED_ORDER_BIT_WIDTH, TOKEN_MAX_PRECISION};
+use crate::prelude::OraclePrices;
 #[cfg(feature = "ffi")]
 use crate::prelude::OrderMatchingBuilder;
 use crate::signatures::TxLayer1Signature;
@@ -192,6 +193,10 @@ pub struct OrderMatching {
     #[validate]
     pub maker: Order,
 
+    /// Contains required mark prices for all margin tokens and contracts from Oracle(e.g. ChainLink, Band, Api3)
+    #[validate]
+    pub oracle_prices: OraclePrices,
+
     /// Fee for the transaction, need packaging
     #[serde(with = "BigUintSerdeAsRadix10Str")]
     #[validate(custom = "fee_packable")]
@@ -306,9 +311,11 @@ impl OrderMatching {
 
 impl GetBytes for OrderMatching {
     fn get_bytes(&self) -> Vec<u8> {
-        let mut orders_bytes = Vec::with_capacity(self.maker.bytes_len() + self.taker.bytes_len());
+        let oracle_prices_hash = self.oracle_prices.rescue_hash();
+        let mut orders_bytes = Vec::with_capacity(ORDERS_BYTES);
         orders_bytes.extend(self.maker.get_bytes());
         orders_bytes.extend(self.taker.get_bytes());
+        orders_bytes.extend(oracle_prices_hash);
         // Todo: do not resize, sdk should be update
         orders_bytes.resize(ORDERS_BYTES, 0);
         let bytes_len = self.bytes_len();
@@ -326,7 +333,7 @@ impl GetBytes for OrderMatching {
     }
 
     fn bytes_len(&self) -> usize {
-        SIGNED_ORDER_MATCHING_BIT_WIDTH / TX_TYPE_BIT_WIDTH
+        SIGNED_ORDER_MATCHING_BIT_WIDTH / 8
     }
 }
 

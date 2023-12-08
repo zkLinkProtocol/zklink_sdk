@@ -220,6 +220,8 @@ impl FullExitBuilder {
 pub struct OrderMatchingBuilder {
     pub account_id: AccountId,
     pub sub_account_id: SubAccountId,
+    pub contract_prices: Vec<ContractPrice>,
+    pub margin_prices: Vec<SpotPriceInfo>,
     #[cfg(feature = "ffi")]
     pub taker: Arc<Order>,
     #[cfg(feature = "ffi")]
@@ -249,6 +251,10 @@ impl OrderMatchingBuilder {
             account_id: self.account_id,
             taker,
             maker,
+            oracle_prices: OraclePrices {
+                contract_prices: self.contract_prices,
+                margin_prices: self.margin_prices,
+            },
             fee: self.fee,
             fee_token: self.fee_token,
             sub_account_id: self.sub_account_id,

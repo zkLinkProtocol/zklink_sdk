@@ -172,6 +172,26 @@ func TestSignOrderMatching(t *testing.T) {
         maker,
         *big.NewInt(1000),
         sdk.TokenId(18),
+        []sdk.ContractPrice {
+            sdk.ContractPrice {
+                PairId: sdk.PairId(1),
+                MarketPrice: *big.NewInt(100000),
+            },
+            sdk.ContractPrice {
+                PairId: sdk.PairId(2),
+                MarketPrice: *big.NewInt(100000),
+            },
+        },
+        []sdk.SpotPriceInfo {
+            sdk.SpotPriceInfo {
+                TokenId: sdk.TokenId(1),
+                Price: *big.NewInt(100000),
+            },
+            sdk.SpotPriceInfo {
+                TokenId: sdk.TokenId(2),
+                Price: *big.NewInt(100000),
+            },
+        },
         *big.NewInt(808077878),
         *big.NewInt(5479779),
     }

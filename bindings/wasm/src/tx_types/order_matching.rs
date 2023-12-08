@@ -4,6 +4,9 @@ use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
 use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::OrderMatchingBuilder as TxOrderMatchingBuilder;
+use zklink_sdk_types::tx_type::contract::{
+    ContractPrice as InnerContractPrice, SpotPriceInfo as InnerSpotPriceInfo,
+};
 use zklink_sdk_types::tx_type::order_matching::{
     Order as OrderTx, OrderMatching as OrderMatchingTx,
 };
@@ -80,9 +83,19 @@ impl OrderMatchingBuilder {
         maker: JsValue,
         fee: String,
         fee_token: u32,
+        contract_prices: Vec<JsValue>,
+        margin_prices: Vec<JsValue>,
         expect_base_amount: String,
         expect_quote_amount: String,
     ) -> Result<OrderMatchingBuilder, JsValue> {
+        let contract_prices = contract_prices
+            .iter()
+            .map(|p| serde_wasm_bindgen::from_value(p.clone()).unwrap())
+            .collect::<Vec<InnerContractPrice>>();
+        let margin_prices = margin_prices
+            .iter()
+            .map(|p| serde_wasm_bindgen::from_value(p.clone()).unwrap())
+            .collect::<Vec<InnerSpotPriceInfo>>();
         let maker: OrderTx = serde_wasm_bindgen::from_value(maker)?;
         let taker: OrderTx = serde_wasm_bindgen::from_value(taker)?;
         let inner = TxOrderMatchingBuilder {
@@ -96,6 +109,8 @@ impl OrderMatchingBuilder {
             maker,
             expect_quote_amount: BigUint::from_str(&expect_quote_amount)
                 .map_err(|e| InvalidBigIntStr(e.to_string()))?,
+            contract_prices,
+            margin_prices,
         };
         Ok(OrderMatchingBuilder { inner })
     }
