@@ -61,10 +61,7 @@ impl Signer {
     }
 
     #[wasm_bindgen(js_name=signChangePubkeyWithOnchain)]
-    pub fn sign_change_pubkey_with_onchain(
-        &self,
-        tx: ChangePubKey,
-    ) -> Result<JsValue, JsValue> {
+    pub fn sign_change_pubkey_with_onchain(&self, tx: ChangePubKey) -> Result<JsValue, JsValue> {
         let inner_tx = tx.json_value()?;
         let change_pubkey: TxChangePubKey = serde_wasm_bindgen::from_value(inner_tx)?;
         let signature = self
