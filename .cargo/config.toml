@@ -1,0 +1,3 @@
+# https://doc.rust-lang.org/cargo/reference/config.html
+[future-incompat-report]
+frequency = "never"
