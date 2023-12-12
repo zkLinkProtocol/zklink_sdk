@@ -4,7 +4,7 @@ use crate::basic_types::{AccountId, GetBytes, Nonce, PairId, SlotId, SubAccountI
 use crate::params::{
     CONTRACT_BYTES, ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_CONTRACT_MATCHING_BIT_WIDTH,
 };
-use crate::prelude::validator::*;
+use crate::prelude::{OraclePrices, validator::*};
 #[cfg(feature = "ffi")]
 use crate::tx_builder::{ContractBuilder, ContractMatchingBuilder};
 use crate::tx_type::{TxTrait, ZkSignatureTrait};
@@ -37,6 +37,10 @@ pub struct ContractMatching {
     #[validate(custom = "token_validator")]
     pub fee_token: TokenId,
 
+    /// Contains required mark prices for all margin tokens and contracts from Oracle(e.g. ChainLink, Api3)
+    #[validate]
+    pub oracle_prices: OraclePrices,
+
     pub signature: ZkLinkSignature,
 }
 
@@ -50,11 +54,13 @@ impl ContractMatching {
 
 impl GetBytes for ContractMatching {
     fn get_bytes(&self) -> Vec<u8> {
-        let mut orders_bytes = Vec::with_capacity(CONTRACT_BYTES * self.maker.len() + 1);
+        let oracle_prices_hash = self.oracle_prices.rescue_hash();
+        let mut orders_bytes = Vec::with_capacity(ORDERS_BYTES);
         self.maker
             .iter()
             .for_each(|maker| orders_bytes.extend(maker.get_bytes()));
         orders_bytes.extend(self.taker.get_bytes());
+        orders_bytes.extend(oracle_prices_hash);
         orders_bytes.resize(ORDERS_BYTES, 0);
 
         let mut out = Vec::with_capacity(SIGNED_CONTRACT_MATCHING_BIT_WIDTH / 8);

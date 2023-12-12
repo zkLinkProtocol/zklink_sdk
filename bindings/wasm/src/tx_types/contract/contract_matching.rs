@@ -38,7 +38,17 @@ impl ContractMatchingBuilder {
         maker: Vec<JsValue>,
         fee: String,
         fee_token: u16,
+        contract_prices: Vec<JsValue>,
+        margin_prices: Vec<JsValue>,
     ) -> Result<ContractMatchingBuilder, JsValue> {
+        let contract_prices = contract_prices
+            .iter()
+            .map(|p| serde_wasm_bindgen::from_value(p.clone()).unwrap())
+            .collect::<Vec<InnerContractPrice>>();
+        let margin_prices = margin_prices
+            .iter()
+            .map(|p| serde_wasm_bindgen::from_value(p.clone()).unwrap())
+            .collect::<Vec<InnerSpotPriceInfo>>();
         let taker = serde_wasm_bindgen::from_value(taker).unwrap();
         let maker = maker
             .iter()
@@ -51,6 +61,8 @@ impl ContractMatchingBuilder {
             maker,
             fee: BigUint::from_str(&fee).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             fee_token: fee_token.into(),
+            contract_prices,
+            margin_prices,
         };
         Ok(ContractMatchingBuilder { inner })
     }

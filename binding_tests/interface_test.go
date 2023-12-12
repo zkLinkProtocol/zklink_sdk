@@ -340,6 +340,26 @@ func TestContractMatching(t *testing.T) {
         MakerFeeRate: 10,
         TakerFeeRate: 20,
         HasSubsidy: false,
+        ContractPrices: []sdk.ContractPrice {
+            sdk.ContractPrice {
+                PairId: sdk.PairId(1),
+                MarketPrice: *big.NewInt(100000),
+            },
+            sdk.ContractPrice {
+                PairId: sdk.PairId(2),
+                MarketPrice: *big.NewInt(100000),
+            },
+        },
+        MarginPrices: []sdk.SpotPriceInfo {
+            sdk.SpotPriceInfo {
+                TokenId: sdk.TokenId(1),
+                Price: *big.NewInt(100000),
+            },
+            sdk.SpotPriceInfo {
+                TokenId: sdk.TokenId(2),
+                Price: *big.NewInt(100000),
+            },
+        },
     }
     taker := sdk.NewContract(contract_builder)
     maker1 := sdk.NewContract(contract_builder)
