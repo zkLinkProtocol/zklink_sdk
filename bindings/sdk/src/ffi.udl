@@ -344,8 +344,8 @@ interface Order {
         BigUint price,
         boolean is_sell,
         boolean has_subsidy,
-        u8 fee_rate1,
-        u8 fee_rate2,
+        u8 maker_fee_rate,
+        u8 taker_fee_rate,
         ZkLinkSignature ?signature
     );
     ZkLinkSignature get_signature();
