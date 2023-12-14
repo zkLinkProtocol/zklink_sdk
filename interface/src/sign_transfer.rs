@@ -11,6 +11,7 @@ use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::prelude::TxSignature;
 use zklink_sdk_types::tx_type::transfer::Transfer;
+#[cfg(feature = "web")]
 use zklink_sdk_signers::starknet_signer::typed_data::message::TypedDataMessage;
 
 #[cfg(not(feature = "web"))]

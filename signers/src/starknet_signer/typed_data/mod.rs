@@ -48,7 +48,7 @@ impl TypedData {
         let domain = StarknetDomain {
             name: "zklink".to_string(),
             version: "1".to_string(),
-            chain_id: "SN_MAIN".to_string()
+            chain_id: "SN_GOERLI".to_string()
         };
         Self {
             types,

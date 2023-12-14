@@ -28,20 +28,19 @@ pub struct JsonRpcSigner {
 //#[wasm_bindgen(constructor)]
 #[wasm_bindgen(js_name=newRpcSignerWtihProvider)]
 pub fn new_with_provider(provider: Provider) -> Result<JsonRpcSigner, JsValue> {
-    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Provider(provider))?;
+    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Provider(provider),None)?;
     Ok(JsonRpcSigner { inner })
 }
 
 //#[wasm_bindgen(constructor)]
 #[wasm_bindgen(js_name=newRpcSignerWithSigner)]
-pub fn new_with_signer(signer: Signer) -> Result<JsonRpcSigner, JsValue> {
-    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Signer(signer))?;
+pub fn new_with_signer(signer: Signer, pub_key: String) -> Result<JsonRpcSigner, JsValue> {
+    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Signer(signer),Some(pub_key))?;
     Ok(JsonRpcSigner { inner })
 }
 
 #[wasm_bindgen]
 impl JsonRpcSigner {
-
     #[wasm_bindgen(js_name = initZklinkSigner)]
     pub async fn init_zklink_signer(&mut self, signature: Option<String>) -> Result<(), JsValue> {
         Ok(self.inner.init_zklink_signer(signature).await?)

@@ -12,7 +12,7 @@ use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::{
     StarknetJsonRpcSigner,Signer as StarknetAccountSigner
 };
 
-use zklink_sdk_signers::zklink_signer::{ZkLinkSignature, ZkLinkSigner, ZkSignerError};
+use zklink_sdk_signers::zklink_signer::{ZkLinkSignature, ZkLinkSigner};
 use zklink_sdk_types::prelude::PackedEthSignature;
 use zklink_sdk_types::signatures::TxSignature;
 use zklink_sdk_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
@@ -22,9 +22,7 @@ use zklink_sdk_types::tx_type::transfer::Transfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
-use zklink_sdk_signers::eth_signer::EthSignerError;
-use zklink_sdk_signers::starknet_signer::StarkSignature;
-use zklink_sdk_signers::starknet_signer::typed_data::message::{TypedDataMessage, Message};
+use zklink_sdk_signers::starknet_signer::StarkECDSASignature;
 use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
 
 pub enum JsonRpcProvider {
@@ -42,12 +40,12 @@ pub struct JsonRpcSigner {
 }
 
 impl JsonRpcSigner {
-    pub fn new(provider: JsonRpcProvider) -> Result<Self, SignError> {
+    pub fn new(provider: JsonRpcProvider,pub_key: Option<String>) -> Result<Self, SignError> {
         let eth_json_rpc_signer = match provider {
             JsonRpcProvider::Provider(provider) =>
                 Layer1JsonRpcSigner::EthSigner(EthJsonRpcSigner::new(provider)),
             JsonRpcProvider::Signer(signer) =>
-                Layer1JsonRpcSigner::StarknetSigner(StarknetJsonRpcSigner::new(signer))
+                Layer1JsonRpcSigner::StarknetSigner(StarknetJsonRpcSigner::new(signer,pub_key.unwrap()))
         };
         let default_zklink_signer = ZkLinkSigner::new()?;
         Ok(Self {
@@ -65,8 +63,8 @@ impl JsonRpcSigner {
                     ZkLinkSigner::new_from_seed(&seed)?
                 },
                 Layer1JsonRpcSigner::StarknetSigner(_) => {
-                    let signature = StarkSignature::from_hex(&s)?;
-                    let seed = signature.to_bytes_be();
+                    let signature = StarkECDSASignature::from_hex(&s)?;
+                    let seed = signature.signature.to_bytes_be();
                     ZkLinkSigner::new_from_seed(&seed)?
                 }
             }

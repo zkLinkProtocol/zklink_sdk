@@ -58,6 +58,7 @@ pub fn sha256_bytes(input: &[u8]) -> Vec<u8> {
 impl ZkLinkSigner {
     const SIGN_MESSAGE: &'static str =
         "Sign this message to create a key to interact with zkLink's layer2 services.\nNOTE: This application is powered by zkLink protocol.\n\nOnly sign this message for a trusted client!";
+    #[cfg(feature = "web")]
     const STARKNET_SIGN_MESSAGE: &'static str =
         "Create zkLink's layer2 key.\n";
     pub fn new() -> Result<Self, Error> {
@@ -134,7 +135,7 @@ impl ZkLinkSigner {
         let signature = starknet_signer
             .sign_message(message)
             .await?;
-        let seed = signature.to_bytes_be();
+        let seed = signature.signature.to_bytes_be();
         Self::new_from_seed(&seed)
     }
 

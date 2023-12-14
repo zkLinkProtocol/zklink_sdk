@@ -10,9 +10,8 @@ use zklink_sdk_types::prelude::TxSignature;
 use zklink_sdk_types::tx_type::withdraw::Withdraw;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
 #[cfg(feature = "web")]
-use crate::json_rpc_signer::Layer1JsonRpcSigner;
-#[cfg(feature = "web")]
 use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::StarknetJsonRpcSigner;
+#[cfg(feature = "web")]
 use zklink_sdk_signers::starknet_signer::typed_data::message::TypedDataMessage;
 
 #[cfg(not(feature = "web"))]

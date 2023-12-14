@@ -5,7 +5,7 @@ use starknet_core::crypto::compute_hash_on_elements;
 use starknet_core::types::FieldElement;
 use starknet_signers::SigningKey;
 
-pub struct StarkSigner(SigningKey);
+pub struct StarkSigner(pub SigningKey);
 
 impl Default for StarkSigner {
     fn default() -> Self {
@@ -32,23 +32,20 @@ impl StarkSigner {
 
     /// 1. get the hash of the message
     /// 2. sign hash
-    pub fn sign_message(&self, msg: &[u8]) -> Result<StarkSignature, Error> {
+    pub fn sign_message(&self, msg: &[u8]) -> Result<StarkECDSASignature, Error> {
         let hash = Self::get_msg_hash(msg);
         let signature = self
             .0
             .sign(&hash)
             .map_err(|e| Error::sign_error(e.to_string()))?;
-        // let s = StarkECDSASignature {
-        //     pub_key: self.public_key(),
-        //     signature: StarkSignature {
-        //         s: signature.s,
-        //         r: signature.r,
-        //     },
-        // };
-        Ok(StarkSignature {
-            s: signature.s,
-            r: signature.r,
-        })
+        let s = StarkECDSASignature {
+            pub_key: self.public_key(),
+            signature: StarkSignature {
+                s: signature.s,
+                r: signature.r,
+            },
+        };
+        Ok(s)
     }
 
     /// 1. change msg to FieldElement list
@@ -68,6 +65,9 @@ mod tests {
     use serde::{Deserialize, Serialize};
     use crate::starknet_signer::typed_data::TypedData;
     use crate::starknet_signer::typed_data::message::{TypedDataMessage, Message};
+    use starknet_signers::VerifyingKey;
+    use num::BigUint;
+    use std::str::FromStr;
 
     #[derive(Serialize, Deserialize, Debug)]
     struct TestSignature {
@@ -78,34 +78,56 @@ mod tests {
     fn test_starknet_sign() {
         let private_key = "0x02c5dbad71c92a45cc4b40573ae661f8147869a91d57b8d9b8f48c8af7f83159";
         let stark_signer = StarkSigner::new_from_hex_str(private_key).unwrap();
-        let msg = b"hello world";
-        let signature = stark_signer.sign_message(msg).unwrap();
-        let is_ok = signature.verify(msg).unwrap();
-        assert!(is_ok);
-        let data = TestSignature { signature };
-        let s = serde_json::to_string(&data).unwrap();
-        println!("{s}");
-        let data2: TestSignature = serde_json::from_str(&s).unwrap();
-        println!("{data2:?}");
+        let msg_hash = "0x51d5faacb1bdeb6293d52fd4be0a7c62417cb73962cdd6aff385b67239cf081";
+        let signature = stark_signer.0.sign(&FieldElement::from_hex_be(msg_hash).unwrap()).unwrap();
+        //let pub_key = stark_signer.public_key();
+        let pub_key = "0x3b478eae5afdd35358abcc7955bba7acda3d16f4485b62f2497f78ed6bc7126";
+        let verifying_key = VerifyingKey::from_scalar(FieldElement::from_hex_be(pub_key).unwrap());
+        let is_ok = verifying_key
+            .verify(
+                &FieldElement::from_hex_be(msg_hash).unwrap(),
+                &signature
+            )
+            .unwrap();
+        println!("{:?}",is_ok);
+
     }
 
-    // #[test]
-    // fn test_signature_verify() {
-    //     let r = "1242659239673499744454485192657408749892787349417938392478090301874476933289";
-    //     let s = "3203688086163592132535350422117785905751559823323905824858605377390311728388";
-    //     let pubkey = "0x4893e2057aabcfc20bfa81a09efdcf39807698f9748123c51145fc81aeadab1";
-    //     let msg = TypedDataMessage::CreateL2Key(Message {
-    //         data: "Create zkLink L2".to_string()
-    //     });
-    //     let typed_data = TypedData::new(msg);
-    //
-    //     let signature = StarkECDSASignature {
-    //         pub_key: FieldElement::from_hex_be(&pubkey).unwrap(),
-    //         signature: StarkSignature {
-    //             s: FieldElement::from_hex_be(&s).unwrap(),
-    //             r: FieldElement::from_hex_be(&r).unwrap()
-    //         } };
-    //     let is_ok = signature.verify(msg).unwrap();
-    //     assert!(is_ok);
-    // }
+    #[test]
+    fn test_signature_verify() {
+        let r_str = "1242659239673499744454485192657408749892787349417938392478090301874476933289";
+        let s_str = "3203688086163592132535350422117785905751559823323905824858605377390311728388";
+        let pubkey = "1082125475812817975721104073212648033952831721853656627074253194227094744819";
+        let msg_hash = "0x51d5faacb1bdeb6293d52fd4be0a7c62417cb73962cdd6aff385b67239cf081";
+        // let msg = TypedDataMessage::CreateL2Key(Message {
+        //     data: "Create zkLink L2".to_string()
+        // });
+        // let typed_data = TypedData::new(msg);
+        //
+        let mut s = [0;32];
+        let mut r = [0;32];
+        let r_num = BigUint::from_str(r_str).unwrap();
+        let s_num = BigUint::from_str(s_str).unwrap();
+        s.clone_from_slice(&s_num.to_bytes_be());
+        r.clone_from_slice(&r_num.to_bytes_be());
+        let pub_key = FieldElement::from_str(&pubkey).unwrap();
+        // let signature = StarkECDSASignature {
+        //     pub_key: FieldElement::from_hex_be(&pubkey).unwrap(),
+        //     signature: StarkSignature {
+        //         s: FieldElement::from_bytes_be(BigUint::from_str(s).unwrap().to_bytes_be()).unwrap(),
+        //         r: FieldElement::from_bytes_be(BigUint::from_str(r).unwrap().to_bytes_be()).unwrap()
+        //     } };
+
+        let verifying_key = VerifyingKey::from_scalar(pub_key);
+        let is_ok = verifying_key
+            .verify(
+                &FieldElement::from_hex_be(msg_hash).unwrap(),
+                &Signature {
+                    s: FieldElement::from_str(&s_str).unwrap(),
+                    r: FieldElement::from_str(&r_str).unwrap()
+                },
+            )
+            .unwrap();
+        assert!(is_ok);
+    }
 }
