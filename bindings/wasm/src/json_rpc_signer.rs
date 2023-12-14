@@ -17,19 +17,30 @@ use zklink_sdk_types::tx_type::order_matching::{
 use zklink_sdk_types::tx_type::transfer::Transfer as TxTransfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw as TxWithdraw;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
+use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::Signer;
+use zklink_sdk_interface::json_rpc_signer::JsonRpcProvider;
 
 #[wasm_bindgen]
 pub struct JsonRpcSigner {
     inner: InterfaceJsonRpcSigner,
 }
 
+//#[wasm_bindgen(constructor)]
+#[wasm_bindgen(js_name=newRpcSignerWtihProvider)]
+pub fn new_with_provider(provider: Provider) -> Result<JsonRpcSigner, JsValue> {
+    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Provider(provider))?;
+    Ok(JsonRpcSigner { inner })
+}
+
+//#[wasm_bindgen(constructor)]
+#[wasm_bindgen(js_name=newRpcSignerWithSigner)]
+pub fn new_with_signer(signer: Signer) -> Result<JsonRpcSigner, JsValue> {
+    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Signer(signer))?;
+    Ok(JsonRpcSigner { inner })
+}
+
 #[wasm_bindgen]
 impl JsonRpcSigner {
-    #[wasm_bindgen(constructor)]
-    pub fn new(provider: Provider) -> Result<JsonRpcSigner, JsValue> {
-        let inner = InterfaceJsonRpcSigner::new(provider)?;
-        Ok(JsonRpcSigner { inner })
-    }
 
     #[wasm_bindgen(js_name = initZklinkSigner)]
     pub async fn init_zklink_signer(&mut self, signature: Option<String>) -> Result<(), JsValue> {

@@ -8,8 +8,10 @@ use starknet_signers::VerifyingKey;
 use std::fmt;
 use std::fmt::Formatter;
 use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
+use num::BigUint;
+use std::str::FromStr;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq,Serialize, Deserialize,Eq,Debug)]
 pub struct StarkSignature {
     pub s: FieldElement,
     pub r: FieldElement,
@@ -29,6 +31,25 @@ impl StarkSignature {
         let bytes = self.to_bytes_be();
         hex::encode(bytes)
     }
+
+
+    pub fn from_hex(s: &str) -> Result<Self, StarkSignerError> {
+        let s = s.strip_prefix("0x").unwrap_or(s);
+        let bytes = hex::decode(s).map_err(StarkSignerError::invalid_signature)?;
+        Self::from_bytes_be(&bytes)
+    }
+
+    pub fn from_str(r:&str,s: &str) -> Result<Self, StarkSignerError> {
+        let r = BigUint::from_str(r)
+            .map_err(|e| StarkSignerError::InvalidSignature(e.to_string()))?;
+        let s = BigUint::from_str(s)
+            .map_err(|e| StarkSignerError::InvalidSignature(e.to_string()))?;
+        let mut bytes = [0;64];
+        bytes[0..32].clone_from_slice(&s.to_bytes_be());
+        bytes[32..].clone_from_slice(&r.to_bytes_be());
+        Self::from_bytes_be(&bytes)
+    }
+
 
     pub fn from_bytes_be(bytes: &[u8]) -> Result<Self, StarkSignerError> {
         let mut s = [0_u8; 32];

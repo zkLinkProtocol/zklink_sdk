@@ -32,20 +32,23 @@ impl StarkSigner {
 
     /// 1. get the hash of the message
     /// 2. sign hash
-    pub fn sign_message(&self, msg: &[u8]) -> Result<StarkECDSASignature, Error> {
+    pub fn sign_message(&self, msg: &[u8]) -> Result<StarkSignature, Error> {
         let hash = Self::get_msg_hash(msg);
         let signature = self
             .0
             .sign(&hash)
             .map_err(|e| Error::sign_error(e.to_string()))?;
-        let s = StarkECDSASignature {
-            pub_key: self.public_key(),
-            signature: StarkSignature {
-                s: signature.s,
-                r: signature.r,
-            },
-        };
-        Ok(s)
+        // let s = StarkECDSASignature {
+        //     pub_key: self.public_key(),
+        //     signature: StarkSignature {
+        //         s: signature.s,
+        //         r: signature.r,
+        //     },
+        // };
+        Ok(StarkSignature {
+            s: signature.s,
+            r: signature.r,
+        })
     }
 
     /// 1. change msg to FieldElement list
@@ -63,6 +66,8 @@ impl StarkSigner {
 mod tests {
     use super::*;
     use serde::{Deserialize, Serialize};
+    use crate::starknet_signer::typed_data::TypedData;
+    use crate::starknet_signer::typed_data::message::{TypedDataMessage, Message};
 
     #[derive(Serialize, Deserialize, Debug)]
     struct TestSignature {
@@ -83,4 +88,24 @@ mod tests {
         let data2: TestSignature = serde_json::from_str(&s).unwrap();
         println!("{data2:?}");
     }
+
+    // #[test]
+    // fn test_signature_verify() {
+    //     let r = "1242659239673499744454485192657408749892787349417938392478090301874476933289";
+    //     let s = "3203688086163592132535350422117785905751559823323905824858605377390311728388";
+    //     let pubkey = "0x4893e2057aabcfc20bfa81a09efdcf39807698f9748123c51145fc81aeadab1";
+    //     let msg = TypedDataMessage::CreateL2Key(Message {
+    //         data: "Create zkLink L2".to_string()
+    //     });
+    //     let typed_data = TypedData::new(msg);
+    //
+    //     let signature = StarkECDSASignature {
+    //         pub_key: FieldElement::from_hex_be(&pubkey).unwrap(),
+    //         signature: StarkSignature {
+    //             s: FieldElement::from_hex_be(&s).unwrap(),
+    //             r: FieldElement::from_hex_be(&r).unwrap()
+    //         } };
+    //     let is_ok = signature.verify(msg).unwrap();
+    //     assert!(is_ok);
+    // }
 }

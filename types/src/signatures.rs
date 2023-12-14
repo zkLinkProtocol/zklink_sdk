@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use zklink_sdk_signers::eth_signer::eip1271_signature::EIP1271Signature;
 use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_sdk_signers::starknet_signer::ecdsa_signature::StarkECDSASignature;
+use zklink_sdk_signers::starknet_signer::StarkSignature;
 
 /// Representation of the signature secured by L1.
 /// May be either a signature generated via Ethereum private key
@@ -13,7 +14,7 @@ use zklink_sdk_signers::starknet_signer::ecdsa_signature::StarkECDSASignature;
 pub enum TxLayer1Signature {
     EthereumSignature(PackedEthSignature),
     EIP1271Signature(EIP1271Signature),
-    StarkSignature(StarkECDSASignature),
+    StarkSignature(StarkSignature),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -34,8 +35,8 @@ impl From<EIP1271Signature> for TxLayer1Signature {
     }
 }
 
-impl From<StarkECDSASignature> for TxLayer1Signature {
-    fn from(value: StarkECDSASignature) -> Self {
+impl From<StarkSignature> for TxLayer1Signature {
+    fn from(value: StarkSignature) -> Self {
         Self::StarkSignature(value)
     }
 }

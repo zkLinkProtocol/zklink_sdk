@@ -23,6 +23,8 @@ thiserror = "1.0"
 wasm-bindgen = { version = "0.2.87", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4"
 zklink_sdk_utils = { path = "../utils" }
+web-sys = "0.3"
+num = { version = "0.4", features = ["serde"] }
 
 [features]
 default = []

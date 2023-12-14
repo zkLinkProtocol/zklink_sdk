@@ -3,7 +3,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_provider::response::AccountQuery as RpcAccountQuery;
 use zklink_sdk_signers::eth_signer::{EIP1271Signature, PackedEthSignature};
-use zklink_sdk_signers::starknet_signer::StarkECDSASignature;
+use zklink_sdk_signers::starknet_signer::{StarkECDSASignature, StarkSignature};
 use zklink_sdk_signers::zklink_signer::PackedSignature;
 use zklink_sdk_types::basic_types::AccountId;
 use zklink_sdk_types::prelude::ZkLinkSignature;
@@ -125,7 +125,7 @@ impl TryFrom<TxLayer1Signature> for TypesTxLayer1Signature {
                 )))
             }
             L1SignatureType::Stark => {
-                let signature = StarkECDSASignature::from_hex(&signature.signature)
+                let signature = StarkSignature::from_hex(&signature.signature)
                     .map_err(|e| JsValue::from_str(&format!("error: {e}")))?;
 
                 Ok(TypesTxLayer1Signature::StarkSignature(signature))

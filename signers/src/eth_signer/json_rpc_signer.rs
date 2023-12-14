@@ -30,8 +30,8 @@ pub struct JsonRpcSigner {
 }
 
 impl JsonRpcSigner {
-    pub fn new(provider: Provider) -> Result<JsonRpcSigner, EthSignerError> {
-        Ok(JsonRpcSigner { provider })
+    pub fn new(provider: Provider) -> JsonRpcSigner {
+        JsonRpcSigner { provider }
     }
 
     pub async fn sign_message(&self, message: &[u8]) -> Result<PackedEthSignature, EthSignerError> {

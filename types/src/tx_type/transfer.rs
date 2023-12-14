@@ -3,7 +3,7 @@ use crate::basic_types::{
     AccountId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
 use crate::tx_type::validator::*;
-use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait};
+use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait, starknet_sign_message_part};
 
 use crate::params::{SIGNED_TRANSFER_BIT_WIDTH, TOKEN_MAX_PRECISION, TX_TYPE_BIT_WIDTH};
 #[cfg(feature = "ffi")]
@@ -20,6 +20,7 @@ use zklink_sdk_signers::starknet_signer::StarkSigner;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
+use zklink_sdk_signers::starknet_signer::typed_data::message::TxMessage;
 
 /// `Transfer` transaction performs a move of funds from one zklink account to another.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
@@ -89,8 +90,16 @@ impl Transfer {
         message
     }
 
-    pub fn get_starknet_sign_msg(&self) -> Vec<u8> {
-        self.get_bytes()
+    pub fn get_starknet_sign_msg(&self,token_symbol: &str) -> TxMessage {
+        starknet_sign_message_part(
+            "Transfer",
+            token_symbol,
+            TOKEN_MAX_PRECISION,
+            &self.amount,
+            &self.fee,
+            &self.to,
+            self.nonce.into(),
+        )
     }
 
     #[cfg(not(feature = "ffi"))]
@@ -121,9 +130,12 @@ impl Transfer {
     pub fn starknet_signature(
         &self,
         starknet_signer: &StarkSigner,
+        token_symbol: &str,
     ) -> Result<TxLayer1Signature, StarkSignerError> {
-        let message = self.get_starknet_sign_msg();
-        let signature = starknet_signer.sign_message(&message)?;
+        //todo: use eip712
+        //let message = self.get_starknet_sign_msg(token_symbol);
+        let message = self.get_eth_sign_msg(token_symbol);
+        let signature = starknet_signer.sign_message(message.as_bytes())?;
         let tx_eth_signature = TxLayer1Signature::StarkSignature(signature);
         Ok(tx_eth_signature)
     }
@@ -132,9 +144,10 @@ impl Transfer {
     pub fn starknet_signature(
         &self,
         starknet_signer: Arc<StarkSigner>,
+        token_symbol: &str,
     ) -> Result<TxLayer1Signature, StarkSignerError> {
-        let message = self.get_starknet_sign_msg();
-        let signature = starknet_signer.sign_message(&message)?;
+        let message = self.get_eth_sign_msg(token_symbol);
+        let signature = starknet_signer.sign_message(message.as_bytes())?;
         let tx_eth_signature = TxLayer1Signature::StarkSignature(signature);
         Ok(tx_eth_signature)
     }

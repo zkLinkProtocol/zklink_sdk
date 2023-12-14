@@ -19,7 +19,7 @@ async function testEcdsaAuth() {
         const provider = window.bitkeep && window.bitkeep.ethereum;
         await provider.request({ method: 'eth_requestAccounts' });
 
-        const signer = new wasm.JsonRpcSigner(provider);
+        const signer = new wasm.newW(provider);
 
         // use cached ethereum signature to init zklink signer
         //const signature = "0x1111111111";

@@ -134,7 +134,7 @@ impl Signer {
                 sign_eth_transfer(signer, &self.zklink_signer, tx, token_symbol)
             }
             Layer1Sginer::StarknetSigner(signer) => {
-                sign_starknet_transfer(signer, &self.zklink_signer, tx)
+                sign_starknet_transfer(signer, &self.zklink_signer, tx,token_symbol)
             }
         }
     }
@@ -152,7 +152,7 @@ impl Signer {
                 sign_eth_withdraw(signer, &self.zklink_signer, tx, l2_source_token_symbol)
             }
             Layer1Sginer::StarknetSigner(signer) => {
-                sign_starknet_withdraw(signer, &self.zklink_signer, tx)
+                sign_starknet_withdraw(signer, &self.zklink_signer, tx,l2_source_token_symbol)
             }
         }
     }
