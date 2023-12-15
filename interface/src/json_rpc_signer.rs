@@ -40,12 +40,12 @@ pub struct JsonRpcSigner {
 }
 
 impl JsonRpcSigner {
-    pub fn new(provider: JsonRpcProvider,pub_key: Option<String>) -> Result<Self, SignError> {
+    pub fn new(provider: JsonRpcProvider,pub_key: Option<String>,chain_id: Option<String>) -> Result<Self, SignError> {
         let eth_json_rpc_signer = match provider {
             JsonRpcProvider::Provider(provider) =>
                 Layer1JsonRpcSigner::EthSigner(EthJsonRpcSigner::new(provider)),
             JsonRpcProvider::Signer(signer) =>
-                Layer1JsonRpcSigner::StarknetSigner(StarknetJsonRpcSigner::new(signer,pub_key.unwrap()))
+                Layer1JsonRpcSigner::StarknetSigner(StarknetJsonRpcSigner::new(signer,pub_key.unwrap(),chain_id.unwrap()))
         };
         let default_zklink_signer = ZkLinkSigner::new()?;
         Ok(Self {

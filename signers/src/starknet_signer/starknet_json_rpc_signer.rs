@@ -1,9 +1,11 @@
 use wasm_bindgen::prelude::*;
 use crate::starknet_signer::{StarkSignature, StarkECDSASignature};
 use crate::starknet_signer::error::StarkSignerError;
-use crate::starknet_signer::typed_data::{message::TypedDataMessage, TypedData};
+use crate::starknet_signer::typed_data::message::TypedDataMessage;
 use starknet::core::types::FieldElement;
 use std::str::FromStr;
+use serde::Serialize;
+use crate::starknet_signer::typed_data::TypedData;
 
 #[wasm_bindgen]
 // Rustfmt removes the 'async' keyword from async functions in extern blocks. It's fixed
@@ -15,23 +17,27 @@ extern "C" {
 
     #[wasm_bindgen(structural,catch, method)]
     async fn signMessage(_: &Signer,msg: &JsValue) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, getter)]
+    fn address(this: &Signer) -> String;
 }
 
 pub struct StarknetJsonRpcSigner {
     signer: Signer,
     pub_key: String,
+    chain_id: String,
 }
 
 impl StarknetJsonRpcSigner {
-    pub fn new(signer: Signer,pub_key: String) -> StarknetJsonRpcSigner{
-        StarknetJsonRpcSigner { signer,pub_key }
+    pub fn new(signer: Signer,pub_key: String,chain_id: String) -> StarknetJsonRpcSigner{
+        StarknetJsonRpcSigner { signer,pub_key,chain_id }
     }
 
     pub async fn sign_message(
         &self,
         message: TypedDataMessage,
     ) -> Result<StarkECDSASignature, StarkSignerError> {
-        let typed_data = TypedData::new(message);
+        let typed_data = TypedData::new(message,self.chain_id.clone());
         let typed_data = serde_wasm_bindgen::to_value(&typed_data)
             .map_err(|e| StarkSignerError::SignError(e.to_string()))?;
         let signature = self.signer.signMessage(&typed_data).await.map_err(|e| {

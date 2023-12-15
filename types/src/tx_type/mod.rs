@@ -104,7 +104,7 @@ pub fn starknet_sign_message_part(
     amount: &BigUint,
     fee: &BigUint,
     to: &ZkLinkAddress,
-    nonce: u64,
+    nonce: String,
 ) -> TxMessage {
     let message = TxMessage {
         transaction: transaction.to_string(),

@@ -98,7 +98,7 @@ impl Transfer {
             &self.amount,
             &self.fee,
             &self.to,
-            self.nonce.into(),
+            self.nonce.to_string(),
         )
     }
 

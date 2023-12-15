@@ -129,11 +129,11 @@ impl ZkLinkSigner {
 
     #[cfg(feature = "web")]
     pub async fn new_from_starknet_rpc_signer(starknet_signer: &StarknetJsonRpcSigner) -> Result<Self, Error> {
-        let message = TypedDataMessage::CreateL2Key(Message {
+        let message = Message {
             data: Self::STARKNET_SIGN_MESSAGE.to_string()
-        });
+        };
         let signature = starknet_signer
-            .sign_message(message)
+            .sign_message(TypedDataMessage::CreateL2Key(message))
             .await?;
         let seed = signature.signature.to_bytes_be();
         Self::new_from_seed(&seed)

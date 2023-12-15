@@ -64,10 +64,11 @@ mod tests {
     use super::*;
     use serde::{Deserialize, Serialize};
     use crate::starknet_signer::typed_data::TypedData;
-    use crate::starknet_signer::typed_data::message::{TypedDataMessage, Message};
+    use crate::starknet_signer::typed_data::message::{TypedDataMessage, Message, TxMessage};
     use starknet_signers::VerifyingKey;
     use num::BigUint;
     use std::str::FromStr;
+    use starknet::core::crypto::Signature;
 
     #[derive(Serialize, Deserialize, Debug)]
     struct TestSignature {
@@ -99,32 +100,31 @@ mod tests {
         let s_str = "3203688086163592132535350422117785905751559823323905824858605377390311728388";
         let pubkey = "1082125475812817975721104073212648033952831721853656627074253194227094744819";
         let msg_hash = "0x51d5faacb1bdeb6293d52fd4be0a7c62417cb73962cdd6aff385b67239cf081";
-        // let msg = TypedDataMessage::CreateL2Key(Message {
-        //     data: "Create zkLink L2".to_string()
-        // });
-        // let typed_data = TypedData::new(msg);
-        //
-        let mut s = [0;32];
-        let mut r = [0;32];
-        let r_num = BigUint::from_str(r_str).unwrap();
-        let s_num = BigUint::from_str(s_str).unwrap();
-        s.clone_from_slice(&s_num.to_bytes_be());
-        r.clone_from_slice(&r_num.to_bytes_be());
+        let sig_str = "0x02647618b4fe405d0dccbdfd25c20bfdeb87631a332491c633943e6f59f16ef306f72dfce21313b636bef4afff3fdc929e5c3d01e3a1f586690ef7db7ebc280a042b54b6bfc5970163d3b9166fd8f24671dfbf850554eeaf12a5e8f4db06c7f3";
+        let addr = "0x04A69b67bcaBfA7D3CCb96e1d25C2e6fC93589fE24A6fD04566B8700ff97a71a";
         let pub_key = FieldElement::from_str(&pubkey).unwrap();
-        // let signature = StarkECDSASignature {
-        //     pub_key: FieldElement::from_hex_be(&pubkey).unwrap(),
-        //     signature: StarkSignature {
-        //         s: FieldElement::from_bytes_be(BigUint::from_str(s).unwrap().to_bytes_be()).unwrap(),
-        //         r: FieldElement::from_bytes_be(BigUint::from_str(r).unwrap().to_bytes_be()).unwrap()
-        //     } };
 
+        let transfer = TxMessage {
+            amount: "0.0012345678998".to_string(),
+            fee: "0.00000001".to_string(),
+            nonce: "1".to_string(),
+            to: "0x5505a8cd4594dbf79d8c59c0df1414ab871ca896".to_string(),
+            token: "USDC".to_string(),
+            transaction: "Transfer".to_string(),
+        };
+
+        let message = transfer.clone();
+        let typed_data = TypedData::new(TypedDataMessage::Transaction(transfer),"SN_GOERLI".to_string());
+        let msg_hash = typed_data.get_message_hash(addr.to_string()).unwrap();
+        println!("{:?}",msg_hash);
+        let signature = StarkECDSASignature::from_hex(sig_str).unwrap();
         let verifying_key = VerifyingKey::from_scalar(pub_key);
         let is_ok = verifying_key
             .verify(
-                &FieldElement::from_hex_be(msg_hash).unwrap(),
+                &FieldElement::from_hex_be(&hex::encode(msg_hash.to_bytes_be())).unwrap(),
                 &Signature {
-                    s: FieldElement::from_str(&s_str).unwrap(),
-                    r: FieldElement::from_str(&r_str).unwrap()
+                    s: signature.signature.s,
+                    r: signature.signature.r,
                 },
             )
             .unwrap();

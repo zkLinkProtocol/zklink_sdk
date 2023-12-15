@@ -56,8 +56,8 @@ pub async fn sign_starknet_transfer(
     token_symbol: &str,
 ) -> Result<TxSignature, SignError> {
     tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
-    let message = TypedDataMessage::Transaction(tx.get_starknet_sign_msg(token_symbol));
-    let starknet_signature = starknet_signer.sign_message(message).await?;
+    let message = tx.get_starknet_sign_msg(token_symbol);
+    let starknet_signature = starknet_signer.sign_message(TypedDataMessage::Transaction(message)).await?;
 
     Ok(TxSignature {
         tx: tx.into(),

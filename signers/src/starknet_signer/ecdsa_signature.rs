@@ -8,6 +8,7 @@ use starknet_signers::VerifyingKey;
 use std::fmt;
 use std::fmt::Formatter;
 use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
+use num::BigUint;
 use std::str::FromStr;
 
 #[derive(Clone, PartialEq,Serialize, Deserialize,Eq,Debug)]
@@ -45,6 +46,7 @@ impl StarkSignature {
             .map_err(|e| StarkSignerError::InvalidSignature(e.to_string()))?;
         Ok(Self { s,r })
     }
+
 
     pub fn from_bytes_be(bytes: &[u8]) -> Result<Self, StarkSignerError> {
         let mut s = [0_u8; 32];

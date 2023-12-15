@@ -28,14 +28,14 @@ pub struct JsonRpcSigner {
 //#[wasm_bindgen(constructor)]
 #[wasm_bindgen(js_name=newRpcSignerWtihProvider)]
 pub fn new_with_provider(provider: Provider) -> Result<JsonRpcSigner, JsValue> {
-    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Provider(provider),None)?;
+    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Provider(provider),None,None)?;
     Ok(JsonRpcSigner { inner })
 }
 
 //#[wasm_bindgen(constructor)]
 #[wasm_bindgen(js_name=newRpcSignerWithSigner)]
-pub fn new_with_signer(signer: Signer, pub_key: String) -> Result<JsonRpcSigner, JsValue> {
-    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Signer(signer),Some(pub_key))?;
+pub fn new_with_signer(signer: Signer, pub_key: String,chain_id: String) -> Result<JsonRpcSigner, JsValue> {
+    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Signer(signer),Some(pub_key),Some(chain_id))?;
     Ok(JsonRpcSigner { inner })
 }
 
