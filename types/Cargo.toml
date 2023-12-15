@@ -11,6 +11,7 @@ hex = "0.4"
 num = { version = "0.4", features = ["serde"] }
 serde = "1.0"
 serde_json = "1.0"
+starknet-ff = "0.3"
 thiserror = "1.0"
 validator = { version = "0.15", features = ["derive"] }
 wasm-bindgen = { version = "0.2.87", features = ["serde-serialize"] }
