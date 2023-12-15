@@ -1,8 +1,8 @@
 use super::error::StarkSignerError as Error;
 use crate::starknet_signer::ecdsa_signature::StarkSignature;
 use crate::starknet_signer::StarkECDSASignature;
-use starknet::core::crypto::compute_hash_on_elements;
-use starknet::core::types::FieldElement;
+use starknet_core::crypto::compute_hash_on_elements;
+use starknet_core::types::FieldElement;
 use starknet_signers::SigningKey;
 
 pub struct StarkSigner(SigningKey);

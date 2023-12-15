@@ -2,6 +2,7 @@
 use crate::error::TypeError as Error;
 use ethers::types::Address;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use starknet_ff::FieldElement;
 use std::fmt::{Debug, Formatter};
 use std::str::FromStr;
 use zklink_sdk_utils::serde::{Prefix, ZeroxPrefix};
@@ -128,6 +129,37 @@ impl From<&ZkLinkAddress> for Address {
     }
 }
 
+/// ZkLinkAddress into eth address
+impl From<ZkLinkAddress> for Address {
+    fn from(zk_address: ZkLinkAddress) -> Self {
+        // eth address bytes len is 20
+        Address::from_slice(&zk_address.as_bytes().to_vec()[..20])
+    }
+}
+
+/// Eth address into ZkLinkAddress
+impl From<Address> for ZkLinkAddress {
+    fn from(address: Address) -> Self {
+        ZkLinkAddress::from(address.to_fixed_bytes())
+    }
+}
+
+/// starknet address into ZkLinkAddress
+impl From<FieldElement> for ZkLinkAddress {
+    fn from(address: FieldElement) -> Self {
+        // starknet address bytes len is 32
+        ZkLinkAddress::from(address.to_bytes_be())
+    }
+}
+
+/// ZkLinkAddress into Starknet address
+impl From<ZkLinkAddress> for FieldElement {
+    fn from(zk_address: ZkLinkAddress) -> Self {
+        // starknet address bytes len is 32
+        FieldElement::from_bytes_be(&zk_address.to_fixed_bytes()).unwrap()
+    }
+}
+
 impl Serialize for ZkLinkAddress {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -189,5 +221,35 @@ mod tests {
         assert_eq!(b_addr, b1);
         let c_addr: ZkLinkAddress = serde_json::from_str(&c_str).unwrap();
         assert_eq!(c_addr, c1);
+    }
+
+    #[test]
+    fn test_address_convert() {
+        // zklink address and starknet address convert
+        let starknet_address = FieldElement::from_str(
+            "0x3c9a304c229732090db86a0f1db015c08aa99e31bd68352855a910e477063f8",
+        )
+        .unwrap();
+        let zklink_address: ZkLinkAddress = starknet_address.into();
+        let address: FieldElement = zklink_address.into();
+        assert_eq!(address, starknet_address);
+
+        let zklink_address = ZkLinkAddress::from_str(
+            "0x03c9a304c229732090db86a0f1db015c08aa99e31bd68352855a910e477063f8",
+        )
+        .unwrap();
+        let address: FieldElement = zklink_address.into();
+        assert_eq!(address, starknet_address);
+
+        // zklink address and eth address convert
+        let eth_address = Address::from_str("0x3D809E414BA4893709C85F242BA3617481BC4126").unwrap();
+        let zklink_address: ZkLinkAddress = eth_address.into();
+        let address: Address = zklink_address.into();
+        assert_eq!(address, eth_address);
+
+        let zklink_address =
+            ZkLinkAddress::from_str("0x3D809E414BA4893709C85F242BA3617481BC4126").unwrap();
+        let address: Address = zklink_address.into();
+        assert_eq!(address, eth_address);
     }
 }

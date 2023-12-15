@@ -2,8 +2,8 @@
 use super::error::StarkSignerError;
 use crate::starknet_signer::pk_signer::StarkSigner;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use starknet::core::crypto::Signature;
-use starknet::core::types::FieldElement;
+use starknet_core::crypto::Signature;
+use starknet_core::types::FieldElement;
 use starknet_signers::VerifyingKey;
 use std::fmt;
 use std::fmt::Formatter;
