@@ -4,7 +4,7 @@ use crate::basic_types::{AccountId, GetBytes, Nonce, PairId, SlotId, SubAccountI
 use crate::params::{
     CONTRACT_BYTES, ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_CONTRACT_MATCHING_BIT_WIDTH,
 };
-use crate::prelude::{OraclePrices, validator::*};
+use crate::prelude::{validator::*, OraclePrices};
 #[cfg(feature = "ffi")]
 use crate::tx_builder::{ContractBuilder, ContractMatchingBuilder};
 use crate::tx_type::{TxTrait, ZkSignatureTrait};
