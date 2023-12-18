@@ -1,7 +1,7 @@
 use crate::starknet_signer::error::StarkSignerError;
 use crate::starknet_signer::typed_data::message::TypedDataMessage;
 use crate::starknet_signer::typed_data::TypedData;
-use crate::starknet_signer::{StarkECDSASignature, StarkSignature};
+use crate::starknet_signer::{StarkEcdsaSignature, StarkEip712Signature};
 use starknet_core::types::FieldElement;
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
@@ -39,7 +39,7 @@ impl StarknetJsonRpcSigner {
     pub async fn sign_message(
         &self,
         message: TypedDataMessage,
-    ) -> Result<StarkECDSASignature, StarkSignerError> {
+    ) -> Result<StarkEip712Signature, StarkSignerError> {
         let typed_data = TypedData::new(message, self.chain_id.clone());
         let typed_data = serde_wasm_bindgen::to_value(&typed_data)
             .map_err(|e| StarkSignerError::SignError(e.to_string()))?;
@@ -51,10 +51,10 @@ impl StarknetJsonRpcSigner {
         let signature: Vec<String> = serde_wasm_bindgen::from_value::<Vec<String>>(signature)
             .map_err(|e| StarkSignerError::InvalidSignature(e.to_string()))?;
 
-        let signature = StarkSignature::from_str(&signature[0], &signature[1])
+        let signature = StarkEcdsaSignature::from_rs_str(&signature[0], &signature[1])
             .map_err(|e| StarkSignerError::InvalidSignature(e.to_string()))?;
         let pub_key = FieldElement::from_str(&self.pub_key)
             .map_err(|e| StarkSignerError::SignError(e.to_string()))?;
-        Ok(StarkECDSASignature { pub_key, signature })
+        Ok(StarkEip712Signature { pub_key, signature })
     }
 }

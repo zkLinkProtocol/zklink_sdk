@@ -126,8 +126,8 @@ impl Signer {
         &self,
         tx: Transfer,
         token_symbol: &str,
-        chain_id: Option<String>,
-        addr: Option<String>,
+        starknet_chain_id: Option<String>,
+        starknet_addr: Option<String>,
     ) -> Result<TxSignature, SignError> {
         #[cfg(feature = "ffi")]
         let tx = (*tx).clone();
@@ -135,14 +135,22 @@ impl Signer {
             Layer1Sginer::EthSigner(signer) => {
                 sign_eth_transfer(signer, &self.zklink_signer, tx, token_symbol)
             }
-            Layer1Sginer::StarknetSigner(signer) => sign_starknet_transfer(
-                signer,
-                &self.zklink_signer,
-                tx,
-                token_symbol,
-                &chain_id.unwrap(),
-                &addr.unwrap(),
-            ),
+            Layer1Sginer::StarknetSigner(signer) => {
+                let chain_id = starknet_chain_id.ok_or(SignError::StarkSigningError(
+                    StarkSignerError::SignError("Invalid starknet_chain_id".to_string()),
+                ))?;
+                let addr = starknet_addr.ok_or(SignError::StarkSigningError(
+                    StarkSignerError::SignError("Invalid starknet_addr".to_string()),
+                ))?;
+                sign_starknet_transfer(
+                    signer,
+                    &self.zklink_signer,
+                    tx,
+                    token_symbol,
+                    &chain_id,
+                    &addr,
+                )
+            }
         }
     }
 
@@ -151,8 +159,8 @@ impl Signer {
         &self,
         tx: Withdraw,
         l2_source_token_symbol: &str,
-        chain_id: Option<String>,
-        addr: Option<String>,
+        starknet_chain_id: Option<String>,
+        starknet_addr: Option<String>,
     ) -> Result<TxSignature, SignError> {
         #[cfg(feature = "ffi")]
         let tx = (*tx).clone();
@@ -160,14 +168,22 @@ impl Signer {
             Layer1Sginer::EthSigner(signer) => {
                 sign_eth_withdraw(signer, &self.zklink_signer, tx, l2_source_token_symbol)
             }
-            Layer1Sginer::StarknetSigner(signer) => sign_starknet_withdraw(
-                signer,
-                &self.zklink_signer,
-                tx,
-                l2_source_token_symbol,
-                &chain_id.unwrap(),
-                &addr.unwrap(),
-            ),
+            Layer1Sginer::StarknetSigner(signer) => {
+                let chain_id = starknet_chain_id.ok_or(SignError::StarkSigningError(
+                    StarkSignerError::SignError("Invalid starknet_chain_id".to_string()),
+                ))?;
+                let addr = starknet_addr.ok_or(SignError::StarkSigningError(
+                    StarkSignerError::SignError("Invalid starknet_addr".to_string()),
+                ))?;
+                sign_starknet_withdraw(
+                    signer,
+                    &self.zklink_signer,
+                    tx,
+                    l2_source_token_symbol,
+                    &chain_id,
+                    &addr,
+                )
+            }
         }
     }
 

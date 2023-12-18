@@ -2,7 +2,7 @@ use crate::{
     PackedEthSignature, PackedPublicKey, PackedSignature, PubKeyHash, TxHash,
     UniffiCustomTypeConverter,
 };
-use zklink_sdk_signers::starknet_signer::StarkECDSASignature;
+use zklink_sdk_signers::starknet_signer::StarkEip712Signature;
 
 macro_rules! ffi_hex_convert {
     ($(#[$attr:meta])* $name:ident) => {
@@ -24,7 +24,7 @@ ffi_hex_convert!(PackedPublicKey);
 ffi_hex_convert!(PackedSignature);
 ffi_hex_convert!(PubKeyHash);
 ffi_hex_convert!(PackedEthSignature);
-ffi_hex_convert!(StarkECDSASignature);
+ffi_hex_convert!(StarkEip712Signature);
 
 #[cfg(test)]
 mod test {

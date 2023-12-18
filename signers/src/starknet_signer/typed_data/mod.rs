@@ -196,3 +196,47 @@ impl TypedData {
         Ok(compute_hash_on_elements(&data))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::starknet_signer::typed_data::message::TxMessage;
+
+    #[test]
+    fn test_struct_hash() {
+        let transfer = TxMessage {
+            amount: "0.0012345678998".to_string(),
+            fee: "0.00000001".to_string(),
+            nonce: "1".to_string(),
+            to: "0x0322546b712D87B8565C33530A6396D85f024F2C99ff564019a5Fc4c38e0F740".to_string(),
+            token: "USDC".to_string(),
+            transaction: "Transfer".to_string(),
+        };
+
+        let message = transfer.clone();
+        let starknet_chain_id = "SN_GOERLI".to_string();
+        let typed_data = TypedData::new(
+            TypedDataMessage::Transaction {
+                message: message.clone(),
+            },
+            starknet_chain_id.clone(),
+        );
+        let domain = StarknetDomain {
+            name: "zklink".to_string(),
+            version: "1".to_string(),
+            chain_id: starknet_chain_id,
+        };
+        let domain_hash = typed_data
+            .get_struct_hash("StarkNetDomain", &domain)
+            .unwrap();
+        let message_hash = typed_data.get_struct_hash("Message", &message).unwrap();
+        assert_eq!(
+            hex::encode(domain_hash.to_bytes_be()),
+            "0676111d4742900503a856514c9ae6d075566fe29007e31626f1f0a5ab4fd1fe"
+        );
+        assert_eq!(
+            hex::encode(message_hash.to_bytes_be()),
+            "03277b1075fc75aa5224b51140c9576733fb1be95c200fcb7ec264ad7b3fb010"
+        );
+    }
+}

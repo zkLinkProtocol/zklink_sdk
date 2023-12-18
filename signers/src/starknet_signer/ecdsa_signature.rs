@@ -11,12 +11,12 @@ use std::str::FromStr;
 use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Eq, Debug)]
-pub struct StarkSignature {
+pub struct StarkEcdsaSignature {
     pub s: FieldElement,
     pub r: FieldElement,
 }
 
-impl StarkSignature {
+impl StarkEcdsaSignature {
     pub fn to_bytes_be(&self) -> [u8; 64] {
         let mut bytes = [0; 64];
         let s = self.s.to_bytes_be();
@@ -37,7 +37,7 @@ impl StarkSignature {
         Self::from_bytes_be(&bytes)
     }
 
-    pub fn from_str(r: &str, s: &str) -> Result<Self, StarkSignerError> {
+    pub fn from_rs_str(r: &str, s: &str) -> Result<Self, StarkSignerError> {
         let r = FieldElement::from_str(r)
             .map_err(|e| StarkSignerError::InvalidSignature(e.to_string()))?;
         let s = FieldElement::from_str(s)
@@ -64,14 +64,14 @@ impl StarkSignature {
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct StarkECDSASignature {
+pub struct StarkEip712Signature {
     /// starknet public key
     pub pub_key: FieldElement,
     /// starknet signature
-    pub signature: StarkSignature,
+    pub signature: StarkEcdsaSignature,
 }
 
-impl StarkECDSASignature {
+impl StarkEip712Signature {
     pub fn to_bytes_be(&self) -> Vec<u8> {
         let mut bytes = [0_u8; 96];
         let pub_key = self.pub_key.to_bytes_be();
@@ -91,7 +91,7 @@ impl StarkECDSASignature {
         pub_key.clone_from_slice(&bytes[0..32]);
         let pub_key = FieldElement::from_bytes_be(&pub_key)
             .map_err(|_| StarkSignerError::invalid_signature("invalid public key"))?;
-        let signature = StarkSignature::from_bytes_be(&bytes[32..])?;
+        let signature = StarkEcdsaSignature::from_bytes_be(&bytes[32..])?;
         Ok(Self { pub_key, signature })
     }
 
@@ -107,7 +107,7 @@ impl StarkECDSASignature {
     }
 }
 
-impl StarkECDSASignature {
+impl StarkEip712Signature {
     pub fn verify(&self, msg: &TypedData, addr: &str) -> Result<bool, StarkSignerError> {
         let addr = FieldElement::from_hex_be(addr)
             .map_err(|e| StarkSignerError::SignError(e.to_string()))?;
@@ -126,19 +126,19 @@ impl StarkECDSASignature {
     }
 }
 
-impl fmt::Display for StarkECDSASignature {
+impl fmt::Display for StarkEip712Signature {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "StarkECDSASignature {}", self.as_hex())
+        write!(f, "StarkEip712Signature {}", self.as_hex())
     }
 }
 
-impl fmt::Debug for StarkECDSASignature {
+impl fmt::Debug for StarkEip712Signature {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_hex())
     }
 }
 
-impl<'de> Deserialize<'de> for StarkECDSASignature {
+impl<'de> Deserialize<'de> for StarkEip712Signature {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -149,7 +149,7 @@ impl<'de> Deserialize<'de> for StarkECDSASignature {
     }
 }
 
-impl Serialize for StarkECDSASignature {
+impl Serialize for StarkEip712Signature {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let bytes = self.to_bytes_be();
         ZeroPrefixHexSerde::serialize(bytes, serializer)

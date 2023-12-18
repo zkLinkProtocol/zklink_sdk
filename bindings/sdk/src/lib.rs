@@ -11,7 +11,7 @@ use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::eth_signer::{Address, H256};
 
 use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
-use zklink_sdk_signers::starknet_signer::{StarkECDSASignature, StarkSigner};
+use zklink_sdk_signers::starknet_signer::{StarkEip712Signature, StarkSigner};
 
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;

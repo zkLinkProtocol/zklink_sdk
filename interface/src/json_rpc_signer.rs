@@ -13,7 +13,7 @@ use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::{
 };
 
 use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
-use zklink_sdk_signers::starknet_signer::StarkECDSASignature;
+use zklink_sdk_signers::starknet_signer::StarkEip712Signature;
 use zklink_sdk_signers::zklink_signer::{ZkLinkSignature, ZkLinkSigner};
 use zklink_sdk_types::prelude::PackedEthSignature;
 use zklink_sdk_types::signatures::TxSignature;
@@ -36,7 +36,7 @@ pub enum Layer1JsonRpcSigner {
 
 pub struct JsonRpcSigner {
     zklink_signer: ZkLinkSigner,
-    eth_signer: Layer1JsonRpcSigner,
+    layer1_signer: Layer1JsonRpcSigner,
 }
 
 impl JsonRpcSigner {
@@ -56,26 +56,26 @@ impl JsonRpcSigner {
         let default_zklink_signer = ZkLinkSigner::new()?;
         Ok(Self {
             zklink_signer: default_zklink_signer,
-            eth_signer: eth_json_rpc_signer,
+            layer1_signer: eth_json_rpc_signer,
         })
     }
 
     pub async fn init_zklink_signer(&mut self, signature: Option<String>) -> Result<(), SignError> {
         let zklink_signer = if let Some(s) = signature {
-            match &self.eth_signer {
+            match &self.layer1_signer {
                 Layer1JsonRpcSigner::EthSigner(_) => {
                     let signature = PackedEthSignature::from_hex(&s)?;
                     let seed = signature.serialize_packed();
                     ZkLinkSigner::new_from_seed(&seed)?
                 }
                 Layer1JsonRpcSigner::StarknetSigner(_) => {
-                    let signature = StarkECDSASignature::from_hex(&s)?;
+                    let signature = StarkEip712Signature::from_hex(&s)?;
                     let seed = signature.signature.to_bytes_be();
                     ZkLinkSigner::new_from_seed(&seed)?
                 }
             }
         } else {
-            match &self.eth_signer {
+            match &self.layer1_signer {
                 Layer1JsonRpcSigner::EthSigner(signer) => {
                     ZkLinkSigner::new_from_eth_rpc_signer(signer).await?
                 }
@@ -93,7 +93,7 @@ impl JsonRpcSigner {
         tx: Transfer,
         token_symbol: &str,
     ) -> Result<TxSignature, SignError> {
-        match &self.eth_signer {
+        match &self.layer1_signer {
             Layer1JsonRpcSigner::EthSigner(signer) => {
                 sign_eth_transfer(signer, &self.zklink_signer, tx, token_symbol).await
             }
@@ -123,7 +123,7 @@ impl JsonRpcSigner {
 
         // create auth data
         let eth_sign_msg = ChangePubKey::get_eth_sign_msg(&tx.new_pk_hash, tx.nonce, tx.account_id);
-        let eth_signature = match &self.eth_signer {
+        let eth_signature = match &self.layer1_signer {
             Layer1JsonRpcSigner::EthSigner(signer) => {
                 signer.sign_message(eth_sign_msg.as_bytes()).await?
             }
@@ -148,7 +148,7 @@ impl JsonRpcSigner {
         tx: Withdraw,
         l2_source_token_symbol: &str,
     ) -> Result<TxSignature, SignError> {
-        match &self.eth_signer {
+        match &self.layer1_signer {
             Layer1JsonRpcSigner::EthSigner(signer) => {
                 sign_eth_withdraw(signer, &self.zklink_signer, tx, l2_source_token_symbol).await
             }

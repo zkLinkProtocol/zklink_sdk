@@ -521,14 +521,14 @@ interface TypedData {
 };
 
 [Custom]
-typedef string StarkECDSASignature;
+typedef string StarkEip712Signature ;
 
 interface StarkSigner {
     constructor();
     [Throws=StarkSignerError,Name=new_from_hex_str]
     constructor([ByRef] string hex_str);
     [Throws=StarkSignerError]
-    StarkECDSASignature sign_message([ByRef] TypedData typed_data,[ByRef] string addr);
+    StarkEip712Signature sign_message([ByRef] TypedData typed_data,[ByRef] string addr);
 };
 
 
