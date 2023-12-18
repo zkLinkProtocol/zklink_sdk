@@ -491,6 +491,35 @@ enum StarkSignerError {
     "InvalidPrivKey",
     "SignError",
 };
+
+dictionary TypeDefine {
+    string name;
+    string type;
+};
+
+dictionary TxMessage {
+    string transaction;
+    string amount;
+    string fee;
+    string token;
+    string to;
+    string nonce;
+};
+
+dictionary Message {
+    string data;
+};
+
+[Enum]
+interface TypedDataMessage {
+    CreateL2Key(Message message);
+    Transaction(TxMessage message);
+};
+
+interface TypedData {
+    constructor(TypedDataMessage message,string chain_id);
+};
+
 [Custom]
 typedef string StarkECDSASignature;
 
@@ -499,7 +528,7 @@ interface StarkSigner {
     [Throws=StarkSignerError,Name=new_from_hex_str]
     constructor([ByRef] string hex_str);
     [Throws=StarkSignerError]
-    StarkECDSASignature sign_message([ByRef] sequence<u8> message);
+    StarkECDSASignature sign_message([ByRef] TypedData typed_data,[ByRef] string addr);
 };
 
 
@@ -538,7 +567,7 @@ interface ZkLinkSigner {
     [Throws=ZkSignerError,Name=new_from_hex_eth_signer]
     constructor([ByRef] string eth_hex_private_key);
     [Throws=ZkSignerError,Name=new_from_hex_stark_signer]
-    constructor([ByRef] string hex_private_key);
+    constructor([ByRef] string hex_private_key,[ByRef] string addr,[ByRef] string chain_id);
     [Throws=ZkSignerError,Name=new_from_bytes]
     constructor([ByRef] sequence<u8> slice);
     PackedPublicKey public_key();
@@ -580,9 +609,9 @@ interface Signer {
     [Throws=SignError]
     TxSignature sign_change_pubkey_with_eth_ecdsa_auth(ChangePubKey tx);
     [Throws=SignError]
-    TxSignature sign_transfer(Transfer tx, [ByRef]string token_sybmol);
+    TxSignature sign_transfer(Transfer tx, [ByRef]string token_sybmol,string? chain_id,string? addr);
     [Throws=SignError]
-    TxSignature sign_withdraw(Withdraw tx, [ByRef]string l2_source_token_symbol);
+    TxSignature sign_withdraw(Withdraw tx, [ByRef]string l2_source_token_symbol,string? chain_id,string? addr);
     [Throws=SignError]
     TxSignature sign_forced_exit(ForcedExit tx);
     [Throws=SignError]

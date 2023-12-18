@@ -17,7 +17,9 @@ use crate::params::TOKEN_MAX_PRECISION;
 #[cfg(feature = "ffi")]
 use crate::prelude::WithdrawBuilder;
 use crate::tx_type::validator::*;
-use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait, starknet_sign_message_part};
+use crate::tx_type::{
+    ethereum_sign_message_part, starknet_sign_message_part, TxTrait, ZkSignatureTrait,
+};
 use zklink_sdk_signers::starknet_signer::typed_data::message::TxMessage;
 
 /// `Withdraw` transaction performs a withdrawal of funds from zklink account to L1 account.
@@ -97,7 +99,7 @@ impl Withdraw {
         message
     }
 
-    pub fn get_starknet_sign_msg(&self,token_symbol:&str) -> TxMessage {
+    pub fn get_starknet_sign_msg(&self, token_symbol: &str) -> TxMessage {
         starknet_sign_message_part(
             "Withdraw",
             token_symbol,

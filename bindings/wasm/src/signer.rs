@@ -100,10 +100,18 @@ impl Signer {
     }
 
     #[wasm_bindgen(js_name=signTransfer)]
-    pub fn sign_transfer(&self, tx: Transfer, token_symbol: &str) -> Result<JsValue, JsValue> {
+    pub fn sign_transfer(
+        &self,
+        tx: Transfer,
+        token_symbol: &str,
+        chain_id: Option<String>,
+        addr: Option<String>,
+    ) -> Result<JsValue, JsValue> {
         let inner_tx = tx.json_value()?;
         let transfer: TxTransfer = serde_wasm_bindgen::from_value(inner_tx)?;
-        let signature = self.inner.sign_transfer(transfer, token_symbol)?;
+        let signature = self
+            .inner
+            .sign_transfer(transfer, token_symbol, chain_id, addr)?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
     }
 
@@ -124,10 +132,18 @@ impl Signer {
     }
 
     #[wasm_bindgen(js_name=signWithdraw)]
-    pub fn sign_withdraw(&self, tx: Withdraw, token_symbol: &str) -> Result<JsValue, JsValue> {
+    pub fn sign_withdraw(
+        &self,
+        tx: Withdraw,
+        token_symbol: &str,
+        chain_id: Option<String>,
+        addr: Option<String>,
+    ) -> Result<JsValue, JsValue> {
         let inner_tx = tx.json_value()?;
         let withdraw: TxWithdraw = serde_wasm_bindgen::from_value(inner_tx)?;
-        let signature = self.inner.sign_withdraw(withdraw, token_symbol)?;
+        let signature = self
+            .inner
+            .sign_withdraw(withdraw, token_symbol, chain_id, addr)?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
     }
 

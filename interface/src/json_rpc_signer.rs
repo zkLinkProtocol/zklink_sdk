@@ -9,9 +9,11 @@ use zklink_sdk_signers::eth_signer::json_rpc_signer::{
     JsonRpcSigner as EthJsonRpcSigner, Provider,
 };
 use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::{
-    StarknetJsonRpcSigner,Signer as StarknetAccountSigner
+    Signer as StarknetAccountSigner, StarknetJsonRpcSigner,
 };
 
+use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
+use zklink_sdk_signers::starknet_signer::StarkECDSASignature;
 use zklink_sdk_signers::zklink_signer::{ZkLinkSignature, ZkLinkSigner};
 use zklink_sdk_types::prelude::PackedEthSignature;
 use zklink_sdk_types::signatures::TxSignature;
@@ -22,12 +24,10 @@ use zklink_sdk_types::tx_type::transfer::Transfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
-use zklink_sdk_signers::starknet_signer::StarkECDSASignature;
-use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
 
 pub enum JsonRpcProvider {
     Provider(Provider),
-    Signer(StarknetAccountSigner)
+    Signer(StarknetAccountSigner),
 }
 pub enum Layer1JsonRpcSigner {
     EthSigner(EthJsonRpcSigner),
@@ -40,12 +40,18 @@ pub struct JsonRpcSigner {
 }
 
 impl JsonRpcSigner {
-    pub fn new(provider: JsonRpcProvider,pub_key: Option<String>,chain_id: Option<String>) -> Result<Self, SignError> {
+    pub fn new(
+        provider: JsonRpcProvider,
+        pub_key: Option<String>,
+        chain_id: Option<String>,
+    ) -> Result<Self, SignError> {
         let eth_json_rpc_signer = match provider {
-            JsonRpcProvider::Provider(provider) =>
-                Layer1JsonRpcSigner::EthSigner(EthJsonRpcSigner::new(provider)),
-            JsonRpcProvider::Signer(signer) =>
-                Layer1JsonRpcSigner::StarknetSigner(StarknetJsonRpcSigner::new(signer,pub_key.unwrap(),chain_id.unwrap()))
+            JsonRpcProvider::Provider(provider) => {
+                Layer1JsonRpcSigner::EthSigner(EthJsonRpcSigner::new(provider))
+            }
+            JsonRpcProvider::Signer(signer) => Layer1JsonRpcSigner::StarknetSigner(
+                StarknetJsonRpcSigner::new(signer, pub_key.unwrap(), chain_id.unwrap()),
+            ),
         };
         let default_zklink_signer = ZkLinkSigner::new()?;
         Ok(Self {
@@ -61,19 +67,21 @@ impl JsonRpcSigner {
                     let signature = PackedEthSignature::from_hex(&s)?;
                     let seed = signature.serialize_packed();
                     ZkLinkSigner::new_from_seed(&seed)?
-                },
+                }
                 Layer1JsonRpcSigner::StarknetSigner(_) => {
                     let signature = StarkECDSASignature::from_hex(&s)?;
                     let seed = signature.signature.to_bytes_be();
                     ZkLinkSigner::new_from_seed(&seed)?
                 }
             }
-        } else  {
+        } else {
             match &self.eth_signer {
-                Layer1JsonRpcSigner::EthSigner(signer) =>
-                    ZkLinkSigner::new_from_eth_rpc_signer(signer).await?,
-                Layer1JsonRpcSigner::StarknetSigner(signer) =>
-                    ZkLinkSigner::new_from_starknet_rpc_signer(signer).await?,
+                Layer1JsonRpcSigner::EthSigner(signer) => {
+                    ZkLinkSigner::new_from_eth_rpc_signer(signer).await?
+                }
+                Layer1JsonRpcSigner::StarknetSigner(signer) => {
+                    ZkLinkSigner::new_from_starknet_rpc_signer(signer).await?
+                }
             }
         };
         self.zklink_signer = zklink_signer;
@@ -86,10 +94,12 @@ impl JsonRpcSigner {
         token_symbol: &str,
     ) -> Result<TxSignature, SignError> {
         match &self.eth_signer {
-            Layer1JsonRpcSigner::EthSigner(signer) =>
-                sign_eth_transfer(signer, &self.zklink_signer, tx, token_symbol).await,
-            Layer1JsonRpcSigner::StarknetSigner(signer) =>
-                sign_starknet_transfer(signer, &self.zklink_signer, tx, token_symbol).await,
+            Layer1JsonRpcSigner::EthSigner(signer) => {
+                sign_eth_transfer(signer, &self.zklink_signer, tx, token_symbol).await
+            }
+            Layer1JsonRpcSigner::StarknetSigner(signer) => {
+                sign_starknet_transfer(signer, &self.zklink_signer, tx, token_symbol).await
+            }
         }
     }
 
@@ -114,11 +124,14 @@ impl JsonRpcSigner {
         // create auth data
         let eth_sign_msg = ChangePubKey::get_eth_sign_msg(&tx.new_pk_hash, tx.nonce, tx.account_id);
         let eth_signature = match &self.eth_signer {
-            Layer1JsonRpcSigner::EthSigner(signer) =>
-                signer.sign_message(eth_sign_msg.as_bytes()).await?,
+            Layer1JsonRpcSigner::EthSigner(signer) => {
+                signer.sign_message(eth_sign_msg.as_bytes()).await?
+            }
             Layer1JsonRpcSigner::StarknetSigner(_) => {
                 //starknet only support change_pubkey_onchain
-                return Err(StarkSignerError::SignError("Not support for starknet".to_string()).into());
+                return Err(
+                    StarkSignerError::SignError("Not support for starknet".to_string()).into(),
+                );
             }
         };
 
@@ -136,10 +149,13 @@ impl JsonRpcSigner {
         l2_source_token_symbol: &str,
     ) -> Result<TxSignature, SignError> {
         match &self.eth_signer {
-            Layer1JsonRpcSigner::EthSigner(signer) =>
-                sign_eth_withdraw(signer, &self.zklink_signer, tx, l2_source_token_symbol).await,
-            Layer1JsonRpcSigner::StarknetSigner(signer) =>
-                sign_starknet_withdraw(signer, &self.zklink_signer, tx, l2_source_token_symbol).await,
+            Layer1JsonRpcSigner::EthSigner(signer) => {
+                sign_eth_withdraw(signer, &self.zklink_signer, tx, l2_source_token_symbol).await
+            }
+            Layer1JsonRpcSigner::StarknetSigner(signer) => {
+                sign_starknet_withdraw(signer, &self.zklink_signer, tx, l2_source_token_symbol)
+                    .await
+            }
         }
     }
 

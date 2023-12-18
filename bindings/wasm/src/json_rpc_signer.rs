@@ -6,8 +6,10 @@ use crate::tx_types::transfer::Transfer;
 use crate::tx_types::withdraw::Withdraw;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
+use zklink_sdk_interface::json_rpc_signer::JsonRpcProvider;
 use zklink_sdk_interface::json_rpc_signer::JsonRpcSigner as InterfaceJsonRpcSigner;
 use zklink_sdk_signers::eth_signer::json_rpc_signer::Provider;
+use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::Signer;
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey as TxChangePubKey;
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data as ChangePubKeyCreate2Data;
 use zklink_sdk_types::tx_type::forced_exit::ForcedExit as TxForcedExit;
@@ -17,8 +19,6 @@ use zklink_sdk_types::tx_type::order_matching::{
 use zklink_sdk_types::tx_type::transfer::Transfer as TxTransfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw as TxWithdraw;
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
-use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::Signer;
-use zklink_sdk_interface::json_rpc_signer::JsonRpcProvider;
 
 #[wasm_bindgen]
 pub struct JsonRpcSigner {
@@ -28,14 +28,22 @@ pub struct JsonRpcSigner {
 //#[wasm_bindgen(constructor)]
 #[wasm_bindgen(js_name=newRpcSignerWtihProvider)]
 pub fn new_with_provider(provider: Provider) -> Result<JsonRpcSigner, JsValue> {
-    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Provider(provider),None,None)?;
+    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Provider(provider), None, None)?;
     Ok(JsonRpcSigner { inner })
 }
 
 //#[wasm_bindgen(constructor)]
 #[wasm_bindgen(js_name=newRpcSignerWithSigner)]
-pub fn new_with_signer(signer: Signer, pub_key: String,chain_id: String) -> Result<JsonRpcSigner, JsValue> {
-    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Signer(signer),Some(pub_key),Some(chain_id))?;
+pub fn new_with_signer(
+    signer: Signer,
+    pub_key: String,
+    chain_id: String,
+) -> Result<JsonRpcSigner, JsValue> {
+    let inner = InterfaceJsonRpcSigner::new(
+        JsonRpcProvider::Signer(signer),
+        Some(pub_key),
+        Some(chain_id),
+    )?;
     Ok(JsonRpcSigner { inner })
 }
 

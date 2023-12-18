@@ -126,6 +126,8 @@ impl Signer {
         &self,
         tx: Transfer,
         token_symbol: &str,
+        chain_id: Option<String>,
+        addr: Option<String>,
     ) -> Result<TxSignature, SignError> {
         #[cfg(feature = "ffi")]
         let tx = (*tx).clone();
@@ -133,9 +135,14 @@ impl Signer {
             Layer1Sginer::EthSigner(signer) => {
                 sign_eth_transfer(signer, &self.zklink_signer, tx, token_symbol)
             }
-            Layer1Sginer::StarknetSigner(signer) => {
-                sign_starknet_transfer(signer, &self.zklink_signer, tx,token_symbol)
-            }
+            Layer1Sginer::StarknetSigner(signer) => sign_starknet_transfer(
+                signer,
+                &self.zklink_signer,
+                tx,
+                token_symbol,
+                &chain_id.unwrap(),
+                &addr.unwrap(),
+            ),
         }
     }
 
@@ -144,6 +151,8 @@ impl Signer {
         &self,
         tx: Withdraw,
         l2_source_token_symbol: &str,
+        chain_id: Option<String>,
+        addr: Option<String>,
     ) -> Result<TxSignature, SignError> {
         #[cfg(feature = "ffi")]
         let tx = (*tx).clone();
@@ -151,9 +160,14 @@ impl Signer {
             Layer1Sginer::EthSigner(signer) => {
                 sign_eth_withdraw(signer, &self.zklink_signer, tx, l2_source_token_symbol)
             }
-            Layer1Sginer::StarknetSigner(signer) => {
-                sign_starknet_withdraw(signer, &self.zklink_signer, tx,l2_source_token_symbol)
-            }
+            Layer1Sginer::StarknetSigner(signer) => sign_starknet_withdraw(
+                signer,
+                &self.zklink_signer,
+                tx,
+                l2_source_token_symbol,
+                &chain_id.unwrap(),
+                &addr.unwrap(),
+            ),
         }
     }
 

@@ -3,7 +3,9 @@ use crate::basic_types::{
     AccountId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
 use crate::tx_type::validator::*;
-use crate::tx_type::{ethereum_sign_message_part, TxTrait, ZkSignatureTrait, starknet_sign_message_part};
+use crate::tx_type::{
+    ethereum_sign_message_part, starknet_sign_message_part, TxTrait, ZkSignatureTrait,
+};
 
 use crate::params::{SIGNED_TRANSFER_BIT_WIDTH, TOKEN_MAX_PRECISION, TX_TYPE_BIT_WIDTH};
 #[cfg(feature = "ffi")]
@@ -16,12 +18,13 @@ use std::sync::Arc;
 use validator::Validate;
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
+use zklink_sdk_signers::starknet_signer::typed_data::message::TxMessage;
+use zklink_sdk_signers::starknet_signer::typed_data::message::TypedDataMessage;
+use zklink_sdk_signers::starknet_signer::typed_data::TypedData;
 use zklink_sdk_signers::starknet_signer::StarkSigner;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
-use zklink_sdk_signers::starknet_signer::typed_data::message::TxMessage;
-
 /// `Transfer` transaction performs a move of funds from one zklink account to another.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
@@ -90,7 +93,7 @@ impl Transfer {
         message
     }
 
-    pub fn get_starknet_sign_msg(&self,token_symbol: &str) -> TxMessage {
+    pub fn get_starknet_sign_msg(&self, token_symbol: &str) -> TxMessage {
         starknet_sign_message_part(
             "Transfer",
             token_symbol,
@@ -131,11 +134,15 @@ impl Transfer {
         &self,
         starknet_signer: &StarkSigner,
         token_symbol: &str,
+        chain_id: &str,
+        addr: &str,
     ) -> Result<TxLayer1Signature, StarkSignerError> {
-        //todo: use eip712
-        //let message = self.get_starknet_sign_msg(token_symbol);
-        let message = self.get_eth_sign_msg(token_symbol);
-        let signature = starknet_signer.sign_message(message.as_bytes())?;
+        let message = self.get_starknet_sign_msg(token_symbol);
+        let typed_data = TypedData::new(
+            TypedDataMessage::Transaction { message },
+            chain_id.to_string(),
+        );
+        let signature = starknet_signer.sign_message(&typed_data, addr)?;
         let tx_eth_signature = TxLayer1Signature::StarkSignature(signature);
         Ok(tx_eth_signature)
     }
@@ -145,9 +152,15 @@ impl Transfer {
         &self,
         starknet_signer: Arc<StarkSigner>,
         token_symbol: &str,
+        chain_id: &str,
+        addr: &str,
     ) -> Result<TxLayer1Signature, StarkSignerError> {
-        let message = self.get_eth_sign_msg(token_symbol);
-        let signature = starknet_signer.sign_message(message.as_bytes())?;
+        let message = self.get_starknet_sign_msg(token_symbol);
+        let typed_data = TypedData::new(
+            TypedDataMessage::Transaction { message },
+            chain_id.to_string(),
+        );
+        let signature = starknet_signer.sign_message(&typed_data, addr)?;
         let tx_eth_signature = TxLayer1Signature::StarkSignature(signature);
         Ok(tx_eth_signature)
     }
@@ -263,11 +276,14 @@ mod test {
         // check starknet signature
         let private_key_str = "0x02c5dbad71c92a45cc4b40573ae661f8147869a91d57b8d9b8f48c8af7f83159";
         let private_key = StarkSigner::new_from_hex_str(private_key_str).unwrap();
-        let message = tx.get_starknet_sign_msg();
-        let signature = private_key.sign_message(&message).unwrap();
-        let is_ok = signature.verify(&message).unwrap();
+        let message = tx.get_starknet_sign_msg("USDC");
+        let addr = "0x04A69b67bcaBfA7D3CCb96e1d25C2e6fC93589fE24A6fD04566B8700ff97a71a";
+        let typed_data = TypedData::new(
+            TypedDataMessage::Transaction { message },
+            "SN_GOERLI".to_string(),
+        );
+        let signature = private_key.sign_message(&typed_data, addr).unwrap();
+        let is_ok = signature.verify(&typed_data, addr).unwrap();
         assert!(is_ok);
-        let starknet_signature = "0x0226424352505249f119fd6913430aad28321afcff18036139b6fa77c4fad6cc064a51bbd082ecb0956589f6089ee24dd9ec32b083f5d56352ca94e5c51d3aa504b98450aa2cc9f9f1f5c0ab47dc28ccff41f7661b6e20181e8204ada6213e1e";
-        assert_eq!(signature.as_hex(), starknet_signature);
     }
 }

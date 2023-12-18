@@ -11,6 +11,7 @@ franklin_crypto = { package = "franklin-crypto", version = "0.0.5", git = "https
 hex = "0.4"
 js-sys = "0.3.64"
 k256 = { version = "0.13.1", features = ["ecdsa","sha256"] }
+num = { version = "0.4", features = ["serde"] }
 primitive-types = { version = "0.12", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde-wasm-bindgen = "0.5"
@@ -23,8 +24,6 @@ thiserror = "1.0"
 wasm-bindgen = { version = "0.2.87", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4"
 zklink_sdk_utils = { path = "../utils" }
-web-sys = "0.3"
-num = { version = "0.4", features = ["serde"] }
 
 [features]
 default = []

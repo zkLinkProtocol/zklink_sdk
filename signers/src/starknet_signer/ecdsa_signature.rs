@@ -1,17 +1,16 @@
 #![allow(dead_code)]
 use super::error::StarkSignerError;
-use crate::starknet_signer::pk_signer::StarkSigner;
+use crate::starknet_signer::typed_data::TypedData;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use starknet_core::crypto::Signature;
 use starknet_core::types::FieldElement;
 use starknet_signers::VerifyingKey;
 use std::fmt;
 use std::fmt::Formatter;
-use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
-use num::BigUint;
 use std::str::FromStr;
+use zklink_sdk_utils::serde::ZeroPrefixHexSerde;
 
-#[derive(Clone, PartialEq,Serialize, Deserialize,Eq,Debug)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Eq, Debug)]
 pub struct StarkSignature {
     pub s: FieldElement,
     pub r: FieldElement,
@@ -32,21 +31,19 @@ impl StarkSignature {
         hex::encode(bytes)
     }
 
-
     pub fn from_hex(s: &str) -> Result<Self, StarkSignerError> {
         let s = s.strip_prefix("0x").unwrap_or(s);
         let bytes = hex::decode(s).map_err(StarkSignerError::invalid_signature)?;
         Self::from_bytes_be(&bytes)
     }
 
-    pub fn from_str(r:&str,s: &str) -> Result<Self, StarkSignerError> {
+    pub fn from_str(r: &str, s: &str) -> Result<Self, StarkSignerError> {
         let r = FieldElement::from_str(r)
             .map_err(|e| StarkSignerError::InvalidSignature(e.to_string()))?;
         let s = FieldElement::from_str(s)
             .map_err(|e| StarkSignerError::InvalidSignature(e.to_string()))?;
-        Ok(Self { s,r })
+        Ok(Self { s, r })
     }
-
 
     pub fn from_bytes_be(bytes: &[u8]) -> Result<Self, StarkSignerError> {
         let mut s = [0_u8; 32];
@@ -111,9 +108,11 @@ impl StarkECDSASignature {
 }
 
 impl StarkECDSASignature {
-    pub fn verify(&self, msg: &[u8]) -> Result<bool, StarkSignerError> {
+    pub fn verify(&self, msg: &TypedData, addr: &str) -> Result<bool, StarkSignerError> {
+        let addr = FieldElement::from_hex_be(addr)
+            .map_err(|e| StarkSignerError::SignError(e.to_string()))?;
+        let hash = msg.get_message_hash(addr)?;
         let verifying_key = VerifyingKey::from_scalar(self.pub_key);
-        let hash = StarkSigner::get_msg_hash(msg);
         let is_ok = verifying_key
             .verify(
                 &hash,

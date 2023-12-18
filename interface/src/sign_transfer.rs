@@ -1,18 +1,21 @@
 use crate::error::SignError;
+// #[cfg(feature = "ffi")]
+// use std::sync::Arc;
 #[cfg(feature = "web")]
 use zklink_sdk_signers::eth_signer::json_rpc_signer::JsonRpcSigner;
-#[cfg(feature = "web")]
-use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::StarknetJsonRpcSigner;
 #[cfg(not(feature = "web"))]
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+#[cfg(feature = "web")]
+use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::StarknetJsonRpcSigner;
+use zklink_sdk_signers::starknet_signer::typed_data::message::TypedDataMessage;
+#[cfg(not(feature = "web"))]
+use zklink_sdk_signers::starknet_signer::typed_data::TypedData;
 #[cfg(not(feature = "web"))]
 use zklink_sdk_signers::starknet_signer::StarkSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::prelude::TxSignature;
 use zklink_sdk_types::tx_type::transfer::Transfer;
-#[cfg(feature = "web")]
-use zklink_sdk_signers::starknet_signer::typed_data::message::TypedDataMessage;
 
 #[cfg(not(feature = "web"))]
 pub fn sign_eth_transfer(
@@ -57,7 +60,9 @@ pub async fn sign_starknet_transfer(
 ) -> Result<TxSignature, SignError> {
     tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
     let message = tx.get_starknet_sign_msg(token_symbol);
-    let starknet_signature = starknet_signer.sign_message(TypedDataMessage::Transaction(message)).await?;
+    let starknet_signature = starknet_signer
+        .sign_message(TypedDataMessage::Transaction { message })
+        .await?;
 
     Ok(TxSignature {
         tx: tx.into(),
@@ -68,14 +73,21 @@ pub async fn sign_starknet_transfer(
 #[cfg(not(feature = "web"))]
 pub fn sign_starknet_transfer(
     signer: &StarkSigner,
-    zklink_syner: &ZkLinkSigner,
+    zklink_signer: &ZkLinkSigner,
     mut tx: Transfer,
     token_symbol: &str,
+    chain_id: &str,
+    addr: &str,
 ) -> Result<TxSignature, SignError> {
-    tx.signature = zklink_syner.sign_musig(&tx.get_bytes())?;
-    //let message = tx.get_starknet_sign_msg(token_symbol);
-    let message = tx.get_eth_sign_msg(token_symbol);
-    let starknet_signature = signer.sign_message(message.as_bytes())?;
+    tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
+    let message = tx.get_starknet_sign_msg(token_symbol);
+    // #[cfg(feature = "ffi")]
+    // let message = Arc::new(message);
+    let typed_data = TypedData::new(
+        TypedDataMessage::Transaction { message },
+        chain_id.to_string(),
+    );
+    let starknet_signature = signer.sign_message(&typed_data, addr)?;
 
     Ok(TxSignature {
         tx: tx.into(),

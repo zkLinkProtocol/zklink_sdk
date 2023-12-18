@@ -14,11 +14,11 @@ use serde::Serialize;
 use std::collections::VecDeque;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
+use zklink_sdk_signers::starknet_signer::typed_data::message::TxMessage;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pk_signer::{sha256_bytes, ZkLinkSigner};
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_signers::zklink_signer::PubKeyHash;
-use zklink_sdk_signers::starknet_signer::typed_data::message::TxMessage;
 
 pub mod validator;
 
@@ -106,15 +106,14 @@ pub fn starknet_sign_message_part(
     to: &ZkLinkAddress,
     nonce: String,
 ) -> TxMessage {
-    let message = TxMessage {
+    TxMessage {
         transaction: transaction.to_string(),
         amount: format_units(amount, decimals),
         token: token_symbol.to_string(),
         fee: format_units(fee, decimals),
         to: to.to_string(),
         nonce,
-    };
-    message
+    }
 }
 
 /// Formats amount in wei to tokens with precision.
