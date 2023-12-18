@@ -10,8 +10,6 @@ use starknet_core::types::FieldElement;
 use starknet_core::utils::starknet_keccak;
 use std::fmt::Debug;
 use std::str::FromStr;
-// #[cfg(feature = "ffi")]
-// use std::sync::Arc;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]

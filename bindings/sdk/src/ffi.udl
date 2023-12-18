@@ -492,11 +492,6 @@ enum StarkSignerError {
     "SignError",
 };
 
-dictionary TypeDefine {
-    string name;
-    string type;
-};
-
 dictionary TxMessage {
     string transaction;
     string amount;

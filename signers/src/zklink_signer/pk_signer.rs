@@ -12,8 +12,6 @@ use franklin_crypto::bellman::{PrimeField, PrimeFieldRepr};
 use franklin_crypto::eddsa::{PrivateKey as FLPrivateKey, PrivateKey, PublicKey, Seed};
 use sha2::{Digest, Sha256};
 use std::fmt;
-// #[cfg(feature = "ffi")]
-// use std::sync::Arc;
 
 #[cfg(feature = "web")]
 use crate::eth_signer::json_rpc_signer::JsonRpcSigner;
@@ -124,8 +122,6 @@ impl ZkLinkSigner {
         let message = Message {
             data: Self::STARKNET_SIGN_MESSAGE.to_string(),
         };
-        // #[cfg(feature = "ffi")]
-        // let message = Arc::new(message);
         let typed_data = TypedData::new(
             TypedDataMessage::CreateL2Key { message },
             chain_id.to_string(),

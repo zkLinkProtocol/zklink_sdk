@@ -40,7 +40,6 @@ use zklink_sdk_interface::ChangePubKeyAuthRequest;
 use zklink_sdk_signers::starknet_signer::typed_data::message::Message;
 use zklink_sdk_signers::starknet_signer::typed_data::message::TxMessage;
 use zklink_sdk_signers::starknet_signer::typed_data::message::TypedDataMessage;
-use zklink_sdk_signers::starknet_signer::typed_data::TypeDefine;
 use zklink_sdk_signers::starknet_signer::typed_data::TypedData;
 
 include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));

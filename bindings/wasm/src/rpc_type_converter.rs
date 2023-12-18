@@ -128,7 +128,7 @@ impl TryFrom<TxLayer1Signature> for TypesTxLayer1Signature {
                 let signature = StarkEip712Signature::from_hex(&signature.signature)
                     .map_err(|e| JsValue::from_str(&format!("error: {e}")))?;
 
-                Ok(TypesTxLayer1Signature::StarkEcdsaSignature(signature))
+                Ok(TypesTxLayer1Signature::StarkSignature(signature))
             }
         }
     }

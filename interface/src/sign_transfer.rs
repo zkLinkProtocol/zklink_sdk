@@ -1,6 +1,4 @@
 use crate::error::SignError;
-// #[cfg(feature = "ffi")]
-// use std::sync::Arc;
 #[cfg(feature = "web")]
 use zklink_sdk_signers::eth_signer::json_rpc_signer::JsonRpcSigner;
 #[cfg(not(feature = "web"))]
@@ -81,8 +79,6 @@ pub fn sign_starknet_transfer(
 ) -> Result<TxSignature, SignError> {
     tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
     let message = tx.get_starknet_sign_msg(token_symbol);
-    // #[cfg(feature = "ffi")]
-    // let message = Arc::new(message);
     let typed_data = TypedData::new(
         TypedDataMessage::Transaction { message },
         chain_id.to_string(),
