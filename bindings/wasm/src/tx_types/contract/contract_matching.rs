@@ -44,12 +44,14 @@ impl ContractMatchingBuilder {
     ) -> Result<ContractMatchingBuilder, JsValue> {
         let contract_prices = contract_prices
             .iter()
-            .map(|p| serde_wasm_bindgen::from_value(p.clone()).unwrap())
-            .collect::<Vec<InnerContractPrice>>();
+            .map(|p| serde_wasm_bindgen::from_value(p.clone()))
+            .collect::<Result<Vec<InnerContractPrice>, _>>()
+            .map_err(|_| "Invalid Contract Price")?;
         let margin_prices = margin_prices
             .iter()
-            .map(|p| serde_wasm_bindgen::from_value(p.clone()).unwrap())
-            .collect::<Vec<InnerSpotPriceInfo>>();
+            .map(|p| serde_wasm_bindgen::from_value(p.clone()))
+            .collect::<Result<Vec<InnerSpotPriceInfo>, _>>()
+            .map_err(|_| "Invalid Spot Price Info")?;
         let taker = serde_wasm_bindgen::from_value(taker).unwrap();
         let maker = maker
             .iter()
