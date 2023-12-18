@@ -67,11 +67,9 @@ mod tests {
     use crate::starknet_signer::typed_data::message::{TxMessage, TypedDataMessage};
     use crate::starknet_signer::typed_data::TypedData;
     use serde::{Deserialize, Serialize};
-    use starknet::core::crypto::Signature;
+    use starknet_core::crypto::Signature;
     use starknet_signers::VerifyingKey;
     use std::str::FromStr;
-    #[cfg(feature = "ffi")]
-    use std::sync::Arc;
 
     #[derive(Serialize, Deserialize, Debug)]
     struct TestSignature {
@@ -99,7 +97,6 @@ mod tests {
     #[test]
     fn test_signature_verify() {
         let pubkey = "1082125475812817975721104073212648033952831721853656627074253194227094744819";
-        let msg_hash = "0x51d5faacb1bdeb6293d52fd4be0a7c62417cb73962cdd6aff385b67239cf081";
         let sig_str = "0x02647618b4fe405d0dccbdfd25c20bfdeb87631a332491c633943e6f59f16ef306f72dfce21313b636bef4afff3fdc929e5c3d01e3a1f586690ef7db7ebc280a042b54b6bfc5970163d3b9166fd8f24671dfbf850554eeaf12a5e8f4db06c7f3";
         let addr = "0x04A69b67bcaBfA7D3CCb96e1d25C2e6fC93589fE24A6fD04566B8700ff97a71a";
         let pub_key = FieldElement::from_str(&pubkey).unwrap();

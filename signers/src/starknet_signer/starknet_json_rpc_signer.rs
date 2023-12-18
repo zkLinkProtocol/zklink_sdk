@@ -2,7 +2,7 @@ use crate::starknet_signer::error::StarkSignerError;
 use crate::starknet_signer::typed_data::message::TypedDataMessage;
 use crate::starknet_signer::typed_data::TypedData;
 use crate::starknet_signer::{StarkECDSASignature, StarkSignature};
-use starknet::core::types::FieldElement;
+use starknet_core::types::FieldElement;
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
 

@@ -4,9 +4,10 @@ use crate::starknet_signer::error::StarkSignerError;
 use crate::starknet_signer::typed_data::message::TypedDataMessage;
 use num::{BigUint, Num};
 use serde::{Deserialize, Serialize};
-use starknet::core::crypto::compute_hash_on_elements;
-use starknet::core::types::FieldElement;
-use starknet::core::utils::starknet_keccak;
+
+use starknet_core::crypto::compute_hash_on_elements;
+use starknet_core::types::FieldElement;
+use starknet_core::utils::starknet_keccak;
 use std::fmt::Debug;
 use std::str::FromStr;
 // #[cfg(feature = "ffi")]
