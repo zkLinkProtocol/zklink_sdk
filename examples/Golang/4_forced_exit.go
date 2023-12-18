@@ -18,12 +18,17 @@ type RPCTransaction struct {
      Params  []json.RawMessage `json:"params"`
 }
 
+type SubmiterSignature struct {
+    PubKey string `json:"pubKey"`
+    Signature string `json:"signature"`
+}
+
 func HighLevelForcedExit() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
     address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
     builder := sdk.ForcedExitBuilder{
-        ToChainId: sdk.ChainId(1),
-        InitiatorAccountId: sdk.AccountId(1),
+        ToChainId: sdk.ChainId(5),
+        InitiatorAccountId: sdk.AccountId(11),
         TargetSubAccountId: sdk.SubAccountId(1),
         Target: address,
         InitiatorSubAccountId: sdk.SubAccountId(1),
@@ -44,11 +49,13 @@ func HighLevelForcedExit() {
         return
     }
     fmt.Println("tx signature: %s", txSignature)
-    // get eth signature
-    var ethSignature2 []byte = nil;
-    if txSignature.Layer1Signature != nil {
-        ethSignature2 = []byte(*txSignature.Layer1Signature)
-    }
+    // create the submitter signature
+    zklinkTx := tx.ToZklinkTx()
+    submitterSignature, err := signer.SubmitterSignature(zklinkTx)
+    submitterSignature2, err := json.Marshal(SubmiterSignature {
+        PubKey: submitterSignature.PubKey,
+        Signature: submitterSignature.Signature,
+    })
 
 	rpc_req := RPCTransaction {
 		Id:      1,
@@ -57,7 +64,7 @@ func HighLevelForcedExit() {
 		Params: []json.RawMessage{
 		    []byte(txSignature.Tx),
 		    nil,
-            ethSignature2,
+            submitterSignature2,
 		},
     }
 

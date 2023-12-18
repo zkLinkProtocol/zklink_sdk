@@ -27,7 +27,7 @@ func HighLevelTransfer() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
     address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
     builder := sdk.TransferBuilder {
-        sdk.AccountId(1),
+        sdk.AccountId(20),
         address,
         sdk.SubAccountId(1),
         sdk.SubAccountId(1),
@@ -43,7 +43,7 @@ func HighLevelTransfer() {
     if err != nil {
         return
     }
-    txSignature, err := signer.SignTransfer(tx, tokenSymbol)
+    txSignature, err := signer.SignTransfer(tx, tokenSymbol,nil,nil)
     if err != nil {
         return
     }

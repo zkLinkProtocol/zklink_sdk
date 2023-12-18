@@ -169,6 +169,7 @@ impl Transfer {
 impl GetBytes for Transfer {
     fn get_bytes(&self) -> Vec<u8> {
         let bytes_len = self.bytes_len();
+        println!("{:?}", pack_fee_amount(&self.fee));
         let mut out = Vec::with_capacity(bytes_len);
         out.extend_from_slice(&[Self::TX_TYPE]);
         out.extend_from_slice(&self.account_id.to_be_bytes());
@@ -208,6 +209,7 @@ mod test {
     use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
     use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
     use zklink_sdk_signers::zklink_signer::public_key::PackedPublicKey;
+    use zklink_sdk_signers::zklink_signer::ZkLinkSigner;
 
     #[test]
     fn test_get_bytes() {
@@ -285,5 +287,36 @@ mod test {
         let signature = private_key.sign_message(&typed_data, addr).unwrap();
         let is_ok = signature.verify(&typed_data, addr).unwrap();
         assert!(is_ok);
+    }
+
+    #[test]
+    fn test_verify_signature1() {
+        let private_key_str = "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
+
+        let public_key_str = "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510";
+
+        let transfer_signature = serde_json::json!(
+            {
+                "pubKey": "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510",
+                "signature": "00c778e2e1cfdf46be7d077db4cb1b67993ed2386894381b89f4ffb4002238093366744d8f59ab1939778738317e673648205c61fdc9adc26fb53e738e9db901",
+            }
+        );
+        let signature: ZkLinkSignature = serde_json::from_value(transfer_signature).unwrap();
+        let builder = TransferBuilder {
+            account_id: AccountId(7),
+            to_address: ZkLinkAddress::from_hex("0x41d2C5C3699F15F37fDA93586A9233Ce54E2e5B4")
+                .unwrap(),
+            from_sub_account_id: SubAccountId(0),
+            to_sub_account_id: SubAccountId(0),
+            token: TokenId(17),
+            amount: BigUint::from_str("10").unwrap(),
+            fee: BigUint::from_str("0").unwrap(),
+            nonce: Nonce(131),
+            timestamp: 1700448654.into(),
+        };
+
+        let mut tx = builder.build();
+        let ret = signature.verify_musig(&tx.get_bytes());
+        println!("ret is {}", ret);
     }
 }

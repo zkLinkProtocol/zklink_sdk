@@ -17,6 +17,11 @@ type RPCTransaction struct {
      Params  []json.RawMessage `json:"params"`
 }
 
+type SubmiterSignature struct {
+    PubKey string `json:"pubKey"`
+    Signature string `json:"signature"`
+}
+
 func HighLevelFunding() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
 
@@ -26,8 +31,8 @@ func HighLevelFunding() {
     funding_account_ids[2] = sdk.AccountId(57)
 
     builder := sdk.FundingBuilder{
-        sdk.AccountId(1),
-        sdk.SubAccountId(99),
+        sdk.AccountId(14),
+        sdk.SubAccountId(3),
         sdk.Nonce(23),
         funding_account_ids,
         *big.NewInt(100000000000),
@@ -43,15 +48,21 @@ func HighLevelFunding() {
         return
     }
     fmt.Println("tx signature: %s", txSignature)
-
+    // create the submitter signature
+    zklinkTx := tx.ToZklinkTx()
+    submitterSignature, err := signer.SubmitterSignature(zklinkTx)
+    submitterSignature2, err := json.Marshal(SubmiterSignature {
+        PubKey: submitterSignature.PubKey,
+        Signature: submitterSignature.Signature,
+    })
 	rpc_req := RPCTransaction {
 		Id:      1,
 		JsonRpc: "2.0",
 		Method:  "sendTransaction",
 		Params: []json.RawMessage{
-		    nil,
-		    nil,
-		    nil,
+		    []byte(txSignature.Tx),
+            nil,
+		    []byte(submitterSignature2),
 		},
     }
 	JsonTx, err := json.Marshal(rpc_req)

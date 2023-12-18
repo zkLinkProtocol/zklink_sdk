@@ -30,7 +30,7 @@ func HighLevelContractMatching() {
 		return
 	}
 	taker_contract_builder := sdk.ContractBuilder {
-        sdk.AccountId(1),
+        sdk.AccountId(18),
         sdk.SubAccountId(1),
         sdk.SlotId(2),
         sdk.Nonce(10),
@@ -91,11 +91,11 @@ func HighLevelContractMatching() {
     makers[1] = maker_contract2
 
     builder := sdk.ContractMatchingBuilder {
-        sdk.AccountId(1),
+        sdk.AccountId(10),
         sdk.SubAccountId(1),
         taker_contract,
         makers,
-       *big.NewInt(5545),
+       *big.NewInt(1),
         sdk.TokenId(17),
     }
 
