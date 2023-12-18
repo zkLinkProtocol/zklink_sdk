@@ -3,6 +3,11 @@ use crate::error::SignError;
 use zklink_sdk_signers::eth_signer::json_rpc_signer::JsonRpcSigner;
 #[cfg(not(feature = "web"))]
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+#[cfg(feature = "web")]
+use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::StarknetJsonRpcSigner;
+use zklink_sdk_signers::starknet_signer::typed_data::message::TypedDataMessage;
+#[cfg(not(feature = "web"))]
+use zklink_sdk_signers::starknet_signer::typed_data::TypedData;
 #[cfg(not(feature = "web"))]
 use zklink_sdk_signers::starknet_signer::StarkSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
@@ -30,11 +35,11 @@ pub fn sign_eth_transfer(
 #[cfg(feature = "web")]
 pub async fn sign_eth_transfer(
     eth_signer: &JsonRpcSigner,
-    zklink_syner: &ZkLinkSigner,
+    zklink_signer: &ZkLinkSigner,
     mut tx: Transfer,
     token_symbol: &str,
 ) -> Result<TxSignature, SignError> {
-    tx.signature = zklink_syner.sign_musig(&tx.get_bytes())?;
+    tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
     let message = tx.get_eth_sign_msg(token_symbol).as_bytes().to_vec();
     let eth_signature = eth_signer.sign_message(&message).await?;
 
@@ -44,15 +49,41 @@ pub async fn sign_eth_transfer(
     })
 }
 
+#[cfg(feature = "web")]
+pub async fn sign_starknet_transfer(
+    starknet_signer: &StarknetJsonRpcSigner,
+    zklink_signer: &ZkLinkSigner,
+    mut tx: Transfer,
+    token_symbol: &str,
+) -> Result<TxSignature, SignError> {
+    tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
+    let message = tx.get_starknet_sign_msg(token_symbol);
+    let starknet_signature = starknet_signer
+        .sign_message(TypedDataMessage::Transaction { message })
+        .await?;
+
+    Ok(TxSignature {
+        tx: tx.into(),
+        layer1_signature: Some(starknet_signature.into()),
+    })
+}
+
 #[cfg(not(feature = "web"))]
 pub fn sign_starknet_transfer(
     signer: &StarkSigner,
-    zklink_syner: &ZkLinkSigner,
+    zklink_signer: &ZkLinkSigner,
     mut tx: Transfer,
+    token_symbol: &str,
+    chain_id: &str,
+    addr: &str,
 ) -> Result<TxSignature, SignError> {
-    tx.signature = zklink_syner.sign_musig(&tx.get_bytes())?;
-    let message = tx.get_starknet_sign_msg();
-    let starknet_signature = signer.sign_message(&message)?;
+    tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
+    let message = tx.get_starknet_sign_msg(token_symbol);
+    let typed_data = TypedData::new(
+        TypedDataMessage::Transaction { message },
+        chain_id.to_string(),
+    );
+    let starknet_signature = signer.sign_message(&typed_data, addr)?;
 
     Ok(TxSignature {
         tx: tx.into(),

@@ -3,22 +3,33 @@ use crate::error::SignError;
 use zklink_sdk_signers::eth_signer::json_rpc_signer::JsonRpcSigner;
 #[cfg(not(feature = "web"))]
 use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
+#[cfg(feature = "web")]
+use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::StarknetJsonRpcSigner;
+use zklink_sdk_signers::starknet_signer::typed_data::message::TypedDataMessage;
+#[cfg(not(feature = "web"))]
+use zklink_sdk_signers::starknet_signer::typed_data::TypedData;
 #[cfg(not(feature = "web"))]
 use zklink_sdk_signers::starknet_signer::StarkSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_types::prelude::TxSignature;
 use zklink_sdk_types::tx_type::withdraw::Withdraw;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
-
 #[cfg(not(feature = "web"))]
 pub fn sign_starknet_withdraw(
     signer: &StarkSigner,
     zklink_singer: &ZkLinkSigner,
     mut tx: Withdraw,
+    l2_source_token_symbol: &str,
+    chain_id: &str,
+    addr: &str,
 ) -> Result<TxSignature, SignError> {
     tx.sign(zklink_singer)?;
-    let message = tx.get_starknet_sign_msg();
-    let signature = signer.sign_message(&message)?;
+    let message = tx.get_starknet_sign_msg(l2_source_token_symbol);
+    let typed_data = TypedData::new(
+        TypedDataMessage::Transaction { message },
+        chain_id.to_string(),
+    );
+    let signature = signer.sign_message(&typed_data, addr)?;
 
     Ok(TxSignature {
         tx: tx.into(),
@@ -60,6 +71,24 @@ pub async fn sign_eth_withdraw(
     })
 }
 
+#[cfg(feature = "web")]
+pub async fn sign_starknet_withdraw(
+    stark_signer: &StarknetJsonRpcSigner,
+    zklink_singer: &ZkLinkSigner,
+    mut tx: Withdraw,
+    l2_source_token_symbol: &str,
+) -> Result<TxSignature, SignError> {
+    tx.sign(zklink_singer)?;
+    let message = tx.get_starknet_sign_msg(l2_source_token_symbol);
+    let stark_signature = stark_signer
+        .sign_message(TypedDataMessage::Transaction { message })
+        .await?;
+
+    Ok(TxSignature {
+        tx: tx.into(),
+        layer1_signature: Some(stark_signature.into()),
+    })
+}
 #[cfg(test)]
 mod tests {
     use super::*;

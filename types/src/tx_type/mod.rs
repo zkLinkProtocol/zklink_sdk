@@ -14,6 +14,7 @@ use serde::Serialize;
 use std::collections::VecDeque;
 #[cfg(feature = "ffi")]
 use std::sync::Arc;
+use zklink_sdk_signers::starknet_signer::typed_data::message::TxMessage;
 use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pk_signer::{sha256_bytes, ZkLinkSigner};
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
@@ -94,6 +95,25 @@ pub fn ethereum_sign_message_part(
         );
     }
     message
+}
+
+pub fn starknet_sign_message_part(
+    transaction: &str,
+    token_symbol: &str,
+    decimals: u8,
+    amount: &BigUint,
+    fee: &BigUint,
+    to: &ZkLinkAddress,
+    nonce: String,
+) -> TxMessage {
+    TxMessage {
+        transaction: transaction.to_string(),
+        amount: format_units(amount, decimals),
+        token: token_symbol.to_string(),
+        fee: format_units(fee, decimals),
+        to: to.to_string(),
+        nonce,
+    }
 }
 
 /// Formats amount in wei to tokens with precision.

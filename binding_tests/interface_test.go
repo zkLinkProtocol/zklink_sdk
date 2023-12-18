@@ -268,7 +268,7 @@ func TestSignWithdraw(t *testing.T) {
     // test signer
     signer, err := sdk.NewSigner(s, sdk.L1TypeEth);
     assert.Nil(t, err)
-    tx_signature, err := signer.SignWithdraw(tx, l2SourceTokenSymbol)
+    tx_signature, err := signer.SignWithdraw(tx, l2SourceTokenSymbol,nil,nil)
     assert.Nil(t, err)
 
     // test submitter

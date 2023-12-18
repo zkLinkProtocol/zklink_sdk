@@ -16,6 +16,10 @@ use std::fmt;
 #[cfg(feature = "web")]
 use crate::eth_signer::json_rpc_signer::JsonRpcSigner;
 use crate::eth_signer::pk_signer::EthSigner;
+#[cfg(feature = "web")]
+use crate::starknet_signer::starknet_json_rpc_signer::StarknetJsonRpcSigner;
+use crate::starknet_signer::typed_data::message::{Message, TypedDataMessage};
+use crate::starknet_signer::typed_data::TypedData;
 use crate::starknet_signer::StarkSigner;
 
 pub struct ZkLinkSigner(EddsaPrivKey<Engine>);
@@ -54,6 +58,7 @@ pub fn sha256_bytes(input: &[u8]) -> Vec<u8> {
 impl ZkLinkSigner {
     const SIGN_MESSAGE: &'static str =
         "Sign this message to create a key to interact with zkLink's layer2 services.\nNOTE: This application is powered by zkLink protocol.\n\nOnly sign this message for a trusted client!";
+    const STARKNET_SIGN_MESSAGE: &'static str = "Create zkLink's layer2 key.\n";
     pub fn new() -> Result<Self, Error> {
         let eth_pk = H256::random();
         let eth_signer = EthSigner::from(eth_pk);
@@ -93,9 +98,13 @@ impl ZkLinkSigner {
         Self::new_from_seed(&seed)
     }
 
-    pub fn new_from_hex_stark_signer(hex_private_key: &str) -> Result<Self, Error> {
+    pub fn new_from_hex_stark_signer(
+        hex_private_key: &str,
+        addr: &str,
+        chain_id: &str,
+    ) -> Result<Self, Error> {
         let stark_signer = StarkSigner::new_from_hex_str(hex_private_key)?;
-        Self::new_from_starknet_signer(&stark_signer)
+        Self::new_from_starknet_signer(&stark_signer, addr, chain_id)
     }
 
     pub fn new_from_eth_signer(eth_signer: &EthSigner) -> Result<Self, Error> {
@@ -105,9 +114,20 @@ impl ZkLinkSigner {
     }
 
     /// create zkLink signer from starknet signer
-    pub fn new_from_starknet_signer(starknet_signer: &StarkSigner) -> Result<Self, Error> {
-        let signature = starknet_signer.sign_message(Self::SIGN_MESSAGE.as_bytes())?;
-        let seed = signature.signature.to_bytes_be();
+    pub fn new_from_starknet_signer(
+        starknet_signer: &StarkSigner,
+        addr: &str,
+        chain_id: &str,
+    ) -> Result<Self, Error> {
+        let message = Message {
+            data: Self::STARKNET_SIGN_MESSAGE.to_string(),
+        };
+        let typed_data = TypedData::new(
+            TypedDataMessage::CreateL2Key { message },
+            chain_id.to_string(),
+        );
+        let signature = starknet_signer.sign_message(&typed_data, addr)?;
+        let seed = signature.to_bytes_be();
         Self::new_from_seed(&seed)
     }
 
@@ -117,6 +137,20 @@ impl ZkLinkSigner {
             .sign_message(Self::SIGN_MESSAGE.as_bytes())
             .await?;
         let seed = signature.serialize_packed();
+        Self::new_from_seed(&seed)
+    }
+
+    #[cfg(feature = "web")]
+    pub async fn new_from_starknet_rpc_signer(
+        starknet_signer: &StarknetJsonRpcSigner,
+    ) -> Result<Self, Error> {
+        let message = Message {
+            data: Self::STARKNET_SIGN_MESSAGE.to_string(),
+        };
+        let signature = starknet_signer
+            .sign_message(TypedDataMessage::CreateL2Key { message })
+            .await?;
+        let seed = signature.signature.to_bytes_be();
         Self::new_from_seed(&seed)
     }
 
