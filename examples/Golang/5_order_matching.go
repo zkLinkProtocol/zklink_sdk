@@ -30,7 +30,7 @@ func HighLevelOrderMatching() {
 		return
 	}
     taker := sdk.NewOrder(
-        sdk.AccountId(1),
+        sdk.AccountId(10),
         sdk.SubAccountId(1),
         sdk.SlotId(3),
         sdk.Nonce(1),
@@ -49,7 +49,7 @@ func HighLevelOrderMatching() {
     )
 
     maker := sdk.NewOrder(
-         sdk.AccountId(2),
+         sdk.AccountId(20),
          sdk.SubAccountId(1),
          sdk.SlotId(3),
          sdk.Nonce(1),
@@ -67,6 +67,49 @@ func HighLevelOrderMatching() {
         zklinkSigner,
     )
 
+    contract_price1 := sdk.ContractPrice{
+        sdk.PairId(0),
+        *big.NewInt(1),
+    }
+
+    contract_price2 := sdk.ContractPrice{
+        sdk.PairId(1),
+        *big.NewInt(1),
+    }
+
+    contract_price3 := sdk.ContractPrice{
+        sdk.PairId(2),
+        *big.NewInt(1),
+    }
+
+    contract_price4 := sdk.ContractPrice{
+        sdk.PairId(3),
+        *big.NewInt(1),
+    }
+
+    var contract_prices = make([]sdk.ContractPrice,4)
+    contract_prices[0] = contract_price1
+    contract_prices[1] = contract_price2
+    contract_prices[2] = contract_price3
+    contract_prices[3] = contract_price4
+
+    margin_price1 := sdk.SpotPriceInfo {
+       sdk.TokenId(17),
+       *big.NewInt(1),
+    }
+    margin_price2 := sdk.SpotPriceInfo {
+      sdk.TokenId(141),
+      *big.NewInt(1),
+    }
+
+    margin_price3 := sdk.SpotPriceInfo {
+      sdk.TokenId(142),
+      *big.NewInt(1),
+    }
+    var margin_prices = make([]sdk.SpotPriceInfo,3)
+    margin_prices[0] = margin_price1
+    margin_prices[1] = margin_price2
+    margin_prices[2] = margin_price3
     builder := sdk.OrderMatchingBuilder{
         sdk.AccountId(3),
         sdk.SubAccountId(1),
@@ -74,6 +117,8 @@ func HighLevelOrderMatching() {
         maker,
         *big.NewInt(1000),
         sdk.TokenId(18),
+        contract_prices,
+        margin_prices,
         *big.NewInt(808077878),
         *big.NewInt(5479779),
     }

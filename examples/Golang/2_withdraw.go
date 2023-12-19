@@ -18,14 +18,18 @@ type RPCTransaction struct {
      Params  []json.RawMessage `json:"params"`
 }
 
+type SubmiterSignature struct {
+    PubKey string `json:"pubKey"`
+    Signature string `json:"signature"`
+}
 func HighLevelWithdraw() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
 	accountId := sdk.AccountId(8300)
 	subAccountId := sdk.SubAccountId(4)
-	toChainId := sdk.ChainId(1)
+	toChainId := sdk.ChainId(5)
     toAddress := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
-    l2SourceToken := sdk.TokenId(6)
-    l1TargetToken := sdk.TokenId(5)
+    l2SourceToken := sdk.TokenId(17)
+    l1TargetToken := sdk.TokenId(17)
 	amount := *big.NewInt(1000000)
 	fee := *big.NewInt(1000)
 	nonce := sdk.Nonce(1)
@@ -53,7 +57,7 @@ func HighLevelWithdraw() {
     if err != nil {
         return
     }
-    txSignature, err := signer.SignWithdraw(tx, "USDT")
+    txSignature, err := signer.SignWithdraw(tx, "USDT",nil,nil)
     fmt.Println("tx signature: %s", txSignature)
     if err != nil {
         return
@@ -63,14 +67,22 @@ func HighLevelWithdraw() {
     if txSignature.Layer1Signature != nil {
         layer1Signature = []byte(*txSignature.Layer1Signature)
     }
+
+    // create the submitter signature
+    zklinkTx := tx.ToZklinkTx()
+    submitterSignature, err := signer.SubmitterSignature(zklinkTx)
+    submitterSignature2, err := json.Marshal(SubmiterSignature {
+        PubKey: submitterSignature.PubKey,
+        Signature: submitterSignature.Signature,
+    })
 	rpc_req := RPCTransaction {
 		Id:      1,
 		JsonRpc: "2.0",
 		Method:  "sendTransaction",
 		Params: []json.RawMessage{
 		    []byte(txSignature.Tx),
-		    nil,
-            layer1Signature,
+		    layer1Signature,
+            submitterSignature2,
 		},
     }
 

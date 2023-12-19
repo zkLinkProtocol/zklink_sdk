@@ -169,6 +169,7 @@ impl Transfer {
 impl GetBytes for Transfer {
     fn get_bytes(&self) -> Vec<u8> {
         let bytes_len = self.bytes_len();
+        println!("{:?}", pack_fee_amount(&self.fee));
         let mut out = Vec::with_capacity(bytes_len);
         out.extend_from_slice(&[Self::TX_TYPE]);
         out.extend_from_slice(&self.account_id.to_be_bytes());

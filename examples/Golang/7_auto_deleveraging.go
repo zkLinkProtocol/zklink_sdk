@@ -25,32 +25,47 @@ type SubmiterSignature struct {
 func HighLevelAutoDeleveraging() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
     contract_price1 := sdk.ContractPrice{
-        sdk.PairId(1),
-        *big.NewInt(656566),
+       sdk.PairId(0),
+       *big.NewInt(1),
     }
 
     contract_price2 := sdk.ContractPrice{
-        sdk.PairId(3),
-        *big.NewInt(52552131),
+       sdk.PairId(1),
+       *big.NewInt(1),
     }
 
-    var contract_prices = make([]sdk.ContractPrice,2)
+    contract_price3 := sdk.ContractPrice{
+       sdk.PairId(2),
+       *big.NewInt(1),
+    }
+
+    contract_price4 := sdk.ContractPrice{
+       sdk.PairId(3),
+       *big.NewInt(1),
+    }
+
+    var contract_prices = make([]sdk.ContractPrice,4)
     contract_prices[0] = contract_price1
     contract_prices[1] = contract_price2
-
+    contract_prices[2] = contract_price3
+    contract_prices[3] = contract_price4
     margin_price1 := sdk.SpotPriceInfo {
        sdk.TokenId(17),
-       *big.NewInt(3236653653635635),
+       *big.NewInt(1),
     }
     margin_price2 := sdk.SpotPriceInfo {
-      sdk.TokenId(18),
-      *big.NewInt(549574875297),
+      sdk.TokenId(141),
+      *big.NewInt(1),
     }
 
-    var margin_prices = make([]sdk.SpotPriceInfo,2)
+    margin_price3 := sdk.SpotPriceInfo {
+      sdk.TokenId(142),
+      *big.NewInt(1),
+    }
+    var margin_prices = make([]sdk.SpotPriceInfo,3)
     margin_prices[0] = margin_price1
     margin_prices[1] = margin_price2
-
+    margin_prices[2] = margin_price3
     builder := sdk.AutoDeleveragingBuilder{
         sdk.AccountId(3),
         sdk.SubAccountId(1),

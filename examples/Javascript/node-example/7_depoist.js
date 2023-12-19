@@ -63,7 +63,7 @@ async function testDepositErc20ToGateway() {
 async function main() {
     console.log(global);
     await testDepositErc20();
-    //await testDepositErc20ToGateway();
+    await testDepositErc20ToGateway();
 }
 
 main();

@@ -19,7 +19,7 @@ async function testContractMatching() {
     try {
         const signer = new Signer(private_key);
         let taker_contract_builder = new ContractBuilder(5,1,1,3,2,
-            "343434343434","5454545445",true,50,22,false);
+            "10","5454545445",true,50,22,false);
         let unsigned_taker_contract = newContract(taker_contract_builder);
         let taker_contract = signer.createSignedContract(unsigned_taker_contract);
         console.log(taker_contract);
@@ -36,7 +36,7 @@ async function testContractMatching() {
         let maker_contract2 = signer.createSignedContract(unsigned_maker_contract2);
         console.log(maker_contract2);
 
-        let tx_builder = new ContractMatchingBuilder(5,1,taker_contract,[maker_contract1,maker_contract2],"34343",17);
+        let tx_builder = new ContractMatchingBuilder(5,1,taker_contract,[maker_contract1,maker_contract2],"1",17);
         let tx = newContractMatching(tx_builder);
         console.log(tx);
         let tx_signature = signer.signContractMatching(tx);
