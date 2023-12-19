@@ -134,6 +134,8 @@ pub struct GlobalVarsResp {
 #[serde(rename_all = "camelCase")]
 pub struct ResponseMarginParams {
     pub token_id: TokenId,
+    pub symbol: String,
+    pub index_price: BigUintSerdeWrapper,
     pub ratio: u8,
 }
 
@@ -141,6 +143,7 @@ pub struct ResponseMarginParams {
 #[serde(rename_all = "camelCase")]
 pub struct ResponseContractParams {
     pub symbol: String,
+    pub mark_price: BigUintSerdeWrapper,
     pub initial_margin_rate: u16,
     pub maintenance_margin_rate: u16,
     pub acc_funding_price: BigIntSerdeWrapper,
@@ -295,6 +298,10 @@ pub struct MarginParamsUpdateResp {
     pub update_id: i32,
     pub sub_account_id: SubAccountId,
     pub margin_id: MarginId,
+    pub old_symbol: String,
+    pub new_symbol: String,
+    pub old_index_price: BigUintSerdeWrapper,
+    pub new_index_price: BigUintSerdeWrapper,
     pub old_token_id: TokenId,
     pub new_token_id: TokenId,
     pub old_ratio: u8,
@@ -315,6 +322,8 @@ pub struct ContractParamsUpdateResp {
     pub new_initial_margin_rate: u16,
     pub old_acc_funding_price: BigIntSerdeWrapper,
     pub new_acc_funding_price: BigIntSerdeWrapper,
+    pub old_mark_price: BigUintSerdeWrapper,
+    pub new_mark_price: BigUintSerdeWrapper,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
