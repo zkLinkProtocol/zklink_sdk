@@ -8,6 +8,7 @@ use zklink_sdk_types::tx_builder::{
 };
 use zklink_sdk_types::tx_type::contract::{
     Contract as InnerContract, ContractMatching as ContractMatchingTx,
+    ContractPrice as InnerContractPrice, SpotPriceInfo as InnerSpotPriceInfo,
 };
 
 #[wasm_bindgen]
@@ -38,7 +39,19 @@ impl ContractMatchingBuilder {
         maker: Vec<JsValue>,
         fee: String,
         fee_token: u16,
+        contract_prices: Vec<JsValue>,
+        margin_prices: Vec<JsValue>,
     ) -> Result<ContractMatchingBuilder, JsValue> {
+        let contract_prices = contract_prices
+            .iter()
+            .map(|p| serde_wasm_bindgen::from_value(p.clone()))
+            .collect::<Result<Vec<InnerContractPrice>, _>>()
+            .map_err(|_| "Invalid Contract Price")?;
+        let margin_prices = margin_prices
+            .iter()
+            .map(|p| serde_wasm_bindgen::from_value(p.clone()))
+            .collect::<Result<Vec<InnerSpotPriceInfo>, _>>()
+            .map_err(|_| "Invalid Spot Price Info")?;
         let taker = serde_wasm_bindgen::from_value(taker).unwrap();
         let maker = maker
             .iter()
@@ -51,6 +64,8 @@ impl ContractMatchingBuilder {
             maker,
             fee: BigUint::from_str(&fee).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             fee_token: fee_token.into(),
+            contract_prices,
+            margin_prices,
         };
         Ok(ContractMatchingBuilder { inner })
     }

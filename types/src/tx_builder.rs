@@ -336,6 +336,8 @@ pub struct ContractMatchingBuilder {
     pub maker: Vec<Contract>,
     pub fee: BigUint,
     pub fee_token: TokenId,
+    pub contract_prices: Vec<ContractPrice>,
+    pub margin_prices: Vec<SpotPriceInfo>,
 }
 
 impl ContractMatchingBuilder {
@@ -358,6 +360,10 @@ impl ContractMatchingBuilder {
             sub_account_id: self.sub_account_id,
             fee: self.fee,
             fee_token: self.fee_token,
+            oracle_prices: OraclePrices {
+                contract_prices: self.contract_prices,
+                margin_prices: self.margin_prices,
+            },
             signature: Default::default(),
         }
     }

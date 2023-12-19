@@ -90,6 +90,31 @@ func HighLevelContractMatching() {
     makers[0] = maker_contract1
     makers[1] = maker_contract2
 
+    contract_price1 := sdk.ContractPrice{
+        sdk.PairId(1),
+        *big.NewInt(656566),
+    }
+
+    contract_price2 := sdk.ContractPrice{
+        sdk.PairId(3),
+        *big.NewInt(52552131),
+    }
+    var contract_prices = make([]sdk.ContractPrice,2)
+    contract_prices[0] = contract_price1
+    contract_prices[1] = contract_price2
+
+    margin_price1 := sdk.SpotPriceInfo {
+       sdk.TokenId(17),
+       *big.NewInt(3236653653635635),
+    }
+    margin_price2 := sdk.SpotPriceInfo {
+      sdk.TokenId(18),
+      *big.NewInt(549574875297),
+    }
+    var margin_prices = make([]sdk.SpotPriceInfo,2)
+    margin_prices[0] = margin_price1
+    margin_prices[1] = margin_price2
+
     builder := sdk.ContractMatchingBuilder {
         sdk.AccountId(1),
         sdk.SubAccountId(1),
@@ -97,6 +122,8 @@ func HighLevelContractMatching() {
         makers,
        *big.NewInt(5545),
         sdk.TokenId(17),
+        contract_prices,
+        margin_prices,
     }
 
     tx := sdk.NewContractMatching(builder)

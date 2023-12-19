@@ -193,6 +193,8 @@ dictionary ContractMatchingBuilder {
     sequence<Contract> maker;
     BigUint fee;
     TokenId fee_token;
+    sequence<ContractPrice> contract_prices;
+    sequence<SpotPriceInfo> margin_prices;
 };
 
 dictionary FundingBuilder {
