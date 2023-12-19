@@ -18,7 +18,7 @@ async function testFunding() {
     const private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
     try {
         const signer = new Signer(private_key);
-        let tx_builder = new FundingBuilder(5,1,2,[3,4,5],"34343",17);
+        let tx_builder = new FundingBuilder(5,1,2,[3,4,5],"3",17);
         let tx = newFunding(tx_builder);
         console.log(tx);
         let tx_signature = signer.signFunding(tx);

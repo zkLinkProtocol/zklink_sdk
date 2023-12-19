@@ -17,18 +17,24 @@ global.AbortController = AbortController;
 async function testLiquidation() {
     const private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
     try {
-        const contract_price1 = new ContractPrice(1,"10000000000000");
-        const contract_price2 = new ContractPrice(1,"2000000000000");
+        const contract_price1 = new ContractPrice(0,"1");
+        const contract_price2 = new ContractPrice(1,"1");
+        const contract_price3 = new ContractPrice(2,"1");
+        const contract_price4 = new ContractPrice(3,"1");
         let contract_prices = [];
         contract_prices.push(contract_price1.jsonValue());
         contract_prices.push(contract_price2.jsonValue());
+        contract_prices.push(contract_price3.jsonValue());
+        contract_prices.push(contract_price4.jsonValue());
 
         let margin_prices = [];
-        const margin_price1 = new SpotPriceInfo(17,"3236653653635635");
-        const margin_price2 = new SpotPriceInfo(18,"549574875297");
+        const margin_price1 = new SpotPriceInfo(17,"1");
+        const margin_price2 = new SpotPriceInfo(141,"1");
+        const margin_price3 = new SpotPriceInfo(142,"1");
         margin_prices.push(margin_price1.jsonValue());
         margin_prices.push(margin_price2.jsonValue());
-        let tx_builder = new LiquidationBuilder(5,1,10,contract_prices,margin_prices,3,"188888",17);
+        margin_prices.push(margin_price3.jsonValue());
+        let tx_builder = new LiquidationBuilder(5,1,10,contract_prices,margin_prices,3,"8",17);
         let tx = newLiquidation(tx_builder);
         console.log(tx);
         const signer = new Signer(private_key);
