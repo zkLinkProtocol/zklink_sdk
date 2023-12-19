@@ -31,7 +31,7 @@ async function testUpdGlobalVar() {
     const parameter = new Parameter(ParameterType.MarginInfo,margin_info)
     console.log(parameter);
 
-    let tx_builder = new UpdateGlobalVarBuilder(1,8,parameter_funding,1000);
+    let tx_builder = new UpdateGlobalVarBuilder(1,8,parameter,1000);
     console.log(tx_builder);
     let tx = newUpdateGlobalVar(tx_builder);
     console.log(tx.jsonValue());
