@@ -89,7 +89,7 @@ impl Parameter {
 }
 
 #[wasm_bindgen]
-#[derive(Deserialize,Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct MarginInfo {
     margin_id: u8,
     token_id: u32,
@@ -108,13 +108,13 @@ impl MarginInfo {
     }
 
     #[wasm_bindgen(js_name=jsonValue)]
-    pub fn json_value(&self) -> Result<JsValue,JsValue> {
+    pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self)?)
     }
 }
 
 #[wasm_bindgen]
-#[derive(Deserialize,Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct ContractInfo {
     pair_id: u8,
     symbol: String,
@@ -140,7 +140,7 @@ impl ContractInfo {
     }
 
     #[wasm_bindgen(js_name=jsonValue)]
-    pub fn json_value(&self) -> Result<JsValue,JsValue> {
+    pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self)?)
     }
 }
