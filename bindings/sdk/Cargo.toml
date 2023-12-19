@@ -19,4 +19,4 @@ zklink_sdk_interface = { path = "../../interface", default_features = false, fea
 zklink_sdk_provider = { path = "../../provider", default_features = false, features = ["ffi"]}
 
 [build-dependencies]
-uniffi_build = {version = "0.23", features=["builtin-bindgen"] }
+uniffi_build = {version = "0.25", features=["builtin-bindgen"] }
