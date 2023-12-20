@@ -150,11 +150,11 @@ impl TypedData {
         struct_type: &str,
         data: &M,
     ) -> Result<FieldElement, StarkSignerError> {
-        let mut types_arry = vec![];
-        let mut data_arry = vec![];
-        types_arry.push("felt".to_string());
+        let mut types_array = vec![];
+        let mut data_array = vec![];
+        types_array.push("felt".to_string());
         let type_hash = starknet_keccak(self.encode_type(struct_type).as_bytes());
-        data_arry.push(type_hash);
+        data_array.push(type_hash);
         let data_value =
             serde_json::to_value(data).map_err(|e| StarkSignerError::SignError(e.to_string()))?;
         let data_map = data_value.as_object().unwrap();
@@ -165,15 +165,15 @@ impl TypedData {
         }
 
         for t in td {
-            types_arry.push(t.r#type.clone());
+            types_array.push(t.r#type.clone());
             let v_str = data_map.get(&t.name).unwrap().as_str().unwrap();
             let v = Self::string_to_hex(v_str);
             let v = FieldElement::from_hex_be(&v)
                 .map_err(|e| StarkSignerError::SignError(e.to_string()))?;
-            data_arry.push(v);
+            data_array.push(v);
         }
 
-        Ok(compute_hash_on_elements(&data_arry))
+        Ok(compute_hash_on_elements(&data_array))
     }
 
     pub fn encode(&self, addr: FieldElement) -> Result<Vec<FieldElement>, StarkSignerError> {
