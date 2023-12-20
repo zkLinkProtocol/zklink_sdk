@@ -19,7 +19,7 @@ jsonrpsee = { version = "0.20.1", features = ["http-client","macros"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 jsonrpsee = { version = "0.20.1", features = ["macros","jsonrpsee-types","client-core"] }
-getrandom = { version = "0.2.10", features = ["js"] }
+getrandom = { version = "0.2.11", features = ["js"] }
 uuid = "0.8"
 
 [dev-dependencies]
