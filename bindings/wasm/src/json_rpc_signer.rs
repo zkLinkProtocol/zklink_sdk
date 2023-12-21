@@ -25,7 +25,7 @@ pub struct JsonRpcSigner {
     inner: InterfaceJsonRpcSigner,
 }
 
-#[wasm_bindgen(js_name=newRpcSignerWtihProvider)]
+#[wasm_bindgen(js_name=newRpcSignerWithProvider)]
 pub fn new_with_provider(provider: Provider) -> Result<JsonRpcSigner, JsValue> {
     let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Provider(provider), None, None)?;
     Ok(JsonRpcSigner { inner })
