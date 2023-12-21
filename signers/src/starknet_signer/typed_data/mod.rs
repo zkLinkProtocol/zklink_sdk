@@ -118,7 +118,7 @@ impl TypedData {
         if let Ok(num) = BigUint::from_str_radix(s.trim_start_matches("0x"), 16) {
             format!("0x{}", num.to_str_radix(16))
         } else {
-            format!("0x{}", hex::encode(s))
+            format!("0x{}", hex::encode(s.replace('\n', "")))
         }
     }
 

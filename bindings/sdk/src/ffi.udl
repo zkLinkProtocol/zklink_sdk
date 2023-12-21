@@ -598,7 +598,7 @@ enum L1Type {
 
 interface Signer {
     [Throws=SignError]
-    constructor([ByRef] string private_key, L1Type l1_type);
+    constructor([ByRef] string private_key, L1Type l1_type,string? starknet_chain_id,string? starknet_addr);
     [Throws=SignError]
     TxSignature sign_change_pubkey_with_create2data_auth(ChangePubKey tx, Create2Data crate2data);
     [Throws=SignError]

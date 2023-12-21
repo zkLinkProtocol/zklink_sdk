@@ -60,18 +60,32 @@ pub struct Signer {
 }
 
 impl Signer {
-    pub fn new(private_key: &str, l1_signer_type: L1Type) -> Result<Self, SignError> {
-        let zklink_signer = ZkLinkSigner::new_from_hex_eth_signer(private_key)?;
-        let layer1_signer = match l1_signer_type {
+    pub fn new(
+        private_key: &str,
+        l1_signer_type: L1Type,
+        starknet_chain_id: Option<String>,
+        starknet_addr: Option<String>,
+    ) -> Result<Self, SignError> {
+        let (zklink_signer, layer1_signer) = match l1_signer_type {
             L1Type::Eth => {
                 let eth_signer = EthSigner::try_from(private_key)
                     .map_err(|_| EthSignerError::InvalidEthSigner)?;
-                Layer1Sginer::EthSigner(eth_signer)
+                (
+                    ZkLinkSigner::new_from_hex_eth_signer(private_key)?,
+                    Layer1Sginer::EthSigner(eth_signer),
+                )
             }
             L1Type::Starknet => {
                 let stark_signer = StarkSigner::new_from_hex_str(private_key)
                     .map_err(|_| StarkSignerError::InvalidStarknetSigner)?;
-                Layer1Sginer::StarknetSigner(stark_signer)
+                (
+                    ZkLinkSigner::new_from_hex_stark_signer(
+                        private_key,
+                        &starknet_addr.unwrap(),
+                        &starknet_chain_id.unwrap(),
+                    )?,
+                    Layer1Sginer::StarknetSigner(stark_signer),
+                )
             }
         };
         Ok(Self {

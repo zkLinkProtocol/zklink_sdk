@@ -58,7 +58,7 @@ pub fn sha256_bytes(input: &[u8]) -> Vec<u8> {
 impl ZkLinkSigner {
     const SIGN_MESSAGE: &'static str =
         "Sign this message to create a key to interact with zkLink's layer2 services.\nNOTE: This application is powered by zkLink protocol.\n\nOnly sign this message for a trusted client!";
-    const STARKNET_SIGN_MESSAGE: &'static str = "Create zkLink's layer2 key.\n";
+    const STARKNET_SIGN_MESSAGE: &'static str = "Create zkLink's layer2 key.";
     pub fn new() -> Result<Self, Error> {
         let eth_pk = H256::random();
         let eth_signer = EthSigner::from(eth_pk);

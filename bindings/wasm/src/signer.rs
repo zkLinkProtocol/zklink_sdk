@@ -50,8 +50,18 @@ impl From<L1Type> for InnerL1Type {
 #[wasm_bindgen]
 impl Signer {
     #[wasm_bindgen(constructor)]
-    pub fn new(private_key: &str, l1_type: L1Type) -> Result<Signer, JsValue> {
-        let inner = InterfaceSigner::new(private_key, l1_type.into())?;
+    pub fn new(
+        private_key: &str,
+        l1_type: L1Type,
+        starknet_chain_id: Option<String>,
+        starknet_addr: Option<String>,
+    ) -> Result<Signer, JsValue> {
+        let inner = InterfaceSigner::new(
+            private_key,
+            l1_type.into(),
+            starknet_chain_id,
+            starknet_addr,
+        )?;
         Ok(Signer { inner })
     }
 
