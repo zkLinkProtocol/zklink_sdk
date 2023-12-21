@@ -80,7 +80,7 @@ func HighLevelAutoDeleveraging() {
         sdk.TokenId(18),
     }
     tx := sdk.NewAutoDeleveraging(builder)
-    signer, err := sdk.NewSigner(privateKey, sdk.L1TypeEth,nil,nil)
+    signer, err := sdk.NewSigner(privateKey, sdk.L1SignerTypeEth{ Net:"eth"})
     if err != nil {
         return
     }

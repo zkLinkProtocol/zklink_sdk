@@ -10,7 +10,7 @@ use crate::tx_types::transfer::Transfer;
 use crate::tx_types::withdraw::Withdraw;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
-use zklink_sdk_interface::signer::L1Type as InnerL1Type;
+use zklink_sdk_interface::signer::L1SignerType;
 use zklink_sdk_interface::signer::Signer as InterfaceSigner;
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey as TxChangePubKey;
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data as ChangePubKeyCreate2Data;
@@ -38,15 +38,6 @@ pub enum L1Type {
     Starknet,
 }
 
-impl From<L1Type> for InnerL1Type {
-    fn from(value: L1Type) -> InnerL1Type {
-        match value {
-            L1Type::Eth => InnerL1Type::Eth,
-            L1Type::Starknet => InnerL1Type::Starknet,
-        }
-    }
-}
-
 #[wasm_bindgen]
 impl Signer {
     #[wasm_bindgen(constructor)]
@@ -56,12 +47,17 @@ impl Signer {
         starknet_chain_id: Option<String>,
         starknet_addr: Option<String>,
     ) -> Result<Signer, JsValue> {
-        let inner = InterfaceSigner::new(
-            private_key,
-            l1_type.into(),
-            starknet_chain_id,
-            starknet_addr,
-        )?;
+        let l1_signer_type = match l1_type {
+            L1Type::Eth => L1SignerType::Eth {
+                net: "eth".to_string(),
+            },
+            L1Type::Starknet => L1SignerType::Starknet {
+                net: "starknet".to_string(),
+                chain_id: starknet_chain_id.unwrap(),
+                address: starknet_addr.unwrap(),
+            },
+        };
+        let inner = InterfaceSigner::new(private_key, l1_signer_type)?;
         Ok(Signer { inner })
     }
 

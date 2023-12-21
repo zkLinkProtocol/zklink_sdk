@@ -70,7 +70,7 @@ async function testOnchainAuth() {
 }
 
 async function main() {
-    //await testEcdsaAuth();
+    await testEcdsaAuth();
     await testOnchainAuth();
 }
 
