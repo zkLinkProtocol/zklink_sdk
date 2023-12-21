@@ -14,6 +14,25 @@ global.Response = fetch.Response;
 // @ts-ignore
 global.AbortController = AbortController;
 
+async function testDepositEth() {
+    const private_key = "0xd511266f7d37f0957564e4ce1a1dcc8bb3408383634774a2f4a94a35f4bc53e0";
+    const eth_rpc_url = "https://linea-goerli.blockpi.network/v1/rpc/0348a3ff6425076c6c8e9b26cc7dbbdb8a6ff3f0";
+    const zklink_address = "0x63A7Dd7B68f569eDA9bFefd1041b8e56b885e5E9";
+    const sub_account_id = 10;
+    const deposit_to = "0x4770a669b28092251940f35165d2c94f7d47359a";
+    // 0.1 eth
+    const amount = "100000000000000000"
+    try {
+        let approve_option = new EthTxOption(true, zklink_address, null, amount, null, null);
+        let wallet = new Wallet(eth_rpc_url, private_key);
+        console.log(wallet);
+        let hash = await wallet.depositETH(sub_account_id, deposit_to, approve_option, false)
+        console.log(hash);
+    } catch(error) {
+        console.log(error)
+    }
+}
+
 async function testDepositErc20() {
     const private_key = "0xb32593e347bf09436b058fbeabc17ebd2c7c1fa42e542f5f78fc3580faef83b7";
     const avax_rpc_url = "https://avalanche-fuji.blockpi.network/v1/rpc/383a4619d008fe876a25060ff8e66a0f6465c3de";
@@ -64,6 +83,7 @@ async function main() {
     console.log(global);
     await testDepositErc20();
     await testDepositErc20ToGateway();
+    await testDepositEth();
 }
 
 main();
