@@ -5,7 +5,7 @@ async function main() {
     try {
         const provider = window.bitkeep && window.bitkeep.ethereum;
         await provider.request({ method: 'eth_requestAccounts' });
-        const signer = new wasm.newRpcSignerWithProvider(provider);
+        const signer = new wasm.JsonRpcSigner(provider);
         await signer.initZklinkSigner(null);
         console.log(signer);
 
