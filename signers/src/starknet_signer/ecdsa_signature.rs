@@ -21,8 +21,8 @@ impl StarkEcdsaSignature {
         let mut bytes = [0; 64];
         let s = self.s.to_bytes_be();
         let r = self.r.to_bytes_be();
-        bytes[0..32].clone_from_slice(&r);
-        bytes[32..].clone_from_slice(&s);
+        bytes[0..32].clone_from_slice(&s);
+        bytes[32..].clone_from_slice(&r);
         bytes
     }
 
@@ -53,8 +53,8 @@ impl StarkEcdsaSignature {
                 "bytes should be 64 length",
             ));
         }
-        r.clone_from_slice(&bytes[0..32]);
-        s.clone_from_slice(&bytes[32..]);
+        s.clone_from_slice(&bytes[0..32]);
+        r.clone_from_slice(&bytes[32..]);
         let s = FieldElement::from_bytes_be(&s)
             .map_err(|e| StarkSignerError::invalid_signature(e.to_string()))?;
         let r = FieldElement::from_bytes_be(&r)

@@ -75,7 +75,7 @@ mod tests {
 
     #[test]
     fn test_signature_verify() {
-        let sig_str = "0x02647618b4fe405d0dccbdfd25c20bfdeb87631a332491c633943e6f59f16ef307b3c5b947d6f8dd9c8d97be61172d1bc38f6c412d218f285c9425a2260afe5d029a21fa05eeb4b03729658858f72e67c610d9011effb46a479d64bf7b909506";
+        let sig_str = "0x02647618b4fe405d0dccbdfd25c20bfdeb87631a332491c633943e6f59f16ef3029a21fa05eeb4b03729658858f72e67c610d9011effb46a479d64bf7b90950607b3c5b947d6f8dd9c8d97be61172d1bc38f6c412d218f285c9425a2260afe5d";
         let addr = "0x04A69b67bcaBfA7D3CCb96e1d25C2e6fC93589fE24A6fD04566B8700ff97a71a";
         let transfer = TxMessage {
             amount: "0.0012345678998".to_string(),

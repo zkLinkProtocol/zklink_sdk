@@ -25,12 +25,14 @@ pub struct JsonRpcSigner {
     inner: InterfaceJsonRpcSigner,
 }
 
+//#[wasm_bindgen(constructor)]
 #[wasm_bindgen(js_name=newRpcSignerWithProvider)]
 pub fn new_with_provider(provider: Provider) -> Result<JsonRpcSigner, JsValue> {
     let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Provider(provider), None, None)?;
     Ok(JsonRpcSigner { inner })
 }
 
+//#[wasm_bindgen(constructor)]
 #[wasm_bindgen(js_name=newRpcSignerWithSigner)]
 pub fn new_with_signer(
     signer: Signer,
@@ -52,18 +54,15 @@ impl JsonRpcSigner {
         Ok(self.inner.init_zklink_signer(signature).await?)
     }
 
-    #[wasm_bindgen(js_name = pubkeyHash)]
-    pub fn pub_key_hash(&self) -> String {
-        self.inner.pub_key_hash()
-    }
-
-    #[wasm_bindgen(js_name=signChangePubkeyWithOnchain)]
-    pub fn sign_change_pubkey_with_onchain(&self, tx: ChangePubKey) -> Result<JsValue, JsValue> {
+    #[wasm_bindgen(js_name = signTransfer)]
+    pub async fn sign_transfer(
+        &self,
+        tx: Transfer,
+        token_symbol: &str,
+    ) -> Result<JsValue, JsValue> {
         let inner_tx = tx.json_value()?;
-        let change_pubkey: TxChangePubKey = serde_wasm_bindgen::from_value(inner_tx)?;
-        let signature = self
-            .inner
-            .sign_change_pubkey_with_onchain_auth_data(change_pubkey)?;
+        let transfer: TxTransfer = serde_wasm_bindgen::from_value(inner_tx)?;
+        let signature = self.inner.sign_transfer(transfer, token_symbol).await?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
     }
 
@@ -94,18 +93,6 @@ impl JsonRpcSigner {
         let signature = self
             .inner
             .sign_change_pubkey_with_create2data_auth(change_pubkey, create2_data)?;
-        Ok(serde_wasm_bindgen::to_value(&signature)?)
-    }
-
-    #[wasm_bindgen(js_name = signTransfer)]
-    pub async fn sign_transfer(
-        &self,
-        tx: Transfer,
-        token_symbol: &str,
-    ) -> Result<JsValue, JsValue> {
-        let inner_tx = tx.json_value()?;
-        let transfer: TxTransfer = serde_wasm_bindgen::from_value(inner_tx)?;
-        let signature = self.inner.sign_transfer(transfer, token_symbol).await?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
     }
 

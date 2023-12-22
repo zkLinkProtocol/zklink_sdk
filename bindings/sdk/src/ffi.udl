@@ -596,15 +596,9 @@ enum L1Type {
     "Starknet",
 };
 
-[Enum]
-interface L1SignerType {
-    Eth();
-    Starknet(string chain_id,string address);
-};
-
 interface Signer {
     [Throws=SignError]
-    constructor([ByRef] string private_key, L1SignerType l1_type);
+    constructor([ByRef] string private_key, L1Type l1_type);
     [Throws=SignError]
     TxSignature sign_change_pubkey_with_create2data_auth(ChangePubKey tx, Create2Data crate2data);
     [Throws=SignError]

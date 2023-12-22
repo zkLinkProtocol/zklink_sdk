@@ -79,7 +79,7 @@ func HighLevelLiquidation() {
     }
 
     tx := sdk.NewLiquidation(builder)
-    signer, err := sdk.NewSigner(privateKey, sdk.L1SignerTypeEth{})
+    signer, err := sdk.NewSigner(privateKey, sdk.L1TypeEth)
     if err != nil {
         return
     }
