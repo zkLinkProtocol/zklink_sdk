@@ -1,4 +1,3 @@
-use jsonrpsee::core::error::Error as jsonrpseeError;
 use thiserror::Error;
 use wasm_bindgen::JsValue;
 
@@ -8,8 +7,6 @@ pub enum RpcError {
     InvalidNetwork,
     #[error("Invalid input parameter")]
     InvalidInputParameter,
-    #[error("Parse params error: {0}")]
-    ParseParamsError(jsonrpseeError),
     #[error("HTTP request error: {0}")]
     RequestError(reqwest::Error),
     #[error("Parse response error: {0}")]

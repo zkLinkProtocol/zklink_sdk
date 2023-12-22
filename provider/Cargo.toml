@@ -15,10 +15,12 @@ zklink_sdk_signers = { path = "../signers" }
 zklink_sdk_types = { path = "../types" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-jsonrpsee = { version = "0.20.1", features = ["http-client","macros"] }
+jsonrpsee = { version = "0.21", features = ["http-client","macros"] }
+jsonrpsee-http-client = "0.21"
+jsonrpsee-core = "0.21"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-jsonrpsee = { version = "0.20.1", features = ["macros","jsonrpsee-types","client-core"] }
+jsonrpsee = { version = "0.21", features = ["macros","jsonrpsee-types","client-core"] }
 getrandom = { version = "0.2.11", features = ["js"] }
 uuid = "0.8"
 

@@ -3,6 +3,7 @@ pub mod network;
 pub mod response;
 #[cfg(not(any(feature = "ffi", target_arch = "wasm32")))]
 pub mod rpc;
+pub mod rpc_client;
 
 #[cfg(not(any(feature = "ffi", target_arch = "wasm32")))]
 mod not_ffi {
@@ -38,7 +39,5 @@ mod not_ffi {
 
 #[cfg(not(any(feature = "ffi", target_arch = "wasm32")))]
 pub use crate::rpc::ZkLinkRpcClient;
-#[cfg(not(any(feature = "ffi", target_arch = "wasm32")))]
-pub use jsonrpsee::core::Error as RpcError;
 #[cfg(not(any(feature = "ffi", target_arch = "wasm32")))]
 pub use not_ffi::*;
