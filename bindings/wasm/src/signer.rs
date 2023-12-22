@@ -48,11 +48,8 @@ impl Signer {
         starknet_addr: Option<String>,
     ) -> Result<Signer, JsValue> {
         let l1_signer_type = match l1_type {
-            L1Type::Eth => L1SignerType::Eth {
-                net: "eth".to_string(),
-            },
+            L1Type::Eth => L1SignerType::Eth,
             L1Type::Starknet => L1SignerType::Starknet {
-                net: "starknet".to_string(),
                 chain_id: starknet_chain_id.unwrap(),
                 address: starknet_addr.unwrap(),
             },
