@@ -154,7 +154,7 @@ func HighLevelChangePubkeyEcdsa() {
 		timeStamp,
 	}
 	tx := sdk.NewChangePubKey(builder)
-    signer, err := sdk.NewSigner(privateKey, sdk.L1TypeEth)
+    signer, err := sdk.NewSigner(privateKey, sdk.L1SignerTypeEth{})
     if err != nil {
         return
     }

@@ -1,6 +1,8 @@
 use crate::do_submitter_signature;
 use crate::error::SignError;
-use crate::sign_change_pubkey::do_sign_change_pubkey_with_create2data_auth;
+use crate::sign_change_pubkey::{
+    do_sign_change_pubkey_with_create2data_auth, do_sign_change_pubkey_with_onchain_auth_data,
+};
 use crate::sign_forced_exit::sign_forced_exit;
 use crate::sign_order_matching::sign_order_matching;
 use crate::sign_transfer::{sign_eth_transfer, sign_starknet_transfer};
@@ -88,6 +90,11 @@ impl JsonRpcSigner {
         Ok(())
     }
 
+    pub fn pub_key_hash(&self) -> String {
+        let pub_key = self.zklink_signer.public_key();
+        pub_key.public_key_hash().as_hex()
+    }
+
     pub async fn sign_transfer(
         &self,
         tx: Transfer,
@@ -101,6 +108,14 @@ impl JsonRpcSigner {
                 sign_starknet_transfer(signer, &self.zklink_signer, tx, token_symbol).await
             }
         }
+    }
+
+    #[inline]
+    pub fn sign_change_pubkey_with_onchain_auth_data(
+        &self,
+        tx: ChangePubKey,
+    ) -> Result<TxSignature, SignError> {
+        do_sign_change_pubkey_with_onchain_auth_data(tx, &self.zklink_signer)
     }
 
     #[inline]

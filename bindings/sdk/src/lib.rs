@@ -34,6 +34,7 @@ use zklink_sdk_interface::error::SignError;
 use zklink_sdk_interface::sign_change_pubkey::{
     create_signed_change_pubkey, eth_signature_of_change_pubkey,
 };
+use zklink_sdk_interface::signer::L1SignerType;
 use zklink_sdk_interface::signer::{L1Type, Signer};
 use zklink_sdk_interface::ChangePubKeyAuthRequest;
 

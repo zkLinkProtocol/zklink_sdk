@@ -1,5 +1,4 @@
 import init, *  as wasm  from "./web-dist/zklink-sdk-web.js";
-import { ethers } from "https://cdn-cors.ethers.io/lib/ethers-5.5.4.esm.min.js";
 
 async function testEcdsaAuth() {
     await init();
@@ -19,7 +18,7 @@ async function testEcdsaAuth() {
         const provider = window.bitkeep && window.bitkeep.ethereum;
         await provider.request({ method: 'eth_requestAccounts' });
 
-        const signer = new wasm.newW(provider);
+        const signer = new wasm.newRpcSignerWithProvider(provider);
 
         // use cached ethereum signature to init zklink signer
         //const signature = "0x1111111111";
@@ -56,7 +55,7 @@ async function testCreate2() {
         let tx = wasm.newChangePubkey(tx_builder);
         const provider = window.bitkeep && window.bitkeep.ethereum;
         await provider.request({ method: 'eth_requestAccounts' });
-        const signer = new wasm.JsonRpcSigner(provider);
+        const signer = new wasm.newRpcSignerWithProvider(provider);
         await signer.initZklinkSigner(null);
         console.log(signer);
 
