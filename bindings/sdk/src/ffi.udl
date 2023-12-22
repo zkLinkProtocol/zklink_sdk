@@ -598,8 +598,8 @@ enum L1Type {
 
 [Enum]
 interface L1SignerType {
-    Eth(string net);
-    Starknet(string net,string chain_id,string address);
+    Eth();
+    Starknet(string chain_id,string address);
 };
 
 interface Signer {

@@ -60,14 +60,8 @@ pub struct Signer {
 }
 
 pub enum L1SignerType {
-    Eth {
-        net: String,
-    },
-    Starknet {
-        net: String,
-        chain_id: String,
-        address: String,
-    },
+    Eth,
+    Starknet { chain_id: String, address: String },
 }
 
 impl Signer {

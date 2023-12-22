@@ -39,7 +39,7 @@ func HighLevelFunding() {
         sdk.TokenId(17),
     }
     tx := sdk.NewFunding(builder)
-    signer, err := sdk.NewSigner(privateKey, sdk.L1SignerTypeEth{ Net:"eth"})
+    signer, err := sdk.NewSigner(privateKey, sdk.L1SignerTypeEth{})
     if err != nil {
         return
     }
