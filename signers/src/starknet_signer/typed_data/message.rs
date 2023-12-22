@@ -10,7 +10,7 @@ pub struct TxMessage {
     pub nonce: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Message {
     pub data: String,
 }

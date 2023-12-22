@@ -14,6 +14,7 @@ lint:
 	cargo machete
 	cargo test --all
 	make test_go
+	make build_wasm
 
 lint-check:
 	cargo fmt -- --check

@@ -59,19 +59,31 @@ pub struct Signer {
     layer1_signer: Layer1Sginer,
 }
 
+pub enum L1SignerType {
+    Eth,
+    Starknet { chain_id: String, address: String },
+}
+
 impl Signer {
-    pub fn new(private_key: &str, l1_signer_type: L1Type) -> Result<Self, SignError> {
-        let zklink_signer = ZkLinkSigner::new_from_hex_eth_signer(private_key)?;
-        let layer1_signer = match l1_signer_type {
-            L1Type::Eth => {
+    pub fn new(private_key: &str, l1_signer_type: L1SignerType) -> Result<Self, SignError> {
+        let (zklink_signer, layer1_signer) = match l1_signer_type {
+            L1SignerType::Eth { .. } => {
                 let eth_signer = EthSigner::try_from(private_key)
                     .map_err(|_| EthSignerError::InvalidEthSigner)?;
-                Layer1Sginer::EthSigner(eth_signer)
+                (
+                    ZkLinkSigner::new_from_hex_eth_signer(private_key)?,
+                    Layer1Sginer::EthSigner(eth_signer),
+                )
             }
-            L1Type::Starknet => {
+            L1SignerType::Starknet {
+                chain_id, address, ..
+            } => {
                 let stark_signer = StarkSigner::new_from_hex_str(private_key)
                     .map_err(|_| StarkSignerError::InvalidStarknetSigner)?;
-                Layer1Sginer::StarknetSigner(stark_signer)
+                (
+                    ZkLinkSigner::new_from_hex_stark_signer(private_key, &address, &chain_id)?,
+                    Layer1Sginer::StarknetSigner(stark_signer),
+                )
             }
         };
         Ok(Self {
