@@ -20,7 +20,7 @@ async function main() {
         let submitter_signature = signer.submitterSignature(signature.tx);
         console.log(submitter_signature);
         let rpc_client = new wasm.RpcClient("testnet");
-        let l1_signature = new wasm.TxLayer1Signature(wasm.L1SignatureType.Eth,signature.eth_signature);
+        let l1_signature = new wasm.TxLayer1Signature(wasm.L1SignatureType.Eth,signature.layer1_signature.signature);
         let tx_hash = await rpc_client.sendTransaction(signature.tx,l1_signature,submitter_signature);
         console.log(tx_hash);
 

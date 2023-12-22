@@ -1,4 +1,5 @@
-const {ContractMatchingBuilder,Signer,newContractMatching,newContract,ContractBuilder,RpcClient } = require('./node-dist/zklink-sdk-node');
+const {ContractMatchingBuilder,Signer,newContractMatching,newContract,ContractBuilder,
+    RpcClient,ContractPrice,SpotPriceInfo } = require('./node-dist/zklink-sdk-node');
 // CommonJS
 const fetch = require('node-fetch');
 const AbortController = require('abort-controller')
@@ -17,6 +18,24 @@ global.AbortController = AbortController;
 async function testContractMatching() {
     const private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
     try {
+        const contract_price1 = new ContractPrice(0,"1");
+        const contract_price2 = new ContractPrice(1,"1");
+        const contract_price3 = new ContractPrice(2,"1");
+        const contract_price4 = new ContractPrice(3,"1")
+        let contract_prices = [];
+        contract_prices.push(contract_price1.jsonValue());
+        contract_prices.push(contract_price2.jsonValue());
+        contract_prices.push(contract_price3.jsonValue());
+        contract_prices.push(contract_price4.jsonValue());
+
+        let margin_prices = [];
+        const margin_price1 = new SpotPriceInfo(17,"1");
+        const margin_price2 = new SpotPriceInfo(141,"1");
+        const margin_price3 = new SpotPriceInfo(142,"1");
+        margin_prices.push(margin_price1.jsonValue());
+        margin_prices.push(margin_price2.jsonValue());
+        margin_prices.push(margin_price3.jsonValue());
+
         const signer = new Signer(private_key);
         let taker_contract_builder = new ContractBuilder(5,1,1,3,2,
             "10","5454545445",true,50,22,false);
@@ -36,7 +55,8 @@ async function testContractMatching() {
         let maker_contract2 = signer.createSignedContract(unsigned_maker_contract2);
         console.log(maker_contract2);
 
-        let tx_builder = new ContractMatchingBuilder(5,1,taker_contract,[maker_contract1,maker_contract2],"1",17);
+        let tx_builder = new ContractMatchingBuilder(5,1,taker_contract,
+            [maker_contract1,maker_contract2],"1",17,contract_prices,margin_prices);
         let tx = newContractMatching(tx_builder);
         console.log(tx);
         let tx_signature = signer.signContractMatching(tx);
