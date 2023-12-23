@@ -23,7 +23,7 @@ macro_rules! rpc_request {
     ($method:expr,$builder:expr, $server_url:expr, $resp_type: ty) => {{
         let params = $builder
             .to_rpc_params()
-            .map_err(RpcError::ParseParamsError)?;
+            .map_err(|e| RpcError::InvalidArgument(e))?;
         let request = Request::new(
             $method.into(),
             params.as_ref().map(|p| p.as_ref()),

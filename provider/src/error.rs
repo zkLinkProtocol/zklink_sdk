@@ -7,7 +7,7 @@ pub enum RpcError {
     InvalidNetwork,
     #[error("Invalid input parameter")]
     InvalidInputParameter,
-    #[error("Invalid argument")]
+    #[error("Invalid argument: {0}")]
     InvalidArgument(serde_json::Error),
     #[error("HTTP request error: {0}")]
     RequestError(reqwest::Error),
