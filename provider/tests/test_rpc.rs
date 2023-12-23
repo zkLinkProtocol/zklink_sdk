@@ -123,6 +123,8 @@ mod test {
             expect_base_amount: BigUint::from(10000000000000000u64),
             fee: BigUint::from(100000000000000u64),
             maker,
+            contract_prices: vec![],
+            margin_prices: vec![],
             expect_quote_amount: BigUint::from(100000000000000u64),
         };
         let mut order_matching = builder.build();
