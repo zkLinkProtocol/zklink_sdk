@@ -1,13 +1,13 @@
 pub mod error;
 pub mod network;
 pub mod response;
-#[cfg(not(any(feature = "ffi", target_arch = "wasm32")))]
-pub mod rpc;
 #[cfg(not(target_arch = "wasm32"))]
-pub mod rpc_client;
+mod rpc;
 
 #[cfg(not(any(feature = "ffi", target_arch = "wasm32")))]
 mod not_ffi {
+    pub use crate::rpc::{ZkLinkRpcClient, ZkLinkRpcServer};
+
     use crate::network::Network;
     use jsonrpsee::http_client::{HttpClient, HttpClientBuilder};
     use std::ops::Deref;
@@ -27,18 +27,16 @@ mod not_ffi {
     }
 
     impl ZkLinkRpcProvider {
-        pub fn new(network: Network, timeout: Duration) -> Self {
-            let zklink_client = HttpClientBuilder::default()
-                .request_timeout(timeout)
-                .build(network.url())
-                .unwrap();
-
-            Self(zklink_client)
+        pub fn new(network: Network, timeout: Option<Duration>) -> Self {
+            let mut builder = HttpClientBuilder::default();
+            if let Some(timeout) = timeout {
+                builder = builder.request_timeout(timeout);
+            }
+            let client = builder.build(network.url()).unwrap();
+            Self(client)
         }
     }
 }
 
-#[cfg(not(any(feature = "ffi", target_arch = "wasm32")))]
-pub use crate::rpc::ZkLinkRpcClient;
 #[cfg(not(any(feature = "ffi", target_arch = "wasm32")))]
 pub use not_ffi::*;
