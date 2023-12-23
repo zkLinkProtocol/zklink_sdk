@@ -3,6 +3,7 @@ pub mod network;
 pub mod response;
 #[cfg(not(any(feature = "ffi", target_arch = "wasm32")))]
 pub mod rpc;
+#[cfg(not(any(feature = "ffi", target_arch = "wasm32")))]
 pub mod rpc_client;
 
 #[cfg(not(any(feature = "ffi", target_arch = "wasm32")))]
