@@ -170,7 +170,7 @@ impl RpcClient {
         Ok(resp)
     }
 
-    pub async fn account_snapshot(
+    pub async fn get_account_snapshot(
         &self,
         account_query: AccountQuery,
         sub_account_id: Option<SubAccountId>,
@@ -187,7 +187,7 @@ impl RpcClient {
         Ok(resp)
     }
 
-    pub async fn tx_info(&self, hash: TxHash, include_update: bool) -> RpcResult<TxResp> {
+    pub async fn get_tx_info(&self, hash: TxHash, include_update: bool) -> RpcResult<TxResp> {
         let method = "getTransactionByHash";
         let resp = self
             .inner
@@ -196,7 +196,7 @@ impl RpcClient {
         Ok(resp)
     }
 
-    pub async fn tx_history(
+    pub async fn get_account_tx_history(
         &self,
         tx_type: ZkLinkTxType,
         address: ZkLinkAddress,
@@ -211,7 +211,7 @@ impl RpcClient {
         Ok(resp)
     }
 
-    pub async fn tx_withdraw(
+    pub async fn get_withdraw_txs(
         &self,
         last_tx_timestamp_micro: u64,
         max_txs: u32,
