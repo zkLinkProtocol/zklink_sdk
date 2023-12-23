@@ -118,7 +118,6 @@ pub trait ZkLinkRpc {
     #[method(name = "getEthProperty")]
     async fn get_eth_property(&self) -> RpcResult<EthPropertyResp>;
 
-
     #[method(name = "sendTransaction")]
     async fn tx_submit(
         &self,
