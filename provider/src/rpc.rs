@@ -2,6 +2,7 @@ use jsonrpsee::proc_macros::rpc;
 use std::collections::HashMap;
 
 use super::response::*;
+use jsonrpsee::core::RpcResult;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
 use zklink_sdk_types::basic_types::{
@@ -11,7 +12,7 @@ use zklink_sdk_types::prelude::BigUintSerdeWrapper;
 use zklink_sdk_types::signatures::TxLayer1Signature;
 use zklink_sdk_types::tx_type::zklink_tx::{ZkLinkTx, ZkLinkTxType};
 
-#[rpc(client)]
+#[rpc(client, server)]
 pub trait ZkLinkRpc {
     #[method(name = "getSupportChains")]
     async fn get_support_chains(&self) -> RpcResult<Vec<ChainResp>>;
@@ -45,6 +46,9 @@ pub trait ZkLinkRpc {
     #[method(name = "getAccount")]
     async fn account_info(&self, account_query: AccountQuery) -> RpcResult<AccountInfoResp>;
 
+    #[method(name = "getSubAccountGlobalVars")]
+    async fn global_vars_info(&self, sub_account_query: SubAccountId) -> RpcResult<GlobalVarsResp>;
+
     #[method(name = "getAccountBalances")]
     async fn account_balances(
         &self,
@@ -58,6 +62,13 @@ pub trait ZkLinkRpc {
         account_id: AccountId,
         sub_account_id: Option<SubAccountId>,
     ) -> RpcResult<SubAccountOrders>;
+
+    #[method(name = "getAccountPositions")]
+    async fn account_positions(
+        &self,
+        account_id: AccountId,
+        sub_account_id: Option<SubAccountId>,
+    ) -> RpcResult<SubAccountPositions>;
 
     #[method(name = "getTokenReserve")]
     async fn token_remain(
@@ -89,9 +100,17 @@ pub trait ZkLinkRpc {
     #[method(name = "getWithdrawTxs")]
     async fn tx_withdraw(
         &self,
-        last_tx_timestamp: u64,
+        last_tx_timestamp_micro: u64,
         max_txs: u32,
     ) -> RpcResult<Vec<WithdrawTxResp>>;
+
+    // TODO: fix in issue #156
+    // #[method(name = "getWebSocketEvents")]
+    // async fn get_websocket_events(
+    //     &self,
+    //     topic: Topic,
+    //     offset: ClientOffset,
+    // ) -> RpcResult<Vec<TxTopicEvent>>;
 
     #[method(name = "getChangePubkeyChainId")]
     async fn get_change_pubkey_chain_id(&self) -> RpcResult<ChainId>;
@@ -99,23 +118,11 @@ pub trait ZkLinkRpc {
     #[method(name = "getEthProperty")]
     async fn get_eth_property(&self) -> RpcResult<EthPropertyResp>;
 
-    #[method(name = "pullForwardTxs")]
-    async fn pull_forward_txs(
-        &self,
-        sub_account_id: SubAccountId,
-        offset_id: i64,
-        limit: i64,
-    ) -> RpcResult<Vec<ForwardTxResp>>;
-
-    #[method(name = "estimateTransactionFee")]
-    #[deprecated(note = "This rpc will be removed in a future release")]
-    async fn get_tx_fee(&self, tx: ZkLinkTx) -> RpcResult<BigUintSerdeWrapper>;
-
     #[method(name = "sendTransaction")]
     async fn tx_submit(
         &self,
         tx: ZkLinkTx,
-        eth_signature: Option<TxLayer1Signature>,
+        l1_signature: Option<TxLayer1Signature>,
         submitter_signature: Option<ZkLinkSignature>,
     ) -> RpcResult<TxHash>;
 }
