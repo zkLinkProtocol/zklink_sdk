@@ -1,6 +1,7 @@
 use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
+use web_time::Instant;
 use zklink_sdk_types::basic_types::{BigUint, ZkLinkAddress};
 use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::ForcedExitBuilder as TxForcedExitBuilder;
@@ -42,7 +43,7 @@ impl ForcedExitBuilder {
         let ts = if let Some(time_stamp) = ts {
             time_stamp
         } else {
-            std::time::UNIX_EPOCH.elapsed().unwrap().as_millis() as u32
+            Instant::now().elapsed().as_secs() as u32
         };
         let inner = TxForcedExitBuilder {
             to_chain_id: to_chain_id.into(),

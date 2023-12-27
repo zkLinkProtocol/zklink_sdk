@@ -36,6 +36,10 @@ impl StarknetJsonRpcSigner {
         }
     }
 
+    pub fn address(&self) -> String {
+        self.signer.address()
+    }
+
     pub async fn sign_message(
         &self,
         message: TypedDataMessage,

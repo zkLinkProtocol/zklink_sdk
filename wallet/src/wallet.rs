@@ -1,21 +1,32 @@
 use crate::abi::load_contracts;
 use crate::error::WalletError;
-use crate::eth::{encode_tx, new_typed_tx, EthTxOption, EthTxParam};
+use crate::eth::{encode_tx, new_call_typed_tx, new_typed_tx, EthTxOption, EthTxParam};
 use bigdecimal::num_bigint::BigUint;
-use ethers::abi::{Address, Contract, Token};
+use ethers::abi::{Address, Contract, Detokenize, Token, Tokenize, Uint};
+use ethers::contract::encode_function_data;
 use ethers::providers::{Http, Middleware, Provider};
+use ethers::types::BlockNumber;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::str::FromStr;
 use std::sync::Arc;
+use std::time::Duration;
+use wasm_bindgen::prelude::wasm_bindgen;
 use zklink_sdk_signers::eth_signer::EthSigner;
 use zklink_sdk_types::basic_types::ZkLinkAddress;
-use zklink_sdk_types::prelude::H256;
+use zklink_sdk_types::prelude::{PubKeyHash, H256, U256};
 
 pub struct Wallet {
     pub contracts: HashMap<String, Contract>,
     pub signer: EthSigner,
     pub provider: Arc<Provider<Http>>,
+}
+
+#[wasm_bindgen]
+pub enum WaitForTxStatus {
+    Success,
+    Failed,
+    Pending,
 }
 
 impl Wallet {
@@ -36,6 +47,71 @@ impl Wallet {
             .get(&contract_name.to_string())
             .unwrap()
             .clone()
+    }
+
+    pub async fn get_balance(&self) -> Result<U256, WalletError> {
+        let from = self.signer.get_address();
+        Ok(self.provider.get_balance(from, None).await?)
+    }
+
+    pub async fn get_nonce(&self, block_number: String) -> Result<U256, WalletError> {
+        let block_number = BlockNumber::from_str(&block_number)
+            .map_err(|_e| WalletError::InvalidInputParameter)?;
+        let from = self.signer.get_address();
+        Ok(self
+            .provider
+            .get_transaction_count(from, Some(block_number.into()))
+            .await?)
+    }
+
+    pub async fn wait_for_transaction(
+        &self,
+        tx_hash: H256,
+        retries: Option<u32>,
+    ) -> Result<WaitForTxStatus, WalletError> {
+        let mut retries = retries.unwrap_or(60);
+        loop {
+            let receipt = self.provider.get_transaction_receipt(tx_hash).await?;
+            if let Some(receipt) = receipt {
+                if let Some(status) = receipt.status {
+                    if status.as_u64() == 1 {
+                        return Ok(WaitForTxStatus::Success);
+                    } else {
+                        return Ok(WaitForTxStatus::Failed);
+                    }
+                }
+            }
+            retries -= 1;
+            if retries == 0 {
+                return Ok(WaitForTxStatus::Pending);
+            }
+            async_std::task::sleep(Duration::from_secs(1)).await
+        }
+    }
+
+    pub async fn tx_call<T: Tokenize>(
+        &self,
+        eth_params: EthTxParam,
+        is_gateway: bool,
+        method: &str,
+        args: T,
+    ) -> Result<Vec<Token>, WalletError> {
+        let contract = self.get_l1_contract(is_gateway);
+        let function = contract
+            .function(method)
+            .map_err(WalletError::EthAbiError)?;
+        let encoded_data = encode_function_data(function, args).map_err(WalletError::AbiError)?;
+        let params = EthTxParam {
+            data: Some(encoded_data.to_vec()),
+            ..eth_params.clone()
+        };
+        let chain_id = self.provider.get_chainid().await?;
+        let typed_tx = new_call_typed_tx(params, chain_id.as_u64());
+        let data: Vec<u8> = (*(self.provider).call(&typed_tx, None).await?).to_vec();
+        let tokens = function
+            .decode_output(&data)
+            .map_err(WalletError::EthAbiError)?;
+        Ok(tokens)
     }
 
     pub async fn sign_and_send_raw_tx(&self, params: EthTxParam) -> Result<H256, WalletError> {
@@ -114,6 +190,31 @@ impl Wallet {
     }
 
     #[allow(clippy::too_many_arguments)]
+    pub async fn inner_full_exit(
+        &self,
+        account_id: u32,
+        sub_account_id: u8,
+        token_id: u16,
+        mapping: bool,
+        eth_params: EthTxParam,
+    ) -> Result<H256, WalletError> {
+        let params = vec![
+            Token::Uint(ethers::types::U256::from(account_id)),
+            Token::Uint(ethers::types::U256::from(sub_account_id)),
+            Token::Uint(ethers::types::U256::from(token_id)),
+            Token::Bool(mapping),
+        ];
+        let contract = self.get_l1_contract(false);
+        let tx_data = encode_tx(contract.clone(), "requestFullExit", params)?;
+        let tx_params = EthTxParam {
+            data: Some(tx_data),
+            ..eth_params.clone()
+        };
+        let tx_hash = self.sign_and_send_raw_tx(tx_params).await?;
+        Ok(tx_hash)
+    }
+
+    #[allow(clippy::too_many_arguments)]
     pub async fn inner_deposit_erc20(
         &self,
         sub_account_id: u8,
@@ -137,6 +238,28 @@ impl Wallet {
         ];
         let contract = self.get_l1_contract(is_gateway);
         let tx_data = encode_tx(contract.clone(), "depositERC20", params)?;
+        let tx_params = EthTxParam {
+            data: Some(tx_data),
+            ..eth_params.clone()
+        };
+        let tx_hash = self.sign_and_send_raw_tx(tx_params).await?;
+        Ok(tx_hash)
+    }
+
+    pub async fn inner_set_auth_pubkey_hash(
+        &self,
+        nonce: u64,
+        new_pubkey_hash: PubKeyHash,
+        eth_params: EthTxParam,
+    ) -> Result<H256, WalletError> {
+        let mut bytes = [0; 32];
+        bytes[12..].copy_from_slice(new_pubkey_hash.as_ref());
+        let params = vec![
+            Token::Bytes(bytes.to_vec()),
+            Token::Uint(ethers::types::U256::from(nonce)),
+        ];
+        let contract = self.get_l1_contract(false);
+        let tx_data = encode_tx(contract.clone(), "setAuthPubkeyHash", params)?;
         let tx_params = EthTxParam {
             data: Some(tx_data),
             ..eth_params.clone()
@@ -222,5 +345,43 @@ impl Wallet {
             eth_params.into(),
         )
         .await
+    }
+
+    pub async fn set_auth_pubkey_hash(
+        &self,
+        nonce: u64,
+        new_pubkey_hash: PubKeyHash,
+        eth_params: EthTxOption,
+    ) -> Result<H256, WalletError> {
+        self.inner_set_auth_pubkey_hash(nonce, new_pubkey_hash, eth_params.into())
+            .await
+    }
+
+    pub async fn full_exit(
+        &self,
+        account_id: u32,
+        sub_account_id: u8,
+        token_id: u16,
+        mapping: bool,
+        eth_params: EthTxOption,
+    ) -> Result<H256, WalletError> {
+        self.inner_full_exit(
+            account_id,
+            sub_account_id,
+            token_id,
+            mapping,
+            eth_params.into(),
+        )
+        .await
+    }
+
+    pub async fn inner_get_fee(&self, eth_params: EthTxParam) -> Result<BigUint, WalletError> {
+        let tokens = self.tx_call(eth_params, true, "fee", ()).await?;
+        let fee = Uint::from_tokens(tokens).map_err(|e| WalletError::GetErrorResult(e.0))?;
+        Ok(BigUint::from_str(&fee.to_string()).unwrap())
+    }
+
+    pub async fn get_fee(&self, eth_params: EthTxOption) -> Result<BigUint, WalletError> {
+        self.inner_get_fee(eth_params.into()).await
     }
 }

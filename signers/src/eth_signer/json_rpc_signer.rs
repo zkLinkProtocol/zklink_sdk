@@ -34,6 +34,10 @@ impl JsonRpcSigner {
         JsonRpcSigner { provider }
     }
 
+    pub fn address(&self) -> Option<String> {
+        self.provider.selectedAddress()
+    }
+
     pub async fn sign_message(&self, message: &[u8]) -> Result<PackedEthSignature, EthSignerError> {
         let provider_address = self.provider.selectedAddress();
         let mut params = Vec::new();

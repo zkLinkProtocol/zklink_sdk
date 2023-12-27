@@ -22,6 +22,7 @@ use zklink_sdk_signers::eth_signer::pk_signer::EthSigner;
 use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
 use zklink_sdk_signers::starknet_signer::pk_signer::StarkSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
+use zklink_sdk_signers::zklink_signer::public_key::PackedPublicKey;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 #[cfg(not(feature = "ffi"))]
 use zklink_sdk_types::prelude::{Contract, GetBytes, Order};
@@ -95,6 +96,11 @@ impl Signer {
     #[inline]
     pub fn pubkey_hash(&self) -> PubKeyHash {
         self.zklink_signer.public_key().public_key_hash()
+    }
+
+    #[inline]
+    pub fn public_key(&self) -> PackedPublicKey {
+        self.zklink_signer.public_key()
     }
 
     #[inline]

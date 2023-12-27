@@ -45,6 +45,20 @@ impl From<EthTxOption> for EthTxParam {
     }
 }
 
+pub fn new_call_typed_tx(tx_params: EthTxParam, chain_id: u64) -> TypedTransaction {
+    let mut tx = if tx_params.is_support_eip1559 {
+        TypedTransaction::Eip1559(Eip1559TransactionRequest::new())
+    } else {
+        TypedTransaction::Legacy(TransactionRequest::new())
+    };
+    tx.set_to(tx_params.to);
+    if let Some(data) = tx_params.data {
+        tx.set_data(data.into());
+    }
+    tx.set_chain_id(chain_id);
+    tx
+}
+
 pub fn new_typed_tx(from: Address, tx_params: EthTxParam, chain_id: u64) -> TypedTransaction {
     let mut tx = if tx_params.is_support_eip1559 {
         TypedTransaction::Eip1559(Eip1559TransactionRequest::new())

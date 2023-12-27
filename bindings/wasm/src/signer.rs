@@ -58,6 +58,11 @@ impl Signer {
         Ok(Signer { inner })
     }
 
+    #[wasm_bindgen(js_name=getPubkey)]
+    pub fn get_pubkey(&self) -> String {
+        self.inner.public_key().as_hex()
+    }
+
     #[wasm_bindgen(js_name=getPubkeyHash)]
     pub fn get_pubkey_hash(&self) -> String {
         self.inner.pubkey_hash().as_hex()

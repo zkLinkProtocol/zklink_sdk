@@ -1,6 +1,7 @@
 use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
+use web_time::Instant;
 use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_sdk_types::basic_types::{BigUint, ZkLinkAddress};
@@ -97,7 +98,7 @@ impl ChangePubKeyBuilder {
         let ts = if let Some(time_stamp) = ts {
             time_stamp
         } else {
-            std::time::UNIX_EPOCH.elapsed().unwrap().as_millis() as u32
+            Instant::now().elapsed().as_secs() as u32
         };
         let eth_signature = if let Some(s) = eth_signature {
             Some(PackedEthSignature::from_hex(&s)?)
