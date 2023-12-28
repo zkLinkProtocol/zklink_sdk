@@ -3,6 +3,8 @@ pub mod network;
 pub mod response;
 #[cfg(not(target_arch = "wasm32"))]
 mod rpc;
+#[cfg(not(target_arch = "wasm32"))]
+mod web_socket;
 
 #[cfg(not(any(feature = "ffi", target_arch = "wasm32")))]
 mod not_ffi {

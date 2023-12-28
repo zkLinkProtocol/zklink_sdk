@@ -2,6 +2,9 @@ use jsonrpsee::proc_macros::rpc;
 use std::collections::HashMap;
 
 use super::response::*;
+use crate::web_socket::ws_message::message::client_msg::ClientOffset;
+use crate::web_socket::ws_message::message::server_msg::TxTopicEvent;
+use crate::web_socket::ws_message::topic::Topic;
 use jsonrpsee::core::RpcResult;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
@@ -104,13 +107,12 @@ pub trait ZkLinkRpc {
         max_txs: u32,
     ) -> RpcResult<Vec<WithdrawTxResp>>;
 
-    // TODO: fix in issue #156
-    // #[method(name = "getWebSocketEvents")]
-    // async fn get_websocket_events(
-    //     &self,
-    //     topic: Topic,
-    //     offset: ClientOffset,
-    // ) -> RpcResult<Vec<TxTopicEvent>>;
+    #[method(name = "getWebSocketEvents")]
+    async fn get_websocket_events(
+        &self,
+        topic: Topic,
+        offset: ClientOffset,
+    ) -> RpcResult<Vec<TxTopicEvent>>;
 
     #[method(name = "getChangePubkeyChainId")]
     async fn get_change_pubkey_chain_id(&self) -> RpcResult<ChainId>;
