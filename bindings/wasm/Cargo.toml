@@ -24,7 +24,7 @@ reqwest = { version = "0.11", default-features = false, features = ["blocking", 
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen-futures = "0.4"
-jsonrpsee = { version = "0.20", features = ["macros","jsonrpsee-types","client-core"] }
+jsonrpsee = { version = "0.21", features = ["macros","jsonrpsee-types","client-core"] }
 uuid = "0.8"
 
 [features]
