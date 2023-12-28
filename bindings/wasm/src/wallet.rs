@@ -102,15 +102,15 @@ impl Wallet {
     pub async fn get_nonce(
         &self,
         block_number: BlockNumber,
-        block: Option<u64>,
-    ) -> Result<String, JsValue> {
+        block: Option<f64>,
+    ) -> Result<f64, JsValue> {
         let block_number = if matches!(block_number, BlockNumber::Number) {
             format!("{}", block.unwrap_or_default())
         } else {
             block_number.to_string()
         };
         let nonce = self.inner.get_nonce(block_number).await?;
-        Ok(nonce.to_string())
+        Ok(nonce.as_u64() as f64)
     }
 
     #[wasm_bindgen(js_name=getDepositFee)]

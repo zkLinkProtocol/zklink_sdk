@@ -71,7 +71,7 @@ impl JsonRpcSigner {
     }
 
     #[wasm_bindgen]
-    pub fn address(&self) -> String {
+    pub fn address(&self) -> Option<String> {
         self.inner.address()
     }
 

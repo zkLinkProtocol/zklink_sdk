@@ -111,10 +111,10 @@ impl JsonRpcSigner {
         pub_key.as_hex()
     }
 
-    pub fn address(&self) -> String {
+    pub fn address(&self) -> Option<String> {
         match &self.layer1_signer {
-            Layer1JsonRpcSigner::EthSigner(s) => s.address().unwrap_or_default(),
-            Layer1JsonRpcSigner::StarknetSigner(s) => s.address(),
+            Layer1JsonRpcSigner::EthSigner(s) => s.address(),
+            Layer1JsonRpcSigner::StarknetSigner(s) => Some(s.address()),
         }
     }
 
