@@ -132,18 +132,20 @@ impl ZkLinkSigner {
     }
 
     #[cfg(feature = "web")]
-    pub async fn new_from_eth_rpc_signer(eth_signer: &JsonRpcSigner) -> Result<Self, Error> {
+    pub async fn new_from_eth_rpc_signer(
+        eth_signer: &JsonRpcSigner,
+    ) -> Result<(Self, Vec<u8>), Error> {
         let signature = eth_signer
             .sign_message(Self::SIGN_MESSAGE.as_bytes())
             .await?;
         let seed = signature.serialize_packed();
-        Self::new_from_seed(&seed)
+        Ok((Self::new_from_seed(&seed)?, seed.to_vec()))
     }
 
     #[cfg(feature = "web")]
     pub async fn new_from_starknet_rpc_signer(
         starknet_signer: &StarknetJsonRpcSigner,
-    ) -> Result<Self, Error> {
+    ) -> Result<(Self, Vec<u8>), Error> {
         let message = Message {
             data: Self::STARKNET_SIGN_MESSAGE.to_string(),
         };
@@ -151,7 +153,7 @@ impl ZkLinkSigner {
             .sign_message(TypedDataMessage::CreateL2Key { message })
             .await?;
         let seed = signature.signature.to_bytes_be();
-        Self::new_from_seed(&seed)
+        Ok((Self::new_from_seed(&seed)?, seed.to_vec()))
     }
 
     pub fn new_from_bytes(bytes: &[u8]) -> Result<Self, Error> {

@@ -14,12 +14,20 @@ use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::{
     Signer as StarknetAccountSigner, StarknetJsonRpcSigner,
 };
 
+use crate::sign_auto_deleveraging::sign_auto_deleveraging;
+use crate::sign_contract_matching::sign_contract_matching;
+use crate::sign_funding::sign_funding;
+use crate::sign_liquidation::sign_liquidation;
 use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
 use zklink_sdk_signers::starknet_signer::StarkEip712Signature;
 use zklink_sdk_signers::zklink_signer::{ZkLinkSignature, ZkLinkSigner};
+use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::prelude::PackedEthSignature;
 use zklink_sdk_types::signatures::TxSignature;
 use zklink_sdk_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
+use zklink_sdk_types::tx_type::contract::{
+    AutoDeleveraging, Contract, ContractMatching, Funding, Liquidation,
+};
 use zklink_sdk_types::tx_type::forced_exit::ForcedExit;
 use zklink_sdk_types::tx_type::order_matching::{Order, OrderMatching};
 use zklink_sdk_types::tx_type::transfer::Transfer;
@@ -39,6 +47,7 @@ pub enum Layer1JsonRpcSigner {
 pub struct JsonRpcSigner {
     zklink_signer: ZkLinkSigner,
     layer1_signer: Layer1JsonRpcSigner,
+    signature_seed: Vec<u8>,
 }
 
 impl JsonRpcSigner {
@@ -59,21 +68,22 @@ impl JsonRpcSigner {
         Ok(Self {
             zklink_signer: default_zklink_signer,
             layer1_signer: eth_json_rpc_signer,
+            signature_seed: vec![],
         })
     }
 
     pub async fn init_zklink_signer(&mut self, signature: Option<String>) -> Result<(), SignError> {
-        let zklink_signer = if let Some(s) = signature {
+        let (zklink_signer, seed) = if let Some(s) = signature {
             match &self.layer1_signer {
                 Layer1JsonRpcSigner::EthSigner(_) => {
                     let signature = PackedEthSignature::from_hex(&s)?;
                     let seed = signature.serialize_packed();
-                    ZkLinkSigner::new_from_seed(&seed)?
+                    (ZkLinkSigner::new_from_seed(&seed)?, seed.to_vec())
                 }
                 Layer1JsonRpcSigner::StarknetSigner(_) => {
                     let signature = StarkEip712Signature::from_hex(&s)?;
                     let seed = signature.signature.to_bytes_be();
-                    ZkLinkSigner::new_from_seed(&seed)?
+                    (ZkLinkSigner::new_from_seed(&seed)?, seed.to_vec())
                 }
             }
         } else {
@@ -87,12 +97,29 @@ impl JsonRpcSigner {
             }
         };
         self.zklink_signer = zklink_signer;
+        self.signature_seed = seed;
         Ok(())
     }
 
     pub fn pub_key_hash(&self) -> String {
         let pub_key = self.zklink_signer.public_key();
         pub_key.public_key_hash().as_hex()
+    }
+
+    pub fn public_key(&self) -> String {
+        let pub_key = self.zklink_signer.public_key();
+        pub_key.as_hex()
+    }
+
+    pub fn address(&self) -> Option<String> {
+        match &self.layer1_signer {
+            Layer1JsonRpcSigner::EthSigner(s) => s.address(),
+            Layer1JsonRpcSigner::StarknetSigner(s) => Some(s.address()),
+        }
+    }
+
+    pub fn signature_seed(&self) -> Vec<u8> {
+        self.signature_seed.clone()
     }
 
     pub async fn sign_transfer(
@@ -195,5 +222,32 @@ impl JsonRpcSigner {
     #[inline]
     pub fn submitter_signature(&self, zklink_tx: &ZkLinkTx) -> Result<ZkLinkSignature, SignError> {
         do_submitter_signature(&self.zklink_signer, zklink_tx)
+    }
+
+    pub fn sign_auto_deleveraging(&self, tx: AutoDeleveraging) -> Result<TxSignature, SignError> {
+        let signature = sign_auto_deleveraging(&self.zklink_signer, tx)?;
+        Ok(signature)
+    }
+
+    pub fn sign_contract_matching(&self, tx: ContractMatching) -> Result<TxSignature, SignError> {
+        let signature = sign_contract_matching(&self.zklink_signer, tx)?;
+        Ok(signature)
+    }
+
+    pub fn sign_funding(&self, tx: Funding) -> Result<TxSignature, SignError> {
+        let signature = sign_funding(&self.zklink_signer, tx)?;
+        Ok(signature)
+    }
+
+    pub fn sign_liquidation(&self, tx: Liquidation) -> Result<TxSignature, SignError> {
+        let signature = sign_liquidation(&self.zklink_signer, tx)?;
+        Ok(signature)
+    }
+
+    #[inline]
+    pub fn create_signed_contract(&self, contract: &Contract) -> Result<Contract, SignError> {
+        let mut contract = contract.clone();
+        contract.signature = self.zklink_signer.sign_musig(&contract.get_bytes())?;
+        Ok(contract)
     }
 }

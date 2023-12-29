@@ -1,4 +1,4 @@
-const {Wallet, EthTxOption} = require('./node-dist/zklink-sdk-node');
+const {Wallet, EthTxOption,WaitForTxStatus} = require('./node-dist/zklink-sdk-node');
 // CommonJS
 const fetch = require('node-fetch');
 const AbortController = require('abort-controller')
@@ -50,7 +50,10 @@ async function testDepositErc20() {
         let deposit_hash = await wallet.depositERC20(1,user_address,usdc_address,
             "1000000",false,deposit_option,false);
         console.log(deposit_hash);
-
+        let status = await wallet.waitForTransaction(deposit_hash);
+        if (status === WaitForTxStatus.Success) {
+            console.log("success");
+        }
     } catch (error) {
         console.error(error);
     }
@@ -79,10 +82,45 @@ async function testDepositErc20ToGateway() {
     }
 }
 
+async function getDepositFee() {
+    const private_key = "0xb32593e347bf09436b058fbeabc17ebd2c7c1fa42e542f5f78fc3580faef83b7";
+    const zksync_rpc_url = "https://goerli.blockpi.network/v1/rpc/e3c85db2286ea898affeb4a718d3203fdec40b4d";
+    const zklink_address = "0x041625fdE341e4A317C3E984C27742e09F5b8659";
+    try {
+        let option = new EthTxOption(true,zklink_address,null,null,null,null);
+        let wallet = new Wallet(zksync_rpc_url,private_key);
+        console.log(wallet);
+        let fee = await wallet.getDepositFee(option);
+        console.log(fee);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+
+async function testSetAuthPubkyHash() {
+    const private_key = "0xb32593e347bf09436b058fbeabc17ebd2c7c1fa42e542f5f78fc3580faef83b7";
+    const rpc_url = "https://zksync-era-testnet.blockpi.network/v1/rpc/000b867660d26ff0c900789ab881cf09f1d9377f";
+    const zklink_address = "0xa97153dd89c6f8F3BeA66190a6e62020aC7213de";
+    try {
+        let option = new EthTxOption(false,zklink_address,null,null,null,null);
+        let wallet = new Wallet(rpc_url,private_key);
+        console.log(wallet);
+        let new_pubkey_hash = "0x8255f5a6d0d2b34a19f381e448ed151cc3a59b9e";
+        let tx_hash = await wallet.setAuthPubkeyHash(1,new_pubkey_hash,option);
+        console.log(tx_hash);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 async function main() {
-    console.log(global);
     await testDepositErc20();
     await testDepositErc20ToGateway();
+    await getDepositFee();
+    await testSetAuthPubkyHash();
     await testDepositEth();
 }
 

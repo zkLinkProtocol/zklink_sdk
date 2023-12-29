@@ -1,6 +1,7 @@
 use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
+use web_time::Instant;
 use zklink_sdk_types::basic_types::{BigUint, ZkLinkAddress};
 use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::TransferBuilder as TxTransferBuilder;
@@ -40,7 +41,7 @@ impl TransferBuilder {
         let ts = if let Some(time_stamp) = ts {
             time_stamp
         } else {
-            std::time::UNIX_EPOCH.elapsed().unwrap().as_millis() as u32
+            Instant::now().elapsed().as_secs() as u32
         };
         let inner = TxTransferBuilder {
             account_id: account_id.into(),
