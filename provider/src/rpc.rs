@@ -2,8 +2,8 @@ use jsonrpsee::proc_macros::rpc;
 use std::collections::HashMap;
 
 use super::response::*;
-use crate::web_socket::ws_message::message::client_msg::ClientOffset;
-use crate::web_socket::ws_message::message::server_msg::TxTopicEvent;
+use crate::web_socket::ws_message::message::request::ClientOffset;
+use crate::web_socket::ws_message::message::response::TxTopicEvent;
 use crate::web_socket::ws_message::topic::Topic;
 use jsonrpsee::core::RpcResult;
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;

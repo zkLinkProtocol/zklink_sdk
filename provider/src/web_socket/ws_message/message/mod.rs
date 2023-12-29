@@ -1,2 +1,2 @@
-pub mod client_msg;
-pub mod server_msg;
+pub mod request;
+pub mod response;

@@ -1,6 +1,6 @@
 use crate::response::TxResp;
 use crate::web_socket::proto::event::Event;
-use crate::web_socket::ws_message::message::server_msg::ServerEvent::{
+use crate::web_socket::ws_message::message::response::ServerEvent::{
     FullExitEvent, TxExecuteResult,
 };
 use crate::web_socket::ws_message::topic::{Topic, TopicType};

@@ -11,7 +11,7 @@ use wasm_bindgen::JsValue;
 use zklink_sdk_provider::error::RpcError;
 use zklink_sdk_provider::network::Network;
 use zklink_sdk_provider::response::AccountQuery as RpcAccountQuery;
-use zklink_sdk_provider::web_socket::ws_message::message::client_msg::ClientOffset;
+use zklink_sdk_provider::web_socket::ws_message::message::request::ClientOffset;
 use zklink_sdk_provider::web_socket::ws_message::topic::Topic;
 use zklink_sdk_signers::zklink_signer::ZkLinkSignature;
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
