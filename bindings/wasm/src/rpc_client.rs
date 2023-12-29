@@ -11,6 +11,8 @@ use wasm_bindgen::JsValue;
 use zklink_sdk_provider::error::RpcError;
 use zklink_sdk_provider::network::Network;
 use zklink_sdk_provider::response::AccountQuery as RpcAccountQuery;
+use zklink_sdk_provider::web_socket::ws_message::message::client_msg::ClientOffset;
+use zklink_sdk_provider::web_socket::ws_message::topic::Topic;
 use zklink_sdk_signers::zklink_signer::ZkLinkSignature;
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
 use zklink_sdk_types::basic_types::{AccountId, BlockNumber, SubAccountId, TokenId};
@@ -314,5 +316,23 @@ impl RpcClient {
         let _ = builder.insert(hash);
         let _ = builder.insert(submitter_signature);
         rpc_request!("confirmFullExit", builder, &self.server_url, bool)
+    }
+
+    #[wasm_bindgen(js_name=getWebSocketEvents)]
+    pub async fn get_websocket_events(
+        &self,
+        topic: String,
+        from_topic_index_included: f64,
+        limit: Option<usize>,
+    ) -> Result<JsValue, JsValue> {
+        let topic = Topic::from_str(&topic).map_err(|_e| RpcError::InvalidInputParameter)?;
+        let client_offset = ClientOffset {
+            from_topic_index_included: from_topic_index_included as i64,
+            limit,
+        };
+        let mut builder = ArrayParams::new();
+        let _ = builder.insert(topic);
+        let _ = builder.insert(client_offset);
+        rpc_request!("getWebSocketEvents", builder, &self.server_url, bool)
     }
 }

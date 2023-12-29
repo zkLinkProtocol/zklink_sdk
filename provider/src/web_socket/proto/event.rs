@@ -2,6 +2,7 @@ use crate::web_socket::proto::topic::TopicTrait;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
+#[cfg(not(target_arch = "wasm32"))]
 use warp::ws::Message;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -30,6 +31,7 @@ where
         }
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn ws_message(&self) -> Result<Message, serde_json::Error> {
         let s = serde_json::to_string(self)?;
         Ok(Message::text(s))
