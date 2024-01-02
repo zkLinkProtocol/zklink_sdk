@@ -6,7 +6,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.78"
-bigdecimal = { version = "0.4.2", features = ["serde"] }
+bigdecimal = { version = "0.3", features = ["serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 reqwest = { version = "0.11", default-features = false, features = ["blocking", "json", "rustls-tls"] }
 serde = "1.0"
@@ -18,7 +18,6 @@ zklink_sdk_types = { path = "../types" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 jsonrpsee = { version = "0.21", features = ["client","macros", "server"] }
-warp = { version = "0.3.6", features = ["multipart"] }
 tokio-tungstenite = "0.21.0"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
