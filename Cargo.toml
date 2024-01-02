@@ -18,7 +18,45 @@ default-members = [
     "interface",
     "wallet"
 ]
-exclude = ["examples/Rust/rust_sdk_example"]
+
+[workspace.dependencies]
+async-std = "1.12.0"
+anyhow = "1.0.78"
+bigdecimal = { version = "0.3", features = ["serde"] }
+cfg-if = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+ethers = "2.0.11"
+ethers_primitives =  "0.2.2"
+franklin-crypto = { version = "0.0.5", git = "https://github.com/zkLinkProtocol/franklin-crypto.git", branch = "beta" }
+futures = "0.3"
+getrandom = { version = "0.2.11", features = ["js"] }
+web-sys = "0.3"
+web-time = "0.2.4"
+hex = "0.4"
+js-sys = "0.3.64"
+jsonrpsee = "0.21.0"
+k256 = { version = "0.13.2", features = ["ecdsa","sha256"] }
+num = { version = "0.4", features = ["serde"] }
+primitive-types = { version = "0.12", features = ["serde"] }
+reqwest = { version = "0.11", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+sha2 = "0.10"
+serde = { version = "1.0", features = ["derive"] }
+serde_eip712 = "0.2.2"
+serde_json = "1.0"
+serde-wasm-bindgen = "0.6"
+starknet-core = { git = "https://github.com/xJonathanLEI/starknet-rs", rev = "95d50ac0a3a537cb63a390bad818415899c90693" }
+starknet-signers = { git = "https://github.com/xJonathanLEI/starknet-rs", rev = "95d50ac0a3a537cb63a390bad818415899c90693" }
+starknet-ff = { git = "https://github.com/xJonathanLEI/starknet-rs", rev = "95d50ac0a3a537cb63a390bad818415899c90693" }
+thiserror = "1.0"
+tokio = "1"
+tokio-tungstenite = "0.21.0"
+uuid = "0.8"
+uniffi = "0.23"
+uniffi_build = { version = "0.23", features = ["builtin-bindgen"] }
+validator = { version = "0.16", features = ["derive"] }
+wasm-bindgen = { version = "0.2.87", features = ["serde-serialize"] }
+wasm-bindgen-futures = "0.4"
+wasm-bindgen-test = "0.3"
 
 [profile.release]
 opt-level = "s"
