@@ -8,11 +8,17 @@ name = "zklink_sdk"
 path = "src/lib.rs"
 crate-type = ["cdylib", "staticlib", "lib"]
 
+[[bin]]
+name = "uniffi-bindgen"
+path = "uniffi-bindgen.rs"
+
 [dependencies]
+cfg-if = { workspace = true }
 chrono = { workspace = true }
 hex = { workspace = true }
 serde_json = { workspace = true }
-uniffi = { workspace = true }
+uniffi = { workspace = true}
+uniffi_macros = { workspace = true, optional = true}
 zklink_sdk_signers = { path = "../../signers", default_features = false,features = ["ffi"] }
 zklink_sdk_types = { path = "../../types", default_features = false, features = ["ffi"] }
 zklink_sdk_interface = { path = "../../interface", default_features = false, features = ["ffi"] }
@@ -20,3 +26,7 @@ zklink_sdk_provider = { path = "../../provider", default_features = false, featu
 
 [build-dependencies]
 uniffi_build = { workspace = true, features=["builtin-bindgen"] }
+
+[features]
+golang = []
+python = ["uniffi_macros", "uniffi/cli"]

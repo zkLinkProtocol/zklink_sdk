@@ -2,3 +2,9 @@
 /target
 binding_tests/generated/
 examples/Golang/generated/
+examples/Python/zklink_sdk*
+examples/Python/libzklink_sdk*
+examples/Python/__pycache__
+bindings/generated
+
+

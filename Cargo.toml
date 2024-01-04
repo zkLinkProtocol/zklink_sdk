@@ -52,6 +52,7 @@ tokio = "1"
 tokio-tungstenite = "0.21.0"
 uuid = "0.8"
 uniffi = "0.23"
+uniffi_macros = { version = "0.23" }
 uniffi_build = { version = "0.23", features = ["builtin-bindgen"] }
 validator = { version = "0.16", features = ["derive"] }
 wasm-bindgen = { version = "0.2.87", features = ["serde-serialize"] }

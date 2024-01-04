@@ -104,6 +104,18 @@ jobs:
           go-version: 1.21
       - run: make test_go
 
+  python_binding:
+    name: python binding build and run examples
+    run-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/cargo@v1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: make build_python run_example_python
+
+
   build_wasm:
     name: build wasm
     runs-on: ubuntu-latest
