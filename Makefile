@@ -39,6 +39,8 @@ lint:
 	bash -c "cd ./provider && cargo sort"
 	bash -c "cd ./signers && cargo sort"
 	cargo machete
+
+test:
 	bash -c "cd ./interface && cargo test"
 	bash -c "cd ./types && cargo test"
 	bash -c "cd ./utils && cargo test"

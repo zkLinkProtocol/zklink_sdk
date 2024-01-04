@@ -89,7 +89,7 @@ jobs:
           command: build
 
   go_binding:
-    name: go binding build and test
+    name: go binding build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -105,15 +105,18 @@ jobs:
       - run: make test_go
 
   python_binding:
-    name: python binding build and run examples
-    run-on: ubuntu-latest
+    name: python binding
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/cargo@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - run: make build_python
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - run: make build_python run_example_python
+      - run: make run_example_python
 
 
   build_wasm:
@@ -129,7 +132,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/cargo@v1
+      - uses: actions-rs/toolchain@v1
         with:
-          command: test
-          args: --all
+          toolchain: stable
+      - run: make test
