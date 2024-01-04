@@ -14,7 +14,7 @@ k256 = { workspace = true, features = ["ecdsa","sha256"] }
 num = { workspace = true, features = ["serde"] }
 primitive-types = { workspace = true, features = ["serde"] }
 serde = { workspace = true, features = ["derive"] }
-serde-wasm-bindgen = { workspace = true}
+serde-wasm-bindgen = { workspace = true }
 serde_eip712 ={ workspace = true }
 serde_json = { workspace = true }
 sha2 = { workspace = true }

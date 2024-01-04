@@ -5,6 +5,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-hex = {workspace = true}
+hex = { workspace = true }
 num = { workspace = true, features = ["serde"] }
 serde = { workspace = true, features = ["derive"] }

@@ -472,6 +472,7 @@ enum EthSignerError {
     "CryptoError",
     "InvalidSignatureStr",
     "CustomError",
+    "RpcSignError"
 };
 
 [Custom]
@@ -492,6 +493,7 @@ enum StarkSignerError {
     "InvalidSignature",
     "InvalidPrivKey",
     "SignError",
+    "RpcSignError"
 };
 
 dictionary TxMessage {

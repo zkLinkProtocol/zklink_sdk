@@ -1,3 +1,4 @@
+use crate::RpcErr;
 use thiserror::Error;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::JsValue;
@@ -32,6 +33,8 @@ pub enum EthSignerError {
     InvalidSignatureStr,
     #[error("{0}")]
     CustomError(String),
+    #[error("{0}")]
+    RpcSignError(RpcErr),
 }
 
 #[cfg(target_arch = "wasm32")]
