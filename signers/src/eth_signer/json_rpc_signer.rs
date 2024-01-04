@@ -9,6 +9,12 @@ struct RequestArguments {
     params: Vec<serde_json::Value>,
 }
 
+#[derive(Serialize, Deserialize)]
+struct RpcErr {
+    code: i32,
+    message: String,
+}
+
 #[wasm_bindgen]
 // Rustfmt removes the 'async' keyword from async functions in extern blocks. It's fixed
 // in rustfmt 2.
@@ -53,7 +59,8 @@ impl JsonRpcSigner {
             .map_err(|e| EthSignerError::CustomError(e.to_string()))?;
         let signature = self.provider.request(params).await.map_err(|e| {
             EthSignerError::SigningFailed(
-                serde_wasm_bindgen::from_value::<String>(e).unwrap_or_default(),
+                serde_json::to_string(&serde_wasm_bindgen::from_value::<RpcErr>(e).unwrap())
+                    .unwrap(),
             )
         })?;
         let signature = serde_wasm_bindgen::from_value::<String>(signature)

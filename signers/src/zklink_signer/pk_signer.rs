@@ -127,7 +127,7 @@ impl ZkLinkSigner {
             chain_id.to_string(),
         );
         let signature = starknet_signer.sign_message(&typed_data, addr)?;
-        let seed = signature.to_bytes_be();
+        let seed = signature.signature.to_bytes_be();
         Self::new_from_seed(&seed)
     }
 
