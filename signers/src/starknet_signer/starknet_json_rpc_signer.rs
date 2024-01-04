@@ -2,6 +2,7 @@ use crate::starknet_signer::error::StarkSignerError;
 use crate::starknet_signer::typed_data::message::TypedDataMessage;
 use crate::starknet_signer::typed_data::TypedData;
 use crate::starknet_signer::{StarkEcdsaSignature, StarkEip712Signature};
+use crate::RpcErr;
 use starknet_core::types::FieldElement;
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
@@ -50,7 +51,10 @@ impl StarknetJsonRpcSigner {
         let signature = self.signer.signMessage(&typed_data).await.map_err(|e| {
             let err_str = format!("{:?}", e);
             let e = err_str.trim_start_matches("JsValue(").trim_end_matches(')');
-            StarkSignerError::SignError(e.to_string())
+            StarkSignerError::RpcSignError(RpcErr {
+                code: 1,
+                message: e.to_string(),
+            })
         })?;
         let signature: Vec<String> = serde_wasm_bindgen::from_value::<Vec<String>>(signature)
             .map_err(|e| StarkSignerError::InvalidSignature(e.to_string()))?;
