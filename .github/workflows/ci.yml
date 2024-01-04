@@ -116,7 +116,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - run: make run_example_python
+      - run: make build_python run_example_python
 
 
   build_wasm:
