@@ -104,6 +104,8 @@ build_binding_lib_python:
 	cargo build --package bindings_sdk --features="python" --release
 
 build_python: build_binding_files_python build_binding_lib_python
+
+copy_lib_to_py_example:
 	rm -f examples/Python/libzklink_sdk* && cp ./target/release/${LIB_FILE} examples/Python
 
 build_go: build_binding_files_go build_binding_lib_go
