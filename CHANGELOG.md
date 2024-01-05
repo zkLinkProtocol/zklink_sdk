@@ -12,7 +12,7 @@ Unreleased
   - other types associated with signing, like private key, public key, address, signature and hash.
 - Implement bytes encoding for the all transaction types.
 - Implement zklink signing and Ethereum signing.
-- Support `wasm` and `Golang` bindings for the all above features.
+- Support `wasm`, `Golang` and `Python` bindings for the all above features.
 - Implement Ethereum json rpc signer to interact with the wallet like MetaMask for `wasm` binding.
 - Implement the provider and rpc client to connect the zklink server and Implement the `wasm` binding.
 - Add Rust and Golang unit tests, add wasm tests
