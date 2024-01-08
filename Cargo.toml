@@ -21,7 +21,7 @@ default-members = [
 
 [workspace.dependencies]
 async-std = "1.12.0"
-anyhow = "1.0.78"
+anyhow = "1.0.79"
 bigdecimal = { version = "0.3", features = ["serde"] }
 cfg-if = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
