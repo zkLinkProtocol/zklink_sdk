@@ -1,4 +1,6 @@
-use crate::rpc_type_converter::{AccountQuery, TxLayer1Signature, TxZkLinkSignature};
+use crate::rpc_type_converter::{
+    AccountQuery, TxLayer1Signature, TxOracleSignature, TxZkLinkSignature,
+};
 use getrandom::getrandom;
 use jsonrpsee::core::params::ArrayParams;
 use jsonrpsee::core::traits::ToRpcParams;
@@ -10,7 +12,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_provider::error::RpcError;
 use zklink_sdk_provider::network::Network;
-use zklink_sdk_provider::response::AccountQuery as RpcAccountQuery;
+use zklink_sdk_provider::response::{AccountQuery as RpcAccountQuery, OracleSignature};
 use zklink_sdk_provider::web_socket::ws_message::message::request::ClientOffset;
 use zklink_sdk_provider::web_socket::ws_message::topic::Topic;
 use zklink_sdk_signers::zklink_signer::ZkLinkSignature;
@@ -104,6 +106,7 @@ impl RpcClient {
         tx: JsValue,
         l1_signature: Option<TxLayer1Signature>,
         l2_signature: Option<TxZkLinkSignature>,
+        oracle_signature: Option<TxOracleSignature>,
     ) -> Result<JsValue, JsValue> {
         let mut builder = ArrayParams::new();
         let zklink_tx: ZkLinkTx =
@@ -113,9 +116,15 @@ impl RpcClient {
         } else {
             None
         };
+        let oracle_signature = if let Some(s) = oracle_signature {
+            Some(OracleSignature::try_from(s)?)
+        } else {
+            None
+        };
         let _ = builder.insert(zklink_tx);
         let _ = builder.insert(l1_signature);
         let _ = builder.insert(l2_signature.map(|s| ZkLinkSignature::from(s)));
+        let _ = builder.insert(oracle_signature);
         rpc_request!("sendTransaction", builder, &self.server_url, TxHash)
     }
 
