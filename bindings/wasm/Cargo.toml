@@ -35,7 +35,7 @@ ffi = []
 web = ["zklink_sdk_interface/web","zklink_sdk_signers/web"]
 
 [dev-dependencies]
-wasm-bindgen-test = "0.3.39"
+wasm-bindgen-test = "0.3.40"
 
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = false
