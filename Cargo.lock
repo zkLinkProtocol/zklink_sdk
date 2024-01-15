@@ -893,7 +893,7 @@ dependencies = [
  "coins-core",
  "digest 0.10.7",
  "hmac 0.12.1",
- "k256 0.13.2",
+ "k256 0.13.3",
  "serde",
  "sha2 0.10.8",
  "thiserror",
@@ -1414,7 +1414,7 @@ dependencies = [
  "base64 0.21.3",
  "bytes",
  "hex",
- "k256 0.13.2",
+ "k256 0.13.3",
  "log",
  "rand 0.8.5",
  "rlp",
@@ -1622,7 +1622,7 @@ dependencies = [
  "elliptic-curve 0.13.8",
  "ethabi",
  "generic-array 0.14.7",
- "k256 0.13.2",
+ "k256 0.13.3",
  "num_enum",
  "once_cell",
  "open-fastrlp",
@@ -2860,9 +2860,9 @@ dependencies = [
 
 [[package]]
 name = "k256"
-version = "0.13.2"
+version = "0.13.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f01b677d82ef7a676aa37e099defd83a28e15687112cafdd112d60236b6115b"
+checksum = "956ff9b67e26e1a6a866cb758f12c6f8746208489e3e4a4b5580802f2f0a587b"
 dependencies = [
  "cfg-if",
  "ecdsa 0.16.8",
@@ -3225,9 +3225,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.18.0"
+version = "1.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d"
+checksum = "3fdb12b2476b595f9358c5161aa467c2438859caa136dec86c26fdd2efe17b92"
 
 [[package]]
 name = "opaque-debug"
@@ -6142,7 +6142,7 @@ dependencies = [
  "futures",
  "hex",
  "js-sys",
- "k256 0.13.2",
+ "k256 0.13.3",
  "num",
  "primitive-types",
  "serde",
