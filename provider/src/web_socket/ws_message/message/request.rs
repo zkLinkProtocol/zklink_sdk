@@ -11,7 +11,7 @@ pub struct QueryEvent {
 impl QueryEvent {
     pub fn query_tx_created(sub_account_id: u8, offset: ClientOffset) -> Self {
         Self {
-            topic: Topic::FullExitEvent {
+            topic: Topic::PriorityEvent {
                 sub_account_id: SubAccountId(sub_account_id),
             },
             offset,
