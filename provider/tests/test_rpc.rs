@@ -71,6 +71,7 @@ mod test {
                 ZkLinkTx::ChangePubKey(Box::new(tx.clone())),
                 None,
                 Some(submitter_signature),
+                None,
             )
             .await;
         println!("{:?}", ret)
@@ -140,6 +141,7 @@ mod test {
                 ZkLinkTx::OrderMatching(Box::new(order_matching.clone())),
                 None,
                 Some(submitter_signature),
+                None,
             )
             .await;
         println!("{:?}", ret)
