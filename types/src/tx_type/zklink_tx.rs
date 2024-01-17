@@ -255,6 +255,7 @@ impl ZkLinkTx {
             ZkLinkTx::ContractMatching(tx) => tx.oracle_prices.margin_prices.clone(),
             ZkLinkTx::Liquidation(tx) => tx.oracle_prices.margin_prices.clone(),
             ZkLinkTx::AutoDeleveraging(tx) => tx.oracle_prices.margin_prices.clone(),
+            ZkLinkTx::FullExit(tx) => tx.oracle_prices.margin_prices.clone(),
             _ => vec![],
         }
     }
