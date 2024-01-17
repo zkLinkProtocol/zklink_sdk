@@ -1,7 +1,7 @@
 use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
-use zklink_sdk_provider::response::AccountQuery as RpcAccountQuery;
+use zklink_sdk_provider::response::{AccountQuery as RpcAccountQuery, OracleSignature};
 use zklink_sdk_signers::eth_signer::{EIP1271Signature, PackedEthSignature};
 use zklink_sdk_signers::starknet_signer::StarkEip712Signature;
 use zklink_sdk_signers::zklink_signer::PackedSignature;
@@ -29,6 +29,12 @@ pub enum L1SignatureType {
 }
 
 #[wasm_bindgen]
+#[derive(Copy, Clone)]
+pub enum OracleType {
+    Pyth,
+}
+
+#[wasm_bindgen]
 pub struct AccountQuery {
     query_type: AccountQueryType,
     query_param: String,
@@ -43,6 +49,12 @@ pub struct TxLayer1Signature {
 #[wasm_bindgen]
 pub struct TxZkLinkSignature {
     inner: ZkLinkSignature,
+}
+
+#[wasm_bindgen]
+pub struct TxOracleSignature {
+    oracle_type: OracleType,
+    signature: JsValue,
 }
 
 #[wasm_bindgen]
@@ -180,6 +192,19 @@ impl TryFrom<ZkLinkTx> for TypesZkLinkTx {
                 Ok(TypesZkLinkTx::Transfer(Box::new(transfer)))
             }
             _ => Err(JsValue::from_str(&format!("error: Invalid tx type"))),
+        }
+    }
+}
+
+impl TryFrom<TxOracleSignature> for OracleSignature {
+    type Error = JsValue;
+
+    fn try_from(signature: TxOracleSignature) -> Result<OracleSignature, Self::Error> {
+        match signature.oracle_type {
+            OracleType::Pyth => {
+                let data = serde_wasm_bindgen::from_value(signature.signature)?;
+                Ok(OracleSignature::Pyth(data))
+            }
         }
     }
 }

@@ -2,7 +2,9 @@ use serde::{Deserialize, Serialize};
 use validator::{Validate, ValidationErrors};
 
 use crate::basic_types::{tx_hash::TxHash, Nonce, SubAccountId};
-use crate::prelude::{AutoDeleveraging, ContractMatching, Funding, Liquidation, UpdateGlobalVar};
+use crate::prelude::{
+    AutoDeleveraging, ContractMatching, Funding, Liquidation, SpotPriceInfo, UpdateGlobalVar,
+};
 use crate::tx_type::change_pubkey::ChangePubKey;
 use crate::tx_type::deposit::Deposit;
 use crate::tx_type::forced_exit::ForcedExit;
@@ -243,6 +245,18 @@ impl ZkLinkTx {
             ZkLinkTx::UpdateGlobalVar(tx) => Nonce((tx.serial_id & 0xffffffff) as u32),
             ZkLinkTx::Funding(tx) => tx.sub_account_nonce,
             _ => Nonce(u32::MAX),
+        }
+    }
+
+    /// Returns the margin prices of the transaction.
+    pub fn margin_prices(&self) -> Vec<SpotPriceInfo> {
+        match self {
+            ZkLinkTx::OrderMatching(tx) => tx.oracle_prices.margin_prices.clone(),
+            ZkLinkTx::ContractMatching(tx) => tx.oracle_prices.margin_prices.clone(),
+            ZkLinkTx::Liquidation(tx) => tx.oracle_prices.margin_prices.clone(),
+            ZkLinkTx::AutoDeleveraging(tx) => tx.oracle_prices.margin_prices.clone(),
+            ZkLinkTx::FullExit(tx) => tx.oracle_prices.margin_prices.clone(),
+            _ => vec![],
         }
     }
 }

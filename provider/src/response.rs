@@ -5,6 +5,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use chrono::serde::{ts_microseconds, ts_microseconds_option};
+use pythnet_sdk::wire::v1::AccumulatorUpdateData;
 use zklink_sdk_signers::eth_signer::H256;
 use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_sdk_types::prelude::{
@@ -481,6 +482,12 @@ pub struct TokenInfo {
     pub token_address: ZkLinkAddress,
     pub decimal: u8,
     pub fast_withdraw: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
+pub enum OracleSignature {
+    Pyth(AccumulatorUpdateData),
 }
 
 #[cfg(test)]

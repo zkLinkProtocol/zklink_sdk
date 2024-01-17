@@ -126,5 +126,6 @@ pub trait ZkLinkRpc {
         tx: ZkLinkTx,
         l1_signature: Option<TxLayer1Signature>,
         submitter_signature: Option<ZkLinkSignature>,
+        oracle_signature: Option<OracleSignature>,
     ) -> RpcResult<TxHash>;
 }
