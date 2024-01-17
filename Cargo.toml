@@ -29,7 +29,7 @@ ethers = "2.0.11"
 ethers_primitives =  "0.2.2"
 franklin-crypto = { version = "0.0.5", git = "https://github.com/zkLinkProtocol/franklin-crypto.git", branch = "dev" }
 futures = "0.3"
-getrandom = { version = "0.2.11", features = ["js"] }
+getrandom = { version = "0.2.12", features = ["js"] }
 web-sys = "0.3"
 web-time = "0.2.4"
 hex = "0.4"
