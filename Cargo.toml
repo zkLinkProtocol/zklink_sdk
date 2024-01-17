@@ -47,6 +47,7 @@ serde-wasm-bindgen = "0.6"
 starknet-core = { git = "https://github.com/xJonathanLEI/starknet-rs", rev = "95d50ac0a3a537cb63a390bad818415899c90693" }
 starknet-signers = { git = "https://github.com/xJonathanLEI/starknet-rs", rev = "95d50ac0a3a537cb63a390bad818415899c90693" }
 starknet-ff = { git = "https://github.com/xJonathanLEI/starknet-rs", rev = "95d50ac0a3a537cb63a390bad818415899c90693" }
+pythnet-sdk = { git = "https://github.com/pyth-network/pyth-crosschain", version = "2.0.0" }
 thiserror = "1.0"
 tokio = "1"
 tokio-tungstenite = "0.21.0"
