@@ -19,7 +19,7 @@ use crate::sign_contract_matching::sign_contract_matching;
 use crate::sign_funding::sign_funding;
 use crate::sign_liquidation::sign_liquidation;
 use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
-use zklink_sdk_signers::starknet_signer::StarkEip712Signature;
+use zklink_sdk_signers::starknet_signer::StarkEcdsaSignature;
 use zklink_sdk_signers::zklink_signer::{ZkLinkSignature, ZkLinkSigner};
 use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::prelude::PackedEthSignature;
@@ -81,8 +81,8 @@ impl JsonRpcSigner {
                     (ZkLinkSigner::new_from_seed(&seed)?, seed.to_vec())
                 }
                 Layer1JsonRpcSigner::StarknetSigner(_) => {
-                    let signature = StarkEip712Signature::from_hex(&s)?;
-                    let seed = signature.signature.to_bytes_be();
+                    let signature = StarkEcdsaSignature::from_hex(&s)?;
+                    let seed = signature.to_bytes_be();
                     (ZkLinkSigner::new_from_seed(&seed)?, seed.to_vec())
                 }
             }

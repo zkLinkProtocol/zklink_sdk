@@ -6,7 +6,7 @@ async function main() {
     const ts  = Math.floor(Date.now() / 1000);
     try {
 
-        let tx_builder = new wasm.WithdrawBuilder(10, 1, 1, to_address,18, "100000000000000", false,10,18,"10000000000000000", 1,ts);
+        let tx_builder = new wasm.WithdrawBuilder(10, 1, 1, to_address,18, "100000000000000", false,10,18,"10000000000000000", 1,null,ts);
         let withdraw = wasm.newWithdraw(tx_builder);
         const provider = window.bitkeep && window.bitkeep.ethereum;
         await provider.request({ method: 'eth_requestAccounts' });
