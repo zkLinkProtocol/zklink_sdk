@@ -49,6 +49,8 @@ pub struct Withdraw {
     #[serde(with = "BigUintSerdeAsRadix10Str")]
     #[validate(custom = "amount_unpackable")]
     pub amount: BigUint,
+    /// Call data hash
+    pub data_hash: Option<H256>,
     /// Fee for the transaction, need packaging
     #[serde(with = "BigUintSerdeAsRadix10Str")]
     #[validate(custom = "fee_packable")]
@@ -68,8 +70,6 @@ pub struct Withdraw {
     pub withdraw_fee_ratio: u16,
     /// Used as request id
     pub ts: TimeStamp,
-    /// Call data hash
-    pub data_hash: Option<H256>,
 }
 
 impl Withdraw {
@@ -149,14 +149,14 @@ impl GetBytes for Withdraw {
         out.extend_from_slice(&(*self.l2_source_token as u16).to_be_bytes());
         out.extend_from_slice(&(*self.l1_target_token as u16).to_be_bytes());
         out.extend_from_slice(&self.amount.to_u128().unwrap().to_be_bytes());
+        if let Some(data_hash) = self.data_hash {
+            out.extend_from_slice(data_hash.as_bytes())
+        }
         out.extend_from_slice(&pack_fee_amount(&self.fee));
         out.extend_from_slice(&self.nonce.to_be_bytes());
         out.push(self.withdraw_to_l1);
         out.extend_from_slice(&self.withdraw_fee_ratio.to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
-        if let Some(data_hash) = self.data_hash {
-            out.extend_from_slice(data_hash.as_bytes())
-        }
         assert_eq!(out.len(), bytes_len);
         out
     }
