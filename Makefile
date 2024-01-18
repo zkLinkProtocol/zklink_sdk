@@ -52,15 +52,7 @@ test:
 
 .PHONY: check
 check:
-	make lint
-	make test
-	make prepare_ffi_go
-	make build_go
-	make test_go
-	make prepare_wasm
-	make build_wasm
-	make build_python
-	make copy_lib_to_py_example run_example_python
+	make lint test prepare_ffi_go build_go test_go prepare_wasm build_wasm build_python copy_lib_to_py_example run_example_python
 
 lint-check:
 	cargo fmt -- --check

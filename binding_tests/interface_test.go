@@ -230,6 +230,7 @@ func TestSignWithdraw(t *testing.T) {
 	eth_signer, err := sdk.NewEthSigner(s)
 	assert.Nil(t, err)
 	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
+
 	assert.Nil(t, err)
 	address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
 	builder := sdk.WithdrawBuilder{
