@@ -70,8 +70,6 @@ pub struct Withdraw {
     pub withdraw_fee_ratio: u16,
     /// Used as request id
     pub ts: TimeStamp,
-    /// Call data hash
-    pub data_hash: Option<H256>,
 }
 
 impl Withdraw {
@@ -159,9 +157,6 @@ impl GetBytes for Withdraw {
         out.push(self.withdraw_to_l1);
         out.extend_from_slice(&self.withdraw_fee_ratio.to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
-        if let Some(data_hash) = self.data_hash {
-            out.extend_from_slice(data_hash.as_bytes())
-        }
         assert_eq!(out.len(), bytes_len);
         out
     }
