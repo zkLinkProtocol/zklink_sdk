@@ -242,12 +242,12 @@ func TestSignWithdraw(t *testing.T) {
         sdk.TokenId(18),
         sdk.TokenId(18),
         *big.NewInt(100000),
+        nil,
         *big.NewInt(100),
         sdk.Nonce(1),
         50,
         true,
         sdk.TimeStamp(1693472232),
-        nil,
     }
     tx := sdk.NewWithdraw(builder)
     signedTx, err := tx.CreateSignedTx(zklink_signer)

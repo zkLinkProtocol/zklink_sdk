@@ -124,12 +124,12 @@ dictionary WithdrawBuilder {
     TokenId l2_source_token;
     TokenId l1_target_token;
     BigUint amount;
+    H256 ?data_hash;
     BigUint fee;
     Nonce nonce;
     u16 withdraw_fee_ratio;
     boolean withdraw_to_l1;
     TimeStamp timestamp;
-    H256 ?data_hash;
 };
 
 dictionary ForcedExitBuilder {

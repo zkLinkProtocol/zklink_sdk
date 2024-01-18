@@ -120,12 +120,12 @@ pub struct WithdrawBuilder {
     pub l2_source_token: TokenId,
     pub l1_target_token: TokenId,
     pub amount: BigUint,
+    pub data_hash: Option<H256>,
     pub fee: BigUint,
     pub nonce: Nonce,
     pub withdraw_to_l1: bool,
     pub withdraw_fee_ratio: u16,
     pub timestamp: TimeStamp,
-    pub data_hash: Option<H256>,
 }
 
 impl WithdrawBuilder {
@@ -141,13 +141,13 @@ impl WithdrawBuilder {
             l2_source_token: self.l2_source_token,
             l1_target_token: self.l1_target_token,
             amount: self.amount,
+            data_hash: self.data_hash,
             fee: self.fee,
             nonce: self.nonce,
             signature: Default::default(),
             withdraw_to_l1,
             withdraw_fee_ratio: self.withdraw_fee_ratio,
             ts: self.timestamp,
-            data_hash: self.data_hash,
         }
     }
 }
