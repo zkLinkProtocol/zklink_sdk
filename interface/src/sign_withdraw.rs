@@ -108,6 +108,7 @@ mod tests {
             l2_source_token: TokenId(1),
             l1_target_token: TokenId(17),
             amount: BigUint::from_str("99995900000000000000").unwrap(),
+            data_hash: None,
             fee: BigUint::from_str("4100000000000000").unwrap(),
             nonce: Nonce(85),
             withdraw_to_l1: false,

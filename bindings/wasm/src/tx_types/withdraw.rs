@@ -2,8 +2,9 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use web_time::Instant;
+use zklink_sdk_signers::eth_signer::H256;
 use zklink_sdk_types::basic_types::{BigUint, ZkLinkAddress};
-use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
+use zklink_sdk_types::error::TypeError::{DecodeFromHexErr, InvalidBigIntStr};
 use zklink_sdk_types::tx_builder::WithdrawBuilder as TxWithdrawBuilder;
 use zklink_sdk_types::tx_type::withdraw::Withdraw as WithdrawTx;
 
@@ -39,12 +40,18 @@ impl WithdrawBuilder {
         amount: String,
         nonce: u32,
         withdraw_to_l1: bool,
+        data_hash: Option<String>,
         ts: Option<u32>,
     ) -> Result<WithdrawBuilder, JsValue> {
         let ts = if let Some(time_stamp) = ts {
             time_stamp
         } else {
             Instant::now().elapsed().as_secs() as u32
+        };
+        let data_hash = if let Some(data_hash) = data_hash {
+            Some(H256::from_str(&data_hash).map_err(|e| DecodeFromHexErr(e.to_string()))?)
+        } else {
+            None
         };
         let inner = TxWithdrawBuilder {
             account_id: account_id.into(),
@@ -59,6 +66,7 @@ impl WithdrawBuilder {
             amount: BigUint::from_str(&amount).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             l1_target_token: l1_target_token.into(),
             withdraw_to_l1,
+            data_hash,
         };
         Ok(WithdrawBuilder { inner })
     }
