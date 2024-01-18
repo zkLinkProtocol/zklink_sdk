@@ -34,13 +34,13 @@ impl WithdrawBuilder {
         to_chain_id: u8,
         to_address: String,
         l2_source_token: u32,
-        fee: String,
-        withdraw_fee_ratio: u16,
         l1_target_token: u32,
         amount: String,
+        data_hash: Option<String>,
+        fee: String,
         nonce: u32,
         withdraw_to_l1: bool,
-        data_hash: Option<String>,
+        withdraw_fee_ratio: u16,
         ts: Option<u32>,
     ) -> Result<WithdrawBuilder, JsValue> {
         let ts = if let Some(time_stamp) = ts {
@@ -59,14 +59,14 @@ impl WithdrawBuilder {
             to_chain_id: to_chain_id.into(),
             to_address: ZkLinkAddress::from_hex(&to_address)?,
             l2_source_token: l2_source_token.into(),
+            l1_target_token: l1_target_token.into(),
+            amount: BigUint::from_str(&amount).map_err(|e| InvalidBigIntStr(e.to_string()))?,
+            data_hash,
             fee: BigUint::from_str(&fee).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             nonce: nonce.into(),
+            withdraw_to_l1,
             withdraw_fee_ratio,
             timestamp: ts.into(),
-            amount: BigUint::from_str(&amount).map_err(|e| InvalidBigIntStr(e.to_string()))?,
-            l1_target_token: l1_target_token.into(),
-            withdraw_to_l1,
-            data_hash,
         };
         Ok(WithdrawBuilder { inner })
     }
