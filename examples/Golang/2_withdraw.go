@@ -39,6 +39,7 @@ func HighLevelWithdraw() {
 	now := time.Now()
 	timestamp := sdk.TimeStamp(now.Unix())
 
+<<<<<<< HEAD
 	builder := sdk.WithdrawBuilder{
 		AccountId:     accountId,
 		ToChainId:     toChainId,
@@ -69,6 +70,38 @@ func HighLevelWithdraw() {
 	if txSignature.Layer1Signature != nil {
 		layer1Signature = []byte(*txSignature.Layer1Signature)
 	}
+=======
+    builder := sdk.WithdrawBuilder{
+        AccountId: accountId,
+        ToChainId: toChainId,
+        SubAccountId: subAccountId,
+        ToAddress: toAddress,
+        L2SourceToken: l2SourceToken,
+        L1TargetToken: l1TargetToken,
+        Amount: amount,
+        nil,
+        Fee: fee,
+        Nonce: nonce,
+        WithdrawToL1: true,
+        WithdrawFeeRatio: withdrawFeeRatio,
+        Timestamp: timestamp,
+    }
+    tx := sdk.NewWithdraw(builder)
+    signer, err := sdk.NewSigner(privateKey, sdk.L1SignerTypeEth{})
+    if err != nil {
+        return
+    }
+    txSignature, err := signer.SignWithdraw(tx, "USDT",nil,nil)
+    fmt.Println("tx signature: %s", txSignature)
+    if err != nil {
+        return
+    }
+    // get the eth signature
+    var layer1Signature []byte = nil;
+    if txSignature.Layer1Signature != nil {
+        layer1Signature = []byte(*txSignature.Layer1Signature)
+    }
+>>>>>>> fix review suggests
 
 	// create the submitter signature
 	zklinkTx := tx.ToZklinkTx()
