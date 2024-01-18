@@ -230,7 +230,7 @@ func TestSignWithdraw(t *testing.T) {
 	eth_signer, err := sdk.NewEthSigner(s)
 	assert.Nil(t, err)
 	zklink_signer, err := sdk.ZkLinkSignerNewFromHexEthSigner(s)
-<<<<<<< HEAD
+
 	assert.Nil(t, err)
 	address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
 	builder := sdk.WithdrawBuilder{
@@ -254,31 +254,6 @@ func TestSignWithdraw(t *testing.T) {
 	should_be_valid := signedTx.IsSignatureValid()
 	assert.Equal(t, should_be_valid, true)
 	fmt.Printf("signed withraw tx: %v\n", signedTx.JsonStr())
-=======
-    assert.Nil(t, err)
-    address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
-    builder := sdk.WithdrawBuilder{
-        sdk.AccountId(1),
-        sdk.SubAccountId(1),
-        sdk.ChainId(1),
-        address,
-        sdk.TokenId(18),
-        sdk.TokenId(18),
-        *big.NewInt(100000),
-        nil,
-        *big.NewInt(100),
-        sdk.Nonce(1),
-        50,
-        true,
-        sdk.TimeStamp(1693472232),
-    }
-    tx := sdk.NewWithdraw(builder)
-    signedTx, err := tx.CreateSignedTx(zklink_signer)
-    assert.Nil(t, err)
-    should_be_valid := signedTx.IsSignatureValid();
-    assert.Equal(t, should_be_valid, true)
-    fmt.Printf("signed withraw tx: %v\n", signedTx.JsonStr())
->>>>>>> fix review suggests
 
 	// eth signature
 	l2SourceTokenSymbol := "USDC"
