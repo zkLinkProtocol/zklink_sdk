@@ -247,6 +247,7 @@ func TestSignWithdraw(t *testing.T) {
         50,
         true,
         sdk.TimeStamp(1693472232),
+        nil,
     }
     tx := sdk.NewWithdraw(builder)
     signedTx, err := tx.CreateSignedTx(zklink_signer)

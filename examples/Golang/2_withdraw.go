@@ -51,6 +51,7 @@ func HighLevelWithdraw() {
         WithdrawToL1: true,
         WithdrawFeeRatio: withdrawFeeRatio,
         Timestamp: timestamp,
+        nil,
     }
     tx := sdk.NewWithdraw(builder)
     signer, err := sdk.NewSigner(privateKey, sdk.L1SignerTypeEth{})

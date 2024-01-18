@@ -129,6 +129,7 @@ dictionary WithdrawBuilder {
     u16 withdraw_fee_ratio;
     boolean withdraw_to_l1;
     TimeStamp timestamp;
+    H256 ?data_hash;
 };
 
 dictionary ForcedExitBuilder {

@@ -20,6 +20,7 @@ use crate::tx_type::validator::*;
 use crate::tx_type::{
     ethereum_sign_message_part, starknet_sign_message_part, TxTrait, ZkSignatureTrait,
 };
+use zklink_sdk_signers::eth_signer::H256;
 use zklink_sdk_signers::starknet_signer::typed_data::message::TxMessage;
 
 /// `Withdraw` transaction performs a withdrawal of funds from zklink account to L1 account.
@@ -67,6 +68,8 @@ pub struct Withdraw {
     pub withdraw_fee_ratio: u16,
     /// Used as request id
     pub ts: TimeStamp,
+    /// Call data hash
+    pub data_hash: Option<H256>,
 }
 
 impl Withdraw {
@@ -151,6 +154,9 @@ impl GetBytes for Withdraw {
         out.push(self.withdraw_to_l1);
         out.extend_from_slice(&self.withdraw_fee_ratio.to_be_bytes());
         out.extend_from_slice(&self.ts.to_be_bytes());
+        if let Some(data_hash) = self.data_hash {
+            out.extend_from_slice(data_hash.as_bytes())
+        }
         assert_eq!(out.len(), bytes_len);
         out
     }
@@ -196,6 +202,7 @@ mod test {
             withdraw_to_l1: false,
             withdraw_fee_ratio: 0,
             timestamp: ts.into(),
+            data_hash: None,
         };
         let withdraw = builder.build();
         let bytes = withdraw.get_bytes();

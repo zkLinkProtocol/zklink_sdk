@@ -125,6 +125,7 @@ pub struct WithdrawBuilder {
     pub withdraw_to_l1: bool,
     pub withdraw_fee_ratio: u16,
     pub timestamp: TimeStamp,
+    pub data_hash: Option<H256>,
 }
 
 impl WithdrawBuilder {
@@ -146,6 +147,7 @@ impl WithdrawBuilder {
             withdraw_to_l1,
             withdraw_fee_ratio: self.withdraw_fee_ratio,
             ts: self.timestamp,
+            data_hash: self.data_hash,
         }
     }
 }

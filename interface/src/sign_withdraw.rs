@@ -113,6 +113,7 @@ mod tests {
             withdraw_to_l1: false,
             withdraw_fee_ratio: 50,
             timestamp: TimeStamp(1649749979),
+            data_hash: None,
         };
         let tx = builder.build();
         let eth_signer = eth_pk.into();
