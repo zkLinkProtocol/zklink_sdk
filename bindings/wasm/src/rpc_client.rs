@@ -314,19 +314,6 @@ impl RpcClient {
         )
     }
 
-    #[wasm_bindgen(js_name=confirmFullExit)]
-    pub async fn confirm_full_exit(
-        &self,
-        tx_hash: String,
-        submitter_signature: String,
-    ) -> Result<JsValue, JsValue> {
-        let hash = TxHash::from_hex(&tx_hash).map_err(|_e| RpcError::InvalidInputParameter)?;
-        let mut builder = ArrayParams::new();
-        let _ = builder.insert(hash);
-        let _ = builder.insert(submitter_signature);
-        rpc_request!("confirmFullExit", builder, &self.server_url, bool)
-    }
-
     #[wasm_bindgen(js_name=getWebSocketEvents)]
     pub async fn get_websocket_events(
         &self,

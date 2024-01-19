@@ -227,7 +227,8 @@ impl ZkLinkTx {
             ZkLinkTx::AutoDeleveraging(tx) => vec![tx.sub_account_id],
             ZkLinkTx::Funding(tx) => vec![tx.sub_account_id],
             ZkLinkTx::UpdateGlobalVar(tx) => vec![tx.sub_account_id],
-            _ => vec![],
+            ZkLinkTx::Deposit(tx) => vec![tx.sub_account_id],
+            ZkLinkTx::FullExit(tx) => vec![tx.sub_account_id],
         }
     }
 

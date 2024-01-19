@@ -7,7 +7,7 @@ use zklink_sdk_types::basic_types::SubAccountId;
 
 #[derive(Debug, Clone, Eq, Hash, PartialEq)]
 pub enum Topic {
-    /// App subscribe this event and then call `confirmFullExit`
+    /// App subscribe this event and then call `submitTx`
     PriorityEvent { sub_account_id: SubAccountId },
     /// Get all(L1 and L2) txs executed result that accepted by api
     TxExecuteResult { sub_account_id: SubAccountId },

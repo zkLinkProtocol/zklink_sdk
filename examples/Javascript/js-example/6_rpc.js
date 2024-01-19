@@ -53,7 +53,6 @@ async function main() {
         let fast_withdraw_txs = await client.getFastWithdrawTxs(1696743981000n,10);
         console.log(fast_withdraw_txs);
         // 16.pullForwardTxs
-        // 17.confirmFullExit
     } catch (error) {
         console.error(error);
     }
