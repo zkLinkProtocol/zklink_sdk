@@ -485,7 +485,6 @@ pub struct TokenInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(untagged)]
 pub enum OracleSignature {
     Pyth(AccumulatorUpdateData),
 }
