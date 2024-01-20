@@ -21,10 +21,8 @@ async function main() {
         let signature = signer.signOrderMatching(order_matching);
         console.log(signature);
 
-        let submitter_signature = signer.submitterSignature(signature.tx);
-        console.log(submitter_signature);
         let rpc_client = new wasm.RpcClient("testnet");
-        let tx_hash = await rpc_client.sendTransaction(signature.tx,null,submitter_signature);
+        let tx_hash = await rpc_client.sendTransaction(signature.tx,null);
         console.log(tx_hash);
 
     } catch (error) {

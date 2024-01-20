@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use validator::{Validate, ValidationErrors};
 
-use crate::basic_types::{tx_hash::TxHash, Nonce, SubAccountId};
+use crate::basic_types::{tx_hash::TxHash, Nonce};
 use crate::prelude::{
     AutoDeleveraging, ContractMatching, Funding, Liquidation, SpotPriceInfo, UpdateGlobalVar,
 };
@@ -198,37 +198,6 @@ impl ZkLinkTx {
         let mut out = [0u8; 32];
         out.copy_from_slice(&tx_hash);
         TxHash { data: out }
-    }
-
-    /// Return sub account ids which asset will be reduced
-    /// * tx fee
-    /// * transfer from
-    /// * withdraw from
-    ///
-    /// used to check layer 2 tx submitter if exist in white list for special sub account
-    pub fn asset_reduced_sub_account(&self) -> Vec<SubAccountId> {
-        match self {
-            // account pay fee
-            // transfer from account
-            ZkLinkTx::Transfer(tx) => vec![tx.from_sub_account_id],
-            // account pay fee
-            // withdraw from account
-            ZkLinkTx::Withdraw(tx) => vec![tx.sub_account_id],
-            // account pay fee
-            ZkLinkTx::ChangePubKey(tx) => vec![tx.sub_account_id],
-            // initiator pay fee
-            // withdraw from target account
-            ZkLinkTx::ForcedExit(tx) => vec![tx.initiator_sub_account_id, tx.target_sub_account_id],
-            // account pay fee
-            // sub account ids of order are same as tx.sub_account_id
-            ZkLinkTx::OrderMatching(tx) => vec![tx.sub_account_id],
-            ZkLinkTx::Liquidation(tx) => vec![tx.sub_account_id],
-            ZkLinkTx::ContractMatching(tx) => vec![tx.sub_account_id],
-            ZkLinkTx::AutoDeleveraging(tx) => vec![tx.sub_account_id],
-            ZkLinkTx::Funding(tx) => vec![tx.sub_account_id],
-            ZkLinkTx::UpdateGlobalVar(tx) => vec![tx.sub_account_id],
-            _ => vec![],
-        }
     }
 
     /// Returns the account nonce associated with transaction.

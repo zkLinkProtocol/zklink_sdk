@@ -156,14 +156,6 @@ func HighLevelContractMatching() {
 	}
 	fmt.Println("tx signature: %s", txSignature)
 
-	// get submitter signature
-	zklinkTx := tx.ToZklinkTx()
-	submitterSignature, err := signer.SubmitterSignature(zklinkTx)
-	submitterSignature2, err := json.Marshal(SubmiterSignature{
-		PubKey:    submitterSignature.PubKey,
-		Signature: submitterSignature.Signature,
-	})
-
 	rpc_req := RPCTransaction{
 		Id:      1,
 		JsonRpc: "2.0",
@@ -171,7 +163,6 @@ func HighLevelContractMatching() {
 		Params: []json.RawMessage{
 			[]byte(txSignature.Tx),
 			nil,
-			submitterSignature2,
 		},
 	}
 	JsonTx, err := json.Marshal(rpc_req)

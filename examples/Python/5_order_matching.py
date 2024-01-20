@@ -24,8 +24,6 @@ def main():
 
     # build submitter signature
     zklink_tx = tx.to_zklink_tx()
-    submitter_signature = signer.submitter_signature(zklink_tx)
-    print(submitter_signature)
 
 if __name__ == "__main__":
     main()
