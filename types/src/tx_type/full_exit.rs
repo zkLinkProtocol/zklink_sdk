@@ -9,7 +9,7 @@ use validator::Validate;
 use zklink_sdk_signers::eth_signer::H256;
 
 /// `Mapping` transaction performs a move of funds from one zklink account to another.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate, Eq, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct FullExit {
     #[validate(custom = "chain_id_validator")]

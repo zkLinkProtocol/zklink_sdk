@@ -48,11 +48,6 @@ func TestSignChangePubkey(t *testing.T) {
     zkinkTx := tx.ToZklinkTx();
     fmt.Printf("%s\n", zkinkTx)
 
-    // submitter signature
-    txHash := tx.TxHash()
-    submitterSignature, err := zklink_signer.SignMusig(txHash)
-    assert.Nil(t, err)
-    fmt.Printf("submitter signature: %v\n", submitterSignature)
 }
 
 
@@ -268,16 +263,9 @@ func TestSignWithdraw(t *testing.T) {
     // test signer
     signer, err := sdk.NewSigner(s, sdk.L1SignerTypeEth{});
     assert.Nil(t, err)
-    tx_signature, err := signer.SignWithdraw(tx, l2SourceTokenSymbol,nil,nil)
+    _, err = signer.SignWithdraw(tx, l2SourceTokenSymbol,nil,nil)
     assert.Nil(t, err)
 
-    // test submitter
-    submitterSignature, err := tx.SubmitterSignature(zklink_signer)
-    submitterSignature2, err := signer.SubmitterSignature(tx_signature.Tx)
-    assert.Nil(t, err)
-    fmt.Printf("submitter signature: %s\n", submitterSignature)
-    fmt.Printf("submitter signature: %s\n", submitterSignature2)
-    assert.Equal(t, submitterSignature, submitterSignature2)
 }
 
 

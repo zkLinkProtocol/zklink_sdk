@@ -1,7 +1,4 @@
-use crate::error::SignError;
-use zklink_sdk_signers::zklink_signer::{ZkLinkSignature, ZkLinkSigner};
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data;
-use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 
 pub mod error;
 #[cfg(feature = "web")]
@@ -22,13 +19,4 @@ pub enum ChangePubKeyAuthRequest {
     Onchain,
     EthECDSA,
     EthCreate2 { data: Create2Data },
-}
-
-pub fn do_submitter_signature(
-    zklink_signer: &ZkLinkSigner,
-    zklink_tx: &ZkLinkTx,
-) -> Result<ZkLinkSignature, SignError> {
-    let tx_hash = zklink_tx.tx_hash();
-    let signature = zklink_signer.sign_musig(tx_hash.as_ref())?;
-    Ok(signature)
 }

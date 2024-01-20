@@ -6,7 +6,6 @@ use crate::web_socket::ws_message::message::request::ClientOffset;
 use crate::web_socket::ws_message::message::response::TxTopicEvent;
 use crate::web_socket::ws_message::topic::Topic;
 use jsonrpsee::core::RpcResult;
-use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
 use zklink_sdk_types::basic_types::{
     AccountId, BlockNumber, ChainId, SubAccountId, TokenId, ZkLinkAddress,
@@ -125,6 +124,5 @@ pub trait ZkLinkRpc {
         &self,
         tx: ZkLinkTx,
         l1_signature: Option<TxLayer1Signature>,
-        submitter_signature: Option<ZkLinkSignature>,
     ) -> RpcResult<TxHash>;
 }

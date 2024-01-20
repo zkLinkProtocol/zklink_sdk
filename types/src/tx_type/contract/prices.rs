@@ -11,7 +11,7 @@ use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 /// The current contract price, which is used to handle Liquidation and ADL
-#[derive(Default, Debug, Clone, Serialize, Deserialize, Validate)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize, Validate, Eq, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ContractPrice {
     #[validate(custom = "pair_validator")]
@@ -40,7 +40,7 @@ impl GetBytes for ContractPrice {
 }
 
 /// The current margin token price, used to handle Liquidation and ADL
-#[derive(Default, Debug, Clone, Serialize, Deserialize, Validate)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize, Validate, Eq, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct SpotPriceInfo {
     #[validate(custom = "token_validator")]
@@ -66,7 +66,7 @@ impl GetBytes for SpotPriceInfo {
 }
 
 /// The current margin token price, used to handle Liquidation and ADL
-#[derive(Debug, Clone, Serialize, Deserialize, Validate)]
+#[derive(Debug, Clone, Serialize, Deserialize, Validate, Eq, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct OraclePrices {
     /// The current prices of all contracts

@@ -33,8 +33,6 @@ def main():
     signer = sdk.Signer(private_key, sdk.L1SignerType.ETH())
     tx_signature = signer.sign_withdraw(tx, "USDT", None, None)
     print(tx_signature)
-    submitter_signature = signer.submitter_signature(tx.to_zklink_tx())
-    print(submitter_signature)
 
 if __name__ == "__main__":
     main()

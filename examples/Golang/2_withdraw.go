@@ -68,21 +68,13 @@ func HighLevelWithdraw() {
         layer1Signature = []byte(*txSignature.Layer1Signature)
     }
 
-    // create the submitter signature
-    zklinkTx := tx.ToZklinkTx()
-    submitterSignature, err := signer.SubmitterSignature(zklinkTx)
-    submitterSignature2, err := json.Marshal(SubmiterSignature {
-        PubKey: submitterSignature.PubKey,
-        Signature: submitterSignature.Signature,
-    })
 	rpc_req := RPCTransaction {
 		Id:      1,
 		JsonRpc: "2.0",
 		Method:  "sendTransaction",
 		Params: []json.RawMessage{
 		    []byte(txSignature.Tx),
-		    layer1Signature,
-            submitterSignature2,
+		    layer1Signature
 		},
     }
 

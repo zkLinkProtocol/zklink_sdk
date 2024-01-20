@@ -30,11 +30,9 @@ async function testEcdsaAuth() {
         let tx_signature = await signer.signChangePubkeyWithEthEcdsaAuth(tx);
         console.log(tx_signature);
 
-        let submitter_signature = signer.submitterSignature(tx_signature.tx);
-        console.log(submitter_signature);
         //send to zklink
         let rpc_client = new wasm.RpcClient("testnet");
-        let tx_hash = await rpc_client.sendTransaction(tx_signature.tx,null,submitter_signature);
+        let tx_hash = await rpc_client.sendTransaction(tx_signature.tx,null);
         console.log(tx_hash);
 
     } catch (error) {
@@ -67,11 +65,9 @@ async function testCreate2() {
         let tx_signature = await signer.signChangePubkeyWithCreate2DataAuth(tx,create2_data);
         console.log(tx_signature);
 
-        let submitter_signature = signer.submitterSignature(tx_signature.tx);
-        console.log(submitter_signature);
         //send to zklink
         let rpc_client = new wasm.RpcClient("devnet");
-        let tx_hash = await rpc_client.sendTransaction(tx_signature.tx,null,submitter_signature);
+        let tx_hash = await rpc_client.sendTransaction(tx_signature.tx,null);
         console.log(tx_hash);
 
     } catch (error) {

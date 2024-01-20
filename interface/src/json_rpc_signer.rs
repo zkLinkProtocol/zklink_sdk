@@ -1,4 +1,3 @@
-use crate::do_submitter_signature;
 use crate::error::SignError;
 use crate::sign_change_pubkey::{
     do_sign_change_pubkey_with_create2data_auth, do_sign_change_pubkey_with_onchain_auth_data,
@@ -20,7 +19,7 @@ use crate::sign_funding::sign_funding;
 use crate::sign_liquidation::sign_liquidation;
 use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
 use zklink_sdk_signers::starknet_signer::StarkEip712Signature;
-use zklink_sdk_signers::zklink_signer::{ZkLinkSignature, ZkLinkSigner};
+use zklink_sdk_signers::zklink_signer::ZkLinkSigner;
 use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::prelude::PackedEthSignature;
 use zklink_sdk_types::signatures::TxSignature;
@@ -32,7 +31,6 @@ use zklink_sdk_types::tx_type::forced_exit::ForcedExit;
 use zklink_sdk_types::tx_type::order_matching::{Order, OrderMatching};
 use zklink_sdk_types::tx_type::transfer::Transfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw;
-use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
 
 pub enum JsonRpcProvider {
@@ -217,11 +215,6 @@ impl JsonRpcSigner {
     pub fn sign_order_matching(&self, tx: OrderMatching) -> Result<TxSignature, SignError> {
         let signature = sign_order_matching(&self.zklink_signer, tx)?;
         Ok(signature)
-    }
-
-    #[inline]
-    pub fn submitter_signature(&self, zklink_tx: &ZkLinkTx) -> Result<ZkLinkSignature, SignError> {
-        do_submitter_signature(&self.zklink_signer, zklink_tx)
     }
 
     pub fn sign_auto_deleveraging(&self, tx: AutoDeleveraging) -> Result<TxSignature, SignError> {
