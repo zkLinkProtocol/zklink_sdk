@@ -6,7 +6,6 @@ use crate::sign_transfer::{sign_eth_transfer, sign_starknet_transfer};
 use crate::sign_withdraw::{sign_eth_withdraw, sign_starknet_withdraw};
 use zklink_sdk_types::prelude::{PubKeyHash, TxSignature};
 
-use crate::do_submitter_signature;
 use crate::sign_change_pubkey::{
     do_sign_change_pubkey_with_create2data_auth, do_sign_change_pubkey_with_eth_ecdsa_auth,
     do_sign_change_pubkey_with_onchain_auth_data,
@@ -23,11 +22,9 @@ use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
 use zklink_sdk_signers::starknet_signer::pk_signer::StarkSigner;
 use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_signers::zklink_signer::public_key::PackedPublicKey;
-use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 #[cfg(not(feature = "ffi"))]
 use zklink_sdk_types::prelude::{Contract, GetBytes, Order};
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data;
-use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 
 cfg_if! {
     if #[cfg(feature = "ffi")] {
@@ -261,10 +258,5 @@ impl Signer {
         let mut contract = contract.clone();
         contract.signature = self.zklink_signer.sign_musig(&contract.get_bytes())?;
         Ok(contract)
-    }
-
-    #[inline]
-    pub fn submitter_signature(&self, zklink_tx: &ZkLinkTx) -> Result<ZkLinkSignature, SignError> {
-        do_submitter_signature(&self.zklink_signer, zklink_tx)
     }
 }

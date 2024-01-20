@@ -28,11 +28,9 @@ async function testEcdsaAuth() {
         let tx_signature = signer.signChangePubkeyWithEthEcdsaAuth(tx);
         console.log(tx_signature);
 
-        let submitter_signature = signer.submitterSignature(tx_signature.tx);
-        console.log(submitter_signature);
         //send to zklink
         let rpc_client = new RpcClient("testnet");
-        let tx_hash = await rpc_client.sendTransaction(tx_signature.tx,null,submitter_signature);
+        let tx_hash = await rpc_client.sendTransaction(tx_signature.tx,null);
         console.log(tx_hash);
 
     } catch (error) {
@@ -56,11 +54,9 @@ async function testOnchainAuth() {
         let tx_signature = signer.signChangePubkeyWithOnchain(tx);
         console.log(tx_signature);
 
-        //let submitter_signature = signer.submitterSignature(tx_signature.tx);
-        //console.log(submitter_signature);
         //send to zklink
         let rpc_client = new RpcClient("custum","http://127.0.0.1:3030");
-        let tx_hash = await rpc_client.sendTransaction(tx_signature.tx,null,null);
+        let tx_hash = await rpc_client.sendTransaction(tx_signature.tx,null);
         console.log(tx_hash);
 
     } catch (error) {

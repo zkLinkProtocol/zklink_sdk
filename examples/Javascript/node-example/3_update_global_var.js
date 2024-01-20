@@ -35,9 +35,6 @@ async function testUpdGlobalVar() {
     console.log(tx_builder);
     let tx = newUpdateGlobalVar(tx_builder);
     console.log(tx.jsonValue());
-    const signer = new Signer(private_key);
-    const submitterSignature = await signer.submitterSignature(tx.zklinkTx());
-    console.log(submitterSignature);
 }
 
 async function main() {

@@ -271,8 +271,6 @@ interface Withdraw {
     [Throws=ZkSignerError]
     PackedEthSignature  eth_signature(EthSigner eth_signer, [ByRef] string l2_source_token_symbol);
     [Throws=ZkSignerError]
-    ZkLinkSignature submitter_signature(ZkLinkSigner signer);
-    [Throws=ZkSignerError]
     Withdraw create_signed_tx(ZkLinkSigner signer);
     ZkLinkTx to_zklink_tx();
 };
@@ -286,8 +284,6 @@ interface ChangePubKey {
     boolean is_valid();
     boolean is_onchain();
     boolean is_signature_valid();
-    [Throws=ZkSignerError]
-    ZkLinkSignature submitter_signature(ZkLinkSigner signer);
     ZkLinkTx to_zklink_tx();
 };
 
@@ -299,8 +295,6 @@ interface ForcedExit {
     string json_str();
     boolean is_valid();
     boolean is_signature_valid();
-    [Throws=ZkSignerError]
-    ZkLinkSignature submitter_signature(ZkLinkSigner signer);
     [Throws=ZkSignerError]
     ForcedExit create_signed_tx(ZkLinkSigner signer);
     ZkLinkTx to_zklink_tx();
@@ -327,8 +321,6 @@ interface Transfer {
     string get_eth_sign_msg([ByRef] string token_symbol);
     [Throws=ZkSignerError]
     TxLayer1Signature eth_signature(EthSigner eth_signer, [ByRef]string token_symbol);
-    [Throws=ZkSignerError]
-    ZkLinkSignature submitter_signature(ZkLinkSigner signer);
     [Throws=ZkSignerError]
     Transfer create_signed_tx(ZkLinkSigner signer);
     ZkLinkTx to_zklink_tx();
@@ -630,9 +622,6 @@ interface Signer {
     TxSignature sign_liquidation(Liquidation tx);
     [Throws=SignError]
     TxSignature sign_auto_deleveraging(AutoDeleveraging tx);
-
-    [Throws=SignError]
-    ZkLinkSignature submitter_signature([ByRef] ZkLinkTx zklink_tx);
 };
 
 // ============================  namespace ============================

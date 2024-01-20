@@ -60,19 +60,13 @@ mod test {
         };
         let mut tx = builder_with_sig.build();
         tx.sign(&zklink_signer).unwrap();
-        let submitter_signature = tx.submitter_signature(&zklink_signer).unwrap();
 
         //use jsonrpsee
         let client = HttpClientBuilder::default()
             .build("https://dev-gw-v1.zk.link")
             .unwrap();
         let ret = client
-            .tx_submit(
-                ZkLinkTx::ChangePubKey(Box::new(tx.clone())),
-                None,
-                Some(submitter_signature),
-                None,
-            )
+            .tx_submit(ZkLinkTx::ChangePubKey(Box::new(tx.clone())), None, None)
             .await;
         println!("{:?}", ret)
     }
@@ -130,7 +124,6 @@ mod test {
         };
         let mut order_matching = builder.build();
         order_matching.sign(&zklink_signer).unwrap();
-        let submitter_signature = order_matching.submitter_signature(&zklink_signer).unwrap();
 
         //use jsonrpsee
         let client = HttpClientBuilder::default()
@@ -140,7 +133,6 @@ mod test {
             .tx_submit(
                 ZkLinkTx::OrderMatching(Box::new(order_matching.clone())),
                 None,
-                Some(submitter_signature),
                 None,
             )
             .await;

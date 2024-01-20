@@ -52,13 +52,6 @@ func HighLevelTransfer() {
 	if txSignature.Layer1Signature != nil {
 		layer1Signature = []byte(*txSignature.Layer1Signature)
 	}
-	// create the submitter signature
-	zklinkTx := tx.ToZklinkTx()
-	submitterSignature, err := signer.SubmitterSignature(zklinkTx)
-	submitterSignature2, err := json.Marshal(SubmiterSignature{
-		PubKey:    submitterSignature.PubKey,
-		Signature: submitterSignature.Signature,
-	})
 
 	rpc_req := RPCTransaction{
 		Id:      1,
@@ -67,7 +60,6 @@ func HighLevelTransfer() {
 		Params: []json.RawMessage{
 			[]byte(txSignature.Tx),
 			layer1Signature,
-			[]byte(submitterSignature2),
 		},
 	}
 	JsonTx, err := json.Marshal(rpc_req)
