@@ -59,7 +59,7 @@ async function testOnchainAuth() {
         //let submitter_signature = signer.submitterSignature(tx_signature.tx);
         //console.log(submitter_signature);
         //send to zklink
-        let rpc_client = new RpcClient("custum","http://127.0.0.1:3030");
+        let rpc_client = new RpcClient("custom","http://127.0.0.1:3030");
         let tx_hash = await rpc_client.sendTransaction(tx_signature.tx,null,null);
         console.log(tx_hash);
 
