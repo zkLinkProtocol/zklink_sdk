@@ -20,7 +20,6 @@ use crate::tx_type::validator::*;
 use crate::tx_type::{
     ethereum_sign_message_part, starknet_sign_message_part, TxTrait, ZkSignatureTrait,
 };
-use zklink_sdk_signers::eth_signer::H256;
 use zklink_sdk_signers::starknet_signer::typed_data::message::TxMessage;
 use zklink_sdk_signers::zklink_signer::utils::rescue_hash_orders;
 
@@ -159,7 +158,12 @@ impl GetBytes for Withdraw {
 
         let mut out = Vec::with_capacity(bytes_len);
         out.extend(rescue_hash_orders(&tx_bytes));
-        out.extend(self.call_data.as_ref().map(ethers::utils::keccak256).unwrap_or_default());
+        out.extend(
+            self.call_data
+                .as_ref()
+                .map(ethers::utils::keccak256)
+                .unwrap_or_default(),
+        );
         assert_eq!(out.len(), bytes_len);
         out
     }
@@ -200,7 +204,7 @@ mod test {
             l2_source_token: TokenId(18),
             l1_target_token: TokenId(18),
             amount: BigUint::from(10000u32),
-            data_hash: None,
+            call_data: None,
             fee: BigUint::from(3u32),
             nonce: Nonce(1),
             withdraw_to_l1: false,
@@ -210,9 +214,9 @@ mod test {
         let withdraw = builder.build();
         let bytes = withdraw.get_bytes();
         let excepted_bytes = [
-            3, 1, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4,
-            37, 215, 146, 67, 45, 158, 205, 28, 62, 38, 239, 44, 66, 233, 0, 18, 0, 18, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 39, 16, 0, 96, 0, 0, 0, 1, 0, 0, 0, 100, 240, 85, 232,
+            35, 38, 100, 21, 162, 218, 169, 88, 46, 176, 84, 204, 61, 64, 69, 248, 70, 224, 44,
+            240, 208, 221, 29, 8, 236, 225, 227, 255, 131, 200, 226, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ];
 
         assert_eq!(bytes, excepted_bytes);
