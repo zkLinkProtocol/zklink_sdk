@@ -7,12 +7,14 @@ on:
       - testnet
       - zklink_nexus
       - v*
+      - devnet
   push:
     branches:
       - main
       - testnet
       - zklink_nexus
       - v*
+      - devnet
 
 jobs:
   fmt:
