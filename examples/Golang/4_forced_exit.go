@@ -49,13 +49,6 @@ func HighLevelForcedExit() {
         return
     }
     fmt.Println("tx signature: %s", txSignature)
-    // create the submitter signature
-    zklinkTx := tx.ToZklinkTx()
-    submitterSignature, err := signer.SubmitterSignature(zklinkTx)
-    submitterSignature2, err := json.Marshal(SubmiterSignature {
-        PubKey: submitterSignature.PubKey,
-        Signature: submitterSignature.Signature,
-    })
 
 	rpc_req := RPCTransaction {
 		Id:      1,
@@ -63,8 +56,7 @@ func HighLevelForcedExit() {
 		Method:  "sendTransaction",
 		Params: []json.RawMessage{
 		    []byte(txSignature.Tx),
-		    nil,
-            submitterSignature2,
+		    nil
 		},
     }
 

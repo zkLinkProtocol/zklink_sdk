@@ -17,9 +17,6 @@ def main():
     signature = signer.sign_change_pubkey_with_eth_ecdsa_auth(tx)
     print(signature.tx)
     print(signature.layer1_signature)
-    submitter_signature = signer.submitter_signature(signature.tx)
-    print(submitter_signature.pub_key)
-    print(submitter_signature.signature)
 
 if __name__ == "__main__":
     main()

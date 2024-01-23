@@ -116,13 +116,11 @@ async fn test_send_change_pubkey() {
     };
     let mut tx = ChangePubKey::new(builder_with_sig);
     tx.sign(&zklink_signer).unwrap();
-    let submitter_signature = tx.submitter_signature(&zklink_signer).unwrap();
     //send to zklink
     let ret = client
         .send_transaction(
             serde_wasm_bindgen::to_value(&TypesZkLinkTx::ChangePubKey(Box::new(tx))).unwrap(),
             None,
-            Some(submitter_signature.as_hex()),
         )
         .await;
     if let Err(e) = ret {

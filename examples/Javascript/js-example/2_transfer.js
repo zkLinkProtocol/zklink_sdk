@@ -21,11 +21,9 @@ async function testEvmChains() {
         let signature = await signer.signTransfer(transfer,"USDC")
         console.log(signature);
 
-        let submitter_signature = signer.submitterSignature(signature.tx);
-        console.log(submitter_signature);
         let rpc_client = new wasm.RpcClient("testnet");
         let l1_signature = new wasm.TxLayer1Signature(wasm.L1SignatureType.Eth,signature.layer1_signature.signature);
-        let tx_hash = await rpc_client.sendTransaction(signature.tx,l1_signature,submitter_signature);
+        let tx_hash = await rpc_client.sendTransaction(signature.tx,l1_signature);
         console.log(tx_hash);
 
     } catch (error) {
@@ -74,11 +72,9 @@ async function testStarknet() {
         let signature = await signer.signTransfer(transfer,"USDC")
         console.log(signature);
 
-        let submitter_signature = signer.submitterSignature(signature.tx);
-        console.log(submitter_signature);
         let rpc_client = new wasm.RpcClient("testnet");
         let l1_signature = new wasm.TxLayer1Signature(wasm.L1SignatureType.Eth,signature.eth_signature);
-        let tx_hash = await rpc_client.sendTransaction(signature.tx,l1_signature,submitter_signature);
+        let tx_hash = await rpc_client.sendTransaction(signature.tx,l1_signature);
         console.log(tx_hash);
 
     } catch (error) {

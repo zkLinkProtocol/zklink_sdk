@@ -4,10 +4,14 @@ on:
   pull_request:
     branches:
       - main
+      - testnet
+      - zklink_nexus
       - v*
   push:
     branches:
       - main
+      - testnet
+      - zklink_nexus
       - v*
 
 jobs:

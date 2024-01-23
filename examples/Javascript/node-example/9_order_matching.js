@@ -47,11 +47,9 @@ async function testOrderMatching() {
         let tx_signature = signer.signOrderMatching(tx);
         console.log(tx_signature);
 
-        let submitter_signature = signer.submitterSignature(tx_signature.tx);
-        console.log(submitter_signature);
         //send to zklink
         let rpc_client = new RpcClient("testnet");
-        let tx_hash = await rpc_client.sendTransaction(tx_signature.tx,null,submitter_signature);
+        let tx_hash = await rpc_client.sendTransaction(tx_signature.tx,null);
         console.log(tx_hash);
 
     } catch (error) {

@@ -212,20 +212,4 @@ pub trait ZkSignatureTrait: TxTrait {
         tx.set_signature(signature);
         Ok(Arc::new(tx))
     }
-    #[cfg(feature = "ffi")]
-    fn submitter_signature(
-        &self,
-        signer: Arc<ZkLinkSigner>,
-    ) -> Result<ZkLinkSignature, ZkSignerError> {
-        let bytes = self.tx_hash();
-        let signature = signer.sign_musig(&bytes)?;
-        Ok(signature)
-    }
-
-    #[cfg(not(feature = "ffi"))]
-    fn submitter_signature(&self, signer: &ZkLinkSigner) -> Result<ZkLinkSignature, ZkSignerError> {
-        let bytes = self.tx_hash();
-        let signature = signer.sign_musig(&bytes)?;
-        Ok(signature)
-    }
 }

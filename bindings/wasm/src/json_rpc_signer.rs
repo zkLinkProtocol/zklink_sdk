@@ -207,11 +207,4 @@ impl JsonRpcSigner {
         let signature = self.inner.sign_liquidation(liquidation)?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
     }
-
-    #[wasm_bindgen(js_name=submitterSignature)]
-    pub fn submitter_signature(&self, tx: JsValue) -> Result<TxZkLinkSignature, JsValue> {
-        let zklink_tx: ZkLinkTx = serde_wasm_bindgen::from_value(tx)?;
-        let zklink_signature = self.inner.submitter_signature(&zklink_tx)?;
-        Ok(zklink_signature.into())
-    }
 }

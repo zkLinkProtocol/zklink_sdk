@@ -94,15 +94,6 @@ func LowLevelChangePubkey() {
 
     // create submitter signature
     txHash := tx.TxHash()
-    submitterSignature, err := zklinkSigner.SignMusig(txHash)
-    if err != nil {
-        return
-    }
-    fmt.Println("changePubKey submitter signature: %v", submitterSignature)
-    submitterSignature2, err := json.Marshal(SubmiterSignature {
-        PubKey: submitterSignature.PubKey,
-        Signature: submitterSignature.Signature,
-    })
 
     // rpc request with `sendTransaction`
 	txReq := RPCTransaction {
@@ -111,8 +102,7 @@ func LowLevelChangePubkey() {
 		Method:  "sendTransaction",
 		Params: []json.RawMessage{
 		[]byte(zklinkTx),
-		nil,
-		[]byte(submitterSignature2)},
+		nil
     }
 	JsonTx, err := json.Marshal(txReq)
 	fmt.Println("ChangePubKey rpc request:",  string(JsonTx))
@@ -166,13 +156,6 @@ func HighLevelChangePubkeyEcdsa() {
     if txSignature.Layer1Signature != nil {
         layer1Signature = []byte(*txSignature.Layer1Signature)
     }
-    // get submitter signature
-    submitterSignature, err := signer.SubmitterSignature(txSignature.Tx)
-    fmt.Println("submitter signature: %s", submitterSignature)
-    submitterSignature2, err := json.Marshal(SubmiterSignature {
-        PubKey: submitterSignature.PubKey,
-        Signature: submitterSignature.Signature,
-    })
 
     // rpc request with `sendTransaction`
 	request := RPCTransaction {
@@ -181,8 +164,7 @@ func HighLevelChangePubkeyEcdsa() {
 		Method:  "sendTransaction",
 		Params: []json.RawMessage{
 		    []byte(txSignature.Tx),
-		    layer1Signature,
-		    submitterSignature2,
+		    layer1Signature
 		},
     }
 	JsonTx, err := json.Marshal(request)

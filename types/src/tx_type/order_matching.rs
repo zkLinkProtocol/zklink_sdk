@@ -166,16 +166,6 @@ impl ZkSignatureTrait for Order {
     fn signature(&self) -> &ZkLinkSignature {
         &self.signature
     }
-
-    #[cfg(feature = "ffi")]
-    fn submitter_signature(
-        &self,
-        _signer: Arc<ZkLinkSigner>,
-    ) -> Result<ZkLinkSignature, ZkSignerError> {
-        Err(ZkSignerError::CustomError(
-            "no need submitter signature for Order".into(),
-        ))
-    }
 }
 
 /// `OrderMatching` transaction was used to match two orders.
