@@ -5,6 +5,6 @@ examples/Golang/generated/
 examples/Python/zklink_sdk*
 examples/Python/libzklink_sdk*
 examples/Python/__pycache__
+examples/Java/kotlin
 bindings/generated
-
 

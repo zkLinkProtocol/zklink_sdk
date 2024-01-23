@@ -127,3 +127,18 @@ pub trait ZkLinkRpc {
         oracle_signature: Option<OracleSignature>,
     ) -> RpcResult<TxHash>;
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use jsonrpsee::http_client::HttpClientBuilder;
+
+    #[tokio::test]
+    async fn test_zklink_rpc_client() {
+        let url = "https://api-v3-nexus.zk.link";
+        let client = HttpClientBuilder::default().build(url).unwrap();
+        let result = client.get_support_chains().await.unwrap();
+        println!("{:?}", result);
+    }
+}

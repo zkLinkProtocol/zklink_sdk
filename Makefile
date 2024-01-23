@@ -6,6 +6,7 @@ BINDINGS_DIR?=${ROOT_DIR}/bindings/generated
 BINDINGS_DIR_TEST:=${ROOT_DIR}/binding_tests/generated
 BINDINGS_DIR_EXAMPLE_GO:=${ROOT_DIR}/examples/Golang/generated
 BINDINGS_DIR_EXAMPLE_PY:=${ROOT_DIR}/examples/Python
+BINDINGS_DIR_EXAMPLE_JAVA:=${ROOT_DIR}/examples/Java
 
 # the library path
 LIB_DIR := ${ROOT_DIR}/target/release
@@ -108,6 +109,11 @@ build_binding_files_python:
 	cargo run -p bindings_sdk --features="python" --bin uniffi-bindgen -- generate ${ROOT_DIR}/bindings/sdk/src/ffi.udl --config ${ROOT_DIR}/bindings/sdk/uniffi.toml --language python --out-dir ${BINDINGS_DIR}
 	cargo run -p bindings_sdk --features="python" --bin uniffi-bindgen -- generate ${ROOT_DIR}/bindings/sdk/src/ffi.udl --config ${ROOT_DIR}/bindings/sdk/uniffi.toml --language python --out-dir ${BINDINGS_DIR_EXAMPLE_PY}
 
+.PHONY: build_binding_files_python
+build_binding_files_kotlin:
+	cargo run -p bindings_sdk --features="kotlin" --bin uniffi-bindgen -- generate ${ROOT_DIR}/bindings/sdk/src/ffi.udl --config ${ROOT_DIR}/bindings/sdk/uniffi.toml --language kotlin --out-dir ${BINDINGS_DIR}
+	cargo run -p bindings_sdk --features="kotlin" --bin uniffi-bindgen -- generate ${ROOT_DIR}/bindings/sdk/src/ffi.udl --config ${ROOT_DIR}/bindings/sdk/uniffi.toml --language kotlin --out-dir ${BINDINGS_DIR_EXAMPLE_JAVA}
+
 .PHONY: build_binding_lib_go
 build_binding_lib_go:
 	cargo build --package bindings_sdk --features="golang" --release
@@ -115,6 +121,13 @@ build_binding_lib_go:
 .PHONY: build_binding_lib_python
 build_binding_lib_python:
 	cargo build --package bindings_sdk --features="python" --release
+
+.PHONY: build_binding_lib_kotlin
+build_binding_lib_kotlin:
+	cargo build --package bindings_sdk --features="kotlin" --release
+
+.PHONY: build_kotlin
+build_kotlin: build_binding_files_kotlin build_binding_lib_kotlin
 
 .PHONY: build_python
 build_python: build_binding_files_python build_binding_lib_python

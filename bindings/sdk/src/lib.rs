@@ -46,7 +46,7 @@ use zklink_sdk_signers::starknet_signer::typed_data::TypedData;
 cfg_if::cfg_if! {
     if #[cfg(feature = "golang")] {
         include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));
-    } else if #[cfg(feature = "python")] {
+    } else if #[cfg(any(feature = "python", feature = "kotlin"))] {
         uniffi_macros::include_scaffolding!("ffi");
     }
 }

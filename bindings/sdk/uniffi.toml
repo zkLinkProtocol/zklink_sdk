@@ -27,3 +27,5 @@ from_custom = "{}.String()"
 [bindings.python]
 cdylib_name = "zklink_sdk"
 
+[bindings.kotlin]
+package_name = "kotlin"

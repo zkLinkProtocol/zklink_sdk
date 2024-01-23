@@ -30,3 +30,4 @@ uniffi_build = { workspace = true, features=["builtin-bindgen"] }
 [features]
 golang = []
 python = ["uniffi_macros", "uniffi/cli"]
+kotlin = ["uniffi_macros", "uniffi/cli"]
