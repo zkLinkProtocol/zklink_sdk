@@ -237,6 +237,7 @@ func TestSignWithdraw(t *testing.T) {
         sdk.TokenId(18),
         sdk.TokenId(18),
         *big.NewInt(100000),
+		nil,
         *big.NewInt(100),
         sdk.Nonce(1),
         50,

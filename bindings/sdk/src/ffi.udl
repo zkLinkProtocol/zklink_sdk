@@ -124,6 +124,7 @@ dictionary WithdrawBuilder {
     TokenId l2_source_token;
     TokenId l1_target_token;
     BigUint amount;
+    sequence<u8> ?call_data;
     BigUint fee;
     Nonce nonce;
     u16 withdraw_fee_ratio;

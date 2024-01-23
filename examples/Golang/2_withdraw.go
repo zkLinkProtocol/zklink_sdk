@@ -46,6 +46,7 @@ func HighLevelWithdraw() {
         L2SourceToken: l2SourceToken,
         L1TargetToken: l1TargetToken,
         Amount: amount,
+        nil,
         Fee: fee,
         Nonce: nonce,
         WithdrawToL1: true,
