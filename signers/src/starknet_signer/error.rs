@@ -1,6 +1,8 @@
+use crate::RpcErr;
 use thiserror::Error;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::JsValue;
+
 #[derive(Debug, Error)]
 pub enum StarkSignerError {
     #[error("invalid starknet signer")]
@@ -11,6 +13,8 @@ pub enum StarkSignerError {
     InvalidPrivKey(String),
     #[error("sign error: {0}")]
     SignError(String),
+    #[error("{0}")]
+    RpcSignError(RpcErr),
 }
 
 impl StarkSignerError {

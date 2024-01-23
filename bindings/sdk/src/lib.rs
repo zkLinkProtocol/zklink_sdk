@@ -43,4 +43,10 @@ use zklink_sdk_signers::starknet_signer::typed_data::message::TxMessage;
 use zklink_sdk_signers::starknet_signer::typed_data::message::TypedDataMessage;
 use zklink_sdk_signers::starknet_signer::typed_data::TypedData;
 
-include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));
+cfg_if::cfg_if! {
+    if #[cfg(feature = "golang")] {
+        include!(concat!(env!("OUT_DIR"), "/ffi.uniffi.rs"));
+    } else if #[cfg(feature = "python")] {
+        uniffi_macros::include_scaffolding!("ffi");
+    }
+}

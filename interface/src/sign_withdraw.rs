@@ -108,6 +108,7 @@ mod tests {
             l2_source_token: TokenId(1),
             l1_target_token: TokenId(17),
             amount: BigUint::from_str("99995900000000000000").unwrap(),
+            call_data: None,
             fee: BigUint::from_str("4100000000000000").unwrap(),
             nonce: Nonce(85),
             withdraw_to_l1: false,
@@ -125,7 +126,7 @@ mod tests {
         // assert_eq!(eth_sign.as_hex(), "0x2499120b362bd835b456f2a8e3e6c4ccef6d0ebbe76fd64d452d5bba600ad574713d6b6af043a8f070c532d1ba879c712235bf8e9af6291aa8bdfb1cbaaa4dc21b");
 
         if let ZkLinkTx::Withdraw(zk_sign) = signature.tx {
-            assert_eq!(zk_sign.signature.signature.as_hex(), "0x7e5545c84e463ffedf8812068452d8555c477b9fda608996fb2f982d5b8dee2d922d79815ae8459d2630e3bf307a1b41346e653881e647861d9e7aca0961f503");
+            assert_eq!(zk_sign.signature.signature.as_hex(), "0xaa3c9acb0bbb11fd760773ab53c2ffb20370d659fe4a37df0d183ba3d81826222a31c2a802d9537b5f0d3164af0aa2332c17e8e1029ed824f26be6818c9ddf05");
         } else {
             panic!("signature type must be withdraw")
         }

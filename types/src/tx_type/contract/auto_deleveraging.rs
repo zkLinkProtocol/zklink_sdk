@@ -34,7 +34,7 @@ pub struct AutoDeleveraging {
     pub pair_id: PairId,
     /// size of adl position
     #[serde(with = "BigUintSerdeAsRadix10Str")]
-    #[validate(custom = "amount_unpackable")]
+    #[validate(custom = "adl_size_unpackable")]
     pub adl_size: BigUint,
     /// Price of adl position
     #[serde(with = "BigUintSerdeAsRadix10Str")]

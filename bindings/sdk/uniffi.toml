@@ -23,3 +23,7 @@ into_custom = """
     return *n
 """
 from_custom = "{}.String()"
+
+[bindings.python]
+cdylib_name = "zklink_sdk"
+

@@ -1,4 +1,5 @@
 use crate::eth_signer::{EthSignerError, PackedEthSignature};
+use crate::RpcErr;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
@@ -52,9 +53,7 @@ impl JsonRpcSigner {
         let params = serde_wasm_bindgen::to_value(&req_params)
             .map_err(|e| EthSignerError::CustomError(e.to_string()))?;
         let signature = self.provider.request(params).await.map_err(|e| {
-            EthSignerError::SigningFailed(
-                serde_wasm_bindgen::from_value::<String>(e).unwrap_or_default(),
-            )
+            EthSignerError::RpcSignError(serde_wasm_bindgen::from_value::<RpcErr>(e).unwrap())
         })?;
         let signature = serde_wasm_bindgen::from_value::<String>(signature)
             .map_err(|e| EthSignerError::SigningFailed(e.to_string()))?;

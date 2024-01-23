@@ -5,23 +5,20 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cfg-if = "1.0"
-ethers = "2.0"
-hex = "0.4"
-num = { version = "0.4", features = ["serde"] }
-serde = "1.0"
-serde_json = "1.0"
-starknet-ff = { git = "https://github.com/xJonathanLEI/starknet-rs", rev = "95d50ac0a3a537cb63a390bad818415899c90693" }
-thiserror = "1.0"
-validator = { version = "0.16", features = ["derive"] }
-wasm-bindgen = { version = "0.2.87", features = ["serde-serialize"] }
+cfg-if = { workspace = true }
+ethers = { workspace = true }
+hex = { workspace = true }
+num = { workspace = true, features = ["serde"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+starknet-ff = { workspace = true }
+thiserror = { workspace = true }
+validator = { workspace = true, features = ["derive"] }
+wasm-bindgen = { workspace = true, features = ["serde-serialize"] }
 zklink_sdk_signers = { path = "../signers" }
 zklink_sdk_utils = { path = "../utils" }
 
-[dev-dependencies]
-
 [features]
 default = []
-#ffi = ["uniffi", "uniffi_macros"]
 ffi = []
 web = []

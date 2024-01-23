@@ -11,7 +11,7 @@ use crate::prelude::{
     AccountId, ChainId, ContractPrice, Nonce, PairId, Parameter, SlotId, SpotPriceInfo,
     SubAccountId, TokenId, ZkLinkAddress,
 };
-use num::BigUint;
+use num::{BigUint, Zero};
 pub use validator::{Validate, ValidationError};
 
 /// Check transaction account value validation
@@ -319,6 +319,16 @@ pub fn parameter_validator(param: &Parameter) -> Result<(), ValidationError> {
         }
     }
     Ok(())
+}
+
+/// Check adl size validation
+///
+/// 0 < adl_size <= u128::MAX
+pub fn adl_size_unpackable(size: &BigUint) -> Result<(), ValidationError> {
+    if size.is_zero() {
+        return Err(ValidationError::new("adl size is 0"));
+    }
+    amount_unpackable(size)
 }
 
 #[cfg(test)]
@@ -636,6 +646,30 @@ mod validators_tests {
         assert!(mock.validate().is_ok());
         /// out of range
         let mock = Mock::new(MAX_NONCE);
+        assert!(mock.validate().is_err());
+    }
+
+    #[test]
+    fn test_adl_size_unpackable() {
+        #[derive(Debug, Validate)]
+        struct Mock {
+            #[validate(custom = "adl_size_unpackable")]
+            pub adl_size: BigUint,
+        }
+
+        impl Mock {
+            pub fn new(adl_size: BigUint) -> Self {
+                Self { adl_size }
+            }
+        }
+        /// should success
+        let mock = Mock::new(BigUint::from(u128::MAX));
+        assert!(mock.validate().is_ok());
+        /// out of range
+        let mock = Mock::new(BigUint::from(u128::MAX) + BigUint::from(1u128));
+        assert!(mock.validate().is_err());
+        /// is zero
+        let mock = Mock::new(BigUint::zero());
         assert!(mock.validate().is_err());
     }
 }
