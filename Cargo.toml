@@ -33,7 +33,7 @@ getrandom = { version = "0.2.11", features = ["js"] }
 web-sys = "0.3"
 web-time = "0.2.4"
 hex = "0.4"
-js-sys = "0.3.64"
+js-sys = "0.3.67"
 jsonrpsee = "0.21.0"
 k256 = { version = "0.13.3", features = ["ecdsa","sha256"] }
 num = { version = "0.4", features = ["serde"] }
