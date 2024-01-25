@@ -35,7 +35,7 @@ web-time = "0.2.4"
 hex = "0.4"
 js-sys = "0.3.64"
 jsonrpsee = "0.21.0"
-k256 = { version = "0.13.2", features = ["ecdsa","sha256"] }
+k256 = { version = "0.13.3", features = ["ecdsa","sha256"] }
 num = { version = "0.4", features = ["serde"] }
 primitive-types = { version = "0.12", features = ["serde"] }
 reqwest = { version = "0.11", default-features = false, features = ["blocking", "json", "rustls-tls"] }
