@@ -1,4 +1,3 @@
-use crate::rpc_type_converter::TxZkLinkSignature;
 use crate::tx_types::change_pubkey::{ChangePubKey, Create2Data};
 use crate::tx_types::contract::auto_deleveraging::AutoDeleveraging;
 use crate::tx_types::contract::contract_matching::{Contract, ContractMatching};
@@ -24,7 +23,6 @@ use zklink_sdk_types::tx_type::order_matching::{
 };
 use zklink_sdk_types::tx_type::transfer::Transfer as TxTransfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw as TxWithdraw;
-use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 
 #[wasm_bindgen]
 pub struct Signer {

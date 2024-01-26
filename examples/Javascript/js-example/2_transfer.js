@@ -12,9 +12,9 @@ async function testEvmChains() {
         let tx_builder = new wasm.TransferBuilder(10, to_address, 1,
             1, 18, fee, amount, 1,ts);
         let transfer = wasm.newTransfer(tx_builder);
-        const provider = window.bitkeep && window.bitkeep.ethereum;
-        await provider.request({ method: 'eth_requestAccounts' });
-        const signer = new wasm.newRpcSignerWithProvider(provider);
+        const provider = new providers.Web3Provider(window.ethereum);
+        const etherenumSigner = provider.getSigner();
+        const signer = new wasm.newEthereumRpcSigner(etherenumSigner);
         await signer.initZklinkSigner(null);
         console.log(signer);
 
