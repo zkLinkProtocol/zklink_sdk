@@ -41,9 +41,13 @@ impl JsonRpcSigner {
     pub async fn sign_message(&self, message: &[u8]) -> Result<PackedEthSignature, EthSignerError> {
         let msg_str =
             std::str::from_utf8(message).map_err(|e| EthSignerError::CustomError(e.to_string()))?;
-        let signature = self.signer.signMessage(JsValue::from_str(msg_str)).await.map_err(|e| {
-            EthSignerError::RpcSignError(serde_wasm_bindgen::from_value::<RpcErr>(e).unwrap())
-        })?;
+        let signature = self
+            .signer
+            .signMessage(JsValue::from_str(msg_str))
+            .await
+            .map_err(|e| {
+                EthSignerError::RpcSignError(serde_wasm_bindgen::from_value::<RpcErr>(e).unwrap())
+            })?;
         let signature = serde_wasm_bindgen::from_value::<String>(signature)
             .map_err(|e| EthSignerError::SigningFailed(e.to_string()))?;
         PackedEthSignature::from_hex(&signature)

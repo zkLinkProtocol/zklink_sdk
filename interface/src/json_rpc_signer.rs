@@ -6,8 +6,9 @@ use crate::sign_forced_exit::sign_forced_exit;
 use crate::sign_order_matching::sign_order_matching;
 use crate::sign_transfer::{sign_eth_transfer, sign_starknet_transfer};
 use crate::sign_withdraw::{sign_eth_withdraw, sign_starknet_withdraw};
-use zklink_sdk_signers::eth_signer::json_rpc_signer::{JsonRpcSigner as EthJsonRpcSigner,
-                                                      Signer as EthereumAccountSigner};
+use zklink_sdk_signers::eth_signer::json_rpc_signer::{
+    JsonRpcSigner as EthJsonRpcSigner, Signer as EthereumAccountSigner,
+};
 use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::{
     Signer as StarknetAccountSigner, StarknetJsonRpcSigner,
 };

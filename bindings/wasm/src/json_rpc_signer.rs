@@ -33,7 +33,8 @@ pub struct JsonRpcSigner {
 
 #[wasm_bindgen(js_name=newEthereumRpcSigner)]
 pub fn new_ethereum_rpc_signer(signer: EthereumSigner) -> Result<JsonRpcSigner, JsValue> {
-    let inner = InterfaceJsonRpcSigner::new(JsonRpcAccountSigner::EthereumSigner(signer), None, None)?;
+    let inner =
+        InterfaceJsonRpcSigner::new(JsonRpcAccountSigner::EthereumSigner(signer), None, None)?;
     Ok(JsonRpcSigner { inner })
 }
 
