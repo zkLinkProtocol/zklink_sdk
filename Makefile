@@ -129,8 +129,8 @@ build_go: build_binding_files_go build_binding_lib_go
 .PHONY: build_wasm
 build_wasm: prepare_wasm
 	cd ${ROOT_DIR}/bindings/wasm && \
-	wasm-pack build --release --target=web --out-name=zklink-sdk-web --out-dir=web-dist -- --features web && \
-    wasm-pack build --release --target=nodejs --out-name=zklink-sdk-node --out-dir=node-dist
+	wasm-pack build --release --target=web --out-name=zklink-sdk-web --out-dir=${BINDINGS_DIR}/wasm/web-dist -- --features web && \
+    wasm-pack build --release --target=nodejs --out-name=zklink-sdk-node --out-dir=${BINDINGS_DIR}/wasm/node-dist
 	#wasm-pack build --release --target=bundler --out-name=zklink-bundler-node --out-dir=dist
 
 .PHONY: test_wasm

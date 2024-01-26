@@ -3,9 +3,9 @@ import init, *  as wasm  from "./web-dist/zklink-sdk-web.js";
 async function main() {
     await init();
     try {
-        const provider = window.bitkeep && window.bitkeep.ethereum;
-        await provider.request({ method: 'eth_requestAccounts' });
-        const signer = new wasm.newRpcSignerWithProvider(provider);
+        const provider = new providers.Web3Provider(window.ethereum);
+        const etherenumSigner = provider.getSigner();
+        const signer = new wasm.newEthereumRpcSigner(etherenumSigner);
         await signer.initZklinkSigner(null);
         console.log(signer);
 

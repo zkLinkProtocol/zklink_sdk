@@ -10,15 +10,10 @@ async function testEcdsaAuth() {
             1,"0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001b",
             ts);
         let tx = wasm.newChangePubkey(tx_builder);
-        //use stand window.ethereum as metamask ..
-        //await window.ethereum.request({ method: 'eth_requestAccounts' });
-        //const provider = window.ethereum;
 
-        //use not stand window.ethereum as bitget ..
-        const provider = window.bitkeep && window.bitkeep.ethereum;
-        await provider.request({ method: 'eth_requestAccounts' });
-
-        const signer = new wasm.newRpcSignerWithProvider(provider);
+        const provider = new providers.Web3Provider(window.ethereum);
+        const etherenumSigner = provider.getSigner();
+        const signer = new wasm.newEthereumRpcSigner(etherenumSigner);
 
         // use cached ethereum signature to init zklink signer
         //const signature = "0x1111111111";
