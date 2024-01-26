@@ -36,7 +36,7 @@ async function setStarknetPubkeyHash() {
     const pubKey = await contractAccount.get_owner();*/
     const pubKey = "1082125475812817975721104073212648033952831721853656627074253194227094744819";
     try {
-        const signer = wasm.newRpcSignerWithSigner(starknet.account,pubKey,"SN_GOERLI",starknet.selectedAddress);
+        const signer = wasm.newStarknetRpcSigner(starknet.account,pubKey,"SN_GOERLI",starknet.selectedAddress);
 
         // use cached ethereum signature to init zklink signer
         //const signature = "0x1111111111";

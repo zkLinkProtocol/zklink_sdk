@@ -6,9 +6,8 @@ use crate::sign_forced_exit::sign_forced_exit;
 use crate::sign_order_matching::sign_order_matching;
 use crate::sign_transfer::{sign_eth_transfer, sign_starknet_transfer};
 use crate::sign_withdraw::{sign_eth_withdraw, sign_starknet_withdraw};
-use zklink_sdk_signers::eth_signer::json_rpc_signer::{
-    JsonRpcSigner as EthJsonRpcSigner, Provider,
-};
+use zklink_sdk_signers::eth_signer::json_rpc_signer::{JsonRpcSigner as EthJsonRpcSigner,
+                                                      Signer as EthereumAccountSigner};
 use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::{
     Signer as StarknetAccountSigner, StarknetJsonRpcSigner,
 };
@@ -33,9 +32,9 @@ use zklink_sdk_types::tx_type::transfer::Transfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
 
-pub enum JsonRpcProvider {
-    Provider(Provider),
-    Signer(StarknetAccountSigner),
+pub enum JsonRpcAccountSigner {
+    EthereumSigner(EthereumAccountSigner),
+    StarknetSigner(StarknetAccountSigner),
 }
 pub enum Layer1JsonRpcSigner {
     EthSigner(EthJsonRpcSigner),
@@ -50,15 +49,15 @@ pub struct JsonRpcSigner {
 
 impl JsonRpcSigner {
     pub fn new(
-        provider: JsonRpcProvider,
+        signer: JsonRpcAccountSigner,
         pub_key: Option<String>,
         chain_id: Option<String>,
     ) -> Result<Self, SignError> {
-        let eth_json_rpc_signer = match provider {
-            JsonRpcProvider::Provider(provider) => {
-                Layer1JsonRpcSigner::EthSigner(EthJsonRpcSigner::new(provider))
+        let eth_json_rpc_signer = match signer {
+            JsonRpcAccountSigner::EthereumSigner(signer) => {
+                Layer1JsonRpcSigner::EthSigner(EthJsonRpcSigner::new(signer))
             }
-            JsonRpcProvider::Signer(signer) => Layer1JsonRpcSigner::StarknetSigner(
+            JsonRpcAccountSigner::StarknetSigner(signer) => Layer1JsonRpcSigner::StarknetSigner(
                 StarknetJsonRpcSigner::new(signer, pub_key.unwrap(), chain_id.unwrap()),
             ),
         };

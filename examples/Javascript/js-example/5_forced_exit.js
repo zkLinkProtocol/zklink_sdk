@@ -7,9 +7,9 @@ async function main() {
     try {
         let tx_builder = new wasm.ForcedExitBuilder(1,10, 1, 1, to_address,18, 18,"100000000000000",  1,ts);
         let forced_exit = wasm.newForcedExit(tx_builder);
-        const provider = window.bitkeep && window.bitkeep.ethereum;
-        await provider.request({ method: 'eth_requestAccounts' });
-        const signer = new wasm.newRpcSignerWithProvider(provider);
+        const provider = new providers.Web3Provider(window.ethereum);
+        const etherenumSigner = provider.getSigner();
+        const signer = new wasm.newEthereumRpcSigner(etherenumSigner);
         await signer.initZklinkSigner(null);
         console.log(signer);
         let signature = signer.signForcedExit(forced_exit)

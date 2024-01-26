@@ -1,4 +1,3 @@
-use crate::rpc_type_converter::TxZkLinkSignature;
 use crate::tx_types::change_pubkey::{ChangePubKey, Create2Data};
 use crate::tx_types::contract::auto_deleveraging::AutoDeleveraging;
 use crate::tx_types::contract::contract_matching::{Contract, ContractMatching};
@@ -10,10 +9,10 @@ use crate::tx_types::transfer::Transfer;
 use crate::tx_types::withdraw::Withdraw;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
-use zklink_sdk_interface::json_rpc_signer::JsonRpcProvider;
+use zklink_sdk_interface::json_rpc_signer::JsonRpcAccountSigner;
 use zklink_sdk_interface::json_rpc_signer::JsonRpcSigner as InterfaceJsonRpcSigner;
-use zklink_sdk_signers::eth_signer::json_rpc_signer::Provider;
-use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::Signer;
+use zklink_sdk_signers::eth_signer::json_rpc_signer::Signer as EthereumSigner;
+use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::Signer as StarknetSigner;
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey as TxChangePubKey;
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data as ChangePubKeyCreate2Data;
 use zklink_sdk_types::tx_type::contract::{
@@ -26,27 +25,26 @@ use zklink_sdk_types::tx_type::order_matching::{
 };
 use zklink_sdk_types::tx_type::transfer::Transfer as TxTransfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw as TxWithdraw;
-use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 
 #[wasm_bindgen]
 pub struct JsonRpcSigner {
     inner: InterfaceJsonRpcSigner,
 }
 
-#[wasm_bindgen(js_name=newRpcSignerWithProvider)]
-pub fn new_with_provider(provider: Provider) -> Result<JsonRpcSigner, JsValue> {
-    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Provider(provider), None, None)?;
+#[wasm_bindgen(js_name=newEthereumRpcSigner)]
+pub fn new_ethereum_rpc_signer(signer: EthereumSigner) -> Result<JsonRpcSigner, JsValue> {
+    let inner = InterfaceJsonRpcSigner::new(JsonRpcAccountSigner::EthereumSigner(signer), None, None)?;
     Ok(JsonRpcSigner { inner })
 }
 
-#[wasm_bindgen(js_name=newRpcSignerWithSigner)]
-pub fn new_with_signer(
-    signer: Signer,
+#[wasm_bindgen(js_name=newStarknetRpcSigner)]
+pub fn new_starknet_rpc_signer(
+    signer: StarknetSigner,
     pub_key: String,
     chain_id: String,
 ) -> Result<JsonRpcSigner, JsValue> {
     let inner = InterfaceJsonRpcSigner::new(
-        JsonRpcProvider::Signer(signer),
+        JsonRpcAccountSigner::StarknetSigner(signer),
         Some(pub_key),
         Some(chain_id),
     )?;
