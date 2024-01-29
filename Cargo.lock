@@ -3850,7 +3850,7 @@ dependencies = [
 [[package]]
 name = "pythnet-sdk"
 version = "2.0.0"
-source = "git+https://github.com/pyth-network/pyth-crosschain#69e4fee501389da51890c1c8ca46333e92feaadc"
+source = "git+https://github.com/pyth-network/pyth-crosschain#e1db4aad65ba0faf4035f0c468c02c921792d9c8"
 dependencies = [
  "bincode",
  "borsh",
