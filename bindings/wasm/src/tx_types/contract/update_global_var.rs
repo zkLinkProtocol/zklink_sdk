@@ -92,6 +92,7 @@ impl Parameter {
 #[derive(Deserialize, Serialize)]
 pub struct MarginInfo {
     margin_id: u8,
+    symbol: String,
     token_id: u32,
     ratio: u8,
 }
@@ -99,9 +100,10 @@ pub struct MarginInfo {
 #[wasm_bindgen]
 impl MarginInfo {
     #[wasm_bindgen(constructor)]
-    pub fn new(margin_id: u8, token_id: u32, ratio: u8) -> MarginInfo {
+    pub fn new(margin_id: u8, symbol: String, token_id: u32, ratio: u8) -> MarginInfo {
         MarginInfo {
             margin_id,
+            symbol,
             token_id,
             ratio,
         }
@@ -165,6 +167,7 @@ impl From<Parameter> for ContractParameter {
                     serde_wasm_bindgen::from_value(parameter.parameter_value).unwrap();
                 ContractParameter::MarginInfo {
                     margin_id: value.margin_id.into(),
+                    symbol: value.symbol,
                     token_id: value.token_id.into(),
                     ratio: value.ratio,
                 }

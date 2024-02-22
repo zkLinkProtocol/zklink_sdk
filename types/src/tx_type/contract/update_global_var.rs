@@ -62,6 +62,7 @@ pub enum Parameter {
     #[serde(rename_all = "camelCase")]
     MarginInfo {
         margin_id: MarginId,
+        symbol: String,
         token_id: TokenId,
         ratio: u8,
     },
@@ -112,10 +113,15 @@ impl GetBytes for Parameter {
             | Parameter::InsuranceFundAccount { account_id } => account_id.get_bytes(),
             Parameter::MarginInfo {
                 margin_id,
+                symbol,
                 token_id,
                 ratio,
             } => {
                 let mut bytes = vec![**margin_id];
+                let mut symbol_bytes = [0u8; PAIR_SYMBOL_BYTES];
+                symbol_bytes[PAIR_SYMBOL_BYTES - symbol.as_bytes().len()..]
+                    .copy_from_slice(symbol.as_bytes());
+                bytes.extend(symbol_bytes);
                 bytes.extend((**token_id as u16).to_be_bytes());
                 bytes.push(*ratio);
                 bytes
@@ -157,22 +163,22 @@ mod test {
                 infos: vec![
                     FundingInfo {
                         pair_id: PairId(0),
-                        price: 1000_000_000_000_000_000u128.into(),
+                        price: 1_000_000_000_000_000_000_u128.into(),
                         funding_rate: i16::MAX,
                     },
                     FundingInfo {
                         pair_id: PairId(1),
-                        price: 1000_000_000_000_000u128.into(),
+                        price: 1_000_000_000_000_000_u128.into(),
                         funding_rate: 0,
                     },
                     FundingInfo {
                         pair_id: PairId(2),
-                        price: 1000_000_000_000u128.into(),
+                        price: 1_000_000_000_000_u128.into(),
                         funding_rate: -1,
                     },
                     FundingInfo {
                         pair_id: PairId(3),
-                        price: 1000_000_000u128.into(),
+                        price: 1_000_000_000_u128.into(),
                         funding_rate: 1,
                     },
                 ],
@@ -185,6 +191,7 @@ mod test {
             },
             Parameter::MarginInfo {
                 margin_id: 1.into(),
+                symbol: "ETH".to_string(),
                 token_id: 9.into(),
                 ratio: 0,
             },
@@ -204,7 +211,10 @@ mod test {
             ],
             vec![12, 1, 1, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0],
             vec![12, 1, 1, 1, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0],
-            vec![12, 1, 1, 2, 1, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            vec![
+                12, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 69, 84, 72, 0, 9, 0, 0, 0, 0,
+                0, 0, 0, 0, 0,
+            ],
             vec![
                 12, 1, 1, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 66, 84, 67, 85, 83, 68, 67, 0, 6, 0, 8, 0,
                 0, 0, 0, 0, 0, 0, 0,
