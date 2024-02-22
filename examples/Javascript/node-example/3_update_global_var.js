@@ -27,7 +27,7 @@ async function testUpdGlobalVar() {
     console.log(contract_info);
     const parameter_contract = new Parameter(ParameterType.ContractInfo,contract_info)
     // margin_info
-    const margin_info = new MarginInfo(2,17,10).jsonValue();
+    const margin_info = new MarginInfo(2,"USDC/USDT",17,10).jsonValue();
     const parameter = new Parameter(ParameterType.MarginInfo,margin_info)
     console.log(parameter);
 
