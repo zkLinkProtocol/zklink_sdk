@@ -381,7 +381,7 @@ interface Contract {
 interface Parameter {
     FeeAccount(AccountId account_id);
     InsuranceFundAccount(AccountId account_id);
-    MarginInfo(MarginId margin_id, TokenId token_id, u8 ratio);
+    MarginInfo(MarginId margin_id, string symbol, TokenId token_id, u8 ratio);
     FundingInfos( sequence<FundingInfo> infos );
     ContractInfo(PairId pair_id, string symbol, u16 initial_margin_rate, u16 maintenance_margin_rate);
 };

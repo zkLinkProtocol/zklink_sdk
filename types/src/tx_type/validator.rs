@@ -287,11 +287,20 @@ pub fn parameter_validator(param: &Parameter) -> Result<(), ValidationError> {
         }
         Parameter::MarginInfo {
             margin_id,
+            symbol,
             token_id,
             ratio,
         } => {
             if **margin_id >= MARGIN_TOKENS_NUMBER as u8 {
                 return Err(ValidationError::new("margin id out of range"));
+            }
+            if !symbol.is_ascii() {
+                return Err(ValidationError::new("margin symbol are not ascii chars"));
+            }
+            if symbol.len() > PAIR_SYMBOL_BYTES {
+                return Err(ValidationError::new(
+                    "margin symbol chars length out of range",
+                ));
             }
             token_validator(token_id)?;
             margin_rate_validator(*ratio)?;
