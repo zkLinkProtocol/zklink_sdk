@@ -227,7 +227,7 @@ pub const RESCUE_HASH_INPUT_BYTES: usize = ORDERS_BIT_WIDTH / 8;
 pub const USD_TOKEN_ID: u32 = 1;
 pub const USDX_TOKEN_ID_LOWER_BOUND: u32 = USD_TOKEN_ID + 1;
 pub const USDX_TOKEN_ID_UPPER_BOUND: u32 = 16;
-pub const MARGIN_TOKENS_NUMBER: usize = 3;
+pub const MARGIN_TOKENS_NUMBER: usize = 4;
 pub const USED_POSITION_NUMBER: usize = 2usize.pow(USED_POSITION_SUBTREE_DEPTH as u32);
 pub const USED_POSITION_PAIR_ID_RANGE: std::ops::Range<u8> = 0..USED_POSITION_NUMBER as u8;
 
