@@ -15,7 +15,7 @@ pub const CHAIN_SUB_TREE_DEPTH: usize = SUB_ACCOUNT_TREE_DEPTH;
 /// Depth of the account subtree that used for the current circuit chunk branch
 pub const USED_ACCOUNT_SUBTREE_DEPTH: usize = 24;
 /// Depth of the position subtree that used for the current circuit construct available position subtree
-pub const USED_POSITION_SUBTREE_DEPTH: usize = 2;
+pub const USED_POSITION_SUBTREE_DEPTH: usize = 3;
 pub const USED_BALANCE_SUBTREE_DEPTH: usize = 16;
 /// The total account number and maximum account id allowed for the current zklink layer2(if not enough, modify this parameter and update circuit).
 pub const TOTAL_ACCOUNT_NUMBER: usize = usize::pow(2, USED_ACCOUNT_SUBTREE_DEPTH as u32);
