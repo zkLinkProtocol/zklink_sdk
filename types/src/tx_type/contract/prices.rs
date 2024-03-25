@@ -110,15 +110,17 @@ impl OraclePrices {
 
 impl GetBytes for OraclePrices {
     fn get_bytes(&self) -> Vec<u8> {
+        let contract_prices_hash = self.contract_prices.rescue_hash();
+        let margin_prices_hash = self.margin_prices.rescue_hash();
         let bytes_len = self.bytes_len();
         let mut margins_encode = Vec::with_capacity(bytes_len);
-        margins_encode.extend(self.contract_prices.get_bytes());
-        margins_encode.extend(self.margin_prices.get_bytes());
+        margins_encode.extend(contract_prices_hash);
+        margins_encode.extend(margin_prices_hash);
         assert_eq!(margins_encode.len(), bytes_len);
         margins_encode
     }
 
     fn bytes_len(&self) -> usize {
-        self.margin_prices.bytes_len() + self.contract_prices.bytes_len()
+        62
     }
 }
