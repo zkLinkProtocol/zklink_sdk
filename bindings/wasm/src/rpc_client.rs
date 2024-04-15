@@ -269,8 +269,8 @@ impl RpcClient {
         )
     }
 
-    #[wasm_bindgen(js_name=getFastWithdrawTxs)]
-    pub async fn tx_fast_withdraw(
+    #[wasm_bindgen(js_name=getWithdrawTxs)]
+    pub async fn tx_withdraw(
         &self,
         last_tx_timestamp: u64,
         max_txs: u32,
@@ -279,7 +279,7 @@ impl RpcClient {
         let _ = builder.insert(last_tx_timestamp);
         let _ = builder.insert(max_txs);
         rpc_request!(
-            "getFastWithdrawTxs",
+            "getWithdrawTxs",
             builder,
             &self.server_url,
             Vec<FastWithdrawTxResp>
