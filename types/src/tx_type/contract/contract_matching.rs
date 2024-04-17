@@ -1,9 +1,7 @@
 use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
 use crate::basic_types::pad::pad_front;
 use crate::basic_types::{AccountId, GetBytes, Nonce, PairId, SlotId, SubAccountId, TokenId};
-use crate::params::{
-    CONTRACT_BYTES, ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_CONTRACT_MATCHING_BIT_WIDTH,
-};
+use crate::params::{CONTRACT_BYTES, ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_CONTRACT_MATCHING_BIT_WIDTH};
 use crate::prelude::{validator::*, OraclePrices};
 #[cfg(feature = "ffi")]
 use crate::tx_builder::{ContractBuilder, ContractMatchingBuilder};
@@ -171,20 +169,14 @@ impl Contract {
     }
 
     #[cfg(feature = "ffi")]
-    pub fn create_signed_contract(
-        &self,
-        zklink_signer: Arc<ZkLinkSigner>,
-    ) -> Result<Arc<Self>, ZkSignerError> {
+    pub fn create_signed_contract(&self, zklink_signer: Arc<ZkLinkSigner>) -> Result<Arc<Self>, ZkSignerError> {
         let mut contract = self.clone();
         contract.signature = zklink_signer.sign_musig(&contract.get_bytes())?;
         Ok(Arc::new(contract))
     }
 
     #[cfg(not(feature = "ffi"))]
-    pub fn create_signed_contract(
-        &self,
-        zklink_signer: &ZkLinkSigner,
-    ) -> Result<Self, ZkSignerError> {
+    pub fn create_signed_contract(&self, zklink_signer: &ZkLinkSigner) -> Result<Self, ZkSignerError> {
         let mut contract = self.clone();
         contract.signature = zklink_signer.sign_musig(&contract.get_bytes())?;
         Ok(contract)

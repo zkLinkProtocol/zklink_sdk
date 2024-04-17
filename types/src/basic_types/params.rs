@@ -4,8 +4,7 @@ use crate::basic_types::{AccountId, ChainId, Nonce, SlotId, SubAccountId, TokenI
 pub const TOKEN_MAX_PRECISION: u8 = 18;
 /// Maximum number of chains allowed => The width of every token chain partition.(global asset tree)
 pub const MAX_CHAIN_ID: ChainId = ChainId(u8::pow(2, CHAIN_SUB_TREE_DEPTH as u32) - 1);
-pub const MAX_SUB_ACCOUNT_ID: SubAccountId =
-    SubAccountId(u8::pow(2, SUB_ACCOUNT_TREE_DEPTH as u32) - 1);
+pub const MAX_SUB_ACCOUNT_ID: SubAccountId = SubAccountId(u8::pow(2, SUB_ACCOUNT_TREE_DEPTH as u32) - 1);
 /// Depth of sub-account tree allowed (be used for multiple different partition dex).
 pub const SUB_ACCOUNT_TREE_DEPTH: usize = 5;
 /// Depth of the orders subtree for each account.

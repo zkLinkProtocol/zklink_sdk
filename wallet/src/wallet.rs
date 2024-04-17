@@ -43,10 +43,7 @@ impl Wallet {
 
     pub fn get_l1_contract(&self, is_gateway: bool) -> Contract {
         let contract_name = if is_gateway { "l1_gateway" } else { "zklink" };
-        self.contracts
-            .get(&contract_name.to_string())
-            .unwrap()
-            .clone()
+        self.contracts.get(&contract_name.to_string()).unwrap().clone()
     }
 
     pub async fn get_balance(&self) -> Result<U256, WalletError> {
@@ -55,8 +52,7 @@ impl Wallet {
     }
 
     pub async fn get_nonce(&self, block_number: String) -> Result<U256, WalletError> {
-        let block_number = BlockNumber::from_str(&block_number)
-            .map_err(|_e| WalletError::InvalidInputParameter)?;
+        let block_number = BlockNumber::from_str(&block_number).map_err(|_e| WalletError::InvalidInputParameter)?;
         let from = self.signer.get_address();
         Ok(self
             .provider
@@ -97,9 +93,7 @@ impl Wallet {
         args: T,
     ) -> Result<Vec<Token>, WalletError> {
         let contract = self.get_l1_contract(is_gateway);
-        let function = contract
-            .function(method)
-            .map_err(WalletError::EthAbiError)?;
+        let function = contract.function(method).map_err(WalletError::EthAbiError)?;
         let encoded_data = encode_function_data(function, args).map_err(WalletError::AbiError)?;
         let params = EthTxParam {
             data: Some(encoded_data.to_vec()),
@@ -108,9 +102,7 @@ impl Wallet {
         let chain_id = self.provider.get_chainid().await?;
         let typed_tx = new_call_typed_tx(params, chain_id.as_u64());
         let data: Vec<u8> = (*(self.provider).call(&typed_tx, None).await?).to_vec();
-        let tokens = function
-            .decode_output(&data)
-            .map_err(WalletError::EthAbiError)?;
+        let tokens = function.decode_output(&data).map_err(WalletError::EthAbiError)?;
         Ok(tokens)
     }
 
@@ -275,8 +267,7 @@ impl Wallet {
         eth_params: EthTxOption,
     ) -> Result<H256, WalletError> {
         let zklink_addr = Address::from_slice(zklink_addr.as_bytes());
-        self.inner_approve_erc20(zklink_addr, amount, eth_params.into())
-            .await
+        self.inner_approve_erc20(zklink_addr, amount, eth_params.into()).await
     }
 
     pub async fn deposit_eth_to_layer1(
@@ -365,14 +356,8 @@ impl Wallet {
         mapping: bool,
         eth_params: EthTxOption,
     ) -> Result<H256, WalletError> {
-        self.inner_full_exit(
-            account_id,
-            sub_account_id,
-            token_id,
-            mapping,
-            eth_params.into(),
-        )
-        .await
+        self.inner_full_exit(account_id, sub_account_id, token_id, mapping, eth_params.into())
+            .await
     }
 
     pub async fn inner_get_fee(&self, eth_params: EthTxParam) -> Result<BigUint, WalletError> {

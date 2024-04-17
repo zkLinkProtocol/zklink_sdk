@@ -2,9 +2,7 @@ use num::{BigUint, ToPrimitive};
 use validator::Validate;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
-use crate::basic_types::{
-    AccountId, ChainId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
-};
+use crate::basic_types::{AccountId, ChainId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress};
 use crate::params::{SIGNED_FORCED_EXIT_BIT_WIDTH, TX_TYPE_BIT_WIDTH};
 #[cfg(feature = "ffi")]
 use crate::prelude::ForcedExitBuilder;
@@ -117,8 +115,7 @@ mod test {
 
     #[test]
     fn test_get_bytes() {
-        let address =
-            ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
+        let address = ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
         let ts = 1693472232u32;
         let builder = ForcedExitBuilder {
             to_chain_id: ChainId(1),
@@ -136,9 +133,9 @@ mod test {
         let forced_exit = builder.build();
         let bytes = forced_exit.get_bytes();
         let excepted_bytes = [
-            7, 1, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4,
-            37, 215, 146, 67, 45, 158, 205, 28, 62, 38, 239, 44, 66, 233, 1, 0, 18, 0, 18, 0, 0, 0,
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 39, 16, 0, 100, 240, 85, 232,
+            7, 1, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4, 37, 215, 146, 67, 45,
+            158, 205, 28, 62, 38, 239, 44, 66, 233, 1, 0, 18, 0, 18, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 39, 16, 0, 100, 240, 85, 232,
         ];
 
         assert_eq!(bytes, excepted_bytes);

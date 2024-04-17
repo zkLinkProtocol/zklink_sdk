@@ -21,8 +21,7 @@ impl FloatConversions {
     pub fn pack_up(number: &BigUint, exponent_len: usize, mantissa_len: usize) -> Vec<u8> {
         let uint = number.to_u128().expect("Only u128 allowed");
 
-        let mut vec =
-            Self::to_float_up(uint, exponent_len, mantissa_len, 10).expect("packing error");
+        let mut vec = Self::to_float_up(uint, exponent_len, mantissa_len, 10).expect("packing error");
         vec.reverse();
         BitConvert::into_bytes_ordered(vec)
     }

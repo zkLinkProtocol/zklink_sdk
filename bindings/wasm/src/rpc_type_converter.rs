@@ -77,12 +77,8 @@ impl AccountQuery {
 impl From<AccountQuery> for RpcAccountQuery {
     fn from(query: AccountQuery) -> RpcAccountQuery {
         match query.query_type {
-            AccountQueryType::AccountId => {
-                RpcAccountQuery::Id(AccountId(query.query_param.parse::<u32>().unwrap()))
-            }
-            AccountQueryType::Address => {
-                RpcAccountQuery::Address(ZkLinkAddress::from_str(&query.query_param).unwrap())
-            }
+            AccountQueryType::AccountId => RpcAccountQuery::Id(AccountId(query.query_param.parse::<u32>().unwrap())),
+            AccountQueryType::Address => RpcAccountQuery::Address(ZkLinkAddress::from_str(&query.query_param).unwrap()),
         }
     }
 }
@@ -91,10 +87,7 @@ impl From<AccountQuery> for RpcAccountQuery {
 impl TxLayer1Signature {
     #[wasm_bindgen(constructor)]
     pub fn new(sign_type: L1SignatureType, signature: String) -> TxLayer1Signature {
-        TxLayer1Signature {
-            sign_type,
-            signature,
-        }
+        TxLayer1Signature { sign_type, signature }
     }
 }
 
@@ -115,15 +108,12 @@ impl TryFrom<TxLayer1Signature> for TypesTxLayer1Signature {
 
     fn try_from(signature: TxLayer1Signature) -> Result<TypesTxLayer1Signature, Self::Error> {
         match signature.sign_type {
-            L1SignatureType::Eth => Ok(TypesTxLayer1Signature::EthereumSignature(
-                PackedEthSignature::from_hex(&signature.signature)?,
-            )),
-            L1SignatureType::Eip1271 => {
-                Ok(TypesTxLayer1Signature::EIP1271Signature(EIP1271Signature(
-                    hex::decode(signature.signature)
-                        .map_err(|e| JsValue::from_str(&format!("error: {e}")))?,
-                )))
-            }
+            L1SignatureType::Eth => Ok(TypesTxLayer1Signature::EthereumSignature(PackedEthSignature::from_hex(
+                &signature.signature,
+            )?)),
+            L1SignatureType::Eip1271 => Ok(TypesTxLayer1Signature::EIP1271Signature(EIP1271Signature(
+                hex::decode(signature.signature).map_err(|e| JsValue::from_str(&format!("error: {e}")))?,
+            ))),
             L1SignatureType::Stark => {
                 let signature = StarkEip712Signature::from_hex(&signature.signature)
                     .map_err(|e| JsValue::from_str(&format!("error: {e}")))?;

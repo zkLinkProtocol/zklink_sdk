@@ -66,18 +66,15 @@ impl Signer {
     pub fn new(private_key: &str, l1_signer_type: L1SignerType) -> Result<Self, SignError> {
         let (zklink_signer, layer1_signer) = match l1_signer_type {
             L1SignerType::Eth { .. } => {
-                let eth_signer = EthSigner::try_from(private_key)
-                    .map_err(|_| EthSignerError::InvalidEthSigner)?;
+                let eth_signer = EthSigner::try_from(private_key).map_err(|_| EthSignerError::InvalidEthSigner)?;
                 (
                     ZkLinkSigner::new_from_hex_eth_signer(private_key)?,
                     Layer1Sginer::EthSigner(eth_signer),
                 )
             }
-            L1SignerType::Starknet {
-                chain_id, address, ..
-            } => {
-                let stark_signer = StarkSigner::new_from_hex_str(private_key)
-                    .map_err(|_| StarkSignerError::InvalidStarknetSigner)?;
+            L1SignerType::Starknet { chain_id, address, .. } => {
+                let stark_signer =
+                    StarkSigner::new_from_hex_str(private_key).map_err(|_| StarkSignerError::InvalidStarknetSigner)?;
                 (
                     ZkLinkSigner::new_from_hex_stark_signer(private_key, &address, &chain_id)?,
                     Layer1Sginer::StarknetSigner(stark_signer),
@@ -112,10 +109,7 @@ impl Signer {
     }
 
     #[inline]
-    pub fn sign_change_pubkey_with_onchain_auth_data(
-        &self,
-        tx: ChangePubKey,
-    ) -> Result<TxSignature, SignError> {
+    pub fn sign_change_pubkey_with_onchain_auth_data(&self, tx: ChangePubKey) -> Result<TxSignature, SignError> {
         #[cfg(feature = "ffi")]
         let tx = (*tx).clone();
         do_sign_change_pubkey_with_onchain_auth_data(tx, &self.zklink_signer)
@@ -123,10 +117,7 @@ impl Signer {
 
     #[cfg(not(feature = "web"))]
     #[inline]
-    pub fn sign_change_pubkey_with_eth_ecdsa_auth(
-        &self,
-        tx: ChangePubKey,
-    ) -> Result<TxSignature, SignError> {
+    pub fn sign_change_pubkey_with_eth_ecdsa_auth(&self, tx: ChangePubKey) -> Result<TxSignature, SignError> {
         #[cfg(feature = "ffi")]
         let tx = (*tx).clone();
         if let Layer1Sginer::EthSigner(signer) = &self.layer1_signer {
@@ -147,24 +138,15 @@ impl Signer {
         #[cfg(feature = "ffi")]
         let tx = (*tx).clone();
         match &self.layer1_signer {
-            Layer1Sginer::EthSigner(signer) => {
-                sign_eth_transfer(signer, &self.zklink_signer, tx, token_symbol)
-            }
+            Layer1Sginer::EthSigner(signer) => sign_eth_transfer(signer, &self.zklink_signer, tx, token_symbol),
             Layer1Sginer::StarknetSigner(signer) => {
-                let chain_id = starknet_chain_id.ok_or(SignError::StarkSigningError(
-                    StarkSignerError::SignError("Invalid starknet_chain_id".to_string()),
-                ))?;
-                let addr = starknet_addr.ok_or(SignError::StarkSigningError(
-                    StarkSignerError::SignError("Invalid starknet_addr".to_string()),
-                ))?;
-                sign_starknet_transfer(
-                    signer,
-                    &self.zklink_signer,
-                    tx,
-                    token_symbol,
-                    &chain_id,
-                    &addr,
-                )
+                let chain_id = starknet_chain_id.ok_or(SignError::StarkSigningError(StarkSignerError::SignError(
+                    "Invalid starknet_chain_id".to_string(),
+                )))?;
+                let addr = starknet_addr.ok_or(SignError::StarkSigningError(StarkSignerError::SignError(
+                    "Invalid starknet_addr".to_string(),
+                )))?;
+                sign_starknet_transfer(signer, &self.zklink_signer, tx, token_symbol, &chain_id, &addr)
             }
         }
     }
@@ -184,12 +166,12 @@ impl Signer {
                 sign_eth_withdraw(signer, &self.zklink_signer, tx, l2_source_token_symbol)
             }
             Layer1Sginer::StarknetSigner(signer) => {
-                let chain_id = starknet_chain_id.ok_or(SignError::StarkSigningError(
-                    StarkSignerError::SignError("Invalid starknet_chain_id".to_string()),
-                ))?;
-                let addr = starknet_addr.ok_or(SignError::StarkSigningError(
-                    StarkSignerError::SignError("Invalid starknet_addr".to_string()),
-                ))?;
+                let chain_id = starknet_chain_id.ok_or(SignError::StarkSigningError(StarkSignerError::SignError(
+                    "Invalid starknet_chain_id".to_string(),
+                )))?;
+                let addr = starknet_addr.ok_or(SignError::StarkSigningError(StarkSignerError::SignError(
+                    "Invalid starknet_addr".to_string(),
+                )))?;
                 sign_starknet_withdraw(
                     signer,
                     &self.zklink_signer,

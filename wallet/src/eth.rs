@@ -84,11 +84,7 @@ pub fn new_typed_tx(from: Address, tx_params: EthTxParam, chain_id: u64) -> Type
     tx
 }
 
-pub fn encode_tx(
-    contract: Contract,
-    method: &str,
-    params: Vec<Token>,
-) -> Result<Vec<u8>, WalletError> {
+pub fn encode_tx(contract: Contract, method: &str, params: Vec<Token>) -> Result<Vec<u8>, WalletError> {
     let function = contract.function(method)?;
     let tx_data = function.encode_input(&params)?;
     Ok(tx_data)

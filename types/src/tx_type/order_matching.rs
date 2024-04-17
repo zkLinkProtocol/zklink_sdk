@@ -1,8 +1,6 @@
 use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
 use crate::basic_types::pad::pad_front;
-use crate::basic_types::params::{
-    ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH, TX_TYPE_BIT_WIDTH,
-};
+use crate::basic_types::params::{ORDERS_BYTES, PRICE_BIT_WIDTH, SIGNED_ORDER_MATCHING_BIT_WIDTH, TX_TYPE_BIT_WIDTH};
 use crate::basic_types::{AccountId, GetBytes, Nonce, SlotId, SubAccountId, TokenId};
 use crate::params::{SIGNED_ORDER_BIT_WIDTH, TOKEN_MAX_PRECISION};
 use crate::prelude::OraclePrices;
@@ -94,10 +92,7 @@ impl Order {
     }
 
     #[cfg(feature = "ffi")]
-    pub fn create_signed_order(
-        &self,
-        zklink_signer: Arc<ZkLinkSigner>,
-    ) -> Result<Arc<Self>, ZkSignerError> {
+    pub fn create_signed_order(&self, zklink_signer: Arc<ZkLinkSigner>) -> Result<Arc<Self>, ZkSignerError> {
         let mut order = self.clone();
         order.signature = zklink_signer.sign_musig(&order.get_bytes())?;
         Ok(Arc::new(order))
@@ -248,10 +243,7 @@ impl OrderMatching {
     }
 
     #[cfg(feature = "ffi")]
-    pub fn eth_signature(
-        &self,
-        eth_signer: Arc<EthSigner>,
-    ) -> Result<TxLayer1Signature, ZkSignerError> {
+    pub fn eth_signature(&self, eth_signer: Arc<EthSigner>) -> Result<TxLayer1Signature, ZkSignerError> {
         let msg = self.get_eth_sign_msg();
         let eth_signature = eth_signer.sign_message(msg.as_bytes())?;
         let tx_eth_signature = TxLayer1Signature::EthereumSignature(eth_signature);
@@ -259,10 +251,7 @@ impl OrderMatching {
     }
 
     #[cfg(not(feature = "ffi"))]
-    pub fn eth_signature(
-        &self,
-        eth_signer: &EthSigner,
-    ) -> Result<TxLayer1Signature, ZkSignerError> {
+    pub fn eth_signature(&self, eth_signer: &EthSigner) -> Result<TxLayer1Signature, ZkSignerError> {
         let msg = self.get_eth_sign_msg();
         let eth_signature = eth_signer.sign_message(msg.as_bytes())?;
         let tx_eth_signature = TxLayer1Signature::EthereumSignature(eth_signature);

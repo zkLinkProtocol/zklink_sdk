@@ -4,9 +4,7 @@ use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
 use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::FundingBuilder as TxFundingBuilder;
-use zklink_sdk_types::tx_type::contract::{
-    Funding as InnerFunding, FundingInfo as InnerFundingInfo,
-};
+use zklink_sdk_types::tx_type::contract::{Funding as InnerFunding, FundingInfo as InnerFundingInfo};
 
 #[wasm_bindgen]
 pub struct FundingInfo {
@@ -61,10 +59,7 @@ impl FundingBuilder {
         fee: String,
         fee_token: u16,
     ) -> Result<FundingBuilder, JsValue> {
-        let funding_account_ids = funding_account_ids
-            .iter()
-            .map(|id| (*id).into())
-            .collect::<Vec<_>>();
+        let funding_account_ids = funding_account_ids.iter().map(|id| (*id).into()).collect::<Vec<_>>();
         let inner = TxFundingBuilder {
             account_id: account_id.into(),
             sub_account_id: sub_account_id.into(),

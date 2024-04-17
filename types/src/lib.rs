@@ -15,8 +15,8 @@ pub mod prelude {
         pad::pad_front,
         tx_hash::TxHash,
         zklink_address::ZkLinkAddress,
-        AccountId, BlockNumber, ChainId, EthBlockId, GetBytes, MarginId, Nonce, PairId,
-        PriorityOpId, SlotId, SubAccountId, TimeStamp, TokenId,
+        AccountId, BlockNumber, ChainId, EthBlockId, GetBytes, MarginId, Nonce, PairId, PriorityOpId, SlotId,
+        SubAccountId, TimeStamp, TokenId,
     };
     pub use super::error::TypeError;
     pub use super::signatures::{TxLayer1Signature, TxSignature};

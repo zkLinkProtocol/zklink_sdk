@@ -3,9 +3,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
 use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
-use zklink_sdk_types::tx_type::contract::{
-    ContractPrice as InnerContractPrice, SpotPriceInfo as InnerSpotPriceInfo,
-};
+use zklink_sdk_types::tx_type::contract::{ContractPrice as InnerContractPrice, SpotPriceInfo as InnerSpotPriceInfo};
 
 #[wasm_bindgen]
 pub struct ContractPrice {
@@ -19,8 +17,7 @@ impl ContractPrice {
         Ok(ContractPrice {
             inner: InnerContractPrice {
                 pair_id: pair_id.into(),
-                market_price: BigUint::from_str(&market_price)
-                    .map_err(|e| InvalidBigIntStr(e.to_string()))?,
+                market_price: BigUint::from_str(&market_price).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             },
         })
     }

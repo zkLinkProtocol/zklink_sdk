@@ -23,9 +23,7 @@ use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTxType;
 
 macro_rules! rpc_request {
     ($method:expr,$builder:expr, $server_url:expr, $resp_type: ty) => {{
-        let params = $builder
-            .to_rpc_params()
-            .map_err(RpcError::InvalidArgument)?;
+        let params = $builder.to_rpc_params().map_err(RpcError::InvalidArgument)?;
         let request = Request::new(
             $method.into(),
             params.as_ref().map(|p| p.as_ref()),
@@ -90,12 +88,7 @@ impl RpcClient {
         let _ = builder.insert(RpcAccountQuery::from(account_query));
         let _ = builder.insert(sub_account_id.map(|id| SubAccountId(id)));
         let _ = builder.insert(block_number.map(|number| BlockNumber(number)));
-        rpc_request!(
-            "getAccountSnapshot",
-            builder,
-            &self.server_url,
-            AccountSnapshotResp
-        )
+        rpc_request!("getAccountSnapshot", builder, &self.server_url, AccountSnapshotResp)
     }
 
     #[wasm_bindgen(js_name=sendTransaction)]
@@ -106,8 +99,7 @@ impl RpcClient {
         l2_signature: Option<TxZkLinkSignature>,
     ) -> Result<JsValue, JsValue> {
         let mut builder = ArrayParams::new();
-        let zklink_tx: ZkLinkTx =
-            serde_wasm_bindgen::from_value(tx).map_err(|_e| RpcError::InvalidInputParameter)?;
+        let zklink_tx: ZkLinkTx = serde_wasm_bindgen::from_value(tx).map_err(|_e| RpcError::InvalidInputParameter)?;
         let l1_signature = if let Some(s) = l1_signature {
             Some(TypesTxLayer1Signature::try_from(s)?)
         } else {
@@ -122,23 +114,13 @@ impl RpcClient {
     #[wasm_bindgen(js_name=getSupportChains)]
     pub async fn get_support_chains(&self) -> Result<JsValue, JsValue> {
         let builder = ArrayParams::new();
-        rpc_request!(
-            "getSupportChains",
-            builder,
-            &self.server_url,
-            Vec<ChainResp>
-        )
+        rpc_request!("getSupportChains", builder, &self.server_url, Vec<ChainResp>)
     }
 
     #[wasm_bindgen(js_name=getLatestBlockNumber)]
     pub async fn block_info(&self) -> Result<JsValue, JsValue> {
         let builder = ArrayParams::new();
-        rpc_request!(
-            "getLatestBlockNumber",
-            builder,
-            &self.server_url,
-            BlockNumberResp
-        )
+        rpc_request!("getLatestBlockNumber", builder, &self.server_url, BlockNumberResp)
     }
 
     #[wasm_bindgen(js_name=getBlockByNumber)]
@@ -168,24 +150,14 @@ impl RpcClient {
         let _ = builder.insert(include_tx);
         let _ = builder.insert(include_update);
         let _ = builder.insert(limit);
-        rpc_request!(
-            "getPendingBlock",
-            builder,
-            &self.server_url,
-            Vec<TxHashOrDetailResp>
-        )
+        rpc_request!("getPendingBlock", builder, &self.server_url, Vec<TxHashOrDetailResp>)
     }
 
     #[wasm_bindgen(js_name=getBlockOnChainByNumber)]
     pub async fn block_onchain_detail(&self, block_number: u32) -> Result<JsValue, JsValue> {
         let mut builder = ArrayParams::new();
         let _ = builder.insert(BlockNumber(block_number));
-        rpc_request!(
-            "getBlockOnChainByNumber",
-            builder,
-            &self.server_url,
-            BlockOnChainResp
-        )
+        rpc_request!("getBlockOnChainByNumber", builder, &self.server_url, BlockOnChainResp)
     }
 
     #[wasm_bindgen(js_name=getAccount)]
@@ -196,37 +168,19 @@ impl RpcClient {
     }
 
     #[wasm_bindgen(js_name=getAccountBalances)]
-    pub async fn account_balances(
-        &self,
-        account_id: u32,
-        sub_account_id: Option<u8>,
-    ) -> Result<JsValue, JsValue> {
+    pub async fn account_balances(&self, account_id: u32, sub_account_id: Option<u8>) -> Result<JsValue, JsValue> {
         let mut builder = ArrayParams::new();
         let _ = builder.insert(AccountId(account_id));
         let _ = builder.insert(sub_account_id.map(|id| SubAccountId(id)));
-        rpc_request!(
-            "getAccountBalances",
-            builder,
-            &self.server_url,
-            SubAccountBalances
-        )
+        rpc_request!("getAccountBalances", builder, &self.server_url, SubAccountBalances)
     }
 
     #[wasm_bindgen(js_name=getAccountOrderSlots)]
-    pub async fn account_order_slots(
-        &self,
-        account_id: u32,
-        sub_account_id: Option<u8>,
-    ) -> Result<JsValue, JsValue> {
+    pub async fn account_order_slots(&self, account_id: u32, sub_account_id: Option<u8>) -> Result<JsValue, JsValue> {
         let mut builder = ArrayParams::new();
         let _ = builder.insert(AccountId(account_id));
         let _ = builder.insert(sub_account_id.map(|id| SubAccountId(id)));
-        rpc_request!(
-            "getAccountOrderSlots",
-            builder,
-            &self.server_url,
-            SubAccountOrders
-        )
+        rpc_request!("getAccountOrderSlots", builder, &self.server_url, SubAccountOrders)
     }
 
     #[wasm_bindgen(js_name=getTokenReserve)]
@@ -254,8 +208,7 @@ impl RpcClient {
         page_index: u64,
         page_size: u32,
     ) -> Result<JsValue, JsValue> {
-        let address =
-            ZkLinkAddress::from_hex(&address).map_err(|_e| RpcError::InvalidInputParameter)?;
+        let address = ZkLinkAddress::from_hex(&address).map_err(|_e| RpcError::InvalidInputParameter)?;
         let mut builder = ArrayParams::new();
         let _ = builder.insert(tx_type);
         let _ = builder.insert(address);
@@ -270,39 +223,20 @@ impl RpcClient {
     }
 
     #[wasm_bindgen(js_name=getWithdrawTxs)]
-    pub async fn tx_withdraw(
-        &self,
-        last_tx_timestamp: u64,
-        max_txs: u32,
-    ) -> Result<JsValue, JsValue> {
+    pub async fn tx_withdraw(&self, last_tx_timestamp: u64, max_txs: u32) -> Result<JsValue, JsValue> {
         let mut builder = ArrayParams::new();
         let _ = builder.insert(last_tx_timestamp);
         let _ = builder.insert(max_txs);
-        rpc_request!(
-            "getWithdrawTxs",
-            builder,
-            &self.server_url,
-            Vec<FastWithdrawTxResp>
-        )
+        rpc_request!("getWithdrawTxs", builder, &self.server_url, Vec<FastWithdrawTxResp>)
     }
 
     #[wasm_bindgen(js_name=pullForwardTxs)]
-    pub async fn pull_forward_txs(
-        &self,
-        sub_account_id: u8,
-        offset_id: i64,
-        limit: i64,
-    ) -> Result<JsValue, JsValue> {
+    pub async fn pull_forward_txs(&self, sub_account_id: u8, offset_id: i64, limit: i64) -> Result<JsValue, JsValue> {
         let mut builder = ArrayParams::new();
         let _ = builder.insert(SubAccountId(sub_account_id));
         let _ = builder.insert(offset_id);
         let _ = builder.insert(limit);
-        rpc_request!(
-            "pullForwardTxs",
-            builder,
-            &self.server_url,
-            Vec<ForwardTxResp>
-        )
+        rpc_request!("pullForwardTxs", builder, &self.server_url, Vec<ForwardTxResp>)
     }
 
     #[wasm_bindgen(js_name=getWebSocketEvents)]

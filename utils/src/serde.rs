@@ -65,9 +65,7 @@ impl<P: Prefix> OptionBytesToHexSerde<P> {
         S: Serializer,
     {
         // First, serialize to hexadecimal string.
-        let hex_value = value
-            .as_ref()
-            .map(|val| format!("{}{}", P::prefix(), hex::encode(val)));
+        let hex_value = value.as_ref().map(|val| format!("{}{}", P::prefix(), hex::encode(val)));
 
         // Then, serialize it using `Serialize` trait implementation for `String`.
         Option::serialize(&hex_value, serializer)
@@ -115,8 +113,7 @@ impl BigUintSerdeAsRadix10Str {
     {
         use serde::de::Error;
         let s = String::deserialize(deserializer)?;
-        let num =
-            BigUint::from_str(&s).map_err(|_| Error::custom("Invalid string type of big unit"))?;
+        let num = BigUint::from_str(&s).map_err(|_| Error::custom("Invalid string type of big unit"))?;
         Ok(num)
     }
 }
@@ -140,8 +137,7 @@ impl BigIntSerdeAsRadix10Str {
     {
         use serde::de::Error;
         let s = String::deserialize(deserializer)?;
-        let num =
-            BigInt::from_str(&s).map_err(|_| Error::custom("Invalid string type of big int"))?;
+        let num = BigInt::from_str(&s).map_err(|_| Error::custom("Invalid string type of big int"))?;
         Ok(num)
     }
 }

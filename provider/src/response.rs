@@ -8,8 +8,8 @@ use chrono::serde::{ts_microseconds, ts_microseconds_option};
 use zklink_sdk_signers::eth_signer::H256;
 use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_sdk_types::prelude::{
-    AccountId, BigIntSerdeWrapper, BigUintSerdeWrapper, BlockNumber, ChainId, MarginId, Nonce,
-    PairId, SlotId, SubAccountId, TokenId, TxHash, ZkLinkAddress, U256,
+    AccountId, BigIntSerdeWrapper, BigUintSerdeWrapper, BlockNumber, ChainId, MarginId, Nonce, PairId, SlotId,
+    SubAccountId, TokenId, TxHash, ZkLinkAddress, U256,
 };
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 

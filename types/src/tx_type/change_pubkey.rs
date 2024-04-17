@@ -1,7 +1,5 @@
 use crate::basic_types::pack::pack_fee_amount;
-use crate::basic_types::{
-    AccountId, ChainId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
-};
+use crate::basic_types::{AccountId, ChainId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress};
 use crate::params::{SIGNED_CHANGE_PUBKEY_BIT_WIDTH, TX_TYPE_BIT_WIDTH};
 #[cfg(feature = "ffi")]
 use crate::prelude::ChangePubKeyBuilder;
@@ -210,11 +208,7 @@ impl ChangePubKey {
     /// AccountId: 2
     ///
     #[inline]
-    pub fn get_eth_sign_msg(
-        pubkey_hash: &PubKeyHash,
-        nonce: Nonce,
-        account_id: AccountId,
-    ) -> String {
+    pub fn get_eth_sign_msg(pubkey_hash: &PubKeyHash, nonce: Nonce, account_id: AccountId) -> String {
         format!(
             "ChangePubKey\nPubKeyHash: {}\nNonce: {}\nAccountId: {}",
             pubkey_hash.as_hex(),
@@ -253,17 +247,13 @@ impl ChangePubKey {
         layer_one_chain_id: u32,
         verifying_contract: &ZkLinkAddress,
     ) -> Result<EthTypedData, EthSignerError> {
-        let domain =
-            EIP712Domain::new_zklink_domain(layer_one_chain_id, verifying_contract.to_string())?;
+        let domain = EIP712Domain::new_zklink_domain(layer_one_chain_id, verifying_contract.to_string())?;
         let typed_data = TypedData::<EIP712ChangePubKey>::new(domain, self.into())?;
         let raw_data = serde_json::to_string(&typed_data)
             .map_err(|e| EthSignerError::CustomError(format!("serialization error: {e:?}")))?;
         let data_hash = typed_data.sign_hash()?;
         let data_hash = H256::from_slice(&data_hash.0);
-        Ok(EthTypedData {
-            raw_data,
-            data_hash,
-        })
+        Ok(EthTypedData { raw_data, data_hash })
     }
 }
 
@@ -318,16 +308,15 @@ mod test {
         let change_pubkey = builder.build();
         let bytes = change_pubkey.get_bytes();
         let expected_bytes = [
-            6, 1, 0, 0, 0, 1, 1, 216, 213, 251, 106, 108, 174, 240, 106, 163, 220, 42, 189, 205,
-            194, 64, 152, 126, 83, 48, 254, 0, 18, 12, 128, 0, 0, 0, 1, 100, 240, 85, 232,
+            6, 1, 0, 0, 0, 1, 1, 216, 213, 251, 106, 108, 174, 240, 106, 163, 220, 42, 189, 205, 194, 64, 152, 126, 83,
+            48, 254, 0, 18, 12, 128, 0, 0, 0, 1, 100, 240, 85, 232,
         ];
         assert_eq!(bytes, expected_bytes);
     }
 
     #[test]
     fn test_change_pubkey_eth_sign_msg() {
-        let pubkey_hash =
-            PubKeyHash::from_hex("0xdbd9c8235e4fc9d5b9b7bb201f1133e8a28c0edd").unwrap();
+        let pubkey_hash = PubKeyHash::from_hex("0xdbd9c8235e4fc9d5b9b7bb201f1133e8a28c0edd").unwrap();
         let nonce = Nonce(0);
         let account_id = 2.into();
         let key: H256 = [5; 32].into();

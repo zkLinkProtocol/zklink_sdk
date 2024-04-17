@@ -1,11 +1,7 @@
 use crate::basic_types::pack::{pack_fee_amount, pack_token_amount};
-use crate::basic_types::{
-    AccountId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
-};
+use crate::basic_types::{AccountId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress};
 use crate::tx_type::validator::*;
-use crate::tx_type::{
-    ethereum_sign_message_part, starknet_sign_message_part, TxTrait, ZkSignatureTrait,
-};
+use crate::tx_type::{ethereum_sign_message_part, starknet_sign_message_part, TxTrait, ZkSignatureTrait};
 
 use crate::params::{SIGNED_TRANSFER_BIT_WIDTH, TOKEN_MAX_PRECISION, TX_TYPE_BIT_WIDTH};
 #[cfg(feature = "ffi")]
@@ -138,10 +134,7 @@ impl Transfer {
         addr: &str,
     ) -> Result<TxLayer1Signature, StarkSignerError> {
         let message = self.get_starknet_sign_msg(token_symbol);
-        let typed_data = TypedData::new(
-            TypedDataMessage::Transaction { message },
-            chain_id.to_string(),
-        );
+        let typed_data = TypedData::new(TypedDataMessage::Transaction { message }, chain_id.to_string());
         let signature = starknet_signer.sign_message(&typed_data, addr)?;
         let tx_eth_signature = TxLayer1Signature::StarkSignature(signature);
         Ok(tx_eth_signature)
@@ -156,10 +149,7 @@ impl Transfer {
         addr: &str,
     ) -> Result<TxLayer1Signature, StarkSignerError> {
         let message = self.get_starknet_sign_msg(token_symbol);
-        let typed_data = TypedData::new(
-            TypedDataMessage::Transaction { message },
-            chain_id.to_string(),
-        );
+        let typed_data = TypedData::new(TypedDataMessage::Transaction { message }, chain_id.to_string());
         let signature = starknet_signer.sign_message(&typed_data, addr)?;
         let tx_eth_signature = TxLayer1Signature::StarkSignature(signature);
         Ok(tx_eth_signature)
@@ -211,8 +201,7 @@ mod test {
 
     #[test]
     fn test_get_bytes() {
-        let address =
-            ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
+        let address = ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
         let ts = 1693472232u32;
         let builder = TransferBuilder {
             account_id: AccountId(10),
@@ -228,9 +217,8 @@ mod test {
         let transfer = builder.build();
         let bytes = transfer.get_bytes();
         let excepted_bytes = [
-            4, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4, 37,
-            215, 146, 67, 45, 158, 205, 28, 62, 38, 239, 44, 66, 233, 1, 0, 18, 0, 0, 4, 226, 0, 0,
-            96, 0, 0, 0, 1, 100, 240, 85, 232,
+            4, 0, 0, 0, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 175, 243, 173, 26, 4, 37, 215, 146, 67, 45,
+            158, 205, 28, 62, 38, 239, 44, 66, 233, 1, 0, 18, 0, 0, 4, 226, 0, 0, 96, 0, 0, 0, 1, 100, 240, 85, 232,
         ];
         assert_eq!(bytes, excepted_bytes);
     }
@@ -242,8 +230,7 @@ mod test {
         let eth_signature = "0x1f11707e54773e059bc38aa73526fe2b51af9b89a77df731af7bcc429750d0317727a857efda5d79232eb5f9a66ed60a79aad2195d4de1375f5021c0db041b221b";
         let signature = "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f8125107ecbe23c307d18007ee43090940a4a43bd02bdcda206ad695f745c2f0a64f4ac4c4c8beb9ed9cbdd0e523e75ffc7dedd0281da4946bb37fa26a04283bd480a04";
         let public_key_str = "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510";
-        let address =
-            ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
+        let address = ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
         let builder = TransferBuilder {
             account_id: AccountId(1),
             to_address: address,
@@ -278,10 +265,7 @@ mod test {
         let private_key = StarkSigner::new_from_hex_str(private_key_str).unwrap();
         let message = tx.get_starknet_sign_msg("USDC");
         let addr = "0x04A69b67bcaBfA7D3CCb96e1d25C2e6fC93589fE24A6fD04566B8700ff97a71a";
-        let typed_data = TypedData::new(
-            TypedDataMessage::Transaction { message },
-            "SN_GOERLI".to_string(),
-        );
+        let typed_data = TypedData::new(TypedDataMessage::Transaction { message }, "SN_GOERLI".to_string());
         let signature = private_key.sign_message(&typed_data, addr).unwrap();
         let is_ok = signature.verify(&typed_data, addr).unwrap();
         assert!(is_ok);

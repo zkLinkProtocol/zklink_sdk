@@ -45,8 +45,7 @@ impl PackedEthSignature {
         bytes_array.copy_from_slice(bytes);
 
         Ok(PackedEthSignature(
-            Signature::try_from(bytes_array.as_slice())
-                .map_err(|_err| EthSignerError::InvalidEthSigner)?,
+            Signature::try_from(bytes_array.as_slice()).map_err(|_err| EthSignerError::InvalidEthSigner)?,
         ))
     }
 

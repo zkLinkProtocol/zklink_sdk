@@ -113,21 +113,15 @@ mod test {
 
     #[test]
     fn test_check_create2() {
-        let creator_address =
-            ZkLinkAddress::from_hex("0x6E253C951A40fAf4032faFbEc19262Cd1531A5F5").unwrap();
-        let salt_arg =
-            H256::from_str("0x0000000000000000000000000000000000000000000000000000000000000000")
-                .unwrap();
-        let code_hash =
-            H256::from_str("0x4f063cd4b2e3a885f61fefb0988cc12487182c4f09ff5de374103f5812f33fe7")
-                .unwrap();
+        let creator_address = ZkLinkAddress::from_hex("0x6E253C951A40fAf4032faFbEc19262Cd1531A5F5").unwrap();
+        let salt_arg = H256::from_str("0x0000000000000000000000000000000000000000000000000000000000000000").unwrap();
+        let code_hash = H256::from_str("0x4f063cd4b2e3a885f61fefb0988cc12487182c4f09ff5de374103f5812f33fe7").unwrap();
         let create2_data = Create2Data {
             creator_address,
             code_hash,
             salt_arg,
         };
-        let from_account =
-            ZkLinkAddress::from_hex("0x4504d5BE8634e3896d42784A5aB89fc41C3d4511").unwrap();
+        let from_account = ZkLinkAddress::from_hex("0x4504d5BE8634e3896d42784A5aB89fc41C3d4511").unwrap();
         let eth_private_key = "43be0b8bdeccb5a13741c8fd076bf2619bfc9f6dcc43ad6cf965ab489e156ced";
         let zk_signer = ZkLinkSigner::new_from_hex_eth_signer(eth_private_key).unwrap();
 

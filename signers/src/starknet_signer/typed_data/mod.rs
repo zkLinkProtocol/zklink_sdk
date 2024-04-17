@@ -145,18 +145,13 @@ impl TypedData {
         ret
     }
 
-    pub fn get_struct_hash<M: Serialize>(
-        &self,
-        struct_type: &str,
-        data: &M,
-    ) -> Result<FieldElement, StarkSignerError> {
+    pub fn get_struct_hash<M: Serialize>(&self, struct_type: &str, data: &M) -> Result<FieldElement, StarkSignerError> {
         let mut types_array = vec![];
         let mut data_array = vec![];
         types_array.push("felt".to_string());
         let type_hash = starknet_keccak(self.encode_type(struct_type).as_bytes());
         data_array.push(type_hash);
-        let data_value =
-            serde_json::to_value(data).map_err(|e| StarkSignerError::SignError(e.to_string()))?;
+        let data_value = serde_json::to_value(data).map_err(|e| StarkSignerError::SignError(e.to_string()))?;
         let data_map = data_value.as_object().unwrap();
         //type must be exist
         let td = self.get_type_define(struct_type);
@@ -168,8 +163,7 @@ impl TypedData {
             types_array.push(t.r#type.clone());
             let v_str = data_map.get(&t.name).unwrap().as_str().unwrap();
             let v = Self::string_to_hex(v_str);
-            let v = FieldElement::from_hex_be(&v)
-                .map_err(|e| StarkSignerError::SignError(e.to_string()))?;
+            let v = FieldElement::from_hex_be(&v).map_err(|e| StarkSignerError::SignError(e.to_string()))?;
             data_array.push(v);
         }
 
@@ -184,8 +178,7 @@ impl TypedData {
             .get_struct_hash("Message", &self.message)
             .map_err(|e| StarkSignerError::SignError(e.to_string()))?;
         //StarkNet Message
-        let stark_net_message =
-            FieldElement::from_str(&Self::string_to_hex("StarkNet Message")).unwrap();
+        let stark_net_message = FieldElement::from_str(&Self::string_to_hex("StarkNet Message")).unwrap();
         Ok(vec![stark_net_message, domain, addr, message])
     }
 
@@ -224,9 +217,7 @@ mod tests {
             version: "1".to_string(),
             chain_id: starknet_chain_id,
         };
-        let domain_hash = typed_data
-            .get_struct_hash("StarkNetDomain", &domain)
-            .unwrap();
+        let domain_hash = typed_data.get_struct_hash("StarkNetDomain", &domain).unwrap();
         let message_hash = typed_data.get_struct_hash("Message", &message).unwrap();
         assert_eq!(
             hex::encode(domain_hash.to_bytes_be()),

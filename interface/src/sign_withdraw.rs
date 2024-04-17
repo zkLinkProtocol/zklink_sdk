@@ -25,10 +25,7 @@ pub fn sign_starknet_withdraw(
 ) -> Result<TxSignature, SignError> {
     tx.sign(zklink_singer)?;
     let message = tx.get_starknet_sign_msg(l2_source_token_symbol);
-    let typed_data = TypedData::new(
-        TypedDataMessage::Transaction { message },
-        chain_id.to_string(),
-    );
+    let typed_data = TypedData::new(TypedDataMessage::Transaction { message }, chain_id.to_string());
     let signature = signer.sign_message(&typed_data, addr)?;
 
     Ok(TxSignature {
@@ -103,8 +100,7 @@ mod tests {
             account_id: AccountId(1),
             to_chain_id: ChainId(3),
             sub_account_id: SubAccountId(1),
-            to_address: ZkLinkAddress::from_str("0x3d809e414ba4893709c85f242ba3617481bc4126")
-                .unwrap(),
+            to_address: ZkLinkAddress::from_str("0x3d809e414ba4893709c85f242ba3617481bc4126").unwrap(),
             l2_source_token: TokenId(1),
             l1_target_token: TokenId(17),
             amount: BigUint::from_str("99995900000000000000").unwrap(),

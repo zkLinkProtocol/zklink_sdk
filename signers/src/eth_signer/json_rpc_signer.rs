@@ -42,44 +42,39 @@ impl JsonRpcSigner {
     pub async fn sign_message(&self, message: &[u8]) -> Result<PackedEthSignature, EthSignerError> {
         let provider_address = self.provider.selectedAddress();
         let mut params = Vec::new();
-        let msg_str =
-            std::str::from_utf8(message).map_err(|e| EthSignerError::CustomError(e.to_string()))?;
+        let msg_str = std::str::from_utf8(message).map_err(|e| EthSignerError::CustomError(e.to_string()))?;
         params.push(serde_json::to_value(msg_str).unwrap());
         params.push(serde_json::to_value(provider_address).unwrap());
         let req_params = RequestArguments {
             method: "personal_sign".to_string(),
             params,
         };
-        let params = serde_wasm_bindgen::to_value(&req_params)
-            .map_err(|e| EthSignerError::CustomError(e.to_string()))?;
-        let signature = self.provider.request(params).await.map_err(|e| {
-            EthSignerError::RpcSignError(serde_wasm_bindgen::from_value::<RpcErr>(e).unwrap())
-        })?;
+        let params =
+            serde_wasm_bindgen::to_value(&req_params).map_err(|e| EthSignerError::CustomError(e.to_string()))?;
+        let signature = self
+            .provider
+            .request(params)
+            .await
+            .map_err(|e| EthSignerError::RpcSignError(serde_wasm_bindgen::from_value::<RpcErr>(e).unwrap()))?;
         let signature = serde_wasm_bindgen::from_value::<String>(signature)
             .map_err(|e| EthSignerError::SigningFailed(e.to_string()))?;
         PackedEthSignature::from_hex(&signature)
     }
 
-    pub async fn sign_message_eip712(
-        &self,
-        message: &[u8],
-    ) -> Result<PackedEthSignature, EthSignerError> {
+    pub async fn sign_message_eip712(&self, message: &[u8]) -> Result<PackedEthSignature, EthSignerError> {
         let provider_address = self.provider.selectedAddress();
         let mut params = Vec::new();
-        let msg_str =
-            std::str::from_utf8(message).map_err(|e| EthSignerError::CustomError(e.to_string()))?;
+        let msg_str = std::str::from_utf8(message).map_err(|e| EthSignerError::CustomError(e.to_string()))?;
         params.push(serde_json::to_value(provider_address).unwrap());
         params.push(serde_json::to_value(msg_str).unwrap());
         let req_params = RequestArguments {
             method: "eth_signTypedData_v4".to_string(),
             params,
         };
-        let params = serde_wasm_bindgen::to_value(&req_params)
-            .map_err(|e| EthSignerError::CustomError(e.to_string()))?;
+        let params =
+            serde_wasm_bindgen::to_value(&req_params).map_err(|e| EthSignerError::CustomError(e.to_string()))?;
         let signature = self.provider.request(params).await.map_err(|e| {
-            EthSignerError::SigningFailed(
-                serde_wasm_bindgen::from_value::<String>(e).unwrap_or_default(),
-            )
+            EthSignerError::SigningFailed(serde_wasm_bindgen::from_value::<String>(e).unwrap_or_default())
         })?;
         let signature = serde_wasm_bindgen::from_value::<String>(signature)
             .map_err(|e| EthSignerError::SigningFailed(e.to_string()))?;

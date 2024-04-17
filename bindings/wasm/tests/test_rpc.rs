@@ -14,9 +14,7 @@ use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx as TypesZkLinkTx;
 use zklink_sdk_types::tx_type::ZkSignatureTrait;
 use zklink_sdk_wasm::rpc_client::RpcClient;
 use zklink_sdk_wasm::rpc_type_converter::{AccountQuery, AccountQueryType};
-use zklink_sdk_wasm::utils::{
-    closest_packable_transaction_amount, closest_packable_transaction_fee,
-};
+use zklink_sdk_wasm::utils::{closest_packable_transaction_amount, closest_packable_transaction_fee};
 
 wasm_bindgen_test_configure!(run_in_worker);
 #[wasm_bindgen_test]
@@ -95,14 +93,9 @@ async fn test_send_change_pubkey() {
     };
     let change_pubkey = ChangePubKey::new(builder);
     let message = change_pubkey
-        .to_eip712_request_payload(
-            l1_client_id,
-            &ZkLinkAddress::from_str(&main_contract).unwrap(),
-        )
+        .to_eip712_request_payload(l1_client_id, &ZkLinkAddress::from_str(&main_contract).unwrap())
         .unwrap();
-    let signature = eth_signer
-        .sign_message(message.raw_data.as_bytes())
-        .unwrap();
+    let signature = eth_signer.sign_message(message.raw_data.as_bytes()).unwrap();
     let builder_with_sig = ChangePubKeyBuilder {
         chain_id: ChainId(1),
         account_id: AccountId(10),

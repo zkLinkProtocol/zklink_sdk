@@ -69,10 +69,7 @@ impl GetBytes for AutoDeleveraging {
         out.extend(self.adl_account_id.to_be_bytes());
         out.push(*self.pair_id as u8);
         out.extend(pack_token_amount(&self.adl_size));
-        out.extend(pad_front(
-            &self.adl_price.to_bytes_be(),
-            PRICE_BIT_WIDTH / 8,
-        ));
+        out.extend(pad_front(&self.adl_price.to_bytes_be(), PRICE_BIT_WIDTH / 8));
         out.extend((*self.fee_token as u16).to_be_bytes());
         out.extend(pack_fee_amount(&self.fee));
         assert_eq!(out.len(), bytes_len);

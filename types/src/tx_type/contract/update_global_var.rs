@@ -108,8 +108,9 @@ impl GetBytes for Parameter {
     fn get_bytes(&self) -> Vec<u8> {
         let mut bytes = vec![self.parameter_type()];
         bytes.extend(match self {
-            Parameter::FeeAccount { account_id }
-            | Parameter::InsuranceFundAccount { account_id } => account_id.get_bytes(),
+            Parameter::FeeAccount { account_id } | Parameter::InsuranceFundAccount { account_id } => {
+                account_id.get_bytes()
+            }
             Parameter::MarginInfo {
                 margin_id,
                 token_id,
@@ -128,8 +129,7 @@ impl GetBytes for Parameter {
             } => {
                 let mut bytes = vec![(**pair_id as u8)];
                 let mut symbol_bytes = [0u8; PAIR_SYMBOL_BYTES];
-                symbol_bytes[PAIR_SYMBOL_BYTES - symbol.as_bytes().len()..]
-                    .copy_from_slice(symbol.as_bytes());
+                symbol_bytes[PAIR_SYMBOL_BYTES - symbol.as_bytes().len()..].copy_from_slice(symbol.as_bytes());
                 bytes.extend(symbol_bytes);
                 bytes.extend(initial_margin_rate.to_be_bytes());
                 bytes.extend(maintenance_margin_rate.to_be_bytes());
@@ -177,12 +177,8 @@ mod test {
                     },
                 ],
             },
-            Parameter::FeeAccount {
-                account_id: 10.into(),
-            },
-            Parameter::InsuranceFundAccount {
-                account_id: 9.into(),
-            },
+            Parameter::FeeAccount { account_id: 10.into() },
+            Parameter::InsuranceFundAccount { account_id: 9.into() },
             Parameter::MarginInfo {
                 margin_id: 1.into(),
                 token_id: 9.into(),
@@ -197,17 +193,15 @@ mod test {
         ];
         let excepted_bytes = [
             vec![
-                12, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 13, 224, 182, 179, 167, 100, 0, 0, 127, 255,
-                1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 141, 126, 164, 198, 128, 0, 0, 0, 2, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 232, 212, 165, 16, 0, 128, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                59, 154, 202, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+                12, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 13, 224, 182, 179, 167, 100, 0, 0, 127, 255, 1, 0, 0, 0, 0, 0, 0,
+                0, 0, 3, 141, 126, 164, 198, 128, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 212, 165, 16, 0, 128,
+                1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 59, 154, 202, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
             ],
             vec![12, 1, 1, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0],
             vec![12, 1, 1, 1, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0],
             vec![12, 1, 1, 2, 1, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             vec![
-                12, 1, 1, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 66, 84, 67, 85, 83, 68, 67, 0, 6, 0, 8, 0,
-                0, 0, 0, 0, 0, 0, 0,
+                12, 1, 1, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 66, 84, 67, 85, 83, 68, 67, 0, 6, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0,
             ],
         ];
         for (param, excepted_bytes) in params.into_iter().zip(excepted_bytes) {

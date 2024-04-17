@@ -7,8 +7,8 @@ use zklink_sdk_types::tx_builder::{
     ContractBuilder as TxContractBuilder, ContractMatchingBuilder as TxContractMatchingBuilder,
 };
 use zklink_sdk_types::tx_type::contract::{
-    Contract as InnerContract, ContractMatching as ContractMatchingTx,
-    ContractPrice as InnerContractPrice, SpotPriceInfo as InnerSpotPriceInfo,
+    Contract as InnerContract, ContractMatching as ContractMatchingTx, ContractPrice as InnerContractPrice,
+    SpotPriceInfo as InnerSpotPriceInfo,
 };
 
 #[wasm_bindgen]

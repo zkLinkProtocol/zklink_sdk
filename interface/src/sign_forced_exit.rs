@@ -3,10 +3,7 @@ use zklink_sdk_signers::zklink_signer::pk_signer::ZkLinkSigner;
 use zklink_sdk_types::prelude::{GetBytes, TxSignature};
 use zklink_sdk_types::tx_type::forced_exit::ForcedExit;
 
-pub fn sign_forced_exit(
-    zklink_signer: &ZkLinkSigner,
-    mut tx: ForcedExit,
-) -> Result<TxSignature, ZkSignerError> {
+pub fn sign_forced_exit(zklink_signer: &ZkLinkSigner, mut tx: ForcedExit) -> Result<TxSignature, ZkSignerError> {
     tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
     Ok(TxSignature {
         tx: tx.into(),
