@@ -6,7 +6,7 @@ use crate::basic_types::params::{
     USDX_TOKEN_ID_LOWER_BOUND, USDX_TOKEN_ID_UPPER_BOUND, USED_POSITION_NUMBER,
     USED_POSITION_PAIR_ID_RANGE,
 };
-use crate::params::PAIR_SYMBOL_BYTES;
+use crate::params::{PAIR_SYMBOL_BYTES, WITHDRAW_FEE_RATIO_DENOMINATOR};
 use crate::prelude::{
     AccountId, ChainId, ContractPrice, Nonce, PairId, Parameter, SlotId, SpotPriceInfo,
     SubAccountId, TokenId, ZkLinkAddress,
@@ -143,8 +143,8 @@ pub fn direction_validator(direction: u8) -> Result<(), ValidationError> {
 /// Check ratio value validation
 ///
 /// - withdraw rate should <= 10000(withdraw rate 100.00%)
-pub fn rate_validator(ratio: u16) -> Result<(), ValidationError> {
-    if ratio > 10000u16 {
+pub fn withdraw_fee_ratio_validator(ratio: u16) -> Result<(), ValidationError> {
+    if ratio > WITHDRAW_FEE_RATIO_DENOMINATOR {
         return Err(ValidationError::new("ratio out of range"));
     }
     Ok(())
@@ -542,7 +542,7 @@ mod validators_tests {
     fn test_withdraw_fee_ratio_validate() {
         #[derive(Debug, Validate)]
         struct Mock {
-            #[validate(custom = "rate_validator")]
+            #[validate(custom = "withdraw_fee_ratio_validator")]
             pub withdraw_fee_ratio: u16,
         }
 

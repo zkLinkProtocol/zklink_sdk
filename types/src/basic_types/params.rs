@@ -240,5 +240,6 @@ pub const USED_POSITION_PAIR_ID_RANGE: std::ops::Range<u8> = 0..USED_POSITION_NU
 pub const GLOBAL_ASSET_ACCOUNT_ID: AccountId = AccountId(1);
 /// All fee related values
 pub const FEE_RATIO_BIT_WIDTH: usize = 8;
+pub const WITHDRAW_FEE_RATIO_DENOMINATOR: u16 = 10000u16;
 pub const SIGNED_FUNDING_RATE_BIT_WIDTH: usize = 16;
 pub const FUNDING_RATE_BYTES: usize = SIGNED_FUNDING_RATE_BIT_WIDTH / 8;

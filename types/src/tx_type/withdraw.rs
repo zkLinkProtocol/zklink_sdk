@@ -13,7 +13,7 @@ use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::{
     AccountId, ChainId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
 };
-use crate::params::{ORDERS_BYTES, TOKEN_MAX_PRECISION};
+use crate::params::{ORDERS_BYTES, TOKEN_MAX_PRECISION, WITHDRAW_FEE_RATIO_DENOMINATOR};
 #[cfg(feature = "ffi")]
 use crate::prelude::WithdrawBuilder;
 use crate::tx_type::validator::*;
@@ -66,7 +66,7 @@ pub struct Withdraw {
     #[validate(custom = "boolean_validator")]
     pub withdraw_to_l1: u8,
     /// If ratio is not zero, default fast withdraw.
-    #[validate(custom = "rate_validator")]
+    #[validate(custom = "withdraw_fee_ratio_validator")]
     pub withdraw_fee_ratio: u16,
     /// Used as request id
     pub ts: TimeStamp,
@@ -99,6 +99,14 @@ impl Withdraw {
             message.push('\n');
         }
         message.push_str(format!("Nonce: {}", self.nonce).as_str());
+        message.push('\n');
+        message.push_str(
+            format!(
+                "FastWithdrawFeeRatio: {}%",
+                (self.withdraw_fee_ratio as f32 / WITHDRAW_FEE_RATIO_DENOMINATOR as f32) * 100.0f32
+            )
+            .as_str(),
+        );
         message
     }
 
