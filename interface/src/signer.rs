@@ -4,8 +4,7 @@ use crate::sign_forced_exit::sign_forced_exit;
 use crate::sign_liquidation::sign_liquidation;
 use crate::sign_transfer::{sign_eth_transfer, sign_starknet_transfer};
 use crate::sign_withdraw::{sign_eth_withdraw, sign_starknet_withdraw};
-use zklink_sdk_types::prelude::{PubKeyHash, TxSignature};
-
+use zklink_sdk_types::prelude::{PubKeyHash, TxSignature, ZkLinkSignature};
 use crate::sign_change_pubkey::{
     do_sign_change_pubkey_with_create2data_auth, do_sign_change_pubkey_with_eth_ecdsa_auth,
     do_sign_change_pubkey_with_onchain_auth_data,
@@ -240,5 +239,10 @@ impl Signer {
         let mut contract = contract.clone();
         contract.signature = self.zklink_signer.sign_musig(&contract.get_bytes())?;
         Ok(contract)
+    }
+
+    #[inline]
+    pub fn sign_musig(&self, msg: Vec<u8>) -> Result<ZkLinkSignature, SignError> {
+        Ok(self.zklink_signer.sign_musig(&msg)?)
     }
 }
