@@ -1,0 +1,17 @@
+[package]
+name = "zklink_sdk_dart"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+flutter_rust_bridge = "=2.0.0-dev.32"
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+hex = { workspace = true }
+zklink_sdk_types = { path = "../../../types" }
+zklink_sdk_signers = { path = "../../../signers" }
+zklink_sdk_interface = { path = "../../../interface" }
+zklink_sdk_wallet = { path = "../../../wallet" }

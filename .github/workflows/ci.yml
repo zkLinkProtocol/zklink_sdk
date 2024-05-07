@@ -118,6 +118,30 @@ jobs:
           python-version: '3.10'
       - run: make copy_lib_to_py_example run_example_python
 
+  dart_binding:
+    name: dart binding
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: build
+        run: |
+          cd bindings/dart
+          cargo install 'flutter_rust_bridge_codegen@2.0.0-dev.32'
+          flutter pub get
+          flutter_rust_bridge_codegen generate
+          cd rust
+          cargo build --profile dart
+          cd ..
+          cp ../../target/dart/*.so .
+          export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH
+          dart pub add --dev test
+          dart test/main.dart 
 
   build_wasm:
     name: build wasm
