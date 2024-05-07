@@ -18,7 +18,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Compile
       run: |
-        cd bindings/dart/sdk/rust
+        cd bindings/dart/rust
         rustup set profile minimal
         rustup toolchain install stable
         rustup default stable
@@ -49,7 +49,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Compile
       run: |
-        cd bindings/dart/sdk/rust
+        cd bindings/dart/rust
         rustup set profile minimal
         rustup toolchain install stable
         rustup default stable
@@ -82,7 +82,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Compile
       run: |
-        cd bindings/dart/sdk/rust
+        cd bindings/dart/rust
         rustup set profile minimal
         rustup toolchain install stable
         rustup default stable
