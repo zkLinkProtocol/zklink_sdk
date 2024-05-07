@@ -6,6 +6,7 @@ The codebase is primarily in Rust and provides cross-language bindings using mul
 
 - [uniffi-bindgen-go](https://github.com/NordSecurity/uniffi-bindgen-go) is used to generate bindings for Golang.
 - [wasm-bindgen](https://github.com/rustwasm/wasm-bindgen) is used to generate bindings for JavaScript and TypeScript to facilitate interactions with the Wasm modules (for web browser extensions or other web-related apps).
+- [flutter_rust_bridge](https://github.com/fzyzcjy/flutter_rust_bridge) is used to generate bindings for Dart and Flutter.
 
 ## Pre-requisites
 Naturally, you will need the [Rust toolchain] installed.
