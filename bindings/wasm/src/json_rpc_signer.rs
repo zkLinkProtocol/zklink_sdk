@@ -24,7 +24,6 @@ use zklink_sdk_types::tx_type::forced_exit::ForcedExit as TxForcedExit;
 use zklink_sdk_types::tx_type::order_matching::{Order as TxOrder, OrderMatching as TxOrderMatching};
 use zklink_sdk_types::tx_type::transfer::Transfer as TxTransfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw as TxWithdraw;
-use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 
 #[wasm_bindgen]
 pub struct JsonRpcSigner {
@@ -180,5 +179,10 @@ impl JsonRpcSigner {
         let liquidation: TxLiquidation = serde_wasm_bindgen::from_value(inner_tx)?;
         let signature = self.inner.sign_liquidation(liquidation)?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
+    }
+
+    #[wasm_bindgen(js_name=signMusig)]
+    pub fn sign_musig(&self, msg: Vec<u8>) -> Result<TxZkLinkSignature, JsValue> {
+        Ok(self.inner.sign_musig(msg)?.into())
     }
 }

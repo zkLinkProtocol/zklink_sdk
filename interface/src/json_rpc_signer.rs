@@ -19,7 +19,7 @@ use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
 use zklink_sdk_signers::starknet_signer::StarkEip712Signature;
 use zklink_sdk_signers::zklink_signer::ZkLinkSigner;
 use zklink_sdk_types::basic_types::GetBytes;
-use zklink_sdk_types::prelude::PackedEthSignature;
+use zklink_sdk_types::prelude::{PackedEthSignature, ZkLinkSignature};
 use zklink_sdk_types::signatures::TxSignature;
 use zklink_sdk_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
 use zklink_sdk_types::tx_type::contract::{AutoDeleveraging, Contract, ContractMatching, Funding, Liquidation};
@@ -217,5 +217,10 @@ impl JsonRpcSigner {
         let mut contract = contract.clone();
         contract.signature = self.zklink_signer.sign_musig(&contract.get_bytes())?;
         Ok(contract)
+    }
+
+    #[inline]
+    pub fn sign_musig(&self, msg: Vec<u8>) -> Result<ZkLinkSignature, SignError> {
+        Ok(self.zklink_signer.sign_musig(&msg)?)
     }
 }
