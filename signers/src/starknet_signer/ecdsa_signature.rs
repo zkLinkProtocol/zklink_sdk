@@ -38,8 +38,10 @@ impl StarkEcdsaSignature {
     }
 
     pub fn from_rs_str(r: &str, s: &str) -> Result<Self, StarkSignerError> {
-        let r = FieldElement::from_str(r).map_err(|e| StarkSignerError::InvalidSignature(e.to_string()))?;
-        let s = FieldElement::from_str(s).map_err(|e| StarkSignerError::InvalidSignature(e.to_string()))?;
+        let r = FieldElement::from_str(r)
+            .map_err(|e| StarkSignerError::InvalidSignature(e.to_string()))?;
+        let s = FieldElement::from_str(s)
+            .map_err(|e| StarkSignerError::InvalidSignature(e.to_string()))?;
         Ok(Self { s, r })
     }
 
@@ -47,12 +49,16 @@ impl StarkEcdsaSignature {
         let mut s = [0_u8; 32];
         let mut r = [0_u8; 32];
         if bytes.len() != 64 {
-            return Err(StarkSignerError::invalid_signature("bytes should be 64 length"));
+            return Err(StarkSignerError::invalid_signature(
+                "bytes should be 64 length",
+            ));
         }
         r.clone_from_slice(&bytes[0..32]);
         s.clone_from_slice(&bytes[32..]);
-        let s = FieldElement::from_bytes_be(&s).map_err(|e| StarkSignerError::invalid_signature(e.to_string()))?;
-        let r = FieldElement::from_bytes_be(&r).map_err(|e| StarkSignerError::invalid_signature(e.to_string()))?;
+        let s = FieldElement::from_bytes_be(&s)
+            .map_err(|e| StarkSignerError::invalid_signature(e.to_string()))?;
+        let r = FieldElement::from_bytes_be(&r)
+            .map_err(|e| StarkSignerError::invalid_signature(e.to_string()))?;
         Ok(Self { s, r })
     }
 }
@@ -103,7 +109,8 @@ impl StarkEip712Signature {
 
 impl StarkEip712Signature {
     pub fn verify(&self, msg: &TypedData, addr: &str) -> Result<bool, StarkSignerError> {
-        let addr = FieldElement::from_hex_be(addr).map_err(|e| StarkSignerError::SignError(e.to_string()))?;
+        let addr = FieldElement::from_hex_be(addr)
+            .map_err(|e| StarkSignerError::SignError(e.to_string()))?;
         let hash = msg.get_message_hash(addr)?;
         let verifying_key = VerifyingKey::from_scalar(self.pub_key);
         let is_ok = verifying_key

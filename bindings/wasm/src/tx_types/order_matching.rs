@@ -4,8 +4,12 @@ use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
 use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::OrderMatchingBuilder as TxOrderMatchingBuilder;
-use zklink_sdk_types::tx_type::contract::{ContractPrice as InnerContractPrice, SpotPriceInfo as InnerSpotPriceInfo};
-use zklink_sdk_types::tx_type::order_matching::{Order as OrderTx, OrderMatching as OrderMatchingTx};
+use zklink_sdk_types::tx_type::contract::{
+    ContractPrice as InnerContractPrice, SpotPriceInfo as InnerSpotPriceInfo,
+};
+use zklink_sdk_types::tx_type::order_matching::{
+    Order as OrderTx, OrderMatching as OrderMatchingTx,
+};
 
 #[wasm_bindgen]
 pub struct Order {
@@ -100,7 +104,8 @@ impl OrderMatchingBuilder {
             taker,
             fee: BigUint::from_str(&fee).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             fee_token: fee_token.into(),
-            expect_base_amount: BigUint::from_str(&expect_base_amount).map_err(|e| InvalidBigIntStr(e.to_string()))?,
+            expect_base_amount: BigUint::from_str(&expect_base_amount)
+                .map_err(|e| InvalidBigIntStr(e.to_string()))?,
             maker,
             expect_quote_amount: BigUint::from_str(&expect_quote_amount)
                 .map_err(|e| InvalidBigIntStr(e.to_string()))?,

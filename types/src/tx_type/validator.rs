@@ -1,14 +1,15 @@
 #![allow(unused_doc_comments)]
 use crate::basic_types::pack::{is_fee_amount_packable, is_token_amount_packable};
 use crate::basic_types::params::{
-    GLOBAL_ASSET_ACCOUNT_ID, MARGIN_TOKENS_NUMBER, MAX_ACCOUNT_ID, MAX_CHAIN_ID, MAX_NONCE, MAX_ORDER_NONCE, MAX_PRICE,
-    MAX_SLOT_ID, MAX_SUB_ACCOUNT_ID, MAX_TOKEN_ID, MIN_PRICE, USDX_TOKEN_ID_LOWER_BOUND, USDX_TOKEN_ID_UPPER_BOUND,
-    USED_POSITION_NUMBER, USED_POSITION_PAIR_ID_RANGE,
+    GLOBAL_ASSET_ACCOUNT_ID, MARGIN_TOKENS_NUMBER, MAX_ACCOUNT_ID, MAX_CHAIN_ID, MAX_NONCE,
+    MAX_ORDER_NONCE, MAX_PRICE, MAX_SLOT_ID, MAX_SUB_ACCOUNT_ID, MAX_TOKEN_ID, MIN_PRICE,
+    USDX_TOKEN_ID_LOWER_BOUND, USDX_TOKEN_ID_UPPER_BOUND, USED_POSITION_NUMBER,
+    USED_POSITION_PAIR_ID_RANGE,
 };
 use crate::params::{PAIR_SYMBOL_BYTES, WITHDRAW_FEE_RATIO_DENOMINATOR};
 use crate::prelude::{
-    AccountId, ChainId, ContractPrice, Nonce, PairId, Parameter, SlotId, SpotPriceInfo, SubAccountId, TokenId,
-    ZkLinkAddress,
+    AccountId, ChainId, ContractPrice, Nonce, PairId, Parameter, SlotId, SpotPriceInfo,
+    SubAccountId, TokenId, ZkLinkAddress,
 };
 use num::{BigUint, Zero};
 pub use validator::{Validate, ValidationError};
@@ -102,7 +103,9 @@ pub fn zklink_address_validator(zklink_address: &ZkLinkAddress) -> Result<(), Va
         return Err(ValidationError::new("zklink address is 0"));
     }
     if zklink_address.is_global_account_address() {
-        return Err(ValidationError::new("zklink address is global asset account address"));
+        return Err(ValidationError::new(
+            "zklink address is global asset account address",
+        ));
     }
     Ok(())
 }
@@ -160,16 +163,22 @@ pub fn margin_rate_validator(margin_ratio: u8) -> Result<(), ValidationError> {
 /// Check contracts prices infos
 ///
 /// - contracts_prices must be ordered by pair_id from smallest to largest
-pub fn contract_prices_validator(contracts_prices: &[ContractPrice]) -> Result<(), ValidationError> {
+pub fn contract_prices_validator(
+    contracts_prices: &[ContractPrice],
+) -> Result<(), ValidationError> {
     if contracts_prices.len() != USED_POSITION_NUMBER {
         return Err(ValidationError::new("contract prices number mismatch"));
     }
     for (info, pair_id) in contracts_prices.iter().zip(0..USED_POSITION_NUMBER) {
         if let Err(e) = info.validate() {
-            return Err(ValidationError::new(e.into_errors().into_keys().last().unwrap()));
+            return Err(ValidationError::new(
+                e.into_errors().into_keys().last().unwrap(),
+            ));
         }
         if *info.pair_id != pair_id as u16 {
-            return Err(ValidationError::new("contracts prices array are wrong order"));
+            return Err(ValidationError::new(
+                "contracts prices array are wrong order",
+            ));
         }
     }
     Ok(())
@@ -184,7 +193,9 @@ pub fn margin_prices_validator(margin_prices: &[SpotPriceInfo]) -> Result<(), Va
     }
     for info in margin_prices.iter() {
         if let Err(e) = info.validate() {
-            return Err(ValidationError::new(e.into_errors().into_keys().last().unwrap()));
+            return Err(ValidationError::new(
+                e.into_errors().into_keys().last().unwrap(),
+            ));
         }
     }
     Ok(())
@@ -236,7 +247,9 @@ pub fn nonce_validator(nonce: &Nonce) -> Result<(), ValidationError> {
 /// - nonce should < MAX_ORDER_NONCE
 pub fn order_nonce_validator(nonce: &Nonce) -> Result<(), ValidationError> {
     if *nonce >= MAX_ORDER_NONCE {
-        return Err(ValidationError::new("The order nonce has reached its maximum."));
+        return Err(ValidationError::new(
+            "The order nonce has reached its maximum.",
+        ));
     }
     Ok(())
 }
@@ -246,7 +259,9 @@ pub fn order_nonce_validator(nonce: &Nonce) -> Result<(), ValidationError> {
 /// - funding rate should not eq i16::MIN(for the convenience of the circuit)
 pub fn funding_rate_validator(rate: i16) -> Result<(), ValidationError> {
     if rate == i16::MIN {
-        return Err(ValidationError::new("The funding rate disables i16 minimum value"));
+        return Err(ValidationError::new(
+            "The funding rate disables i16 minimum value",
+        ));
     }
     Ok(())
 }
@@ -261,7 +276,9 @@ pub fn parameter_validator(param: &Parameter) -> Result<(), ValidationError> {
             }
             for funding_info in infos {
                 if let Err(e) = funding_info.validate() {
-                    return Err(ValidationError::new(e.into_errors().into_keys().last().unwrap()));
+                    return Err(ValidationError::new(
+                        e.into_errors().into_keys().last().unwrap(),
+                    ));
                 }
             }
         }
@@ -290,10 +307,14 @@ pub fn parameter_validator(param: &Parameter) -> Result<(), ValidationError> {
                 return Err(ValidationError::new("pair symbol are not ascii chars"));
             }
             if symbol.len() > PAIR_SYMBOL_BYTES {
-                return Err(ValidationError::new("pair symbol chars length out of range"));
+                return Err(ValidationError::new(
+                    "pair symbol chars length out of range",
+                ));
             }
             if *initial_margin_rate >= 1000 || *maintenance_margin_rate >= 1000 {
-                return Err(ValidationError::new("initial or maintenance margin rate out of range"));
+                return Err(ValidationError::new(
+                    "initial or maintenance margin rate out of range",
+                ));
             }
         }
     }

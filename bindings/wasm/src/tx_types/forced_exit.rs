@@ -56,7 +56,8 @@ impl ForcedExitBuilder {
             initiator_nonce: initiator_nonce.into(),
             target_sub_account_id: target_sub_account_id.into(),
             withdraw_to_l1,
-            exit_amount: BigUint::from_str(&exit_amount).map_err(|e| InvalidBigIntStr(e.to_string()))?,
+            exit_amount: BigUint::from_str(&exit_amount)
+                .map_err(|e| InvalidBigIntStr(e.to_string()))?,
         };
         Ok(ForcedExitBuilder { inner })
     }

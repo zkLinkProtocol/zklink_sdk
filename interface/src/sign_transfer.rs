@@ -79,7 +79,10 @@ pub fn sign_starknet_transfer(
 ) -> Result<TxSignature, SignError> {
     tx.signature = zklink_signer.sign_musig(&tx.get_bytes())?;
     let message = tx.get_starknet_sign_msg(token_symbol);
-    let typed_data = TypedData::new(TypedDataMessage::Transaction { message }, chain_id.to_string());
+    let typed_data = TypedData::new(
+        TypedDataMessage::Transaction { message },
+        chain_id.to_string(),
+    );
     let starknet_signature = signer.sign_message(&typed_data, addr)?;
 
     Ok(TxSignature {
@@ -103,7 +106,8 @@ mod tests {
             account_id: AccountId(1),
             from_sub_account_id: SubAccountId(1),
             to_sub_account_id: SubAccountId(1),
-            to_address: ZkLinkAddress::from_str("0x0000000000000000000000000000000000000000").unwrap(),
+            to_address: ZkLinkAddress::from_str("0x0000000000000000000000000000000000000000")
+                .unwrap(),
             token: TokenId(1),
             amount: BigUint::from_str("1000000000000000000").unwrap(),
             fee: BigUint::from_str("10000000000").unwrap(),
@@ -113,7 +117,9 @@ mod tests {
         let tx = builder.build();
 
         let signature = sign_eth_transfer(&eth_signer, &zk_signer, tx, "USD").unwrap();
-        let eth_sign = signature.layer1_signature.expect("transfer must has eth signature");
+        let eth_sign = signature
+            .layer1_signature
+            .expect("transfer must has eth signature");
         if let TxLayer1Signature::EthereumSignature(eth_sign) = eth_sign {
             assert_eq!(eth_sign.as_hex(), "0x08c9cd25416c871a153e9d51385c28413311e8ed055a195e4f5e8c229244e1a05bab15a9e6eb1cff9a5d237d878c41553215341742779745574a631d89e09a831b");
         }

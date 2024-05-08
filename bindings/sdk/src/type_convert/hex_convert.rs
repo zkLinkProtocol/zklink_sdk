@@ -1,4 +1,7 @@
-use crate::{PackedEthSignature, PackedPublicKey, PackedSignature, PubKeyHash, TxHash, UniffiCustomTypeConverter};
+use crate::{
+    PackedEthSignature, PackedPublicKey, PackedSignature, PubKeyHash, TxHash,
+    UniffiCustomTypeConverter,
+};
 use zklink_sdk_signers::starknet_signer::StarkEip712Signature;
 
 macro_rules! ffi_hex_convert {

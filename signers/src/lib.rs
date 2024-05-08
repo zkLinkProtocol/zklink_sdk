@@ -18,6 +18,10 @@ pub struct RpcErr {
 
 impl std::fmt::Display for RpcErr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "error code: {},error message: {}", self.code, self.message)
+        write!(
+            f,
+            "error code: {},error message: {}",
+            self.code, self.message
+        )
     }
 }

@@ -113,7 +113,8 @@ impl FromStr for ZkLinkAddress {
         if !s.starts_with("0x") {
             return Err(Error::NotStartWithZerox);
         }
-        let bytes = hex::decode(s.trim_start_matches("0x")).map_err(|e| Error::DecodeFromHexErr(e.to_string()))?;
+        let bytes = hex::decode(s.trim_start_matches("0x"))
+            .map_err(|e| Error::DecodeFromHexErr(e.to_string()))?;
         if !(bytes.len() == 32 || bytes.len() == 20) {
             return Err(Error::SizeMismatch);
         }
@@ -225,14 +226,18 @@ mod tests {
     #[test]
     fn test_address_convert() {
         // zklink address and starknet address convert
-        let starknet_address =
-            FieldElement::from_str("0x3c9a304c229732090db86a0f1db015c08aa99e31bd68352855a910e477063f8").unwrap();
+        let starknet_address = FieldElement::from_str(
+            "0x3c9a304c229732090db86a0f1db015c08aa99e31bd68352855a910e477063f8",
+        )
+        .unwrap();
         let zklink_address: ZkLinkAddress = starknet_address.into();
         let address: FieldElement = zklink_address.into();
         assert_eq!(address, starknet_address);
 
-        let zklink_address =
-            ZkLinkAddress::from_str("0x03c9a304c229732090db86a0f1db015c08aa99e31bd68352855a910e477063f8").unwrap();
+        let zklink_address = ZkLinkAddress::from_str(
+            "0x03c9a304c229732090db86a0f1db015c08aa99e31bd68352855a910e477063f8",
+        )
+        .unwrap();
         let address: FieldElement = zklink_address.into();
         assert_eq!(address, starknet_address);
 
@@ -242,7 +247,8 @@ mod tests {
         let address: Address = zklink_address.into();
         assert_eq!(address, eth_address);
 
-        let zklink_address = ZkLinkAddress::from_str("0x3D809E414BA4893709C85F242BA3617481BC4126").unwrap();
+        let zklink_address =
+            ZkLinkAddress::from_str("0x3D809E414BA4893709C85F242BA3617481BC4126").unwrap();
         let address: Address = zklink_address.into();
         assert_eq!(address, eth_address);
     }

@@ -36,10 +36,14 @@ impl Create2Data {
     pub fn new(creator_address: &str, salt: &str, code_hash: &str) -> Result<Create2Data, JsValue> {
         let create2_data = ChangePubKeyCreate2Data {
             creator_address: ZkLinkAddress::from_hex(creator_address)?,
-            salt_arg: H256::from_str(&salt).map_err(|e| TypeError::DecodeFromHexErr(e.to_string()))?,
-            code_hash: H256::from_str(code_hash).map_err(|e| TypeError::DecodeFromHexErr(e.to_string()))?,
+            salt_arg: H256::from_str(&salt)
+                .map_err(|e| TypeError::DecodeFromHexErr(e.to_string()))?,
+            code_hash: H256::from_str(code_hash)
+                .map_err(|e| TypeError::DecodeFromHexErr(e.to_string()))?,
         };
-        Ok(Create2Data { inner: create2_data })
+        Ok(Create2Data {
+            inner: create2_data,
+        })
     }
 
     #[wasm_bindgen]
@@ -65,7 +69,9 @@ impl ChangePubKey {
         verifying_contract: String,
     ) -> Result<String, JsValue> {
         let contract = ZkLinkAddress::from_str(&verifying_contract)?;
-        let typed_data = self.inner.to_eip712_request_payload(layer_one_chain_id, &contract)?;
+        let typed_data = self
+            .inner
+            .to_eip712_request_payload(layer_one_chain_id, &contract)?;
         Ok(typed_data.raw_data)
     }
 }

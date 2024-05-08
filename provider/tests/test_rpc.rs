@@ -8,7 +8,9 @@ mod test {
     use zklink_sdk_signers::zklink_signer::{PubKeyHash, ZkLinkSigner};
     use zklink_sdk_types::basic_types::BigUint;
     use zklink_sdk_types::basic_types::GetBytes;
-    use zklink_sdk_types::basic_types::{AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress};
+    use zklink_sdk_types::basic_types::{
+        AccountId, ChainId, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
+    };
     use zklink_sdk_types::tx_builder::{ChangePubKeyBuilder, OrderMatchingBuilder};
     use zklink_sdk_types::tx_type::order_matching::Order;
     use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
@@ -37,9 +39,14 @@ mod test {
         };
         let change_pubkey = builder.build();
         let message = change_pubkey
-            .to_eip712_request_payload(l1_client_id, &ZkLinkAddress::from_str(main_contract).unwrap())
+            .to_eip712_request_payload(
+                l1_client_id,
+                &ZkLinkAddress::from_str(main_contract).unwrap(),
+            )
             .unwrap();
-        let signature = eth_signer.sign_message(message.raw_data.as_bytes()).unwrap();
+        let signature = eth_signer
+            .sign_message(message.raw_data.as_bytes())
+            .unwrap();
         let builder_with_sig = ChangePubKeyBuilder {
             chain_id: ChainId(1),
             account_id: AccountId(10),
@@ -55,7 +62,9 @@ mod test {
         tx.sign(&zklink_signer).unwrap();
 
         //use jsonrpsee
-        let client = HttpClientBuilder::default().build("https://dev-gw-v1.zk.link").unwrap();
+        let client = HttpClientBuilder::default()
+            .build("https://dev-gw-v1.zk.link")
+            .unwrap();
         let ret = client
             .tx_submit(ZkLinkTx::ChangePubKey(Box::new(tx.clone())), None)
             .await;
@@ -117,9 +126,14 @@ mod test {
         order_matching.sign(&zklink_signer).unwrap();
 
         //use jsonrpsee
-        let client = HttpClientBuilder::default().build("https://aws-gw-v2.zk.link").unwrap();
+        let client = HttpClientBuilder::default()
+            .build("https://aws-gw-v2.zk.link")
+            .unwrap();
         let ret = client
-            .tx_submit(ZkLinkTx::OrderMatching(Box::new(order_matching.clone())), None)
+            .tx_submit(
+                ZkLinkTx::OrderMatching(Box::new(order_matching.clone())),
+                None,
+            )
             .await;
         println!("{:?}", ret)
     }

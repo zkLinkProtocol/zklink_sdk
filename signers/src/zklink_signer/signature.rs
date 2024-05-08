@@ -94,7 +94,8 @@ impl PackedSignature {
 
     pub fn from_hex(s: &str) -> Result<Self, Error> {
         let s = s.strip_prefix("0x").unwrap_or(s);
-        let raw = hex::decode(s).map_err(|_e| Error::InvalidSignature("can't convert string to bytes".into()))?;
+        let raw = hex::decode(s)
+            .map_err(|_e| Error::InvalidSignature("can't convert string to bytes".into()))?;
         Self::from_bytes(&raw)
     }
 }
@@ -136,7 +137,8 @@ impl ZkLinkSignature {
     /// Create a ZkLinkSignature from hex string which starts with 0x or not
     pub fn from_hex(s: &str) -> Result<Self, Error> {
         let s = s.strip_prefix("0x").unwrap_or(s);
-        let raw = hex::decode(s).map_err(|_| Error::InvalidSignature("invalid signature string".into()))?;
+        let raw = hex::decode(s)
+            .map_err(|_| Error::InvalidSignature("invalid signature string".into()))?;
         Self::from_bytes(&raw)
     }
 

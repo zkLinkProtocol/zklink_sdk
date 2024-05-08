@@ -41,10 +41,13 @@ impl StarknetJsonRpcSigner {
         self.signer.address()
     }
 
-    pub async fn sign_message(&self, message: TypedDataMessage) -> Result<StarkEip712Signature, StarkSignerError> {
+    pub async fn sign_message(
+        &self,
+        message: TypedDataMessage,
+    ) -> Result<StarkEip712Signature, StarkSignerError> {
         let typed_data = TypedData::new(message, self.chain_id.clone());
-        let typed_data =
-            serde_wasm_bindgen::to_value(&typed_data).map_err(|e| StarkSignerError::SignError(e.to_string()))?;
+        let typed_data = serde_wasm_bindgen::to_value(&typed_data)
+            .map_err(|e| StarkSignerError::SignError(e.to_string()))?;
         let signature = self.signer.signMessage(&typed_data).await.map_err(|e| {
             let err_str = format!("{:?}", e);
             let e = err_str.trim_start_matches("JsValue(").trim_end_matches(')');
@@ -58,7 +61,8 @@ impl StarknetJsonRpcSigner {
 
         let signature = StarkEcdsaSignature::from_rs_str(&signature[0], &signature[1])
             .map_err(|e| StarkSignerError::InvalidSignature(e.to_string()))?;
-        let pub_key = FieldElement::from_str(&self.pub_key).map_err(|e| StarkSignerError::SignError(e.to_string()))?;
+        let pub_key = FieldElement::from_str(&self.pub_key)
+            .map_err(|e| StarkSignerError::SignError(e.to_string()))?;
         Ok(StarkEip712Signature { pub_key, signature })
     }
 }

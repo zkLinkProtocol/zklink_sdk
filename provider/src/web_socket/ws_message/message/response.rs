@@ -1,6 +1,8 @@
 use crate::response::TxResp;
 use crate::web_socket::proto::event::Event;
-use crate::web_socket::ws_message::message::response::ServerEvent::{PriorityEvent, TxExecuteResult};
+use crate::web_socket::ws_message::message::response::ServerEvent::{
+    PriorityEvent, TxExecuteResult,
+};
 use crate::web_socket::ws_message::topic::{Topic, TopicType};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

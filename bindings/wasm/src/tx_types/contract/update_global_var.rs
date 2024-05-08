@@ -3,7 +3,8 @@ use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::tx_builder::UpdateGlobalVarBuilder as TxUpdateGlobalVarBuilder;
 use zklink_sdk_types::tx_type::contract::{
-    FundingInfo as InnerFundingInfo, Parameter as ContractParameter, UpdateGlobalVar as UpdateGlobalVarTx,
+    FundingInfo as InnerFundingInfo, Parameter as ContractParameter,
+    UpdateGlobalVar as UpdateGlobalVarTx,
 };
 use zklink_sdk_types::tx_type::zklink_tx::ZkLinkTx;
 
@@ -124,7 +125,12 @@ pub struct ContractInfo {
 #[wasm_bindgen]
 impl ContractInfo {
     #[wasm_bindgen(constructor)]
-    pub fn new(pair_id: u8, symbol: String, initial_margin_rate: u16, maintenance_margin_rate: u16) -> ContractInfo {
+    pub fn new(
+        pair_id: u8,
+        symbol: String,
+        initial_margin_rate: u16,
+        maintenance_margin_rate: u16,
+    ) -> ContractInfo {
         ContractInfo {
             pair_id,
             symbol,
@@ -155,7 +161,8 @@ impl From<Parameter> for ContractParameter {
                 }
             }
             ParameterType::MarginInfo => {
-                let value: MarginInfo = serde_wasm_bindgen::from_value(parameter.parameter_value).unwrap();
+                let value: MarginInfo =
+                    serde_wasm_bindgen::from_value(parameter.parameter_value).unwrap();
                 ContractParameter::MarginInfo {
                     margin_id: value.margin_id.into(),
                     token_id: value.token_id.into(),
@@ -163,11 +170,13 @@ impl From<Parameter> for ContractParameter {
                 }
             }
             ParameterType::FundingInfos => {
-                let value: Vec<InnerFundingInfo> = serde_wasm_bindgen::from_value(parameter.parameter_value).unwrap();
+                let value: Vec<InnerFundingInfo> =
+                    serde_wasm_bindgen::from_value(parameter.parameter_value).unwrap();
                 ContractParameter::FundingInfos { infos: value }
             }
             ParameterType::ContractInfo => {
-                let value: ContractInfo = serde_wasm_bindgen::from_value(parameter.parameter_value).unwrap();
+                let value: ContractInfo =
+                    serde_wasm_bindgen::from_value(parameter.parameter_value).unwrap();
                 ContractParameter::ContractInfo {
                     pair_id: value.pair_id.into(),
                     symbol: value.symbol,

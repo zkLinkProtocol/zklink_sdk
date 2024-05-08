@@ -36,8 +36,16 @@ impl EIP712Domain {
         })
     }
 
-    pub fn new_zklink_domain(layer_one_chain_id: u32, eth_contract_addr: String) -> Result<Self, EthSignerError> {
-        EIP712Domain::new("ZkLink".into(), "1".into(), layer_one_chain_id, eth_contract_addr)
+    pub fn new_zklink_domain(
+        layer_one_chain_id: u32,
+        eth_contract_addr: String,
+    ) -> Result<Self, EthSignerError> {
+        EIP712Domain::new(
+            "ZkLink".into(),
+            "1".into(),
+            layer_one_chain_id,
+            eth_contract_addr,
+        )
     }
 }
 
@@ -67,17 +75,20 @@ where
     pub fn new(domain: EIP712Domain, value: M) -> Result<TypedData<M>, EthSignerError> {
         // Get primary type.
 
-        let encode_type = eip712_encode_type(&value).map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?;
+        let encode_type =
+            eip712_encode_type(&value).map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?;
 
         let pos = encode_type.find('(').unwrap();
 
         let primary_type = encode_type[..pos].to_string();
 
-        let mut type_definitions =
-            eip712_type_definitions(&domain).map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?;
+        let mut type_definitions = eip712_type_definitions(&domain)
+            .map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?;
 
-        type_definitions
-            .extend(eip712_type_definitions(&value).map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?);
+        type_definitions.extend(
+            eip712_type_definitions(&value)
+                .map_err(|e| EthSignerError::Eip712Failed(e.to_string()))?,
+        );
 
         Ok(TypedData {
             types: type_definitions,

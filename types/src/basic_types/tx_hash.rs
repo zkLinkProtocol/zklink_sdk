@@ -65,7 +65,8 @@ impl FromStr for TxHash {
             return Err(Error::NotStartWithZerox);
         }
         let remove_prefix_start = zerox_prefix.len();
-        let bytes = hex::decode(&s[remove_prefix_start..]).map_err(|e| Error::DecodeFromHexErr(e.to_string()))?;
+        let bytes = hex::decode(&s[remove_prefix_start..])
+            .map_err(|e| Error::DecodeFromHexErr(e.to_string()))?;
         if bytes.len() != 32 {
             return Err(Error::SizeMismatch);
         }

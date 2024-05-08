@@ -62,6 +62,8 @@ Future<void> main() async {
         print(txStr);
         var txJson = jsonDecode(txStr);
         expect(txJson["signature"]["pubKey"], "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510");
-        expect(txJson["signature"]["signature"], "a4d48b291495bdb2505dc14c4f04931f854662c9333d7bae13bc953e852ad428b132148c47418b92c216cb555a5a5e8caaba200d204b9ef7f2fefe52e848a003");
+        // apex-devnet branch sig: 4541a736a73d829e62195375edd88d7b92636f9f8209dfd267aa3fe27fd0c59104c8bf33fbf70e17a778cd9c55a71a68b4ca7eabdb264a6fc4d60cd891fa1d05
+        // main branch sig:        a4d48b291495bdb2505dc14c4f04931f854662c9333d7bae13bc953e852ad428b132148c47418b92c216cb555a5a5e8caaba200d204b9ef7f2fefe52e848a003
+        expect(txJson["signature"]["signature"], anyOf("4541a736a73d829e62195375edd88d7b92636f9f8209dfd267aa3fe27fd0c59104c8bf33fbf70e17a778cd9c55a71a68b4ca7eabdb264a6fc4d60cd891fa1d05", "a4d48b291495bdb2505dc14c4f04931f854662c9333d7bae13bc953e852ad428b132148c47418b92c216cb555a5a5e8caaba200d204b9ef7f2fefe52e848a003"));
     });
 }

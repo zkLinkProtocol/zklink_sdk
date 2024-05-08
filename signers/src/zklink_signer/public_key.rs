@@ -1,7 +1,9 @@
 use super::error::ZkSignerError as Error;
 use super::{EddsaPubkey, Engine, JUBJUB_PARAMS};
 use crate::zklink_signer::pubkey_hash::PubKeyHash;
-use crate::zklink_signer::utils::{append_le_fixed_width, pack_bits_into_bytes, rescue_hash_elements};
+use crate::zklink_signer::utils::{
+    append_le_fixed_width, pack_bits_into_bytes, rescue_hash_elements,
+};
 use crate::zklink_signer::{NEW_PUBKEY_HASH_WIDTH, PACKED_POINT_SIZE};
 use franklin_crypto::jubjub::edwards;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -64,7 +66,8 @@ impl PackedPublicKey {
 
     pub fn from_hex(s: &str) -> Result<Self, Error> {
         let s = s.strip_prefix("0x").unwrap_or(s);
-        let raw = hex::decode(s).map_err(|_| Error::InvalidPubkey("can't convert to public key".into()))?;
+        let raw = hex::decode(s)
+            .map_err(|_| Error::InvalidPubkey("can't convert to public key".into()))?;
         Self::from_bytes(&raw)
     }
 

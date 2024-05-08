@@ -64,8 +64,11 @@ mod test {
 
     #[test]
     fn test_full_exit_get_bytes() {
-        let address = ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
-        let l2_hash = H256::from_str("0xe35f3a39d542f6d276c2f203e8fd64fcb8bf5db062b71ccacf45d5ecd9d456f3").unwrap();
+        let address =
+            ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
+        let l2_hash =
+            H256::from_str("0xe35f3a39d542f6d276c2f203e8fd64fcb8bf5db062b71ccacf45d5ecd9d456f3")
+                .unwrap();
         let default_oracle_price = OraclePrices::default();
         let builder = FullExitBuilder {
             to_chain_id: ChainId(1),
@@ -82,8 +85,9 @@ mod test {
         let full_exit = builder.build();
         let bytes = full_exit.get_bytes();
         let excepted_bytes = [
-            0, 0, 0, 0, 0, 0, 0, 100, 227, 95, 58, 57, 213, 66, 246, 210, 118, 194, 242, 3, 232, 253, 100, 252, 184,
-            191, 93, 176, 98, 183, 28, 202, 207, 69, 213, 236, 217, 212, 86, 243,
+            0, 0, 0, 0, 0, 0, 0, 100, 227, 95, 58, 57, 213, 66, 246, 210, 118, 194, 242, 3, 232,
+            253, 100, 252, 184, 191, 93, 176, 98, 183, 28, 202, 207, 69, 213, 236, 217, 212, 86,
+            243,
         ];
         assert_eq!(bytes, excepted_bytes);
     }

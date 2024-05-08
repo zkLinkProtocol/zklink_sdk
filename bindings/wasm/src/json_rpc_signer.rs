@@ -17,11 +17,13 @@ use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::Signer;
 use zklink_sdk_types::tx_type::change_pubkey::ChangePubKey as TxChangePubKey;
 use zklink_sdk_types::tx_type::change_pubkey::Create2Data as ChangePubKeyCreate2Data;
 use zklink_sdk_types::tx_type::contract::{
-    AutoDeleveraging as TxAutoDeleveraging, Contract as TxContract, ContractMatching as TxContractMatching,
-    Funding as TxFunding, Liquidation as TxLiquidation,
+    AutoDeleveraging as TxAutoDeleveraging, Contract as TxContract,
+    ContractMatching as TxContractMatching, Funding as TxFunding, Liquidation as TxLiquidation,
 };
 use zklink_sdk_types::tx_type::forced_exit::ForcedExit as TxForcedExit;
-use zklink_sdk_types::tx_type::order_matching::{Order as TxOrder, OrderMatching as TxOrderMatching};
+use zklink_sdk_types::tx_type::order_matching::{
+    Order as TxOrder, OrderMatching as TxOrderMatching,
+};
 use zklink_sdk_types::tx_type::transfer::Transfer as TxTransfer;
 use zklink_sdk_types::tx_type::withdraw::Withdraw as TxWithdraw;
 
@@ -37,8 +39,16 @@ pub fn new_with_provider(provider: Provider) -> Result<JsonRpcSigner, JsValue> {
 }
 
 #[wasm_bindgen(js_name=newRpcSignerWithSigner)]
-pub fn new_with_signer(signer: Signer, pub_key: String, chain_id: String) -> Result<JsonRpcSigner, JsValue> {
-    let inner = InterfaceJsonRpcSigner::new(JsonRpcProvider::Signer(signer), Some(pub_key), Some(chain_id))?;
+pub fn new_with_signer(
+    signer: Signer,
+    pub_key: String,
+    chain_id: String,
+) -> Result<JsonRpcSigner, JsValue> {
+    let inner = InterfaceJsonRpcSigner::new(
+        JsonRpcProvider::Signer(signer),
+        Some(pub_key),
+        Some(chain_id),
+    )?;
     Ok(JsonRpcSigner { inner })
 }
 
@@ -73,15 +83,23 @@ impl JsonRpcSigner {
     pub fn sign_change_pubkey_with_onchain(&self, tx: ChangePubKey) -> Result<JsValue, JsValue> {
         let inner_tx = tx.json_value()?;
         let change_pubkey: TxChangePubKey = serde_wasm_bindgen::from_value(inner_tx)?;
-        let signature = self.inner.sign_change_pubkey_with_onchain_auth_data(change_pubkey)?;
+        let signature = self
+            .inner
+            .sign_change_pubkey_with_onchain_auth_data(change_pubkey)?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
     }
 
     #[wasm_bindgen(js_name=signChangePubkeyWithEthEcdsaAuth)]
-    pub async fn sign_change_pubkey_with_eth_ecdsa_auth(&self, tx: ChangePubKey) -> Result<JsValue, JsValue> {
+    pub async fn sign_change_pubkey_with_eth_ecdsa_auth(
+        &self,
+        tx: ChangePubKey,
+    ) -> Result<JsValue, JsValue> {
         let inner_tx = tx.json_value()?;
         let change_pubkey: TxChangePubKey = serde_wasm_bindgen::from_value(inner_tx)?;
-        let signature = self.inner.sign_change_pubkey_with_eth_ecdsa_auth(change_pubkey).await?;
+        let signature = self
+            .inner
+            .sign_change_pubkey_with_eth_ecdsa_auth(change_pubkey)
+            .await?;
         Ok(serde_wasm_bindgen::to_value(&signature)?)
     }
 
@@ -102,7 +120,11 @@ impl JsonRpcSigner {
     }
 
     #[wasm_bindgen(js_name = signTransfer)]
-    pub async fn sign_transfer(&self, tx: Transfer, token_symbol: &str) -> Result<JsValue, JsValue> {
+    pub async fn sign_transfer(
+        &self,
+        tx: Transfer,
+        token_symbol: &str,
+    ) -> Result<JsValue, JsValue> {
         let inner_tx = tx.json_value()?;
         let transfer: TxTransfer = serde_wasm_bindgen::from_value(inner_tx)?;
         let signature = self.inner.sign_transfer(transfer, token_symbol).await?;
@@ -126,7 +148,11 @@ impl JsonRpcSigner {
     }
 
     #[wasm_bindgen(js_name=signWithdraw)]
-    pub async fn sign_withdraw(&self, tx: Withdraw, token_symbol: &str) -> Result<JsValue, JsValue> {
+    pub async fn sign_withdraw(
+        &self,
+        tx: Withdraw,
+        token_symbol: &str,
+    ) -> Result<JsValue, JsValue> {
         let inner_tx = tx.json_value()?;
         let withdraw: TxWithdraw = serde_wasm_bindgen::from_value(inner_tx)?;
         let signature = self.inner.sign_withdraw(withdraw, token_symbol).await?;
