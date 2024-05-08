@@ -1,0 +1,103 @@
+name: build_dart_sdk
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - x86_64-pc-windows-msvc
+          - i686-pc-windows-msvc
+    steps:
+    - name: Prepare
+      run: git config --global core.autocrlf false
+    - uses: actions/checkout@v4
+    - name: Compile
+      run: |
+        cd bindings/dart/rust
+        rustup set profile minimal
+        rustup toolchain install stable
+        rustup default stable
+        rustup override set stable
+        rustup target add --toolchain stable ${{ matrix.target }}
+        cargo build --profile dart --target=${{ matrix.target }}
+        cd ../../../
+        move target\${{ matrix.target }}\dart\*.dll .
+        7z a ${{ matrix.target }}.7z *.dll
+    - name: Upload
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ matrix.target }}.7z
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+  build-osx:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - x86_64-apple-darwin
+          - aarch64-apple-darwin
+          - aarch64-apple-ios
+    steps:
+    - uses: actions/checkout@v4
+    - name: Compile
+      run: |
+        cd bindings/dart/rust
+        rustup set profile minimal
+        rustup toolchain install stable
+        rustup default stable
+        rustup override set stable
+        rustup target add --toolchain stable ${{ matrix.target }}
+        cargo build --profile dart --target=${{ matrix.target }}
+        cd ../../../
+        mv target/${{ matrix.target }}/dart/*.dylib .
+        tar acf ${{ matrix.target }}.tar.xz *.dylib
+    - name: Upload
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ matrix.target }}.tar.xz
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - i686-unknown-linux-gnu
+          - x86_64-unknown-linux-gnu
+          - aarch64-unknown-linux-gnu
+          - armv7-linux-androideabi
+          - aarch64-linux-android
+    steps:
+    - uses: actions/checkout@v4
+    - name: Compile
+      run: |
+        cd bindings/dart/rust
+        rustup set profile minimal
+        rustup toolchain install stable
+        rustup default stable
+        rustup override set stable
+        rustup target add --toolchain stable ${{ matrix.target }}
+        cargo install cross --git https://github.com/cross-rs/cross
+        cross build --profile dart --target=${{ matrix.target }}
+        cd ../../../
+        mv target/${{ matrix.target }}/dart/*.so .
+        tar acf ${{ matrix.target }}.tar.xz *.so
+    - name: Upload
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ matrix.target }}.tar.xz
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true

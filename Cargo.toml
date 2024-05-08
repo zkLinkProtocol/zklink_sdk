@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+    "bindings/dart/rust",
     "bindings/sdk",
     "bindings/wasm",
     "interface",
@@ -69,3 +70,8 @@ strip = true  # Automatically strip symbols from the binary.
 # debug = false
 # lto = true
 # codegen-units = 1
+
+[profile.dart]
+inherits = "release"
+debug = false
+lto = true
