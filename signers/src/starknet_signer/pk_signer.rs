@@ -25,7 +25,8 @@ impl StarkSigner {
     }
 
     pub fn new_from_hex_str(hex_str: &str) -> Result<Self, Error> {
-        let private_key = FieldElement::from_hex_be(hex_str).map_err(|e| Error::InvalidPrivKey(e.to_string()))?;
+        let private_key =
+            FieldElement::from_hex_be(hex_str).map_err(|e| Error::InvalidPrivKey(e.to_string()))?;
         let signing_key = SigningKey::from_secret_scalar(private_key);
         Ok(Self(signing_key))
     }
@@ -35,7 +36,10 @@ impl StarkSigner {
     pub fn sign_message(&self, msg: &TypedData, addr: &str) -> Result<StarkEip712Signature, Error> {
         let addr = FieldElement::from_hex_be(addr).map_err(|e| Error::SignError(e.to_string()))?;
         let hash = msg.get_message_hash(addr)?;
-        let signature = self.0.sign(&hash).map_err(|e| Error::sign_error(e.to_string()))?;
+        let signature = self
+            .0
+            .sign(&hash)
+            .map_err(|e| Error::sign_error(e.to_string()))?;
         let s = StarkEip712Signature {
             pub_key: self.public_key(),
             signature: StarkEcdsaSignature {
@@ -83,7 +87,10 @@ mod tests {
         };
 
         let message = transfer.clone();
-        let typed_data = TypedData::new(TypedDataMessage::Transaction { message }, "SN_GOERLI".to_string());
+        let typed_data = TypedData::new(
+            TypedDataMessage::Transaction { message },
+            "SN_GOERLI".to_string(),
+        );
         let signature = StarkEip712Signature::from_hex(sig_str).unwrap();
         let is_ok = signature.verify(&typed_data, addr).unwrap();
         assert!(is_ok);

@@ -54,16 +54,21 @@ fn test_mail() {
         eip712_encode_type(&mail).expect("generate e712 types")
     );
 
-    let expect_request: TypedData<Mail> = serde_json::from_str(include_str!("./eip712.json")).unwrap();
+    let expect_request: TypedData<Mail> =
+        serde_json::from_str(include_str!("./eip712.json")).unwrap();
 
-    assert_eq!(TypedData::<Mail>::new(domain_1, mail).unwrap(), expect_request);
+    assert_eq!(
+        TypedData::<Mail>::new(domain_1, mail).unwrap(),
+        expect_request
+    );
 
     assert_eq!(
         hex::encode(expect_request.sign_hash().unwrap()),
         "be609aee343fb3c4b28e1df9e632fca64fcfaede20f02e86244efddf30957bd2"
     );
 
-    let expect_request: TypedData<serde_json::Value> = serde_json::from_str(include_str!("./eip712.json")).unwrap();
+    let expect_request: TypedData<serde_json::Value> =
+        serde_json::from_str(include_str!("./eip712.json")).unwrap();
 
     assert_eq!(
         hex::encode(expect_request.sign_hash().unwrap()),

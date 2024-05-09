@@ -23,15 +23,17 @@ use zklink_sdk_types::basic_types::tx_hash::TxHash;
 use zklink_sdk_types::basic_types::zklink_address::ZkLinkAddress;
 use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::basic_types::{
-    AccountId, BigUint, BlockNumber, ChainId, EthBlockId, MarginId, Nonce, PairId, PriorityOpId, SlotId, SubAccountId,
-    TimeStamp, TokenId,
+    AccountId, BigUint, BlockNumber, ChainId, EthBlockId, MarginId, Nonce, PairId, PriorityOpId,
+    SlotId, SubAccountId, TimeStamp, TokenId,
 };
 use zklink_sdk_types::error::TypeError;
 use zklink_sdk_types::prelude::*;
 use zklink_sdk_types::tx_type::{TxTrait, ZkSignatureTrait};
 
 use zklink_sdk_interface::error::SignError;
-use zklink_sdk_interface::sign_change_pubkey::{create_signed_change_pubkey, eth_signature_of_change_pubkey};
+use zklink_sdk_interface::sign_change_pubkey::{
+    create_signed_change_pubkey, eth_signature_of_change_pubkey,
+};
 use zklink_sdk_interface::signer::L1SignerType;
 use zklink_sdk_interface::signer::{L1Type, Signer};
 use zklink_sdk_interface::ChangePubKeyAuthRequest;

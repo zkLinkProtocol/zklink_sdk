@@ -10,12 +10,16 @@ use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_utils::serde::BigUintSerdeAsRadix10Str;
 
 use crate::basic_types::pack::pack_fee_amount;
-use crate::basic_types::{AccountId, ChainId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress};
+use crate::basic_types::{
+    AccountId, ChainId, GetBytes, Nonce, SubAccountId, TimeStamp, TokenId, ZkLinkAddress,
+};
 use crate::params::{ORDERS_BYTES, TOKEN_MAX_PRECISION, WITHDRAW_FEE_RATIO_DENOMINATOR};
 #[cfg(feature = "ffi")]
 use crate::prelude::WithdrawBuilder;
 use crate::tx_type::validator::*;
-use crate::tx_type::{ethereum_sign_message_part, starknet_sign_message_part, TxTrait, ZkSignatureTrait};
+use crate::tx_type::{
+    ethereum_sign_message_part, starknet_sign_message_part, TxTrait, ZkSignatureTrait,
+};
 use zklink_sdk_signers::starknet_signer::typed_data::message::TxMessage;
 use zklink_sdk_signers::zklink_signer::utils::rescue_hash_orders;
 
@@ -197,7 +201,8 @@ mod test {
 
     #[test]
     fn test_get_bytes() {
-        let address = ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
+        let address =
+            ZkLinkAddress::from_str("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9").unwrap();
         let ts = 1693472232u32;
         let builder = WithdrawBuilder {
             account_id: AccountId(10),
@@ -217,9 +222,9 @@ mod test {
         let withdraw = builder.build();
         let bytes = withdraw.get_bytes();
         let excepted_bytes = [
-            35, 38, 100, 21, 162, 218, 169, 88, 46, 176, 84, 204, 61, 64, 69, 248, 70, 224, 44, 240, 208, 221, 29, 8,
-            236, 225, 227, 255, 131, 200, 226, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0,
+            35, 38, 100, 21, 162, 218, 169, 88, 46, 176, 84, 204, 61, 64, 69, 248, 70, 224, 44,
+            240, 208, 221, 29, 8, 236, 225, 227, 255, 131, 200, 226, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ];
 
         assert_eq!(bytes, excepted_bytes);

@@ -77,7 +77,9 @@ impl ZkLinkSigner {
         loop {
             let raw_priv_key = sha256_bytes(effective_seed.as_slice());
             let mut fs_repr = FsRepr::default();
-            fs_repr.read_be(&raw_priv_key[..]).expect("failed to read raw_priv_key");
+            fs_repr
+                .read_be(&raw_priv_key[..])
+                .expect("failed to read raw_priv_key");
             match Fs::from_repr(fs_repr) {
                 Ok(fs) => {
                     return Ok(Self::from_fs(fs));
@@ -96,7 +98,11 @@ impl ZkLinkSigner {
         Self::new_from_seed(&seed)
     }
 
-    pub fn new_from_hex_stark_signer(hex_private_key: &str, addr: &str, chain_id: &str) -> Result<Self, Error> {
+    pub fn new_from_hex_stark_signer(
+        hex_private_key: &str,
+        addr: &str,
+        chain_id: &str,
+    ) -> Result<Self, Error> {
         let stark_signer = StarkSigner::new_from_hex_str(hex_private_key)?;
         Self::new_from_starknet_signer(&stark_signer, addr, chain_id)
     }
@@ -108,19 +114,30 @@ impl ZkLinkSigner {
     }
 
     /// create zkLink signer from starknet signer
-    pub fn new_from_starknet_signer(starknet_signer: &StarkSigner, addr: &str, chain_id: &str) -> Result<Self, Error> {
+    pub fn new_from_starknet_signer(
+        starknet_signer: &StarkSigner,
+        addr: &str,
+        chain_id: &str,
+    ) -> Result<Self, Error> {
         let message = Message {
             data: Self::STARKNET_SIGN_MESSAGE.to_string(),
         };
-        let typed_data = TypedData::new(TypedDataMessage::CreateL2Key { message }, chain_id.to_string());
+        let typed_data = TypedData::new(
+            TypedDataMessage::CreateL2Key { message },
+            chain_id.to_string(),
+        );
         let signature = starknet_signer.sign_message(&typed_data, addr)?;
         let seed = signature.signature.to_bytes_be();
         Self::new_from_seed(&seed)
     }
 
     #[cfg(feature = "web")]
-    pub async fn new_from_eth_rpc_signer(eth_signer: &JsonRpcSigner) -> Result<(Self, Vec<u8>), Error> {
-        let signature = eth_signer.sign_message(Self::SIGN_MESSAGE.as_bytes()).await?;
+    pub async fn new_from_eth_rpc_signer(
+        eth_signer: &JsonRpcSigner,
+    ) -> Result<(Self, Vec<u8>), Error> {
+        let signature = eth_signer
+            .sign_message(Self::SIGN_MESSAGE.as_bytes())
+            .await?;
         let seed = signature.serialize_packed();
         Ok((Self::new_from_seed(&seed)?, seed.to_vec()))
     }
@@ -144,7 +161,9 @@ impl ZkLinkSigner {
         fs_repr
             .read_be(bytes)
             .map_err(|_| Error::custom_error("couldn't read private key repr"))?;
-        let private_key = FLPrivateKey::<Engine>(Fs::from_repr(fs_repr).expect("couldn't read private key from repr"));
+        let private_key = FLPrivateKey::<Engine>(
+            Fs::from_repr(fs_repr).expect("couldn't read private key from repr"),
+        );
         Ok(private_key.into())
     }
 
@@ -159,8 +178,13 @@ impl ZkLinkSigner {
             RESCUE_PARAMS.with(|rescue_params| {
                 let hashed_msg = utils::rescue_hash_tx_msg(msg);
                 let seed = Seed::deterministic_seed(self.as_ref(), &hashed_msg);
-                self.as_ref()
-                    .musig_rescue_sign(hashed_msg.as_slice(), &seed, p_g, rescue_params, jubjub_params)
+                self.as_ref().musig_rescue_sign(
+                    hashed_msg.as_slice(),
+                    &seed,
+                    p_g,
+                    rescue_params,
+                    jubjub_params,
+                )
             })
         });
         let signature = ZkLinkSignature {
@@ -176,7 +200,13 @@ impl ZkLinkSigner {
 
     pub fn public_key(&self) -> PackedPublicKey {
         let pubkey: PackedPublicKey = JUBJUB_PARAMS
-            .with(|params| PublicKey::from_private(self.as_ref(), FixedGenerators::SpendingKeyGenerator, params))
+            .with(|params| {
+                PublicKey::from_private(
+                    self.as_ref(),
+                    FixedGenerators::SpendingKeyGenerator,
+                    params,
+                )
+            })
             .into();
         pubkey
     }
@@ -196,7 +226,10 @@ mod test {
             "0x7b173e25e484eed3461091430f81b2a5bd7ae792f69701dcb073cb903f812510"
         );
         let pub_key_hash = zk_signer.public_key().public_key_hash();
-        assert_eq!(pub_key_hash.as_hex(), "0xd8d5fb6a6caef06aa3dc2abdcdc240987e5330fe");
+        assert_eq!(
+            pub_key_hash.as_hex(),
+            "0xd8d5fb6a6caef06aa3dc2abdcdc240987e5330fe"
+        );
         let zk_signer2 = zk_signer.clone();
         let pub_key_hash2 = zk_signer2.public_key().public_key_hash();
         assert_eq!(pub_key_hash.as_hex(), pub_key_hash2.as_hex());

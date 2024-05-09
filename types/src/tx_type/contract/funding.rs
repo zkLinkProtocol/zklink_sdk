@@ -1,7 +1,8 @@
 use crate::basic_types::pack::pack_fee_amount;
 use crate::basic_types::{AccountId, GetBytes, Nonce, PairId, SubAccountId, TokenId};
 use crate::params::{
-    FUNDING_RATE_BYTES, PAIR_BIT_WIDTH, PRICE_BIT_WIDTH, SIGNED_BATCH_FUNDING_BIT_WIDTH, SIGNED_FUNDING_BIT_WIDTH,
+    FUNDING_RATE_BYTES, PAIR_BIT_WIDTH, PRICE_BIT_WIDTH, SIGNED_BATCH_FUNDING_BIT_WIDTH,
+    SIGNED_FUNDING_BIT_WIDTH,
 };
 use crate::prelude::pad_front;
 use crate::prelude::validator::*;

@@ -5,7 +5,8 @@ use zklink_sdk_types::basic_types::BigUint;
 use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::AutoDeleveragingBuilder as TxAutoDeleveragingBuilder;
 use zklink_sdk_types::tx_type::contract::{
-    AutoDeleveraging as AutoDeleveragingTx, ContractPrice as InnerContractPrice, SpotPriceInfo as InnerSpotPriceInfo,
+    AutoDeleveraging as AutoDeleveragingTx, ContractPrice as InnerContractPrice,
+    SpotPriceInfo as InnerSpotPriceInfo,
 };
 
 #[wasm_bindgen]
@@ -59,7 +60,8 @@ impl AutoDeleveragingBuilder {
             adl_account_id: adl_account_id.into(),
             pair_id: pair_id.into(),
             adl_size: BigUint::from_str(&adl_size).map_err(|e| InvalidBigIntStr(e.to_string()))?,
-            adl_price: BigUint::from_str(&adl_price).map_err(|e| InvalidBigIntStr(e.to_string()))?,
+            adl_price: BigUint::from_str(&adl_price)
+                .map_err(|e| InvalidBigIntStr(e.to_string()))?,
             fee: BigUint::from_str(&fee).map_err(|e| InvalidBigIntStr(e.to_string()))?,
             fee_token: fee_token.into(),
         };

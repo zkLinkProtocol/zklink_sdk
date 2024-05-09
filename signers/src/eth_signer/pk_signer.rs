@@ -38,7 +38,10 @@ impl EthSigner {
     }
 
     /// Signs and returns the RLP-encoded transaction.
-    pub fn sign_transaction(&self, tx: &TypedTransaction) -> Result<PackedEthSignature, EthSignerError> {
+    pub fn sign_transaction(
+        &self,
+        tx: &TypedTransaction,
+    ) -> Result<PackedEthSignature, EthSignerError> {
         let key = SigningKey::from_slice(self.private_key.as_bytes()).unwrap();
         let signed = LocalWallet::from(key)
             .with_chain_id(tx.chain_id().unwrap_or_default().as_u64())
@@ -169,7 +172,9 @@ mod test {
 
         let typed_data = TypedData::new(domain, message).unwrap();
 
-        let signature = pk_signer.sign_hash(typed_data.sign_hash().unwrap().as_ref()).unwrap();
+        let signature = pk_signer
+            .sign_hash(typed_data.sign_hash().unwrap().as_ref())
+            .unwrap();
 
         assert_eq!(signature.as_hex(), "0xbf24877c59766e95717686e71a0402ba12f5db4a8aa93ac6c30b5742925ebfc26c91d6b6bb949a2b0578c397e296830dde9cc3531adbb259c4b4b06441b1a9c51b");
     }

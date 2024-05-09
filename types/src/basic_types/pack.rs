@@ -1,6 +1,7 @@
 use crate::basic_types::float_convert::FloatConversions;
 use crate::basic_types::params::{
-    AMOUNT_EXPONENT_BIT_WIDTH, AMOUNT_MANTISSA_BIT_WIDTH, FEE_EXPONENT_BIT_WIDTH, FEE_MANTISSA_BIT_WIDTH,
+    AMOUNT_EXPONENT_BIT_WIDTH, AMOUNT_MANTISSA_BIT_WIDTH, FEE_EXPONENT_BIT_WIDTH,
+    FEE_MANTISSA_BIT_WIDTH,
 };
 use num::{BigUint, FromPrimitive};
 
@@ -64,12 +65,14 @@ pub fn is_fee_amount_packable(amount: &BigUint) -> bool {
 
 /// Attempts to unpack the token amount.
 pub fn unpack_token_amount(data: &[u8]) -> Option<BigUint> {
-    FloatConversions::unpack(data, AMOUNT_EXPONENT_BIT_WIDTH, AMOUNT_MANTISSA_BIT_WIDTH).and_then(BigUint::from_u128)
+    FloatConversions::unpack(data, AMOUNT_EXPONENT_BIT_WIDTH, AMOUNT_MANTISSA_BIT_WIDTH)
+        .and_then(BigUint::from_u128)
 }
 
 /// Attempts to unpack the fee amount.
 pub fn unpack_fee_amount(data: &[u8]) -> Option<BigUint> {
-    FloatConversions::unpack(data, FEE_EXPONENT_BIT_WIDTH, FEE_MANTISSA_BIT_WIDTH).and_then(BigUint::from_u128)
+    FloatConversions::unpack(data, FEE_EXPONENT_BIT_WIDTH, FEE_MANTISSA_BIT_WIDTH)
+        .and_then(BigUint::from_u128)
 }
 
 /// Returns the closest possible packable token amount.
@@ -128,8 +131,12 @@ mod test {
         let max_mantissa_fee = BigUint::from((1u128 << FEE_MANTISSA_BIT_WIDTH) - 1);
         assert!(is_token_amount_packable(&max_mantissa_token));
         assert!(is_fee_amount_packable(&max_mantissa_fee));
-        assert!(!is_token_amount_packable(&(max_mantissa_token + BigUint::from(1u32))));
-        assert!(!is_fee_amount_packable(&(max_mantissa_fee + BigUint::from(1u32))));
+        assert!(!is_token_amount_packable(
+            &(max_mantissa_token + BigUint::from(1u32))
+        ));
+        assert!(!is_fee_amount_packable(
+            &(max_mantissa_fee + BigUint::from(1u32))
+        ));
     }
 
     #[test]

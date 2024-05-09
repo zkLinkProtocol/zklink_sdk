@@ -1,7 +1,8 @@
 use crate::basic_types::pad::pad_front;
 use crate::basic_types::{GetBytes, PairId, TokenId};
 use crate::params::{
-    CONTRACT_PRICE_BYTES, MARGIN_PRICE_BYTES, MARGIN_TOKENS_NUMBER, PRICE_BIT_WIDTH, USED_POSITION_NUMBER,
+    CONTRACT_PRICE_BYTES, MARGIN_PRICE_BYTES, MARGIN_TOKENS_NUMBER, PRICE_BIT_WIDTH,
+    USED_POSITION_NUMBER,
 };
 use crate::prelude::validator::*;
 use num::BigUint;
@@ -25,7 +26,10 @@ impl GetBytes for ContractPrice {
         let bytes_len = self.bytes_len();
         let mut contracts_encode = Vec::with_capacity(bytes_len);
         contracts_encode.extend((*self.pair_id as u8).to_be_bytes());
-        contracts_encode.extend(pad_front(&self.market_price.to_bytes_be(), PRICE_BIT_WIDTH / 8));
+        contracts_encode.extend(pad_front(
+            &self.market_price.to_bytes_be(),
+            PRICE_BIT_WIDTH / 8,
+        ));
         assert_eq!(contracts_encode.len(), bytes_len);
         contracts_encode
     }
@@ -84,7 +88,9 @@ impl Default for OraclePrices {
                     ..Default::default()
                 })
                 .collect(),
-            margin_prices: (0..MARGIN_TOKENS_NUMBER).map(|_| SpotPriceInfo::default()).collect(),
+            margin_prices: (0..MARGIN_TOKENS_NUMBER)
+                .map(|_| SpotPriceInfo::default())
+                .collect(),
         }
     }
 }

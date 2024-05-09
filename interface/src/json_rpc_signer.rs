@@ -6,7 +6,9 @@ use crate::sign_forced_exit::sign_forced_exit;
 use crate::sign_order_matching::sign_order_matching;
 use crate::sign_transfer::{sign_eth_transfer, sign_starknet_transfer};
 use crate::sign_withdraw::{sign_eth_withdraw, sign_starknet_withdraw};
-use zklink_sdk_signers::eth_signer::json_rpc_signer::{JsonRpcSigner as EthJsonRpcSigner, Provider};
+use zklink_sdk_signers::eth_signer::json_rpc_signer::{
+    JsonRpcSigner as EthJsonRpcSigner, Provider,
+};
 use zklink_sdk_signers::starknet_signer::starknet_json_rpc_signer::{
     Signer as StarknetAccountSigner, StarknetJsonRpcSigner,
 };
@@ -19,10 +21,12 @@ use zklink_sdk_signers::starknet_signer::error::StarkSignerError;
 use zklink_sdk_signers::starknet_signer::StarkEip712Signature;
 use zklink_sdk_signers::zklink_signer::ZkLinkSigner;
 use zklink_sdk_types::basic_types::GetBytes;
-use zklink_sdk_types::prelude::PackedEthSignature;
+use zklink_sdk_types::prelude::{PackedEthSignature, ZkLinkSignature};
 use zklink_sdk_types::signatures::TxSignature;
 use zklink_sdk_types::tx_type::change_pubkey::{ChangePubKey, ChangePubKeyAuthData, Create2Data};
-use zklink_sdk_types::tx_type::contract::{AutoDeleveraging, Contract, ContractMatching, Funding, Liquidation};
+use zklink_sdk_types::tx_type::contract::{
+    AutoDeleveraging, Contract, ContractMatching, Funding, Liquidation,
+};
 use zklink_sdk_types::tx_type::forced_exit::ForcedExit;
 use zklink_sdk_types::tx_type::order_matching::{Order, OrderMatching};
 use zklink_sdk_types::tx_type::transfer::Transfer;
@@ -51,12 +55,12 @@ impl JsonRpcSigner {
         chain_id: Option<String>,
     ) -> Result<Self, SignError> {
         let eth_json_rpc_signer = match provider {
-            JsonRpcProvider::Provider(provider) => Layer1JsonRpcSigner::EthSigner(EthJsonRpcSigner::new(provider)),
-            JsonRpcProvider::Signer(signer) => Layer1JsonRpcSigner::StarknetSigner(StarknetJsonRpcSigner::new(
-                signer,
-                pub_key.unwrap(),
-                chain_id.unwrap(),
-            )),
+            JsonRpcProvider::Provider(provider) => {
+                Layer1JsonRpcSigner::EthSigner(EthJsonRpcSigner::new(provider))
+            }
+            JsonRpcProvider::Signer(signer) => Layer1JsonRpcSigner::StarknetSigner(
+                StarknetJsonRpcSigner::new(signer, pub_key.unwrap(), chain_id.unwrap()),
+            ),
         };
         let default_zklink_signer = ZkLinkSigner::new()?;
         Ok(Self {
@@ -82,7 +86,9 @@ impl JsonRpcSigner {
             }
         } else {
             match &self.layer1_signer {
-                Layer1JsonRpcSigner::EthSigner(signer) => ZkLinkSigner::new_from_eth_rpc_signer(signer).await?,
+                Layer1JsonRpcSigner::EthSigner(signer) => {
+                    ZkLinkSigner::new_from_eth_rpc_signer(signer).await?
+                }
                 Layer1JsonRpcSigner::StarknetSigner(signer) => {
                     ZkLinkSigner::new_from_starknet_rpc_signer(signer).await?
                 }
@@ -114,7 +120,11 @@ impl JsonRpcSigner {
         self.signature_seed.clone()
     }
 
-    pub async fn sign_transfer(&self, tx: Transfer, token_symbol: &str) -> Result<TxSignature, SignError> {
+    pub async fn sign_transfer(
+        &self,
+        tx: Transfer,
+        token_symbol: &str,
+    ) -> Result<TxSignature, SignError> {
         match &self.layer1_signer {
             Layer1JsonRpcSigner::EthSigner(signer) => {
                 sign_eth_transfer(signer, &self.zklink_signer, tx, token_symbol).await
@@ -126,7 +136,10 @@ impl JsonRpcSigner {
     }
 
     #[inline]
-    pub fn sign_change_pubkey_with_onchain_auth_data(&self, tx: ChangePubKey) -> Result<TxSignature, SignError> {
+    pub fn sign_change_pubkey_with_onchain_auth_data(
+        &self,
+        tx: ChangePubKey,
+    ) -> Result<TxSignature, SignError> {
         do_sign_change_pubkey_with_onchain_auth_data(tx, &self.zklink_signer)
     }
 
@@ -140,7 +153,10 @@ impl JsonRpcSigner {
     }
 
     #[inline]
-    pub async fn sign_change_pubkey_with_eth_ecdsa_auth(&self, mut tx: ChangePubKey) -> Result<TxSignature, SignError> {
+    pub async fn sign_change_pubkey_with_eth_ecdsa_auth(
+        &self,
+        mut tx: ChangePubKey,
+    ) -> Result<TxSignature, SignError> {
         tx.sign(&self.zklink_signer)?;
         let should_valid = tx.is_signature_valid();
         assert!(should_valid);
@@ -148,10 +164,14 @@ impl JsonRpcSigner {
         // create auth data
         let eth_sign_msg = ChangePubKey::get_eth_sign_msg(&tx.new_pk_hash, tx.nonce, tx.account_id);
         let eth_signature = match &self.layer1_signer {
-            Layer1JsonRpcSigner::EthSigner(signer) => signer.sign_message(eth_sign_msg.as_bytes()).await?,
+            Layer1JsonRpcSigner::EthSigner(signer) => {
+                signer.sign_message(eth_sign_msg.as_bytes()).await?
+            }
             Layer1JsonRpcSigner::StarknetSigner(_) => {
                 //starknet only support change_pubkey_onchain
-                return Err(StarkSignerError::SignError("Not support for starknet".to_string()).into());
+                return Err(
+                    StarkSignerError::SignError("Not support for starknet".to_string()).into(),
+                );
             }
         };
 
@@ -163,13 +183,18 @@ impl JsonRpcSigner {
         })
     }
 
-    pub async fn sign_withdraw(&self, tx: Withdraw, l2_source_token_symbol: &str) -> Result<TxSignature, SignError> {
+    pub async fn sign_withdraw(
+        &self,
+        tx: Withdraw,
+        l2_source_token_symbol: &str,
+    ) -> Result<TxSignature, SignError> {
         match &self.layer1_signer {
             Layer1JsonRpcSigner::EthSigner(signer) => {
                 sign_eth_withdraw(signer, &self.zklink_signer, tx, l2_source_token_symbol).await
             }
             Layer1JsonRpcSigner::StarknetSigner(signer) => {
-                sign_starknet_withdraw(signer, &self.zklink_signer, tx, l2_source_token_symbol).await
+                sign_starknet_withdraw(signer, &self.zklink_signer, tx, l2_source_token_symbol)
+                    .await
             }
         }
     }
@@ -217,5 +242,10 @@ impl JsonRpcSigner {
         let mut contract = contract.clone();
         contract.signature = self.zklink_signer.sign_musig(&contract.get_bytes())?;
         Ok(contract)
+    }
+
+    #[inline]
+    pub fn sign_musig(&self, msg: Vec<u8>) -> Result<ZkLinkSignature, SignError> {
+        Ok(self.zklink_signer.sign_musig(&msg)?)
     }
 }

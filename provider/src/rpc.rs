@@ -7,7 +7,9 @@ use crate::web_socket::ws_message::message::response::TxTopicEvent;
 use crate::web_socket::ws_message::topic::Topic;
 use jsonrpsee::core::RpcResult;
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
-use zklink_sdk_types::basic_types::{AccountId, BlockNumber, ChainId, SubAccountId, TokenId, ZkLinkAddress};
+use zklink_sdk_types::basic_types::{
+    AccountId, BlockNumber, ChainId, SubAccountId, TokenId, ZkLinkAddress,
+};
 use zklink_sdk_types::prelude::BigUintSerdeWrapper;
 use zklink_sdk_types::signatures::TxLayer1Signature;
 use zklink_sdk_types::tx_type::zklink_tx::{ZkLinkTx, ZkLinkTxType};
@@ -71,7 +73,11 @@ pub trait ZkLinkRpc {
     ) -> RpcResult<SubAccountPositions>;
 
     #[method(name = "getTokenReserve")]
-    async fn token_remain(&self, token_id: TokenId, mapping: bool) -> RpcResult<HashMap<ChainId, BigUintSerdeWrapper>>;
+    async fn token_remain(
+        &self,
+        token_id: TokenId,
+        mapping: bool,
+    ) -> RpcResult<HashMap<ChainId, BigUintSerdeWrapper>>;
 
     #[method(name = "getAccountSnapshot")]
     async fn account_snapshot(
@@ -94,10 +100,18 @@ pub trait ZkLinkRpc {
     ) -> RpcResult<Page<ZkLinkTxHistory>>;
 
     #[method(name = "getWithdrawTxs")]
-    async fn tx_withdraw(&self, last_tx_timestamp_micro: u64, max_txs: u32) -> RpcResult<Vec<WithdrawTxResp>>;
+    async fn tx_withdraw(
+        &self,
+        last_tx_timestamp_micro: u64,
+        max_txs: u32,
+    ) -> RpcResult<Vec<WithdrawTxResp>>;
 
     #[method(name = "getWebSocketEvents")]
-    async fn get_websocket_events(&self, topic: Topic, offset: ClientOffset) -> RpcResult<Vec<TxTopicEvent>>;
+    async fn get_websocket_events(
+        &self,
+        topic: Topic,
+        offset: ClientOffset,
+    ) -> RpcResult<Vec<TxTopicEvent>>;
 
     #[method(name = "getChangePubkeyChainId")]
     async fn get_change_pubkey_chain_id(&self) -> RpcResult<ChainId>;
@@ -106,5 +120,9 @@ pub trait ZkLinkRpc {
     async fn get_eth_property(&self) -> RpcResult<EthPropertyResp>;
 
     #[method(name = "sendTransaction")]
-    async fn tx_submit(&self, tx: ZkLinkTx, l1_signature: Option<TxLayer1Signature>) -> RpcResult<TxHash>;
+    async fn tx_submit(
+        &self,
+        tx: ZkLinkTx,
+        l1_signature: Option<TxLayer1Signature>,
+    ) -> RpcResult<TxHash>;
 }

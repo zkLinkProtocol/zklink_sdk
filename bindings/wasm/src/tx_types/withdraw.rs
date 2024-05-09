@@ -48,7 +48,10 @@ impl WithdrawBuilder {
             Instant::now().elapsed().as_secs() as u32
         };
         let call_data = if let Some(call_data) = call_data {
-            Some(hex::decode(call_data.trim_start_matches("0x")).map_err(|e| DecodeFromHexErr(e.to_string()))?)
+            Some(
+                hex::decode(call_data.trim_start_matches("0x"))
+                    .map_err(|e| DecodeFromHexErr(e.to_string()))?,
+            )
         } else {
             None
         };
