@@ -1,4 +1,4 @@
-const {AutoDeleveragingBuilder,Signer,newAutoDeleveraging,ContractPrice,SpotPriceInfo,RpcClient } = require('./node-dist/zklink-sdk-node');
+const {AutoDeleveragingBuilder,Signer,L1Type,newAutoDeleveraging,ContractPrice,SpotPriceInfo,RpcClient } = require('./node-dist/zklink-sdk-node');
 // CommonJS
 const fetch = require('node-fetch');
 const AbortController = require('abort-controller')
@@ -37,7 +37,7 @@ async function testAutoDeleveraging() {
         let tx_builder = new AutoDeleveragingBuilder(5,1,10,contract_prices,margin_prices,3,2,"33535545","188888","199",17);
         let tx = newAutoDeleveraging(tx_builder);
         console.log(tx);
-        const signer = new Signer(private_key);
+        const signer = new Signer(private_key, L1Type.Eth);
         let tx_signature = signer.signAutoDeleveraging(tx);
         console.log(tx_signature);
 

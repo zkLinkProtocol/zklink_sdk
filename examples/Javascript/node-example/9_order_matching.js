@@ -1,7 +1,7 @@
-const {OrderMatchingBuilder,Signer,ContractPrice,newOrderMatching,Order,RpcClient,SpotPriceInfo } = require('./node-dist/zklink-sdk-node');
+const {OrderMatchingBuilder,Signer,L1Type,ContractPrice,newOrderMatching,Order,RpcClient,SpotPriceInfo } = require('./node-dist/zklink-sdk-node');
 // CommonJS
 const fetch = require('node-fetch');
-const AbortController = require('abort-controller')
+const AbortController = require('abort-controller');
 
 // @ts-ignore
 global.fetch = fetch;
@@ -17,7 +17,7 @@ global.AbortController = AbortController;
 async function testOrderMatching() {
     const private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
     try {
-        const signer = new Signer(private_key);
+        const signer = new Signer(private_key, L1Type.Eth);
         const contract_price1 = new ContractPrice(0,"1");
         const contract_price2 = new ContractPrice(1,"1");
         const contract_price3 = new ContractPrice(2,"1");

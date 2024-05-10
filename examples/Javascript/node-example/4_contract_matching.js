@@ -1,4 +1,4 @@
-const {ContractMatchingBuilder,Signer,newContractMatching,newContract,ContractBuilder,
+const {ContractMatchingBuilder,Signer,L1Type,newContractMatching,newContract,ContractBuilder,
     RpcClient,ContractPrice,SpotPriceInfo } = require('./node-dist/zklink-sdk-node');
 // CommonJS
 const fetch = require('node-fetch');
@@ -36,7 +36,7 @@ async function testContractMatching() {
         margin_prices.push(margin_price2.jsonValue());
         margin_prices.push(margin_price3.jsonValue());
 
-        const signer = new Signer(private_key);
+        const signer = new Signer(private_key, L1Type.Eth);
         let taker_contract_builder = new ContractBuilder(5,1,1,3,2,
             "10","5454545445",true,50,22,false);
         let unsigned_taker_contract = newContract(taker_contract_builder);

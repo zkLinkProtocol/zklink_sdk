@@ -1,4 +1,4 @@
-const {LiquidationBuilder,Signer,RpcClient,ContractPrice,newLiquidation,SpotPriceInfo } = require('./node-dist/zklink-sdk-node');
+const {LiquidationBuilder,Signer,L1Type,RpcClient,ContractPrice,newLiquidation,SpotPriceInfo } = require('./node-dist/zklink-sdk-node');
 // CommonJS
 const fetch = require('node-fetch');
 const AbortController = require('abort-controller')
@@ -37,7 +37,7 @@ async function testLiquidation() {
         let tx_builder = new LiquidationBuilder(5,1,10,contract_prices,margin_prices,3,"8",17);
         let tx = newLiquidation(tx_builder);
         console.log(tx);
-        const signer = new Signer(private_key);
+        const signer = new Signer(private_key, L1Type.Eth);
         let tx_signature = signer.signLiquidation(tx);
         console.log(tx_signature);
 
