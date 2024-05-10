@@ -14,6 +14,7 @@ pub struct Withdraw {
 
 #[wasm_bindgen]
 impl Withdraw {
+    #[wasm_bindgen(js_name=jsValue)]
     pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }

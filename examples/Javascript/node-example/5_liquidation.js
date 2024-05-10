@@ -1,4 +1,4 @@
-const {LiquidationBuilder,Signer,RpcClient,ContractPrice,newLiquidation,SpotPriceInfo } = require('./node-dist/zklink-sdk-node');
+const {LiquidationBuilder,Signer,L1Type,RpcClient,ContractPrice,newLiquidation,SpotPriceInfo } = require('./node-dist/zklink-sdk-node');
 // CommonJS
 const fetch = require('node-fetch');
 const AbortController = require('abort-controller')
@@ -22,22 +22,22 @@ async function testLiquidation() {
         const contract_price3 = new ContractPrice(2,"1");
         const contract_price4 = new ContractPrice(3,"1");
         let contract_prices = [];
-        contract_prices.push(contract_price1.jsonValue());
-        contract_prices.push(contract_price2.jsonValue());
-        contract_prices.push(contract_price3.jsonValue());
-        contract_prices.push(contract_price4.jsonValue());
+        contract_prices.push(contract_price1.jsValue());
+        contract_prices.push(contract_price2.jsValue());
+        contract_prices.push(contract_price3.jsValue());
+        contract_prices.push(contract_price4.jsValue());
 
         let margin_prices = [];
         const margin_price1 = new SpotPriceInfo(17,"1");
         const margin_price2 = new SpotPriceInfo(141,"1");
         const margin_price3 = new SpotPriceInfo(142,"1");
-        margin_prices.push(margin_price1.jsonValue());
-        margin_prices.push(margin_price2.jsonValue());
-        margin_prices.push(margin_price3.jsonValue());
+        margin_prices.push(margin_price1.jsValue());
+        margin_prices.push(margin_price2.jsValue());
+        margin_prices.push(margin_price3.jsValue());
         let tx_builder = new LiquidationBuilder(5,1,10,contract_prices,margin_prices,3,"8",17);
         let tx = newLiquidation(tx_builder);
         console.log(tx);
-        const signer = new Signer(private_key);
+        const signer = new Signer(private_key, L1Type.Eth);
         let tx_signature = signer.signLiquidation(tx);
         console.log(tx_signature);
 

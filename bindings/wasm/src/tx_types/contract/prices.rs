@@ -25,7 +25,7 @@ impl ContractPrice {
         })
     }
 
-    #[wasm_bindgen(js_name=jsonValue)]
+    #[wasm_bindgen(js_name=jsValue)]
     pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }
@@ -47,7 +47,7 @@ impl SpotPriceInfo {
         })
     }
 
-    #[wasm_bindgen(js_name=jsonValue)]
+    #[wasm_bindgen(js_name=jsValue)]
     pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }

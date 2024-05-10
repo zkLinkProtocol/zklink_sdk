@@ -24,7 +24,7 @@ async function testEcdsaAuth() {
             0,"0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001b",
             ts);
         let tx = newChangePubkey(tx_builder);
-        const signer = new Signer(private_key);
+        const signer = new Signer(private_key, L1Type.Eth);
         let tx_signature = signer.signChangePubkeyWithEthEcdsaAuth(tx);
         console.log(tx_signature);
 
@@ -40,7 +40,7 @@ async function testEcdsaAuth() {
 }
 
 async function testOnchainAuth() {
-    const private_key = "be725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4";
+    const private_key = "00f0dfe9e420b857beb5165c4dbe4b21561dc4ca0206ca97f6ee7ad53bc79cab";
     const new_pubkey_hash = "0x8255f5a6d0d2b34a19f381e448ed151cc3a59b9e";
     const ts  = Math.floor(Date.now() / 1000);
     try {
@@ -50,7 +50,7 @@ async function testOnchainAuth() {
             ts);
         let tx = newChangePubkey(tx_builder);
         let addr = "0x04A69b67bcaBfA7D3CCb96e1d25C2e6fC93589fE24A6fD04566B8700ff97a71a";
-        const signer = new Signer(private_key,L1Type.Starknet,"SN_GOERLI",addr);
+        const signer = new Signer(private_key, L1Type.Starknet, "SN_GOERLI", addr);
         let tx_signature = signer.signChangePubkeyWithOnchain(tx);
         console.log(tx_signature);
 

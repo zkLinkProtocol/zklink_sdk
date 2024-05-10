@@ -52,6 +52,7 @@ impl Create2Data {
         hex::encode(salt_bytes)
     }
 
+    #[wasm_bindgen(js_name=jsValue)]
     pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }
@@ -59,6 +60,7 @@ impl Create2Data {
 
 #[wasm_bindgen]
 impl ChangePubKey {
+    #[wasm_bindgen(js_name=jsValue)]
     pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }
