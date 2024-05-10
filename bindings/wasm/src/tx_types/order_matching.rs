@@ -56,6 +56,7 @@ impl Order {
         Ok(order)
     }
 
+    #[wasm_bindgen(js_name=jsValue)]
     pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }
@@ -63,6 +64,7 @@ impl Order {
 
 #[wasm_bindgen]
 impl OrderMatching {
+    #[wasm_bindgen(js_name=jsValue)]
     pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }

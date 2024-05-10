@@ -74,6 +74,7 @@ impl EthTxOption {
         Ok(EthTxOption { inner })
     }
 
+    #[wasm_bindgen(js_name=jsValue)]
     pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }

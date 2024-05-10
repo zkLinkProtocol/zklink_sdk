@@ -23,18 +23,18 @@ async function testOrderMatching() {
         const contract_price3 = new ContractPrice(2,"1");
         const contract_price4 = new ContractPrice(3,"1")
         let contract_prices = [];
-        contract_prices.push(contract_price1.jsonValue());
-        contract_prices.push(contract_price2.jsonValue());
-        contract_prices.push(contract_price3.jsonValue());
-        contract_prices.push(contract_price4.jsonValue());
+        contract_prices.push(contract_price1.jsValue());
+        contract_prices.push(contract_price2.jsValue());
+        contract_prices.push(contract_price3.jsValue());
+        contract_prices.push(contract_price4.jsValue());
 
         let margin_prices = [];
         const margin_price1 = new SpotPriceInfo(17,"1");
         const margin_price2 = new SpotPriceInfo(141,"1");
         const margin_price3 = new SpotPriceInfo(142,"1");
-        margin_prices.push(margin_price1.jsonValue());
-        margin_prices.push(margin_price2.jsonValue());
-        margin_prices.push(margin_price3.jsonValue());
+        margin_prices.push(margin_price1.jsValue());
+        margin_prices.push(margin_price2.jsValue());
+        margin_prices.push(margin_price3.jsValue());
         let maker_order = new Order(5,20,1,1,18,17,"10000000000000","10000000000",true,5,3);
         let maker = signer.createSignedOrder(maker_order);
         console.log(maker);
