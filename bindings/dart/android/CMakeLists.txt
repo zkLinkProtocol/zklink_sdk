@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.10)
 
 # Download the binaries if they are not already present.
 set(LIBROOT "${CMAKE_CURRENT_SOURCE_DIR}/src/main/jniLibs")
-set(ARCHIVE "${CMAKE_CURRENT_SOURCE_DIR}/${zklinkVersion}.tar.xz")
+set(ARCHIVE "${CMAKE_CURRENT_SOURCE_DIR}/v${zklinkVersion}.tar.xz")
 
 
 # Extract the binaries, overriding any already present.
@@ -21,7 +21,7 @@ file(MAKE_DIRECTORY ${LIBROOT})
 
 file(MAKE_DIRECTORY ${LIBROOT}/armeabi-v7a)
 file(DOWNLOAD
-  "https://github.com/zkLinkProtocol/zklink_sdk/releases/download/dart_sdk_${zklinkVersion}/armv7-linux-androideabi.tar.xz"
+  "https://github.com/zkLinkProtocol/zklink_sdk/releases/download/dart_sdk_v${zklinkVersion}/armv7-linux-androideabi.tar.xz"
   ${ARCHIVE}
   TLS_VERIFY ON
 )
@@ -32,7 +32,7 @@ execute_process(
 
 file(MAKE_DIRECTORY ${LIBROOT}/arm64-v8a)
 file(DOWNLOAD
-  "https://github.com/zkLinkProtocol/zklink_sdk/releases/download/dart_sdk_${zklinkVersion}/aarch64-linux-android.tar.xz"
+  "https://github.com/zkLinkProtocol/zklink_sdk/releases/download/dart_sdk_v${zklinkVersion}/aarch64-linux-android.tar.xz"
   ${ARCHIVE}
   TLS_VERIFY ON
 )

@@ -13,11 +13,11 @@ cmake_minimum_required(VERSION 3.10)
 set(PROJECT_NAME "zklink")
 
 # Download the binaries if they are not already present.
-set(LIBROOT "${CMAKE_CURRENT_SOURCE_DIR}/${zklinkVersion}")
+set(LIBROOT "${CMAKE_CURRENT_SOURCE_DIR}/v${zklinkVersion}")
 set(ARCHIVE "${LIBROOT}.7z")
 if(NOT EXISTS ${ARCHIVE})
   file(DOWNLOAD
-    "https://github.com/zkLinkProtocol/zklink_sdk/releases/download/dart_sdk_${zklinkVersion}/x86_64-pc-windows-msvc.7z"
+    "https://github.com/zkLinkProtocol/zklink_sdk/releases/download/dart_sdk_v${zklinkVersion}/x86_64-pc-windows-msvc.7z"
     ${ARCHIVE}
     TLS_VERIFY ON
   )

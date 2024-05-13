@@ -1,5 +1,6 @@
 framework_name = 'zklink_sdk_dart'
-url = "https://github.com/zkLinkProtocol/zklink_sdk/releases/download/dart_sdk_0.0.1/aarch64-apple-ios.tar.xz"
+zklinkVersion = '0.0.1'
+url = "https://github.com/zkLinkProtocol/zklink_sdk/releases/download/dart_sdk_#{zklinkVersion}/aarch64-apple-ios.tar.xz"
 archive = "#{framework_name}.tar.xz"
 `
 mkdir -p Frameworks/#{framework_name}
@@ -16,7 +17,7 @@ cd -
 
 Pod::Spec.new do |spec|
   spec.name          = 'zklink_sdk_dart'
-  spec.version       = '0.0.1'
+  spec.version       = '#{zklinkVersion}'
   spec.license       = { :file => '../LICENSE' }
   spec.homepage      = 'https://zk.link'
   spec.summary       = 'zkLink Dart SDK'
