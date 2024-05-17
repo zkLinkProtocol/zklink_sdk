@@ -125,4 +125,10 @@ pub trait ZkLinkRpc {
         tx: ZkLinkTx,
         l1_signature: Option<TxLayer1Signature>,
     ) -> RpcResult<TxHash>;
+
+    #[method(name = "getWithdrawStatus")]
+    async fn get_withdraw_status(
+        &self,
+        hashes: Vec<TxHash>,
+    ) -> RpcResult<Vec<StoredWithdrawalResp>>;
 }

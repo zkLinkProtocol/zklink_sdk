@@ -322,4 +322,20 @@ impl RpcClient {
         let _ = builder.insert(client_offset);
         rpc_request!("getWebSocketEvents", builder, &self.server_url, bool)
     }
+
+    #[wasm_bindgen(js_name=getWithdrawStatus)]
+    pub async fn get_withdraw_status(&self, hashes: Vec<String>) -> Result<JsValue, JsValue> {
+        let hashes: Result<Vec<TxHash>, RpcError> = hashes
+            .iter()
+            .map(|hash| TxHash::from_hex(&hash).map_err(|_e| RpcError::InvalidInputParameter))
+            .collect();
+        let mut builder = ArrayParams::new();
+        let _ = builder.insert(hashes?);
+        rpc_request!(
+            "getWithdrawStatus",
+            builder,
+            &self.server_url,
+            Vec<StoredWithdrawalResp>
+        )
+    }
 }
