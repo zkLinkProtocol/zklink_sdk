@@ -483,6 +483,17 @@ pub struct TokenInfo {
     pub fast_withdraw: bool,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct StoredWithdrawalResp {
+    pub l2_tx_hash: TxHash,
+    pub l1_tx_hash: Option<TxHash>,
+    pub executed: bool,
+    pub success: bool,
+    pub block_number: BlockNumber,
+    pub block_index: i32,
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
