@@ -8,5 +8,6 @@ pub mod signer;
 pub mod tx_types;
 pub mod utils;
 pub mod wallet;
+pub mod zklink_signer;
 
 extern crate getrandom;

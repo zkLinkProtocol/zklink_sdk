@@ -1,7 +1,9 @@
+use crate::zklink_signer::ZkLinkSigner;
 use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::BigUint;
+use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
 use zklink_sdk_types::tx_builder::AutoDeleveragingBuilder as TxAutoDeleveragingBuilder;
 use zklink_sdk_types::tx_type::contract::{
@@ -19,6 +21,12 @@ impl AutoDeleveraging {
     #[wasm_bindgen(js_name=jsValue)]
     pub fn json_value(&self) -> Result<JsValue, JsValue> {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
+    }
+
+    #[wasm_bindgen(js_name=sign)]
+    pub fn sign(&mut self, signer: ZkLinkSigner) -> Result<JsValue, JsValue> {
+        self.inner.signature = signer.sign_musig(&self.inner.get_bytes())?.into();
+        Ok(JsValue::NULL)
     }
 }
 
