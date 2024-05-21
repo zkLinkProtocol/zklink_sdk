@@ -263,4 +263,8 @@ impl Signer {
     pub fn sign_musig(&self, msg: Vec<u8>) -> Result<ZkLinkSignature, SignError> {
         Ok(self.zklink_signer.sign_musig(&msg)?)
     }
+
+    pub fn get_zklink_signer(&self) -> ZkLinkSigner {
+        self.zklink_signer.clone()
+    }
 }

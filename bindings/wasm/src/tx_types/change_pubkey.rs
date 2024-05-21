@@ -1,12 +1,15 @@
+use crate::zklink_signer::ZkLinkSigner;
 use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use web_time::Instant;
 use zklink_sdk_signers::eth_signer::packed_eth_signature::PackedEthSignature;
 use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
+use zklink_sdk_types::basic_types::GetBytes;
 use zklink_sdk_types::basic_types::{BigUint, ZkLinkAddress};
 use zklink_sdk_types::error::TypeError;
 use zklink_sdk_types::error::TypeError::InvalidBigIntStr;
+use zklink_sdk_types::prelude::ChangePubKeyAuthData;
 use zklink_sdk_types::prelude::H256;
 use zklink_sdk_types::tx_builder::ChangePubKeyBuilder as TxChangePubKeyBuilder;
 use zklink_sdk_types::tx_type::change_pubkey::{
@@ -65,6 +68,7 @@ impl ChangePubKey {
         Ok(serde_wasm_bindgen::to_value(&self.inner)?)
     }
 
+    #[wasm_bindgen(js_name=getChangePubkeyMessage)]
     pub fn get_change_pubkey_message(
         &self,
         layer_one_chain_id: u32,
@@ -75,6 +79,30 @@ impl ChangePubKey {
             .inner
             .to_eip712_request_payload(layer_one_chain_id, &contract)?;
         Ok(typed_data.raw_data)
+    }
+
+    #[wasm_bindgen(js_name=getEthSignMsg)]
+    pub fn get_eth_sign_msg(&self, nonce: u32, account_id: u32) -> String {
+        format!(
+            "ChangePubKey\nPubKeyHash: {}\nNonce: {}\nAccountId: {}",
+            self.inner.new_pk_hash.as_hex(),
+            nonce,
+            account_id
+        )
+    }
+
+    #[wasm_bindgen(js_name=setEthAuthData)]
+    pub fn set_eth_auth_data(&mut self, sig: String) -> Result<JsValue, JsValue> {
+        let eth_signature = PackedEthSignature::from_hex(&sig)?;
+        let eth_authdata = ChangePubKeyAuthData::EthECDSA { eth_signature };
+        self.inner.eth_auth_data = eth_authdata;
+        Ok(JsValue::NULL)
+    }
+
+    #[wasm_bindgen(js_name=sign)]
+    pub fn sign(&mut self, signer: ZkLinkSigner) -> Result<JsValue, JsValue> {
+        self.inner.signature = signer.sign_musig(self.inner.get_bytes())?.into();
+        Ok(JsValue::NULL)
     }
 }
 

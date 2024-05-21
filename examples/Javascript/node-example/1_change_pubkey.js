@@ -1,4 +1,4 @@
-const {ChangePubKeyBuilder,Signer,newChangePubkey,RpcClient,L1Type } = require('./node-dist/zklink-sdk-node');
+const {ChangePubKeyBuilder,Signer,newChangePubkey,RpcClient,L1Type,ZkLinkSigner } = require('./node-dist/zklink-sdk-node');
 // CommonJS
 const fetch = require('node-fetch');
 const AbortController = require('abort-controller')
@@ -67,7 +67,23 @@ async function testOnchainAuth() {
 
 }
 
+async function testSignTx() {
+    const new_pubkey_hash = "0x8255f5a6d0d2b34a19f381e448ed151cc3a59b9e";
+    const ts  = Math.floor(Date.now() / 1000);
+    let zklinkSigner = ZkLinkSigner.ethSig("0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001");
+    let tx_builder = new ChangePubKeyBuilder(
+        16,21,0,new_pubkey_hash,140,"10",
+        0,"0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001b",
+        ts);
+    let tx = newChangePubkey(tx_builder);
+    tx.sign(zklinkSigner);
+    console.log("ETH Signed Message:\n" + tx.getEthSignMsg(100, 1));
+    tx.setEthAuthData("0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001b");
+    console.log(tx.jsValue())
+}
+
 async function main() {
+    await testSignTx();
     await testEcdsaAuth();
     await testOnchainAuth();
 }

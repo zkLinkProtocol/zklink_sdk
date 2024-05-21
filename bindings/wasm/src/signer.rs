@@ -8,6 +8,7 @@ use crate::tx_types::forced_exit::ForcedExit;
 use crate::tx_types::order_matching::{Order, OrderMatching};
 use crate::tx_types::transfer::Transfer;
 use crate::tx_types::withdraw::Withdraw;
+use crate::zklink_signer::ZkLinkSigner;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_interface::signer::L1SignerType;
@@ -205,5 +206,11 @@ impl Signer {
     #[wasm_bindgen(js_name=signMusig)]
     pub fn sign_musig(&self, msg: Vec<u8>) -> Result<TxZkLinkSignature, JsValue> {
         Ok(self.inner.sign_musig(msg)?.into())
+    }
+
+    #[wasm_bindgen(js_name=getZkLinkSigner)]
+    pub fn get_zklink_signer(&self) -> ZkLinkSigner {
+        let inner = self.inner.get_zklink_signer();
+        ZkLinkSigner::new(inner)
     }
 }
