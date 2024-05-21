@@ -28,7 +28,7 @@ impl Withdraw {
 
     #[wasm_bindgen(js_name=sign)]
     pub fn sign(&mut self, signer: ZkLinkSigner) -> Result<JsValue, JsValue> {
-        self.inner.signature = signer.sign_musig(&self.inner.get_bytes())?.into();
+        self.inner.signature = signer.sign_musig(self.inner.get_bytes())?.into();
         Ok(JsValue::NULL)
     }
 }
