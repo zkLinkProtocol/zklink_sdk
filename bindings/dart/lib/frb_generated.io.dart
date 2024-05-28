@@ -212,6 +212,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
           dynamic raw);
 
   @protected
+  Contract
+      dco_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContract(
+          dynamic raw);
+
+  @protected
   ContractMatching
       dco_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContractMatching(
           dynamic raw);
@@ -229,6 +234,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   Liquidation
       dco_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockLiquidation(
+          dynamic raw);
+
+  @protected
+  Order
+      dco_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockOrder(
           dynamic raw);
 
   @protected
@@ -257,6 +267,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
           dynamic raw);
 
   @protected
+  Contract
+      dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContract(
+          dynamic raw);
+
+  @protected
   ContractMatching
       dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContractMatching(
           dynamic raw);
@@ -274,6 +289,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   Liquidation
       dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockLiquidation(
+          dynamic raw);
+
+  @protected
+  Order
+      dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockOrder(
           dynamic raw);
 
   @protected
@@ -614,6 +634,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
           SseDeserializer deserializer);
 
   @protected
+  Contract
+      sse_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContract(
+          SseDeserializer deserializer);
+
+  @protected
   ContractMatching
       sse_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContractMatching(
           SseDeserializer deserializer);
@@ -631,6 +656,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   Liquidation
       sse_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockLiquidation(
+          SseDeserializer deserializer);
+
+  @protected
+  Order
+      sse_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockOrder(
           SseDeserializer deserializer);
 
   @protected
@@ -659,6 +689,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
           SseDeserializer deserializer);
 
   @protected
+  Contract
+      sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContract(
+          SseDeserializer deserializer);
+
+  @protected
   ContractMatching
       sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContractMatching(
           SseDeserializer deserializer);
@@ -676,6 +711,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   Liquidation
       sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockLiquidation(
+          SseDeserializer deserializer);
+
+  @protected
+  Order
+      sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockOrder(
           SseDeserializer deserializer);
 
   @protected
@@ -1141,6 +1181,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       ChangePubKey raw);
 
   @protected
+  int cst_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContract(
+      Contract raw);
+
+  @protected
   int cst_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContractMatching(
       ContractMatching raw);
 
@@ -1155,6 +1199,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   int cst_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockLiquidation(
       Liquidation raw);
+
+  @protected
+  int cst_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockOrder(
+      Order raw);
 
   @protected
   int cst_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockOrderMatching(
@@ -1177,6 +1225,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       ChangePubKey raw);
 
   @protected
+  int cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContract(
+      Contract raw);
+
+  @protected
   int cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContractMatching(
       ContractMatching raw);
 
@@ -1191,6 +1243,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   int cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockLiquidation(
       Liquidation raw);
+
+  @protected
+  int cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockOrder(
+      Order raw);
 
   @protected
   int cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockOrderMatching(
@@ -1453,6 +1509,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void
+      sse_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContract(
+          Contract self, SseSerializer serializer);
+
+  @protected
+  void
       sse_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContractMatching(
           ContractMatching self, SseSerializer serializer);
 
@@ -1470,6 +1531,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void
       sse_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockLiquidation(
           Liquidation self, SseSerializer serializer);
+
+  @protected
+  void
+      sse_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockOrder(
+          Order self, SseSerializer serializer);
 
   @protected
   void
@@ -1498,6 +1564,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void
+      sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContract(
+          Contract self, SseSerializer serializer);
+
+  @protected
+  void
       sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockContractMatching(
           ContractMatching self, SseSerializer serializer);
 
@@ -1515,6 +1586,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void
       sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockLiquidation(
           Liquidation self, SseSerializer serializer);
+
+  @protected
+  void
+      sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockOrder(
+          Order self, SseSerializer serializer);
 
   @protected
   void
@@ -2182,6 +2258,37 @@ class RustLibWire implements BaseWire {
           int,
           bool)>();
 
+  WireSyncRust2DartDco wire_Contract_sign(
+    int that,
+    int zk_link_signer,
+  ) {
+    return _wire_Contract_sign(
+      that,
+      zk_link_signer,
+    );
+  }
+
+  late final _wire_Contract_signPtr = _lookup<
+      ffi.NativeFunction<
+          WireSyncRust2DartDco Function(
+              ffi.UintPtr, ffi.UintPtr)>>('frbgen_zklink_wire_Contract_sign');
+  late final _wire_Contract_sign = _wire_Contract_signPtr
+      .asFunction<WireSyncRust2DartDco Function(int, int)>();
+
+  WireSyncRust2DartDco wire_Contract_to_json(
+    int that,
+  ) {
+    return _wire_Contract_to_json(
+      that,
+    );
+  }
+
+  late final _wire_Contract_to_jsonPtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.UintPtr)>>(
+          'frbgen_zklink_wire_Contract_to_json');
+  late final _wire_Contract_to_json = _wire_Contract_to_jsonPtr
+      .asFunction<WireSyncRust2DartDco Function(int)>();
+
   WireSyncRust2DartDco wire_EthTxOption_new(
     bool is_support_eip1559,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> to,
@@ -2629,6 +2736,37 @@ class RustLibWire implements BaseWire {
           int,
           int,
           bool)>();
+
+  WireSyncRust2DartDco wire_Order_sign(
+    int that,
+    int zk_link_signer,
+  ) {
+    return _wire_Order_sign(
+      that,
+      zk_link_signer,
+    );
+  }
+
+  late final _wire_Order_signPtr = _lookup<
+      ffi.NativeFunction<
+          WireSyncRust2DartDco Function(
+              ffi.UintPtr, ffi.UintPtr)>>('frbgen_zklink_wire_Order_sign');
+  late final _wire_Order_sign =
+      _wire_Order_signPtr.asFunction<WireSyncRust2DartDco Function(int, int)>();
+
+  WireSyncRust2DartDco wire_Order_to_json(
+    int that,
+  ) {
+    return _wire_Order_to_json(
+      that,
+    );
+  }
+
+  late final _wire_Order_to_jsonPtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.UintPtr)>>(
+          'frbgen_zklink_wire_Order_to_json');
+  late final _wire_Order_to_json =
+      _wire_Order_to_jsonPtr.asFunction<WireSyncRust2DartDco Function(int)>();
 
   WireSyncRust2DartDco wire_Parameter_contract_info(
     int pair_id,

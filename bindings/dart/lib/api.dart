@@ -165,6 +165,13 @@ class Contract extends RustOpaque {
           takerFeeRate: takerFeeRate,
           hasSubsidy: hasSubsidy,
           hint: hint);
+
+  void sign({required ZkLinkSigner zkLinkSigner, dynamic hint}) =>
+      RustLib.instance.api
+          .contractSign(that: this, zkLinkSigner: zkLinkSigner, hint: hint);
+
+  String toJson({dynamic hint}) =>
+      RustLib.instance.api.contractToJson(that: this, hint: hint);
 }
 
 // Rust type: RustOpaqueNom<flutter_rust_bridge::for_generated::rust_async::RwLock<ContractMatching>>
@@ -488,6 +495,13 @@ class Order extends RustOpaque {
           takerFeeRate: takerFeeRate,
           hasSubsidy: hasSubsidy,
           hint: hint);
+
+  void sign({required ZkLinkSigner zkLinkSigner, dynamic hint}) =>
+      RustLib.instance.api
+          .orderSign(that: this, zkLinkSigner: zkLinkSigner, hint: hint);
+
+  String toJson({dynamic hint}) =>
+      RustLib.instance.api.orderToJson(that: this, hint: hint);
 }
 
 // Rust type: RustOpaqueNom<flutter_rust_bridge::for_generated::rust_async::RwLock<OrderMatching>>

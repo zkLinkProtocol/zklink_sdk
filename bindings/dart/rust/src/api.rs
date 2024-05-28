@@ -545,6 +545,8 @@ impl Order {
             },
         })
     }
+
+    tx_default!();
 }
 
 #[frb(opaque)]
@@ -625,6 +627,8 @@ impl Contract {
             .build(),
         })
     }
+
+    tx_default!();
 }
 
 #[frb(opaque)]

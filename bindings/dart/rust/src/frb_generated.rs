@@ -32,7 +32,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.0.0-dev.32";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1188958908;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1291052308;
 
 // Section: executor
 
@@ -440,6 +440,48 @@ fn wire_Contract_new_impl(
                     api_taker_fee_rate,
                     api_has_subsidy,
                 )
+            })())
+        },
+    )
+}
+fn wire_Contract_sign_impl(
+    that: impl CstDecode<
+        RustOpaqueNom<flutter_rust_bridge::for_generated::rust_async::RwLock<Contract>>,
+    >,
+    zk_link_signer: impl CstDecode<ZkLinkSigner>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "Contract_sign",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            let api_zk_link_signer = zk_link_signer.cst_decode();
+            transform_result_dco((move || {
+                let mut api_that = api_that.rust_auto_opaque_decode_ref_mut();
+                crate::api::Contract::sign(&mut api_that, api_zk_link_signer)
+            })())
+        },
+    )
+}
+fn wire_Contract_to_json_impl(
+    that: impl CstDecode<
+        RustOpaqueNom<flutter_rust_bridge::for_generated::rust_async::RwLock<Contract>>,
+    >,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "Contract_to_json",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            transform_result_dco((move || {
+                let api_that = api_that.rust_auto_opaque_decode_ref();
+                crate::api::Contract::to_json(&api_that)
             })())
         },
     )
@@ -880,6 +922,44 @@ fn wire_Order_new_impl(
                     api_taker_fee_rate,
                     api_has_subsidy,
                 )
+            })())
+        },
+    )
+}
+fn wire_Order_sign_impl(
+    that: impl CstDecode<RustOpaqueNom<flutter_rust_bridge::for_generated::rust_async::RwLock<Order>>>,
+    zk_link_signer: impl CstDecode<ZkLinkSigner>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "Order_sign",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            let api_zk_link_signer = zk_link_signer.cst_decode();
+            transform_result_dco((move || {
+                let mut api_that = api_that.rust_auto_opaque_decode_ref_mut();
+                crate::api::Order::sign(&mut api_that, api_zk_link_signer)
+            })())
+        },
+    )
+}
+fn wire_Order_to_json_impl(
+    that: impl CstDecode<RustOpaqueNom<flutter_rust_bridge::for_generated::rust_async::RwLock<Order>>>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "Order_to_json",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            transform_result_dco((move || {
+                let api_that = api_that.rust_auto_opaque_decode_ref();
+                crate::api::Order::to_json(&api_that)
             })())
         },
     )

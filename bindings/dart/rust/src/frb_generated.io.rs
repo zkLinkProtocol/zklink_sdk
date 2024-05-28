@@ -689,6 +689,21 @@ pub extern "C" fn frbgen_zklink_wire_Contract_new(
 }
 
 #[no_mangle]
+pub extern "C" fn frbgen_zklink_wire_Contract_sign(
+    that: usize,
+    zk_link_signer: usize,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    wire_Contract_sign_impl(that, zk_link_signer)
+}
+
+#[no_mangle]
+pub extern "C" fn frbgen_zklink_wire_Contract_to_json(
+    that: usize,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    wire_Contract_to_json_impl(that)
+}
+
+#[no_mangle]
 pub extern "C" fn frbgen_zklink_wire_EthTxOption_new(
     is_support_eip1559: bool,
     to: *mut wire_cst_list_prim_u_8_strict,
@@ -896,6 +911,21 @@ pub extern "C" fn frbgen_zklink_wire_Order_new(
         taker_fee_rate,
         has_subsidy,
     )
+}
+
+#[no_mangle]
+pub extern "C" fn frbgen_zklink_wire_Order_sign(
+    that: usize,
+    zk_link_signer: usize,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    wire_Order_sign_impl(that, zk_link_signer)
+}
+
+#[no_mangle]
+pub extern "C" fn frbgen_zklink_wire_Order_to_json(
+    that: usize,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    wire_Order_to_json_impl(that)
 }
 
 #[no_mangle]
