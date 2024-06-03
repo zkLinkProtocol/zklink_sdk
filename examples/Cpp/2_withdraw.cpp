@@ -24,7 +24,7 @@ int main() {
         fee, nonce, withdraw_fee_ratio, true, timestamp
     };
     shared_ptr<Withdraw> tx = Withdraw::init(builder);
-    shared_ptr<Signer> signer = Signer::init(private_key, L1SignerType::ETH());
+    shared_ptr<Signer> signer = Signer::init(private_key, L1SignerType::kEth{});
     TxSignature signature = signer->sign_withdraw(tx, "USDT", {}, {});
     cout << signature.tx << "\n";
     return 0;

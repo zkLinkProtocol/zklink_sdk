@@ -20,7 +20,7 @@ int main() {
         nonce, eth_signature, timestamp
     };
     shared_ptr<ChangePubKey> tx = ChangePubKey::init(builder);
-    shared_ptr<Signer> signer = Signer::init(private_key, L1SignerType::ETH());
+    shared_ptr<Signer> signer = Signer::init(private_key, L1SignerType::kEth{});
     TxSignature signature = signer->sign_change_pubkey_with_eth_ecdsa_auth(tx);
     cout << signature.tx << "\n";
     return 0;

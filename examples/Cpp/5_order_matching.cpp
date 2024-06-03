@@ -28,7 +28,7 @@ int main() {
         contract_prices, margin_prices, "808077878", "5479779"
     };
     shared_ptr<OrderMatching> tx = OrderMatching::init(builder);
-    shared_ptr<Signer> signer = Signer::init(private_key, L1SignerType::ETH());
+    shared_ptr<Signer> signer = Signer::init(private_key, L1SignerType::kEth{});
     TxSignature signature = signer->sign_order_matching(tx);
     cout << signature.tx << "\n";
     return 0;

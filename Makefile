@@ -123,6 +123,8 @@ build_go: build_binding_files_go build_binding_lib
 build_binding_files_cpp:
 	rm -rf ${BINDINGS_DIR} ${BINDINGS_DIR_EXAMPLE_CPP}
 	uniffi-bindgen-cpp ${ROOT_DIR}/bindings/sdk/src/ffi.udl --out-dir ${BINDINGS_DIR} --config=${ROOT_DIR}/bindings/sdk/uniffi.toml
+	echo "Apply Temporary Cpp Binding Fix"
+	python3 fix_cpp_header.py ${BINDINGS_DIR}/zklink_sdk.hpp
 	cp -r ${BINDINGS_DIR} ${BINDINGS_DIR_EXAMPLE_CPP}
 
 build_cpp: build_binding_files_cpp build_binding_lib
@@ -144,13 +146,18 @@ test_go: build_go
 	CGO_ENABLED=1 \
 	go test  -v
 
-
 run_example_go_%: ${ROOT_DIR}/examples/Golang/%.go
 	@cd ${ROOT_DIR}/examples/Golang && \
 	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} \
 	CGO_LDFLAGS="-lzklink_sdk -L${LIB_DIR} -lm -ldl" \
 	CGO_ENABLED=1 \
 	go run $<
+
+run_example_cpp_%: ${ROOT_DIR}/examples/Cpp/%.cpp
+	@cd ${ROOT_DIR}/examples/Cpp && \
+	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} \
+	g++ $< generated/zklink_sdk.cpp -std=c++2a -L${LIB_DIR} -lzklink_sdk && \
+	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} ./a.out && rm a.out
 
 run_example_python_%: ${ROOT_DIR}/examples/Python/%.py
 	@cd ${ROOT_DIR}/examples/Python && \
@@ -171,3 +178,7 @@ run_example_python: ${RUN_PYTHON_EXAMPLES}
 JS_FILES = 1_change_pubkey 2_auto_deleveraging 3_update_global_var 4_contract_matching 5_liquidation 6_funding
 RUN_JS_EXAMPLES = $(patsubst %, run_example_js_%, $(JS_FILES))
 run_example_js: ${RUN_JS_EXAMPLES}
+
+CPP_FILES = 1_change_pubkey 2_withdraw 5_order_matching
+RUN_CPP_EXAMPLES = $(patsubst %, run_example_cpp_%, $(CPP_FILES))
+run_example_cpp: ${RUN_CPP_EXAMPLES}
