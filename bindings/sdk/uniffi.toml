@@ -24,6 +24,6 @@ into_custom = """
 """
 from_custom = "{}.String()"
 
-[bindings.uniffi_builtin]
+[bindings.python]
 cdylib_name = "zklink_sdk"
 
