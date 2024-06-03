@@ -1,5 +1,5 @@
 #include <iostream>
-#include "zklink_sdk.hpp"
+#include "generated/zklink_sdk.hpp"
 
 using namespace std;
 using namespace zklink_sdk;
