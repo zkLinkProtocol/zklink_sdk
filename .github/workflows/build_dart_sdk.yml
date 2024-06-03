@@ -26,7 +26,7 @@ jobs:
         rustup target add --toolchain stable ${{ matrix.target }}
         cargo build --release --target=${{ matrix.target }}
         cd ../../../
-        move target\${{ matrix.target }}\dart\*.dll .
+        move target\${{ matrix.target }}\release\*.dll .
         7z a ${{ matrix.target }}.7z *.dll
     - name: Upload
       uses: svenstaro/upload-release-action@v2
@@ -57,7 +57,7 @@ jobs:
         rustup target add --toolchain stable ${{ matrix.target }}
         cargo build --release --target=${{ matrix.target }}
         cd ../../../
-        mv target/${{ matrix.target }}/dart/*.dylib .
+        mv target/${{ matrix.target }}/release/*.dylib .
         tar acf ${{ matrix.target }}.tar.xz *.dylib
     - name: Upload
       uses: svenstaro/upload-release-action@v2
@@ -91,7 +91,7 @@ jobs:
         cargo install cross --git https://github.com/cross-rs/cross
         cross build --release --target=${{ matrix.target }}
         cd ../../../
-        mv target/${{ matrix.target }}/dart/*.so .
+        mv target/${{ matrix.target }}/release/*.so .
         tar acf ${{ matrix.target }}.tar.xz *.so
     - name: Upload
       uses: svenstaro/upload-release-action@v2

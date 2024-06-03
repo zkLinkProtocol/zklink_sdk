@@ -5,6 +5,7 @@ ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 BINDINGS_DIR?=${ROOT_DIR}/bindings/generated
 BINDINGS_DIR_TEST:=${ROOT_DIR}/binding_tests/generated
 BINDINGS_DIR_EXAMPLE_GO:=${ROOT_DIR}/examples/Golang/generated
+BINDINGS_DIR_EXAMPLE_CPP:=${ROOT_DIR}/examples/Cpp
 BINDINGS_DIR_EXAMPLE_PY:=${ROOT_DIR}/examples/Python
 
 # the library path
@@ -13,6 +14,7 @@ LD_LIBRARY_PATH := ${LD_LIBRARY_PATH}:${LIB_DIR}
 
 UNIFFI_VERSION=0.25.0
 UNIFFI_BINDGEN_GO_VERSION=v0.2.1+v${UNIFFI_VERSION}
+UNIFFI_BINDGEN_CPP_VERSION=v0.6.0+v${UNIFFI_VERSION}
 
 # check the os version
 ifeq ($(OS),Windows_NT)
@@ -79,6 +81,14 @@ prepare_ffi_go:
 		cargo install uniffi-bindgen-go --git https://github.com/NordSecurity/uniffi-bindgen-go --tag ${UNIFFI_BINDGEN_GO_VERSION}; \
 	fi
 
+prepare_ffi_cpp:
+	@if [[ `uniffi-bindgen-cpp -V | grep 'v${UNIFFI_VERSION}'` ]]; then \
+		echo "uniffi-bindgen-cpp ${UNIFFI_VERSION} already installed"; \
+	else \
+		echo "install uniffi-bindgen-cpp"; \
+		cargo install uniffi-bindgen-cpp --git https://github.com/NordSecurity/uniffi-bindgen-cpp --tag ${UNIFFI_BINDGEN_CPP_VERSION}; \
+	fi
+
 prepare_wasm:
 	@if [[ `wasm-pack -V` ]]; then \
 		echo "wasm-pack already installed"; \
@@ -87,28 +97,31 @@ prepare_wasm:
 		curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh; \
 	fi
 
+build_binding_lib:
+	cargo build --package bindings_sdk --features="uniffi_plugin" --release
+
+build_binding_files_python:
+	cargo run -p bindings_sdk --features="uniffi_builtin" --bin uniffi-bindgen -- generate ${ROOT_DIR}/bindings/sdk/src/ffi.udl --config ${ROOT_DIR}/bindings/sdk/uniffi.toml --language python --out-dir ${BINDINGS_DIR}
+	cargo run -p bindings_sdk --features="uniffi_builtin" --bin uniffi-bindgen -- generate ${ROOT_DIR}/bindings/sdk/src/ffi.udl --config ${ROOT_DIR}/bindings/sdk/uniffi.toml --language python --out-dir ${BINDINGS_DIR_EXAMPLE_PY}
+
+build_python: build_binding_files_python build_binding_lib
+
+copy_lib_to_py_example:
+	rm -f examples/Python/libzklink_sdk* && cp ./target/release/${LIB_FILE} examples/Python
+
 build_binding_files_go: prepare_ffi_go
 	rm -rf ${BINDINGS_DIR} ${BINDINGS_DIR_EXAMPLE_GO} ${BINDINGS_DIR_TEST}
 	uniffi-bindgen-go ${ROOT_DIR}/bindings/sdk/src/ffi.udl --out-dir ${BINDINGS_DIR} --config=${ROOT_DIR}/bindings/sdk/uniffi.toml
 	uniffi-bindgen-go ${ROOT_DIR}/bindings/sdk/src/ffi.udl --out-dir ${BINDINGS_DIR_EXAMPLE_GO} --config=${ROOT_DIR}/bindings/sdk/uniffi.toml
 	uniffi-bindgen-go ${ROOT_DIR}/bindings/sdk/src/ffi.udl --out-dir ${BINDINGS_DIR_TEST} --config=${ROOT_DIR}/bindings/sdk/uniffi.toml
 
-build_binding_files_python:
-	cargo run -p bindings_sdk --features="python" --bin uniffi-bindgen -- generate ${ROOT_DIR}/bindings/sdk/src/ffi.udl --config ${ROOT_DIR}/bindings/sdk/uniffi.toml --language python --out-dir ${BINDINGS_DIR}
-	cargo run -p bindings_sdk --features="python" --bin uniffi-bindgen -- generate ${ROOT_DIR}/bindings/sdk/src/ffi.udl --config ${ROOT_DIR}/bindings/sdk/uniffi.toml --language python --out-dir ${BINDINGS_DIR_EXAMPLE_PY}
+build_go: build_binding_files_go build_binding_lib
 
-build_binding_lib_go:
-	cargo build --package bindings_sdk --features="golang" --release
+build_binding_files_cpp:
+	uniffi-bindgen-cpp ${ROOT_DIR}/bindings/sdk/src/ffi.udl --out-dir ${BINDINGS_DIR} --config=${ROOT_DIR}/bindings/sdk/uniffi.toml
+	uniffi-bindgen-cpp ${ROOT_DIR}/bindings/sdk/src/ffi.udl --out-dir ${BINDINGS_DIR_EXAMPLE_CPP} --config=${ROOT_DIR}/bindings/sdk/uniffi.toml
 
-build_binding_lib_python:
-	cargo build --package bindings_sdk --features="python" --release
-
-build_python: build_binding_files_python build_binding_lib_python
-
-copy_lib_to_py_example:
-	rm -f examples/Python/libzklink_sdk* && cp ./target/release/${LIB_FILE} examples/Python
-
-build_go: build_binding_files_go build_binding_lib_go
+build_cpp: build_binding_files_go build_binding_lib
 
 build_wasm: prepare_wasm
 	cd ${ROOT_DIR}/bindings/wasm && \
