@@ -11,8 +11,8 @@ BINDINGS_DIR_EXAMPLE_PY:=${ROOT_DIR}/examples/Python
 LIB_DIR := ${ROOT_DIR}/target/release
 LD_LIBRARY_PATH := ${LD_LIBRARY_PATH}:${LIB_DIR}
 
-UNIFFI_VERSION=0.23.0
-UNIFFI_BINDGEN_GO_VERSION=v0.1.5+v${UNIFFI_VERSION}
+UNIFFI_VERSION=0.25.0
+UNIFFI_BINDGEN_GO_VERSION=v0.2.1+v${UNIFFI_VERSION}
 
 # check the os version
 ifeq ($(OS),Windows_NT)
@@ -72,7 +72,7 @@ clean:
 	rm -rf ${BINDINGS_DIR} ${BINDINGS_DIR_EXAMPLE_GO} ${BINDINGS_DIR_TEST}
 
 prepare_ffi_go:
-	@if [[ `uniffi-bindgen-go -V | grep 'v.${UNIFFI_VERSION}'` ]]; then \
+	@if [[ `uniffi-bindgen-go -V | grep 'v${UNIFFI_VERSION}'` ]]; then \
 		echo "uniffi-bindgen-go ${UNIFFI_VERSION} already installed"; \
 	else \
 		echo "install uniffi-bindgen-go"; \

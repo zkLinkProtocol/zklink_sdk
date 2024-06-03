@@ -8,7 +8,7 @@ import (
 	"time"
 	"bytes"
 	"io/ioutil"
-	sdk "github.com/zkLinkProtocol/zklink_sdk/go_example/generated/uniffi/zklink_sdk"
+	sdk "github.com/zkLinkProtocol/zklink_sdk/examples/Golang/generated/zklink_sdk"
 )
 
 type RPCTransaction struct {
@@ -46,7 +46,6 @@ func HighLevelWithdraw() {
         L2SourceToken: l2SourceToken,
         L1TargetToken: l1TargetToken,
         Amount: amount,
-        nil,
         Fee: fee,
         Nonce: nonce,
         WithdrawToL1: true,
@@ -75,7 +74,7 @@ func HighLevelWithdraw() {
 		Method:  "sendTransaction",
 		Params: []json.RawMessage{
 		    []byte(txSignature.Tx),
-		    layer1Signature
+		    layer1Signature,
 		},
     }
 

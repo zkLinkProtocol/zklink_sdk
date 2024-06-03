@@ -24,7 +24,7 @@ jobs:
         rustup default stable
         rustup override set stable
         rustup target add --toolchain stable ${{ matrix.target }}
-        cargo build --profile dart --target=${{ matrix.target }}
+        cargo build --release --target=${{ matrix.target }}
         cd ../../../
         move target\${{ matrix.target }}\dart\*.dll .
         7z a ${{ matrix.target }}.7z *.dll
@@ -55,7 +55,7 @@ jobs:
         rustup default stable
         rustup override set stable
         rustup target add --toolchain stable ${{ matrix.target }}
-        cargo build --profile dart --target=${{ matrix.target }}
+        cargo build --release --target=${{ matrix.target }}
         cd ../../../
         mv target/${{ matrix.target }}/dart/*.dylib .
         tar acf ${{ matrix.target }}.tar.xz *.dylib
@@ -89,7 +89,7 @@ jobs:
         rustup override set stable
         rustup target add --toolchain stable ${{ matrix.target }}
         cargo install cross --git https://github.com/cross-rs/cross
-        cross build --profile dart --target=${{ matrix.target }}
+        cross build --release --target=${{ matrix.target }}
         cd ../../../
         mv target/${{ matrix.target }}/dart/*.so .
         tar acf ${{ matrix.target }}.tar.xz *.so

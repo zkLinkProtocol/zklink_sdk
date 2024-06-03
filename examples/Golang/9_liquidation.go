@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"bytes"
 	"io/ioutil"
-	sdk "github.com/zkLinkProtocol/zklink_sdk/go_example/generated/uniffi/zklink_sdk"
+	sdk "github.com/zkLinkProtocol/zklink_sdk/examples/Golang/generated/zklink_sdk"
 )
 
 type RPCTransaction struct {
@@ -89,16 +89,13 @@ func HighLevelLiquidation() {
     }
     fmt.Println("tx signature: %s", txSignature)
 
-    // get submitter signature
-    zklinkTx := tx.ToZklinkTx()
-
 	rpc_req := RPCTransaction {
 		Id:      1,
 		JsonRpc: "2.0",
 		Method:  "sendTransaction",
 		Params: []json.RawMessage{
 		    []byte(txSignature.Tx),
-		    nil
+		    nil,
 		},
     }
 	JsonTx, err := json.Marshal(rpc_req)

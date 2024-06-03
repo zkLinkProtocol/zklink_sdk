@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"bytes"
 	"io/ioutil"
-	sdk "github.com/zkLinkProtocol/zklink_sdk/go_example/generated/uniffi/zklink_sdk"
+	sdk "github.com/zkLinkProtocol/zklink_sdk/examples/Golang/generated/zklink_sdk"
 )
 
 type RPCTransaction struct {
@@ -22,7 +22,6 @@ type SubmiterSignature struct {
 }
 
 func HighLevelUpdateGlobalVar() {
-    privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
     parameter := sdk.ParameterFeeAccount {
         AccountId: sdk.AccountId(0),
     }
@@ -34,10 +33,6 @@ func HighLevelUpdateGlobalVar() {
     }
 
     tx := sdk.NewUpdateGlobalVar(builder)
-    signer, err := sdk.NewSigner(privateKey, sdk.L1SignerTypeEth{})
-    if err != nil {
-        return
-    }
 
     // get submitter signature
     zklinkTx := tx.ToZklinkTx()
@@ -48,7 +43,7 @@ func HighLevelUpdateGlobalVar() {
 		Method:  "sendTransaction",
 		Params: []json.RawMessage{
 		    []byte(zklinkTx),
-		    nil
+		    nil,
 		},
     }
 	JsonTx, err := json.Marshal(rpc_req)
