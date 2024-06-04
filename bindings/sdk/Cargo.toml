@@ -28,5 +28,5 @@ zklink_sdk_provider = { path = "../../provider", default_features = false, featu
 uniffi_build = { workspace = true, features=["builtin-bindgen"] }
 
 [features]
-golang = []
-python = ["uniffi_macros", "uniffi/cli"]
+uniffi_plugin = []
+uniffi_builtin = ["uniffi_macros", "uniffi/cli"]

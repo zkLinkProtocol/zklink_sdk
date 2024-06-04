@@ -5,7 +5,7 @@
 package binding_tests
 
 import (
-	sdk "github.com/zkLinkProtocol/zklink_sdk/binding_tests/generated/uniffi/zklink_sdk"
+	sdk "github.com/zkLinkProtocol/zklink_sdk/binding_tests/generated/zklink_sdk"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

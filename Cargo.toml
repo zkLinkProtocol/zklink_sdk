@@ -52,9 +52,9 @@ thiserror = "1.0"
 tokio = "1"
 tokio-tungstenite = "0.21.0"
 uuid = "0.8"
-uniffi = "0.23"
-uniffi_macros = { version = "0.23" }
-uniffi_build = { version = "0.23", features = ["builtin-bindgen"] }
+uniffi = "=0.25.0"
+uniffi_macros = { version = "=0.25.0" }
+uniffi_build = { version = "=0.25.0", features = ["builtin-bindgen"] }
 validator = { version = "0.16", features = ["derive"] }
 wasm-bindgen = { version = "0.2.87", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4"
@@ -70,8 +70,3 @@ strip = true  # Automatically strip symbols from the binary.
 # debug = false
 # lto = true
 # codegen-units = 1
-
-[profile.dart]
-inherits = "release"
-debug = false
-lto = true

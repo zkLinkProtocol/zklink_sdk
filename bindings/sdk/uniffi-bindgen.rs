@@ -1,4 +1,4 @@
 fn main() {
-    #[cfg(feature = "python")]
+    #[cfg(feature = "uniffi_builtin")]
     uniffi::uniffi_bindgen_main()
 }

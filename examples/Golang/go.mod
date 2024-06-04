@@ -1,4 +1,4 @@
-module github.com/zkLinkProtocol/zklink_sdk/go_example
+module github.com/zkLinkProtocol/zklink_sdk/examples/Golang
 
 go 1.19
 

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"bytes"
 	"io/ioutil"
-	sdk "github.com/zkLinkProtocol/zklink_sdk/go_example/generated/uniffi/zklink_sdk"
+	sdk "github.com/zkLinkProtocol/zklink_sdk/examples/Golang/generated/zklink_sdk"
 )
 
 
@@ -60,7 +60,7 @@ func HighLevelTransfer() {
 		Method:  "sendTransaction",
 		Params: []json.RawMessage{
 		    []byte(txSignature.Tx),
-            layer1Signature
+            layer1Signature,
 		},
     }
 	JsonTx, err := json.Marshal(rpc_req)
