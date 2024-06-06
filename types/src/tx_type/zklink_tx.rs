@@ -17,18 +17,18 @@ use wasm_bindgen::prelude::wasm_bindgen;
 #[wasm_bindgen]
 #[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub enum ZkLinkTxType {
-    Deposit,
-    FullExit,
-    ChangePubKey,
-    Transfer,
-    Withdraw,
-    ForcedExit,
-    OrderMatching,
-    AutoDeleveraging,
-    ContractMatching,
-    Funding,
-    Liquidation,
-    UpdateGlobalVar,
+    Deposit = 0x01,
+    FullExit = 0x05,
+    ChangePubKey = 0x06,
+    Transfer = 0x04,
+    Withdraw = 0x03,
+    ForcedExit = 0x07,
+    OrderMatching = 0x08,
+    AutoDeleveraging = 0x0b,
+    ContractMatching = 0x09,
+    Funding = 0x0d,
+    Liquidation = 0x0a,
+    UpdateGlobalVar = 0x0c,
 }
 
 /// A set of L2 transaction supported by the zklink network.

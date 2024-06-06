@@ -19,6 +19,7 @@ use zklink_sdk_signers::zklink_signer::error::ZkSignerError;
 use zklink_sdk_signers::zklink_signer::pk_signer::{sha256_bytes, ZkLinkSigner};
 use zklink_sdk_signers::zklink_signer::signature::ZkLinkSignature;
 use zklink_sdk_signers::zklink_signer::PubKeyHash;
+use zklink_tx::ZkLinkTxType;
 
 pub mod validator;
 
@@ -34,25 +35,25 @@ pub mod withdraw;
 pub mod zklink_tx;
 
 impl Deposit {
-    pub const TX_TYPE: u8 = 0x01;
+    pub const TX_TYPE: u8 = ZkLinkTxType::Deposit as u8;
 }
 impl Withdraw {
-    pub const TX_TYPE: u8 = 0x03;
+    pub const TX_TYPE: u8 = ZkLinkTxType::Withdraw as u8;
 }
 impl Transfer {
-    pub const TX_TYPE: u8 = 0x04;
+    pub const TX_TYPE: u8 = ZkLinkTxType::Transfer as u8;
 }
 impl FullExit {
-    pub const TX_TYPE: u8 = 0x05;
+    pub const TX_TYPE: u8 = ZkLinkTxType::FullExit as u8;
 }
 impl ChangePubKey {
-    pub const TX_TYPE: u8 = 0x06;
+    pub const TX_TYPE: u8 = ZkLinkTxType::ChangePubKey as u8;
 }
 impl ForcedExit {
-    pub const TX_TYPE: u8 = 0x07;
+    pub const TX_TYPE: u8 = ZkLinkTxType::ForcedExit as u8;
 }
 impl OrderMatching {
-    pub const TX_TYPE: u8 = 0x08;
+    pub const TX_TYPE: u8 = ZkLinkTxType::OrderMatching as u8;
 }
 
 /// Construct the first part of the message that should be signed by Ethereum key.
