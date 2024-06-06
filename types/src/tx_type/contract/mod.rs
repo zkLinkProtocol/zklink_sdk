@@ -12,22 +12,24 @@ pub use liquidation::Liquidation;
 pub use prices::{ContractPrice, OraclePrices, SpotPriceInfo};
 pub use update_global_var::{Parameter, UpdateGlobalVar};
 
+use super::zklink_tx::ZkLinkTxType;
+
 impl Contract {
     pub const MSG_TYPE: u8 = 0xfe;
 }
 
 impl ContractMatching {
-    pub const TX_TYPE: u8 = 0x09;
+    pub const TX_TYPE: u8 = ZkLinkTxType::ContractMatching as u8;
 }
 impl Liquidation {
-    pub const TX_TYPE: u8 = 0x0a;
+    pub const TX_TYPE: u8 = ZkLinkTxType::Liquidation as u8;
 }
 impl AutoDeleveraging {
-    pub const TX_TYPE: u8 = 0x0b;
+    pub const TX_TYPE: u8 = ZkLinkTxType::AutoDeleveraging as u8;
 }
 impl UpdateGlobalVar {
-    pub const TX_TYPE: u8 = 0x0c;
+    pub const TX_TYPE: u8 = ZkLinkTxType::UpdateGlobalVar as u8;
 }
 impl Funding {
-    pub const TX_TYPE: u8 = 0x0d;
+    pub const TX_TYPE: u8 = ZkLinkTxType::Funding as u8;
 }
