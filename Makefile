@@ -30,7 +30,7 @@ else
 endif
 
 lint:
-	cargo fmt
+	#cargo fmt
 	cargo clippy --features ffi -- -D warnings
 	cargo clippy --features web -- -D warnings
 	cargo clippy -- -D warnings
