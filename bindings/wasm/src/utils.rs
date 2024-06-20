@@ -2,10 +2,25 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 use zklink_sdk_types::basic_types::pack::{
+    is_token_amount_packable, is_fee_amount_packable,
     closest_packable_fee_amount, closest_packable_token_amount,
 };
 use zklink_sdk_types::basic_types::BigUint;
 use zklink_sdk_types::error::TypeError;
+
+
+#[wasm_bindgen(js_name=isTokenAmountPackable)]
+pub fn token_amount_packable(amount: &str) -> Result<bool, JsValue> {
+    let amount =
+        BigUint::from_str(amount).map_err(|e| TypeError::InvalidBigIntStr(e.to_string()))?;
+    Ok(is_token_amount_packable(&amount))
+}
+
+#[wasm_bindgen(js_name=isFeeAmountPackable)]
+pub fn fee_amount_packable(fee: &str) -> Result<bool, JsValue> {
+    let fee = BigUint::from_str(fee).map_err(|e| TypeError::InvalidBigIntStr(e.to_string()))?;
+    Ok(is_fee_amount_packable(&fee))
+}
 
 #[wasm_bindgen(js_name=closestPackableTransactionAmount)]
 pub fn closest_packable_transaction_amount(amount: &str) -> Result<String, JsValue> {

@@ -7,8 +7,18 @@ async function testEvmChains() {
     const to_address = "0x5505a8cD4594Dbf79d8C59C0Df1414AB871CA896";
     const ts  = Math.floor(Date.now() / 1000);
     try {
-        let amount = wasm.closestPackableTransactionAmount("1234567899808787");
-        let fee = wasm.closestPackableTransactionFee("10000567777")
+        let amount = "1234567899808787";
+        console.log("Original amount: " + amount);
+        console.assert(isTokenAmountPackable(amount) == false);
+        amount = wasm.closestPackableTransactionAmount("1234567899808787");
+        console.assert(isTokenAmountPackable(amount));
+        console.log("Converted amount: " + amount);
+        let fee = "10000567777";
+        console.log("Original fee: " + fee);
+        console.assert(isFeeAmountPackable(fee) == false);
+        fee = wasm.closestPackableTransactionFee("10000567777")
+        console.assert(isFeeAmountPackable(fee));
+        console.log("Converted fee: " + fee);
         let tx_builder = new wasm.TransferBuilder(10, to_address, 1,
             1, 18, fee, amount, 1,ts);
         let transfer = wasm.newTransfer(tx_builder);
