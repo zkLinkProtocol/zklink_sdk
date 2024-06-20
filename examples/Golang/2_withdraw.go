@@ -5,7 +5,6 @@ import (
 	"math/big"
 	"encoding/json"
 	"fmt"
-	"time"
 	"bytes"
 	"io/ioutil"
 	sdk "github.com/zkLinkProtocol/zklink_sdk/examples/Golang/generated/zklink_sdk"
@@ -30,13 +29,17 @@ func HighLevelWithdraw() {
     toAddress := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
     l2SourceToken := sdk.TokenId(17)
     l1TargetToken := sdk.TokenId(17)
-	amount := *big.NewInt(1000000)
-	fee := *big.NewInt(1000)
-	nonce := sdk.Nonce(1)
-	withdrawFeeRatio := uint16(50)
-    // get current timestamp
-    now := time.Now()
-    timestamp := sdk.TimeStamp(now.Unix())
+    amount := *big.NewInt(1234567899808787)
+    fmt.Println("Original amount: ", amount)
+    amount = sdk.ClosestPackableTokenAmount(amount)
+    fmt.Println("Converted amount:s", amount)
+    fee := *big.NewInt(10000567777)
+    fmt.Println("Original fee: ", fee)
+    fee = sdk.ClosestPackableFeeAmount(fee)
+    fmt.Println("Converted fee: ", fee)
+    nonce := sdk.Nonce(1)
+    withdrawFeeRatio := uint16(50)
+    timestamp := sdk.TimeStamp(1000000000)
 
     builder := sdk.WithdrawBuilder{
         AccountId: accountId,
@@ -58,7 +61,7 @@ func HighLevelWithdraw() {
         return
     }
     txSignature, err := signer.SignWithdraw(tx, "USDT",nil,nil)
-    fmt.Println("tx signature: %s", txSignature)
+    fmt.Println("tx signature: ", txSignature)
     if err != nil {
         return
     }
