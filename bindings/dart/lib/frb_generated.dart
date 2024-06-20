@@ -56,7 +56,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.0.0-dev.32';
 
   @override
-  int get rustContentHash => -1291052308;
+  int get rustContentHash => -634235047;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -494,7 +494,15 @@ abstract class RustLibApi extends BaseApi {
 
   ZkLinkSigner zkLinkSignerStarknetSig({required String sig, dynamic hint});
 
+  String closestPackableFeeAmount({required String fee, dynamic hint});
+
+  String closestPackableTokenAmount({required String amount, dynamic hint});
+
   Future<void> initApp({dynamic hint});
+
+  bool isFeeAmountPackable({required String fee, dynamic hint});
+
+  bool isTokenAmountPackable({required String amount, dynamic hint});
 
   RustArcIncrementStrongCountFnType
       get rust_arc_increment_strong_count_AutoDeleveraging;
@@ -3519,6 +3527,52 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  String closestPackableFeeAmount({required String fee, dynamic hint}) {
+    return handler.executeSync(SyncTask(
+      callFfi: () {
+        var arg0 = cst_encode_String(fee);
+        return wire.wire_closest_packable_fee_amount(arg0);
+      },
+      codec: DcoCodec(
+        decodeSuccessData: dco_decode_String,
+        decodeErrorData: dco_decode_AnyhowException,
+      ),
+      constMeta: kClosestPackableFeeAmountConstMeta,
+      argValues: [fee],
+      apiImpl: this,
+      hint: hint,
+    ));
+  }
+
+  TaskConstMeta get kClosestPackableFeeAmountConstMeta => const TaskConstMeta(
+        debugName: "closest_packable_fee_amount",
+        argNames: ["fee"],
+      );
+
+  @override
+  String closestPackableTokenAmount({required String amount, dynamic hint}) {
+    return handler.executeSync(SyncTask(
+      callFfi: () {
+        var arg0 = cst_encode_String(amount);
+        return wire.wire_closest_packable_token_amount(arg0);
+      },
+      codec: DcoCodec(
+        decodeSuccessData: dco_decode_String,
+        decodeErrorData: dco_decode_AnyhowException,
+      ),
+      constMeta: kClosestPackableTokenAmountConstMeta,
+      argValues: [amount],
+      apiImpl: this,
+      hint: hint,
+    ));
+  }
+
+  TaskConstMeta get kClosestPackableTokenAmountConstMeta => const TaskConstMeta(
+        debugName: "closest_packable_token_amount",
+        argNames: ["amount"],
+      );
+
+  @override
   Future<void> initApp({dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
@@ -3538,6 +3592,52 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kInitAppConstMeta => const TaskConstMeta(
         debugName: "init_app",
         argNames: [],
+      );
+
+  @override
+  bool isFeeAmountPackable({required String fee, dynamic hint}) {
+    return handler.executeSync(SyncTask(
+      callFfi: () {
+        var arg0 = cst_encode_String(fee);
+        return wire.wire_is_fee_amount_packable(arg0);
+      },
+      codec: DcoCodec(
+        decodeSuccessData: dco_decode_bool,
+        decodeErrorData: dco_decode_AnyhowException,
+      ),
+      constMeta: kIsFeeAmountPackableConstMeta,
+      argValues: [fee],
+      apiImpl: this,
+      hint: hint,
+    ));
+  }
+
+  TaskConstMeta get kIsFeeAmountPackableConstMeta => const TaskConstMeta(
+        debugName: "is_fee_amount_packable",
+        argNames: ["fee"],
+      );
+
+  @override
+  bool isTokenAmountPackable({required String amount, dynamic hint}) {
+    return handler.executeSync(SyncTask(
+      callFfi: () {
+        var arg0 = cst_encode_String(amount);
+        return wire.wire_is_token_amount_packable(arg0);
+      },
+      codec: DcoCodec(
+        decodeSuccessData: dco_decode_bool,
+        decodeErrorData: dco_decode_AnyhowException,
+      ),
+      constMeta: kIsTokenAmountPackableConstMeta,
+      argValues: [amount],
+      apiImpl: this,
+      hint: hint,
+    ));
+  }
+
+  TaskConstMeta get kIsTokenAmountPackableConstMeta => const TaskConstMeta(
+        debugName: "is_token_amount_packable",
+        argNames: ["amount"],
       );
 
   RustArcIncrementStrongCountFnType

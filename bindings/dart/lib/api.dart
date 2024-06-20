@@ -6,6 +6,18 @@
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+bool isTokenAmountPackable({required String amount, dynamic hint}) =>
+    RustLib.instance.api.isTokenAmountPackable(amount: amount, hint: hint);
+
+bool isFeeAmountPackable({required String fee, dynamic hint}) =>
+    RustLib.instance.api.isFeeAmountPackable(fee: fee, hint: hint);
+
+String closestPackableTokenAmount({required String amount, dynamic hint}) =>
+    RustLib.instance.api.closestPackableTokenAmount(amount: amount, hint: hint);
+
+String closestPackableFeeAmount({required String fee, dynamic hint}) =>
+    RustLib.instance.api.closestPackableFeeAmount(fee: fee, hint: hint);
+
 // Rust type: RustOpaqueNom<flutter_rust_bridge::for_generated::rust_async::RwLock<AutoDeleveraging>>
 @sealed
 class AutoDeleveraging extends RustOpaque {

@@ -19,6 +19,10 @@ use zklink_sdk_signers::zklink_signer::pubkey_hash::PubKeyHash;
 use zklink_sdk_signers::zklink_signer::public_key::PackedPublicKey;
 use zklink_sdk_signers::zklink_signer::signature::{PackedSignature, ZkLinkSignature};
 
+use zklink_sdk_types::basic_types::pack::{
+    closest_packable_fee_amount, closest_packable_token_amount, is_fee_amount_packable,
+    is_token_amount_packable,
+};
 use zklink_sdk_types::basic_types::tx_hash::TxHash;
 use zklink_sdk_types::basic_types::zklink_address::ZkLinkAddress;
 use zklink_sdk_types::basic_types::GetBytes;

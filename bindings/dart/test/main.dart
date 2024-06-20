@@ -5,6 +5,21 @@ import '../lib/frb_generated.dart';
 
 Future<void> main() async {
     await RustLib.init();
+    test('Pack Utils', () {
+        var amount = "1234567899808787";
+        print("Original amount: " + amount);
+        expect(isTokenAmountPackable(amount: amount), false);
+        amount = closestPackableTokenAmount(amount: amount);
+        expect(isTokenAmountPackable(amount: amount), true);
+        print("Converted amount: " + amount);
+        var fee = "10000567777";
+        print("Original fee: " + fee);
+        expect(isFeeAmountPackable(fee: fee), false);
+        fee = closestPackableFeeAmount(fee: fee);
+        expect(isFeeAmountPackable(fee: fee), true);
+        print("Converted fee: " + fee);
+    });
+
     test('Order Matching', () {
         var signer = Signer.ethSigner(ethPrivateKey: "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4");
         var maker = signer.createSignedOrder(order: Order(

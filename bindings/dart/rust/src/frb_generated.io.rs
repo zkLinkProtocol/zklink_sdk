@@ -1417,8 +1417,36 @@ pub extern "C" fn frbgen_zklink_wire_ZkLinkSigner_starknet_sig(
 }
 
 #[no_mangle]
+pub extern "C" fn frbgen_zklink_wire_closest_packable_fee_amount(
+    fee: *mut wire_cst_list_prim_u_8_strict,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    wire_closest_packable_fee_amount_impl(fee)
+}
+
+#[no_mangle]
+pub extern "C" fn frbgen_zklink_wire_closest_packable_token_amount(
+    amount: *mut wire_cst_list_prim_u_8_strict,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    wire_closest_packable_token_amount_impl(amount)
+}
+
+#[no_mangle]
 pub extern "C" fn frbgen_zklink_wire_init_app(port_: i64) {
     wire_init_app_impl(port_)
+}
+
+#[no_mangle]
+pub extern "C" fn frbgen_zklink_wire_is_fee_amount_packable(
+    fee: *mut wire_cst_list_prim_u_8_strict,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    wire_is_fee_amount_packable_impl(fee)
+}
+
+#[no_mangle]
+pub extern "C" fn frbgen_zklink_wire_is_token_amount_packable(
+    amount: *mut wire_cst_list_prim_u_8_strict,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    wire_is_token_amount_packable_impl(amount)
 }
 
 #[no_mangle]

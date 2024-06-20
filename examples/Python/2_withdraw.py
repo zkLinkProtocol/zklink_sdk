@@ -1,4 +1,3 @@
-import time
 import zklink_sdk as sdk
 
 def main():
@@ -7,18 +6,28 @@ def main():
     sub_account_id = 4
     to_chain_id = 5
     to_address = "0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9"
-    l2_source_token = 2
+    l2_source_token = 17
     l1_target_token = 17
-    amount = "100000"
-    fee = "1000"
+    amount = "1234567899808787"
+    print("Original amount: " + amount)
+    assert not sdk.is_token_amount_packable(amount)
+    amount = sdk.closest_packable_token_amount(amount)
+    assert sdk.is_token_amount_packable(amount)
+    print("Converted amount: " + amount)
+    fee = "10000567777"
+    print("Original fee: " + fee)
+    assert not sdk.is_fee_amount_packable(fee)
+    fee = sdk.closest_packable_fee_amount(fee)
+    assert sdk.is_fee_amount_packable(fee)
+    print("Converted fee: " + fee)
     nonce = 1
     withdraw_fee_ratio = 50
-    timestamp = int(time.time())
+    timestamp = 1000000000
 
     builder = sdk.WithdrawBuilder(
         account_id,
-        to_chain_id,
         sub_account_id,
+        to_chain_id,
         to_address,
         l2_source_token,
         l1_target_token,
@@ -26,8 +35,8 @@ def main():
         None,
         fee,
         nonce,
-        True,
         withdraw_fee_ratio,
+        True,
         timestamp
     )
     tx = sdk.Withdraw(builder)
