@@ -32,7 +32,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.0.0-dev.32";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1291052308;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -634235047;
 
 // Section: executor
 
@@ -2163,6 +2163,38 @@ fn wire_ZkLinkSigner_starknet_sig_impl(
         },
     )
 }
+fn wire_closest_packable_fee_amount_impl(
+    fee: impl CstDecode<String>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "closest_packable_fee_amount",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_fee = fee.cst_decode();
+            transform_result_dco((move || crate::api::closest_packable_fee_amount(api_fee))())
+        },
+    )
+}
+fn wire_closest_packable_token_amount_impl(
+    amount: impl CstDecode<String>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "closest_packable_token_amount",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_amount = amount.cst_decode();
+            transform_result_dco((move || {
+                crate::api::closest_packable_token_amount(api_amount)
+            })())
+        },
+    )
+}
 fn wire_init_app_impl(port_: flutter_rust_bridge::for_generated::MessagePort) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -2174,6 +2206,36 @@ fn wire_init_app_impl(port_: flutter_rust_bridge::for_generated::MessagePort) {
             move |context| {
                 transform_result_dco((move || Result::<_, ()>::Ok(crate::api::init_app()))())
             }
+        },
+    )
+}
+fn wire_is_fee_amount_packable_impl(
+    fee: impl CstDecode<String>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "is_fee_amount_packable",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_fee = fee.cst_decode();
+            transform_result_dco((move || crate::api::is_fee_amount_packable(api_fee))())
+        },
+    )
+}
+fn wire_is_token_amount_packable_impl(
+    amount: impl CstDecode<String>,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "is_token_amount_packable",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let api_amount = amount.cst_decode();
+            transform_result_dco((move || crate::api::is_token_amount_packable(api_amount))())
         },
     )
 }

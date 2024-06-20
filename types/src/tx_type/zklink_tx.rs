@@ -16,7 +16,19 @@ use wasm_bindgen::prelude::wasm_bindgen;
 
 /// A set of L2 transaction type supported by the zklink network.
 #[wasm_bindgen]
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, Eq, PartialEq, FromRepr, EnumIter, EnumString, AsRefStr)]
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    Serialize,
+    Deserialize,
+    Eq,
+    PartialEq,
+    FromRepr,
+    EnumIter,
+    EnumString,
+    AsRefStr,
+)]
 #[repr(u8)]
 pub enum ZkLinkTxType {
     Deposit = 0x01,

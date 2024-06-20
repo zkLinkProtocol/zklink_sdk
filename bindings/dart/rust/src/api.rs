@@ -10,6 +10,7 @@ use zklink_sdk_signers::zklink_signer::{
     signature::ZkLinkSignature as InnerZkLinkSignature, PubKeyHash,
     ZkLinkSigner as InnerZkLinkSigner,
 };
+use zklink_sdk_types::basic_types::pack;
 use zklink_sdk_types::basic_types::{BigUint, GetBytes, ZkLinkAddress};
 use zklink_sdk_types::tx_builder::*;
 use zklink_sdk_types::tx_type::change_pubkey::{
@@ -1079,6 +1080,32 @@ impl Wallet {
             .await?;
         Ok(hex::encode(tx_hash.as_bytes()))
     }
+}
+
+#[frb(sync)]
+pub fn is_token_amount_packable(amount: String) -> Result<bool> {
+    let amount = BigUint::from_str(&amount)?;
+    Ok(pack::is_token_amount_packable(&amount))
+}
+
+#[frb(sync)]
+pub fn is_fee_amount_packable(fee: String) -> Result<bool> {
+    let fee = BigUint::from_str(&fee)?;
+    Ok(pack::is_fee_amount_packable(&fee))
+}
+
+#[frb(sync)]
+pub fn closest_packable_token_amount(amount: String) -> Result<String> {
+    let amount = BigUint::from_str(&amount)?;
+    let packable_amount = pack::closest_packable_token_amount(&amount);
+    Ok(packable_amount.to_string())
+}
+
+#[frb(sync)]
+pub fn closest_packable_fee_amount(fee: String) -> Result<String> {
+    let fee = BigUint::from_str(&fee)?;
+    let packable_fee = pack::closest_packable_fee_amount(&fee);
+    Ok(packable_fee.to_string())
 }
 
 #[frb(init)]

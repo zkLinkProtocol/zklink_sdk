@@ -3849,6 +3849,42 @@ class RustLibWire implements BaseWire {
           WireSyncRust2DartDco Function(
               ffi.Pointer<wire_cst_list_prim_u_8_strict>)>();
 
+  WireSyncRust2DartDco wire_closest_packable_fee_amount(
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> fee,
+  ) {
+    return _wire_closest_packable_fee_amount(
+      fee,
+    );
+  }
+
+  late final _wire_closest_packable_fee_amountPtr = _lookup<
+          ffi.NativeFunction<
+              WireSyncRust2DartDco Function(
+                  ffi.Pointer<wire_cst_list_prim_u_8_strict>)>>(
+      'frbgen_zklink_wire_closest_packable_fee_amount');
+  late final _wire_closest_packable_fee_amount =
+      _wire_closest_packable_fee_amountPtr.asFunction<
+          WireSyncRust2DartDco Function(
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>)>();
+
+  WireSyncRust2DartDco wire_closest_packable_token_amount(
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> amount,
+  ) {
+    return _wire_closest_packable_token_amount(
+      amount,
+    );
+  }
+
+  late final _wire_closest_packable_token_amountPtr = _lookup<
+          ffi.NativeFunction<
+              WireSyncRust2DartDco Function(
+                  ffi.Pointer<wire_cst_list_prim_u_8_strict>)>>(
+      'frbgen_zklink_wire_closest_packable_token_amount');
+  late final _wire_closest_packable_token_amount =
+      _wire_closest_packable_token_amountPtr.asFunction<
+          WireSyncRust2DartDco Function(
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>)>();
+
   void wire_init_app(
     int port_,
   ) {
@@ -3862,6 +3898,42 @@ class RustLibWire implements BaseWire {
           'frbgen_zklink_wire_init_app');
   late final _wire_init_app =
       _wire_init_appPtr.asFunction<void Function(int)>();
+
+  WireSyncRust2DartDco wire_is_fee_amount_packable(
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> fee,
+  ) {
+    return _wire_is_fee_amount_packable(
+      fee,
+    );
+  }
+
+  late final _wire_is_fee_amount_packablePtr = _lookup<
+          ffi.NativeFunction<
+              WireSyncRust2DartDco Function(
+                  ffi.Pointer<wire_cst_list_prim_u_8_strict>)>>(
+      'frbgen_zklink_wire_is_fee_amount_packable');
+  late final _wire_is_fee_amount_packable =
+      _wire_is_fee_amount_packablePtr.asFunction<
+          WireSyncRust2DartDco Function(
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>)>();
+
+  WireSyncRust2DartDco wire_is_token_amount_packable(
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> amount,
+  ) {
+    return _wire_is_token_amount_packable(
+      amount,
+    );
+  }
+
+  late final _wire_is_token_amount_packablePtr = _lookup<
+          ffi.NativeFunction<
+              WireSyncRust2DartDco Function(
+                  ffi.Pointer<wire_cst_list_prim_u_8_strict>)>>(
+      'frbgen_zklink_wire_is_token_amount_packable');
+  late final _wire_is_token_amount_packable =
+      _wire_is_token_amount_packablePtr.asFunction<
+          WireSyncRust2DartDco Function(
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>)>();
 
   void
       rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedrust_asyncRwLockAutoDeleveraging(
