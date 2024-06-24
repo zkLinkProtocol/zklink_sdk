@@ -18,21 +18,21 @@ jobs:
     - uses: actions/checkout@v4
     - name: Compile
       run: |
-        cd bindings/dart/rust
         rustup set profile minimal
         rustup toolchain install stable
         rustup default stable
         rustup override set stable
         rustup target add --toolchain stable ${{ matrix.target }}
-        cargo build --release --target=${{ matrix.target }}
-        cd ../../../
+        cargo build --package bindings_sdk --features="uniffi_plugin" --release --target=${{ matrix.target }}
         move target\${{ matrix.target }}\release\*.dll .
-        7z a ${{ matrix.target }}.7z *.dll
+        move target\${{ matrix.target }}\release\*.lib .
+        7z a ${{ matrix.target }}_runtime.7z *.dll
+        7z a ${{ matrix.target }}_staticlib.7z *.lib
     - name: Upload
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ${{ matrix.target }}.7z
+        file: "*.7z"
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true
@@ -49,21 +49,21 @@ jobs:
     - uses: actions/checkout@v4
     - name: Compile
       run: |
-        cd bindings/dart/rust
         rustup set profile minimal
         rustup toolchain install stable
         rustup default stable
         rustup override set stable
         rustup target add --toolchain stable ${{ matrix.target }}
-        cargo build --release --target=${{ matrix.target }}
-        cd ../../../
+        cargo build --package bindings_sdk --features="uniffi_plugin" --release --target=${{ matrix.target }}
         mv target/${{ matrix.target }}/release/*.dylib .
-        tar acf ${{ matrix.target }}.tar.xz *.dylib
+        mv target/${{ matrix.target }}/release/*.a .
+        tar acf ${{ matrix.target }}_runtime.tar.xz *.dylib
+        tar acf ${{ matrix.target }}_staticlib.tar.xz *.a
     - name: Upload
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ${{ matrix.target }}.tar.xz
+        file: "*.tar.xz"
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true
@@ -82,22 +82,104 @@ jobs:
     - uses: actions/checkout@v4
     - name: Compile
       run: |
-        cd bindings/dart/rust
         rustup set profile minimal
         rustup toolchain install stable
         rustup default stable
         rustup override set stable
         rustup target add --toolchain stable ${{ matrix.target }}
         cargo install cross --git https://github.com/cross-rs/cross
-        cross build --release --target=${{ matrix.target }}
-        cd ../../../
+        cross build --package bindings_sdk --features="uniffi_plugin" --release --target=${{ matrix.target }}
         mv target/${{ matrix.target }}/release/*.so .
-        tar acf ${{ matrix.target }}.tar.xz *.so
+        mv target/${{ matrix.target }}/release/*.a .
+        tar acf ${{ matrix.target }}_runtime.tar.xz *.so
+        tar acf ${{ matrix.target }}_staticlib.tar.xz *.a
     - name: Upload
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ${{ matrix.target }}.tar.xz
+        file: "*.tar.xz"
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+  build_wasm:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Compile
+      run: |
+        curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+        make build_wasm
+        mv bindings/wasm/*dist ./
+        rm *dist/.gitignore
+        tar acf js_binding.tar.xz *dist
+    - name: Upload
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: "*.tar.xz"
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+  python_binding:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Compile
+      run: |
+        make build_binding_files_python
+        mv bindings/generated/*.py ./
+        tar acf python_binding.tar.xz zklink*.py   
+    - name: Upload
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: "*.tar.xz"
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+  go_binding:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: baptiste0928/cargo-install@v2
+      with:
+        crate: uniffi-bindgen-go
+        git: https://github.com/NordSecurity/uniffi-bindgen-go
+        tag: "v0.2.1+v0.25.0"
+        cache-key: "uniffi-bindgen-go@v0.2.1+v0.25.0"
+    - name: Compile
+      run: |
+        make build_binding_files_go
+        mv bindings/generated/zklink_sdk ./
+        tar acf go_binding.tar.xz zklink_sdk   
+    - name: Upload
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: "*.tar.xz"
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+  cpp_binding:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: baptiste0928/cargo-install@v2
+      with:
+        crate: uniffi-bindgen-cpp
+        git: https://github.com/NordSecurity/uniffi-bindgen-cpp
+        tag: "v0.6.0+v0.25.0"
+        cache-key: "uniffi-bindgen-cpp@v0.6.0+v0.25.0"
+    - name: Compile
+      run: |
+        make build_binding_files_cpp
+        mv bindings/generated/zklink* ./
+        tar acf cpp_binding.tar.xz zklink*  
+    - name: Upload
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: "*.tar.xz"
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true
