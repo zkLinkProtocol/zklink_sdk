@@ -153,7 +153,7 @@ jobs:
       - name: build
         run: |
           cd bindings/dart
-          cargo install 'flutter_rust_bridge_codegen@2.0.0-dev.32'
+          cargo install 'flutter_rust_bridge_codegen@2.0.0'
           flutter pub get
           flutter_rust_bridge_codegen generate
           cd rust

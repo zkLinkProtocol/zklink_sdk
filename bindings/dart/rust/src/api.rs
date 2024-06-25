@@ -49,7 +49,7 @@ macro_rules! tx_default {
 
 #[frb(opaque)]
 pub struct ZkLinkSignature {
-    pub inner: InnerZkLinkSignature,
+    inner: InnerZkLinkSignature,
 }
 
 impl ZkLinkSignature {
@@ -66,7 +66,7 @@ impl ZkLinkSignature {
 
 #[frb(opaque)]
 pub struct ZkLinkSigner {
-    pub inner: InnerZkLinkSigner,
+    inner: InnerZkLinkSigner,
 }
 
 impl ZkLinkSigner {
@@ -108,7 +108,7 @@ impl ZkLinkSigner {
 
 #[frb(opaque)]
 pub struct Signer {
-    pub inner: InnerSigner,
+    inner: InnerSigner,
 }
 
 impl Signer {
@@ -250,7 +250,7 @@ impl Signer {
 
 #[frb(opaque)]
 pub struct ChangePubKey {
-    pub inner: InnerChangePubKey,
+    inner: InnerChangePubKey,
 }
 
 impl ChangePubKey {
@@ -323,7 +323,7 @@ impl ChangePubKey {
 
 #[frb(opaque)]
 pub struct Transfer {
-    pub inner: InnerTransfer,
+    inner: InnerTransfer,
 }
 
 impl Transfer {
@@ -370,7 +370,7 @@ impl Transfer {
 
 #[frb(opaque)]
 pub struct Withdraw {
-    pub inner: InnerWithdraw,
+    inner: InnerWithdraw,
 }
 
 impl Withdraw {
@@ -430,7 +430,7 @@ impl Withdraw {
 
 #[frb(opaque)]
 pub struct ForcedExit {
-    pub inner: InnerForcedExit,
+    inner: InnerForcedExit,
 }
 
 impl ForcedExit {
@@ -476,7 +476,7 @@ impl ForcedExit {
 
 #[frb(opaque)]
 pub struct ContractPrice {
-    pub inner: InnerContractPrice,
+    inner: InnerContractPrice,
 }
 
 impl ContractPrice {
@@ -493,7 +493,7 @@ impl ContractPrice {
 
 #[frb(opaque)]
 pub struct SpotPriceInfo {
-    pub inner: InnerSpotPriceInfo,
+    inner: InnerSpotPriceInfo,
 }
 
 impl SpotPriceInfo {
@@ -510,7 +510,7 @@ impl SpotPriceInfo {
 
 #[frb(opaque)]
 pub struct Order {
-    pub inner: InnerOrder,
+    inner: InnerOrder,
 }
 
 impl Order {
@@ -552,7 +552,7 @@ impl Order {
 
 #[frb(opaque)]
 pub struct OrderMatching {
-    pub inner: InnerOrderMatching,
+    inner: InnerOrderMatching,
 }
 
 impl OrderMatching {
@@ -593,7 +593,7 @@ impl OrderMatching {
 
 #[frb(opaque)]
 pub struct Contract {
-    pub inner: InnerContract,
+    inner: InnerContract,
 }
 
 impl Contract {
@@ -634,7 +634,7 @@ impl Contract {
 
 #[frb(opaque)]
 pub struct ContractMatching {
-    pub inner: InnerContractMatching,
+    inner: InnerContractMatching,
 }
 
 impl ContractMatching {
@@ -672,7 +672,7 @@ impl ContractMatching {
 
 #[frb(opaque)]
 pub struct AutoDeleveraging {
-    pub inner: InnerAutoDeleveraging,
+    inner: InnerAutoDeleveraging,
 }
 
 impl AutoDeleveraging {
@@ -715,7 +715,7 @@ impl AutoDeleveraging {
 
 #[frb(opaque)]
 pub struct Funding {
-    pub inner: InnerFunding,
+    inner: InnerFunding,
 }
 
 impl Funding {
@@ -750,7 +750,7 @@ impl Funding {
 
 #[frb(opaque)]
 pub struct Liquidation {
-    pub inner: InnerLiquidation,
+    inner: InnerLiquidation,
 }
 
 impl Liquidation {
@@ -787,7 +787,7 @@ impl Liquidation {
 
 #[frb(opaque)]
 pub struct FundingInfo {
-    pub inner: InnerFundingInfo,
+    inner: InnerFundingInfo,
 }
 
 impl FundingInfo {
@@ -805,7 +805,7 @@ impl FundingInfo {
 
 #[frb(opaque)]
 pub struct Parameter {
-    pub inner: InnerParameter,
+    inner: InnerParameter,
 }
 
 impl Parameter {
@@ -872,7 +872,7 @@ impl Parameter {
 
 #[frb(opaque)]
 pub struct UpdateGlobalVar {
-    pub inner: InnerUpdateGlobalVar,
+    inner: InnerUpdateGlobalVar,
 }
 
 impl UpdateGlobalVar {
@@ -902,7 +902,7 @@ impl UpdateGlobalVar {
 
 #[frb(opaque)]
 pub struct EthTxOption {
-    pub inner: InnerEthTxOption,
+    inner: InnerEthTxOption,
 }
 
 impl EthTxOption {
@@ -940,7 +940,7 @@ impl EthTxOption {
 
 #[frb(opaque)]
 pub struct Wallet {
-    pub inner: InnerWallet,
+    inner: InnerWallet,
 }
 
 impl Wallet {
