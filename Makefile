@@ -171,7 +171,7 @@ GO_FILES = 1_change_pubkey 2_withdraw 3_transfer 4_forced_exit 5_order_matching 
 RUN_GO_EXAMPLES = $(patsubst %, run_example_go_%, $(GO_FILES))
 run_example_go:  ${RUN_GO_EXAMPLES}
 
-PY_FILES = 1_change_pubkey 2_withdraw 5_order_matching
+PY_FILES = 1_change_pubkey 2_withdraw 3_transfer 5_order_matching
 RUN_PYTHON_EXAMPLES = $(patsubst %, run_example_python_%, $(PY_FILES))
 run_example_python: ${RUN_PYTHON_EXAMPLES}
 
@@ -179,6 +179,6 @@ JS_FILES = 1_change_pubkey 2_auto_deleveraging 3_update_global_var 4_contract_ma
 RUN_JS_EXAMPLES = $(patsubst %, run_example_js_%, $(JS_FILES))
 run_example_js: ${RUN_JS_EXAMPLES}
 
-CPP_FILES = 1_change_pubkey 2_withdraw 5_order_matching
+CPP_FILES = 1_change_pubkey 2_withdraw 3_transfer 5_order_matching
 RUN_CPP_EXAMPLES = $(patsubst %, run_example_cpp_%, $(CPP_FILES))
 run_example_cpp: ${RUN_CPP_EXAMPLES}

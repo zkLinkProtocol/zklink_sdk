@@ -12,14 +12,8 @@ int main() {
     ZkLinkAddress to_address = "0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9";
     TokenId l2_source_token = 17;
     TokenId l1_target_token = 17;
-    BigUint amount = "1234567899808787";
-    cout << "Original amount: " << amount << "\n";
-    amount = closest_packable_token_amount(amount);
-    cout << "Converted amount: " << amount << "\n";
-    BigUint fee = "10000567777";
-    cout << "Original fee: " << fee << "\n";
-    fee = closest_packable_fee_amount(fee);
-    cout << "Converted fee: " << fee << "\n";
+    BigUint amount = "1000000";
+    BigUint fee = "1000";
     Nonce nonce = 1;
     uint16_t withdraw_fee_ratio = 50;
     TimeStamp timestamp = 1000000000;

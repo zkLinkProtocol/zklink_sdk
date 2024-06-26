@@ -26,16 +26,24 @@ type SubmiterSignature struct {
 func HighLevelTransfer() {
     privateKey := "0xbe725250b123a39dab5b7579334d5888987c72a58f4508062545fe6e08ca94f4"
     address := sdk.ZkLinkAddress("0xAFAFf3aD1a0425D792432D9eCD1c3e26Ef2C42E9")
+    amount := *big.NewInt(1234567899808787)
+    fmt.Println("Original amount: ", amount)
+    amount = sdk.ClosestPackableTokenAmount(amount)
+    fmt.Println("Converted amount:s", amount)
+    fee := *big.NewInt(10000567777)
+    fmt.Println("Original fee: ", fee)
+    fee = sdk.ClosestPackableFeeAmount(fee)
+    fmt.Println("Converted fee: ", fee)
     builder := sdk.TransferBuilder {
-        sdk.AccountId(20),
-        address,
-        sdk.SubAccountId(1),
-        sdk.SubAccountId(1),
-        sdk.TokenId(18),
-        *big.NewInt(100000),
-        *big.NewInt(100),
-        sdk.Nonce(1),
-        sdk.TimeStamp(1693472232),
+        AccountId: sdk.AccountId(20),
+        ToAddress: address,
+        FromSubAccountId: sdk.SubAccountId(1),
+        ToSubAccountId: sdk.SubAccountId(1),
+        Token: sdk.TokenId(18),
+        Amount: amount,
+        Fee: fee,
+        Nonce: sdk.Nonce(1),
+        Timestamp: sdk.TimeStamp(1693472232),
     }
     tokenSymbol := "DAI"
     tx := sdk.NewTransfer(builder)
@@ -68,7 +76,7 @@ func HighLevelTransfer() {
         fmt.Println("error rpc req: %s", err)
         return
 	}
-	fmt.Println("ChangePubKey rpc request:",  string(JsonTx))
+	fmt.Println("Transfer rpc request:",  string(JsonTx))
 	// get the testnet url or main net url
 	zklinkUrl := sdk.ZklinkTestNetUrl()
 	response, err := http.Post(zklinkUrl, "application/json", bytes.NewBuffer(JsonTx))
