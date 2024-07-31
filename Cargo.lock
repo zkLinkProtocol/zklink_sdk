@@ -6338,6 +6338,7 @@ name = "zklink_sdk_interface"
 version = "2.0.0"
 dependencies = [
  "cfg-if",
+ "hex",
  "thiserror",
  "wasm-bindgen",
  "zklink_sdk_signers",
