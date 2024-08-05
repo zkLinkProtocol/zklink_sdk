@@ -1,5 +1,5 @@
 rust_input: crate::api
 dart_output: lib
 full_dep: true
-web: false
+web: true
 enable_lifetime: true
